@@ -1,0 +1,88 @@
+name: Deploy to Vercel Production
+
+# Bu workflow 3 şekilde tetiklenebilir:
+#   1) push:               main branch'e her push otomatik deploy eder
+#   2) workflow_dispatch:  GitHub → Actions → "Run workflow" butonu (manuel)
+#   3) repository_dispatch: curl ile uzaktan tetiklenebilir (event_type=deploy)
+#
+# Gerekli secrets (Settings → Secrets and variables → Actions):
+#   VERCEL_TOKEN        — https://vercel.com/account/tokens adresinden al
+#   VERCEL_ORG_ID       — team_n41lqYU6oRB9bwmiOJqQVWeS
+#   VERCEL_PROJECT_ID   — prj_hswMS3mIw5VZPJedp9azWbgBRXBm
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deploy target (production | preview)'
+        required: false
+        default: 'production'
+  repository_dispatch:
+    types: [deploy]
+
+concurrency:
+  group: vercel-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+jobs:
+  deploy:
+    name: Build & Deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci --no-audit --no-fund
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Determine target
+        id: target
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "preview" ]; then
+            echo "flag=" >> "$GITHUB_OUTPUT"
+            echo "label=preview" >> "$GITHUB_OUTPUT"
+          else
+            echo "flag=--prod" >> "$GITHUB_OUTPUT"
+            echo "label=production" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Pull Vercel env
+        run: |
+          if [ "${{ steps.target.outputs.label }}" = "preview" ]; then
+            vercel pull --yes --environment=preview --token=${{ secrets.VERCEL_TOKEN }}
+          else
+            vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+          fi
+
+      - name: Build project
+        run: vercel build ${{ steps.target.outputs.flag }} --token=${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to Vercel
+        id: deploy
+        run: |
+          URL=$(vercel deploy --prebuilt ${{ steps.target.outputs.flag }} --token=${{ secrets.VERCEL_TOKEN }})
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Deployed: $URL"
+
+      - name: Summary
+        run: |
+          echo "### Deploy sonucu (${{ steps.target.outputs.label }})" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "URL: ${{ steps.deploy.outputs.url }}" >> $GITHUB_STEP_SUMMARY
+          echo "Commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
