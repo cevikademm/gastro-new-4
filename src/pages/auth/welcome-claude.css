@@ -1,0 +1,1309 @@
+/* ==========================================================================
+   2MC Gastro — Claude Editorial Design
+   Warm cream palette · serif headlines · breathable editorial layout
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&display=swap');
+
+.welcome-claude {
+  /* ── 2MC × Claude palette ─────────────────────────
+     Brand identity (navy #1E3A5F + gastro orange #E85D26)
+     harmonized with Claude editorial warm surfaces.      */
+  --c-bg:            #faf9f5;   /* bone / ivory */
+  --c-bg-alt:        #f5f3eb;   /* card warm */
+  --c-bg-deep:       #eeebdf;   /* section break */
+  --c-ink:           #0F2440;   /* brand navy — ink */
+  --c-ink-soft:      #1E3A5F;   /* brand primary */
+  --c-muted:         #546E7A;   /* steel-500 */
+  --c-line:          #e8e6df;
+  --c-line-soft:     #f0eee6;
+
+  /* Accent — brand gastro orange (clay family) */
+  --c-clay:          #E85D26;   /* brand accent */
+  --c-clay-deep:     #C44A1A;   /* brand accent-dark */
+  --c-clay-soft:     #FF7A45;   /* brand accent-light */
+  --c-clay-wash:     #fbe7dc;
+
+  /* Supporting — navy + warm neutrals */
+  --c-navy:          #1E3A5F;
+  --c-navy-deep:     #0F2440;
+  --c-navy-light:    #2D5A8E;
+  --c-olive:         #7a7a5e;
+  --c-sage:          #8a9a7a;
+  --c-amber:         #c89a3c;
+  --c-sand:          #e9dfc7;
+
+  /* Sales / merchandising hues */
+  --c-deal:          #C62828;   /* urgency red */
+  --c-deal-wash:     #fde8e8;
+  --c-success:       #1b7f3a;
+  --c-success-wash:  #dcf3e2;
+
+  --c-shadow-sm:     0 1px 2px rgba(15,36,64,0.04), 0 1px 3px rgba(15,36,64,0.05);
+  --c-shadow-md:     0 4px 8px -2px rgba(15,36,64,0.06), 0 8px 16px -4px rgba(15,36,64,0.08);
+  --c-shadow-lg:     0 12px 24px -8px rgba(15,36,64,0.10), 0 24px 48px -16px rgba(15,36,64,0.12);
+  --c-shadow-clay:   0 8px 24px -8px rgba(232,93,38,0.30), 0 16px 40px -16px rgba(232,93,38,0.18);
+  --c-shadow-navy:   0 8px 24px -8px rgba(30,58,95,0.28), 0 16px 40px -16px rgba(30,58,95,0.15);
+
+  --c-serif: 'Fraunces', 'Source Serif Pro', 'Georgia', serif;
+  --c-sans:  'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  background: var(--c-bg) !important;
+  color: var(--c-ink) !important;
+  font-family: var(--c-sans) !important;
+  font-feature-settings: 'ss01', 'ss02', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+.welcome-claude * {
+  font-family: inherit;
+}
+
+.welcome-claude .font-serif,
+.welcome-claude .c-serif {
+  font-family: var(--c-serif) !important;
+  font-optical-sizing: auto;
+  letter-spacing: -0.022em;
+}
+
+.welcome-claude .font-mono,
+.welcome-claude [class*="font-mono"] {
+  font-family: 'Inter', ui-monospace, 'JetBrains Mono', monospace !important;
+}
+
+/* ── Editorial ink rule — typography overrides ───────── */
+.welcome-claude h1,
+.welcome-claude h2,
+.welcome-claude h3,
+.welcome-claude h4,
+.welcome-claude h5 {
+  font-family: var(--c-serif) !important;
+  color: var(--c-ink) !important;
+  font-optical-sizing: auto;
+  letter-spacing: -0.025em !important;
+  font-weight: 500 !important;
+}
+
+/* Kill dark-mode leftovers — turn any text-white/*, text-sky/blue into clay/ink */
+.welcome-claude .text-white,
+.welcome-claude [class*="text-white"]:not([class*="text-white/"]) {
+  color: var(--c-ink) !important;
+}
+.welcome-claude [class*="text-white/"] {
+  color: var(--c-muted) !important;
+}
+.welcome-claude [class*="text-sky-"],
+.welcome-claude [class*="text-blue-"],
+.welcome-claude [class*="text-indigo-"] {
+  color: var(--c-clay) !important;
+}
+.welcome-claude [class*="text-rose-"],
+.welcome-claude [class*="text-red-"] {
+  color: var(--c-clay-deep) !important;
+}
+.welcome-claude [class*="text-amber-"],
+.welcome-claude [class*="text-yellow-"] {
+  color: var(--c-amber) !important;
+}
+.welcome-claude [class*="text-emerald-"],
+.welcome-claude [class*="text-green-"],
+.welcome-claude [class*="text-teal-"] {
+  color: var(--c-sage) !important;
+}
+
+/* ── Noise texture — subtle paper feel ─────────────── */
+.c-paper {
+  background-color: var(--c-bg);
+  background-image:
+    radial-gradient(at 20% 10%, rgba(193,95,60,0.04) 0%, transparent 50%),
+    radial-gradient(at 80% 90%, rgba(122,122,94,0.04) 0%, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(233,223,199,0.3) 0%, transparent 60%);
+}
+
+.c-noise::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* ── Reveal helpers ─────────────────────────────── */
+@keyframes c-ink-stroke {
+  from { stroke-dashoffset: 100%; }
+  to   { stroke-dashoffset: 0; }
+}
+@keyframes c-kinetic {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50%      { transform: translateY(-6px) rotate(0.5deg); }
+}
+@keyframes c-pulse-clay {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(193,95,60,0.35); }
+  50%      { opacity: 0.92; box-shadow: 0 0 0 12px rgba(193,95,60,0); }
+}
+@keyframes c-grain-shift {
+  0%   { transform: translate(0, 0); }
+  25%  { transform: translate(-2px, 1px); }
+  50%  { transform: translate(1px, -2px); }
+  75%  { transform: translate(-1px, 2px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes c-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+@keyframes c-shine {
+  0%   { background-position: -200% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.c-kinetic    { animation: c-kinetic 4s ease-in-out infinite; }
+.c-pulse-clay { animation: c-pulse-clay 2.5s ease-in-out infinite; }
+.c-marquee    { animation: c-marquee 30s linear infinite; }
+
+/* ── Editorial button ─────────────────────────── */
+.c-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  font-family: var(--c-sans);
+  font-weight: 500;
+  font-size: 0.875rem;
+  letter-spacing: -0.01em;
+  border-radius: 9999px;
+  transition: transform 200ms cubic-bezier(0.22,1,0.36,1), background 200ms, color 200ms, box-shadow 200ms;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.c-btn-clay {
+  background: var(--c-clay);
+  color: #fff;
+  box-shadow: var(--c-shadow-sm);
+}
+.c-btn-clay:hover {
+  background: var(--c-clay-deep);
+  transform: translateY(-1px);
+  box-shadow: var(--c-shadow-clay);
+}
+.c-btn-ghost {
+  background: transparent;
+  color: var(--c-ink);
+  border: 1px solid var(--c-line);
+}
+.c-btn-ghost:hover {
+  background: var(--c-bg-alt);
+  border-color: var(--c-ink-soft);
+}
+
+/* ── Editorial card ─────────────────────────── */
+.c-card {
+  background: #ffffff;
+  border: 1px solid var(--c-line);
+  border-radius: 20px;
+  transition: transform 300ms cubic-bezier(0.22,1,0.36,1), box-shadow 300ms, border-color 300ms;
+}
+.c-card:hover {
+  transform: translateY(-2px);
+  border-color: var(--c-ink-soft);
+  box-shadow: var(--c-shadow-md);
+}
+.c-card-warm {
+  background: var(--c-bg-alt);
+  border-color: var(--c-line);
+}
+
+/* ── Dotted section divider ─────────────────────── */
+.c-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  color: var(--c-muted);
+  font-family: var(--c-sans);
+  font-size: 11px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+.c-divider::before,
+.c-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--c-line);
+}
+
+/* Underlined link in body */
+.c-link-under {
+  position: relative;
+  color: var(--c-clay);
+  font-weight: 500;
+  text-decoration: none;
+}
+.c-link-under::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 1px;
+  background: currentColor;
+  transform-origin: right;
+  transform: scaleX(1);
+  transition: transform 400ms cubic-bezier(0.22,1,0.36,1);
+}
+.c-link-under:hover::after {
+  transform-origin: left;
+  transform: scaleX(1);
+}
+
+/* ── Ticker / marquee ─────────────────────────── */
+.c-marquee-wrap {
+  display: flex;
+  gap: 3rem;
+  width: max-content;
+}
+
+/* ── Selection ─────────────────────────── */
+.welcome-claude ::selection {
+  background: var(--c-clay);
+  color: #fff;
+}
+
+/* Disable existing theme's border-radius stripping if loaded */
+.welcome-claude .rounded-2xl { border-radius: 20px !important; }
+.welcome-claude .rounded-3xl { border-radius: 28px !important; }
+.welcome-claude .rounded-xl  { border-radius: 16px !important; }
+.welcome-claude .rounded-full{ border-radius: 9999px !important; }
+
+/* Backgrounds with dark class get warm surface treatment */
+.welcome-claude .bg-\[\#1a0505\],
+.welcome-claude [class*="bg-[#1a0505]"] {
+  background: #ffffff !important;
+}
+.welcome-claude [class*="from-white/"],
+.welcome-claude [class*="to-white/"],
+.welcome-claude [class*="bg-white/"] {
+  background: var(--c-bg-alt) !important;
+}
+.welcome-claude [class*="border-white/"] {
+  border-color: var(--c-line) !important;
+}
+
+/* Gradient text for accent headlines */
+.welcome-claude .c-ink-accent {
+  background: linear-gradient(115deg, var(--c-clay) 0%, var(--c-clay-soft) 50%, var(--c-amber) 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Scroll indicator */
+@keyframes c-scroll-dot {
+  0%   { transform: translateY(-4px); opacity: 0; }
+  50%  { opacity: 1; }
+  100% { transform: translateY(12px); opacity: 0; }
+}
+.c-scroll-dot {
+  animation: c-scroll-dot 1.8s ease-in-out infinite;
+}
+
+/* Hover shine for product cards */
+.c-shine-hover {
+  position: relative;
+  overflow: hidden;
+}
+.c-shine-hover::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.5) 50%, transparent 70%);
+  background-size: 200% 100%;
+  opacity: 0;
+  transition: opacity 300ms;
+  pointer-events: none;
+}
+.c-shine-hover:hover::before {
+  opacity: 1;
+  animation: c-shine 1.2s cubic-bezier(0.22,1,0.36,1);
+}
+
+/* ==========================================================================
+   Section transitions — fill the gaps between sections so the scroll feels
+   continuous rather than stitched together. Each variant is a slim
+   connector that sits flush between two full sections.
+   ========================================================================== */
+
+/* Shared connector frame — always 64px tall, full bleed, no padding */
+.c-bridge {
+  position: relative;
+  height: 88px;
+  overflow: hidden;
+  pointer-events: none;
+}
+.c-bridge-tall { height: 140px; }
+.c-bridge-short { height: 56px; }
+
+/* 1 — Signature ornament: dotted rule + serif glyph + pulsing clay dot */
+.c-bridge-ornament {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.25rem;
+  background:
+    linear-gradient(180deg, var(--c-bg) 0%, var(--c-bg-alt) 50%, var(--c-bg) 100%);
+}
+.c-bridge-ornament::before,
+.c-bridge-ornament::after {
+  content: '';
+  flex: 1;
+  max-width: 320px;
+  height: 1px;
+  background-image: linear-gradient(to right, var(--c-line) 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+}
+.c-bridge-ornament .c-bridge-glyph {
+  font-family: var(--c-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 28px;
+  color: var(--c-clay);
+  letter-spacing: 0;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.c-bridge-ornament .c-bridge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--c-clay);
+  animation: c-pulse-clay 2.5s ease-in-out infinite;
+}
+
+/* 2 — Grain wash: animated warm wash with moving noise */
+.c-bridge-grain {
+  background:
+    radial-gradient(ellipse at 30% 50%, rgba(232,93,38,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 50%, rgba(30,58,95,0.08) 0%, transparent 60%),
+    var(--c-bg-alt);
+}
+.c-bridge-grain::before {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/%3E%3C/svg%3E");
+  opacity: 0.06;
+  mix-blend-mode: multiply;
+  animation: c-grain-shift 6s ease-in-out infinite;
+}
+
+/* 3 — Wave: slow-moving editorial stroke that links sections */
+.c-bridge-wave {
+  background: var(--c-bg);
+}
+.c-bridge-wave svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.c-bridge-wave .c-bridge-wave-path {
+  stroke: var(--c-clay);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  animation: c-bridge-draw 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes c-bridge-draw {
+  to { stroke-dashoffset: 0; }
+}
+
+/* 4 — Ticker bridge: thin ink rule + tiny moving tag */
+.c-bridge-tick {
+  background:
+    linear-gradient(180deg, transparent 0%, var(--c-bg-deep) 50%, transparent 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.c-bridge-tick .c-bridge-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 9999px;
+  background: var(--c-bg);
+  border: 1px solid var(--c-line);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  font-weight: 600;
+  box-shadow: var(--c-shadow-sm);
+}
+.c-bridge-tick .c-bridge-tag::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: var(--c-clay);
+  animation: c-pulse-clay 2s ease-in-out infinite;
+}
+
+/* ==========================================================================
+   Sales-focused merchandising atoms
+   ========================================================================== */
+
+/* Deal ribbon — top-right corner ribbon for bestseller cards */
+.c-deal-ribbon {
+  position: absolute;
+  top: 12px;
+  right: -2px;
+  z-index: 2;
+  background: var(--c-deal);
+  color: #fff;
+  font-family: var(--c-sans);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 10px 4px 14px;
+  border-radius: 4px 0 0 4px;
+  box-shadow: 0 4px 12px -4px rgba(198,40,40,0.4);
+}
+.c-deal-ribbon::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  right: 0;
+  border: 4px solid transparent;
+  border-top-color: rgba(138,24,24,0.7);
+  border-right-color: rgba(138,24,24,0.7);
+}
+
+/* Bestseller pill — used in grid headers */
+.c-pill-best {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: var(--c-clay-wash);
+  color: var(--c-clay-deep);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.c-pill-deal {
+  background: var(--c-deal-wash);
+  color: var(--c-deal);
+}
+.c-pill-stock {
+  background: var(--c-success-wash);
+  color: var(--c-success);
+}
+.c-pill-navy {
+  background: rgba(30,58,95,0.08);
+  color: var(--c-navy);
+}
+
+/* Urgency note (kargo / stok) */
+.c-urgency {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--c-deal);
+  font-weight: 600;
+}
+.c-urgency::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: c-pulse-clay 1.6s ease-in-out infinite;
+}
+
+/* Price — strikethrough + accent */
+.c-price-wrap {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--c-sans);
+}
+.c-price-now {
+  font-family: var(--c-serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--c-ink);
+  letter-spacing: -0.02em;
+}
+.c-price-was {
+  font-size: 13px;
+  color: var(--c-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--c-deal);
+}
+.c-price-off {
+  background: var(--c-deal);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+/* Sticky bottom CTA bar — mobile shopping promo */
+.c-sticky-promo {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  z-index: 45;
+  background: var(--c-navy-deep);
+  color: #fff;
+  border-radius: 16px;
+  padding: 10px 12px 10px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: var(--c-shadow-lg);
+  border: 1px solid rgba(255,255,255,0.08);
+}
+.c-sticky-promo .c-sticky-promo-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+.c-sticky-promo .c-sticky-promo-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 9999px;
+  background: var(--c-clay-soft);
+  flex-shrink: 0;
+  animation: c-pulse-clay 2s ease-in-out infinite;
+}
+.c-sticky-promo .c-sticky-promo-text {
+  flex: 1;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.25;
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.c-sticky-promo .c-sticky-promo-text strong {
+  color: var(--c-clay-soft);
+  font-weight: 600;
+}
+.c-sticky-promo .c-sticky-promo-cta {
+  flex-shrink: 0;
+  background: var(--c-clay);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: background 180ms;
+}
+.c-sticky-promo .c-sticky-promo-cta:hover {
+  background: var(--c-clay-deep);
+}
+
+/* Count-up/urgency strip */
+.c-deal-strip {
+  background: linear-gradient(90deg, var(--c-deal) 0%, var(--c-clay) 100%);
+  color: #fff;
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 10px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  overflow: hidden;
+  position: relative;
+}
+.c-deal-strip::before,
+.c-deal-strip::after {
+  content: '⟡';
+  opacity: 0.5;
+  font-size: 14px;
+}
+@media (min-width: 640px) {
+  .c-deal-strip { gap: 32px; }
+}
+
+/* Bestseller rank badge — big italic serif numeral */
+.c-rank {
+  font-family: var(--c-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: 64px;
+  line-height: 0.85;
+  color: var(--c-clay);
+  opacity: 0.18;
+  letter-spacing: -0.04em;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Product card (merchant) — bridges editorial + retail */
+.c-merch-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid var(--c-line);
+  border-radius: 20px;
+  padding: 0;
+  overflow: hidden;
+  transition: transform 300ms cubic-bezier(0.22,1,0.36,1),
+              box-shadow 300ms, border-color 300ms;
+  display: flex;
+  flex-direction: column;
+}
+.c-merch-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--c-clay);
+  box-shadow: var(--c-shadow-lg);
+}
+.c-merch-card .c-merch-thumb {
+  aspect-ratio: 4 / 3;
+  background: var(--c-bg-alt);
+  overflow: hidden;
+  position: relative;
+}
+.c-merch-card .c-merch-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 600ms cubic-bezier(0.22,1,0.36,1);
+}
+.c-merch-card:hover .c-merch-thumb img {
+  transform: scale(1.06);
+}
+.c-merch-card .c-merch-body {
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+.c-merch-card .c-merch-title {
+  font-family: var(--c-serif);
+  font-size: 16px;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  color: var(--c-ink);
+  font-weight: 500;
+  min-height: 2.6em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.c-merch-card .c-merch-brand {
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  font-weight: 600;
+}
+
+/* Marquee strip with glyph separators */
+.c-ticker-bar {
+  display: flex;
+  align-items: center;
+  gap: 2.5rem;
+  width: max-content;
+  font-family: var(--c-serif);
+  font-style: italic;
+  font-size: 22px;
+  color: var(--c-bg-alt);
+}
+.c-ticker-bar > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 2.5rem;
+}
+.c-ticker-bar .c-ticker-sep {
+  color: var(--c-clay);
+  font-style: normal;
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   Product showcase slider — horizontal rail under the hero
+   ========================================================================== */
+.c-rail {
+  position: relative;
+  background: var(--c-bg-alt);
+  border-top: 1px solid var(--c-line);
+  border-bottom: 1px solid var(--c-line);
+  overflow: hidden;
+}
+.c-rail-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 28px 24px 18px;
+}
+.c-rail-head h2 {
+  font-family: var(--c-serif);
+  font-weight: 500;
+  font-size: clamp(1.4rem, 2.3vw, 2rem);
+  line-height: 1.1;
+  letter-spacing: -0.022em;
+  color: var(--c-ink);
+  margin: 6px 0 0;
+}
+.c-rail-head h2 em {
+  font-style: italic;
+  color: var(--c-clay);
+}
+.c-rail-nav {
+  display: flex;
+  gap: 8px;
+}
+.c-rail-nav button {
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  border: 1px solid var(--c-line);
+  background: #fff;
+  color: var(--c-ink);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 180ms, background 180ms, color 180ms;
+  cursor: pointer;
+}
+.c-rail-nav button:hover {
+  border-color: var(--c-clay);
+  background: var(--c-clay);
+  color: #fff;
+}
+
+.c-rail-viewport {
+  position: relative;
+  padding: 8px 0 32px;
+}
+.c-rail-viewport::before,
+.c-rail-viewport::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  width: 120px;
+  z-index: 2;
+  pointer-events: none;
+}
+.c-rail-viewport::before {
+  left: 0;
+  background: linear-gradient(to right, var(--c-bg-alt), transparent);
+}
+.c-rail-viewport::after {
+  right: 0;
+  background: linear-gradient(to left, var(--c-bg-alt), transparent);
+}
+
+.c-rail-track {
+  display: flex;
+  gap: 16px;
+  padding: 0 24px;
+  width: max-content;
+}
+
+.c-rail-card {
+  flex: 0 0 auto;
+  width: 240px;
+  background: #fff;
+  border: 1px solid var(--c-line);
+  border-radius: 18px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  text-align: left;
+  transition: transform 240ms cubic-bezier(0.22,1,0.36,1),
+              border-color 200ms, box-shadow 200ms;
+  cursor: pointer;
+  overflow: hidden;
+  position: relative;
+}
+.c-rail-card:hover {
+  transform: translateY(-3px);
+  border-color: var(--c-clay);
+  box-shadow: var(--c-shadow-md);
+}
+.c-rail-card .c-rail-thumb {
+  aspect-ratio: 1 / 1;
+  background: linear-gradient(135deg, var(--c-bg-alt), #fff);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px;
+  position: relative;
+}
+.c-rail-card .c-rail-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transition: transform 500ms cubic-bezier(0.22,1,0.36,1);
+}
+.c-rail-card:hover .c-rail-thumb img { transform: scale(1.05); }
+.c-rail-card .c-rail-family {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--c-muted);
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: blur(4px);
+  padding: 3px 8px;
+  border-radius: 9999px;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.c-rail-card .c-rail-title {
+  font-family: var(--c-serif);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.3;
+  color: var(--c-ink);
+  letter-spacing: -0.015em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 2.6em;
+}
+.c-rail-card .c-rail-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+.c-rail-card .c-rail-price {
+  font-family: var(--c-serif);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--c-clay);
+  letter-spacing: -0.01em;
+}
+.c-rail-card .c-rail-go {
+  width: 28px;
+  height: 28px;
+  border-radius: 9999px;
+  background: var(--c-bg-alt);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-muted);
+  transition: background 200ms, color 200ms;
+}
+.c-rail-card:hover .c-rail-go {
+  background: var(--c-clay);
+  color: #fff;
+}
+
+/* Trust row — compact warm chip set */
+.c-trust-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  background: var(--c-bg-alt);
+  border: 1px solid var(--c-line);
+  border-radius: 9999px;
+  font-size: 12px;
+  color: var(--c-ink-soft);
+  font-weight: 500;
+}
+.c-trust-chip svg {
+  color: var(--c-clay);
+  flex-shrink: 0;
+}
+
+/* ==========================================================================
+   Featured bestseller — rotating hero product card (sales-focused)
+   ========================================================================== */
+.c-featured {
+  position: relative;
+  background: linear-gradient(160deg, #ffffff 0%, var(--c-bg-alt) 65%, var(--c-clay-wash) 130%);
+  border: 1px solid var(--c-line);
+  border-radius: 28px;
+  padding: 22px;
+  box-shadow: var(--c-shadow-clay);
+  overflow: hidden;
+}
+.c-featured::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(var(--c-ink) 1px, transparent 1px),
+    linear-gradient(90deg, var(--c-ink) 1px, transparent 1px);
+  background-size: 32px 32px;
+  opacity: 0.035;
+  pointer-events: none;
+}
+.c-featured-ribbon {
+  position: absolute;
+  top: 18px;
+  right: -42px;
+  transform: rotate(32deg);
+  background: linear-gradient(90deg, var(--c-clay) 0%, var(--c-clay-deep) 100%);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  padding: 6px 48px;
+  text-transform: uppercase;
+  box-shadow: 0 6px 18px rgba(232, 93, 38, 0.35);
+  z-index: 3;
+}
+.c-featured-eyebrow {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.26em;
+  color: var(--c-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.c-featured-eyebrow::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: var(--c-clay);
+}
+.c-featured-stage {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: 22px;
+  background: radial-gradient(circle at 50% 40%, #ffffff 0%, var(--c-bg-alt) 70%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 26px;
+  margin: 10px 0 16px;
+  overflow: hidden;
+  border: 1px solid var(--c-line);
+}
+.c-featured-stage::after {
+  content: '';
+  position: absolute;
+  inset: 18px;
+  border: 1px dashed color-mix(in oklab, var(--c-clay) 35%, transparent);
+  border-radius: 50%;
+  opacity: 0.45;
+  animation: c-orbit 28s linear infinite;
+}
+@keyframes c-orbit { to { transform: rotate(360deg); } }
+.c-featured-stage img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 16px 28px rgba(15, 36, 64, 0.18));
+  transition: transform 700ms cubic-bezier(0.22,1,0.36,1);
+}
+.c-featured:hover .c-featured-stage img { transform: scale(1.05) rotate(-1.5deg); }
+.c-featured-family {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(6px);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  color: var(--c-ink);
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  border: 1px solid var(--c-line);
+  z-index: 2;
+  max-width: 70%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.c-featured-stockdot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-success);
+  box-shadow: 0 0 0 4px color-mix(in oklab, var(--c-success) 25%, transparent);
+}
+.c-featured-name {
+  font-family: var(--c-serif);
+  font-weight: 500;
+  font-size: clamp(1.1rem, 1.5vw, 1.35rem);
+  line-height: 1.25;
+  letter-spacing: -0.018em;
+  color: var(--c-ink);
+  min-height: 2.4em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.c-featured-pricerow {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-top: 10px;
+}
+.c-featured-pricenow {
+  font-family: var(--c-serif);
+  font-weight: 600;
+  font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+  letter-spacing: -0.022em;
+  color: var(--c-clay);
+  line-height: 1;
+}
+.c-featured-pricewas {
+  font-size: 13px;
+  text-decoration: line-through;
+  color: var(--c-muted);
+  font-weight: 500;
+}
+.c-featured-off {
+  background: var(--c-ink);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+.c-featured-trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+.c-featured-trust span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--c-ink-soft);
+  background: rgba(255,255,255,0.7);
+  border: 1px solid var(--c-line);
+  padding: 5px 10px;
+  border-radius: 9999px;
+}
+.c-featured-trust svg { color: var(--c-clay); }
+.c-featured-cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  background: var(--c-ink);
+  color: #fff;
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 200ms, transform 180ms;
+  border: none;
+  width: 100%;
+}
+.c-featured-cta:hover {
+  background: var(--c-clay);
+  transform: translateY(-1px);
+}
+.c-featured-dots {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 6px;
+  z-index: 2;
+}
+.c-featured-dots button {
+  width: 18px;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--c-line);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: background 200ms, width 200ms;
+}
+.c-featured-dots button[data-active="true"] {
+  width: 28px;
+  background: var(--c-clay);
+}
+
+/* ==========================================================================
+   Trust bar — value props strip (stok / kargo / garanti / fiyat)
+   ========================================================================== */
+.c-trustbar {
+  background: #fff;
+  border-top: 1px solid var(--c-line);
+  border-bottom: 1px solid var(--c-line);
+}
+.c-trustbar-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0;
+}
+@media (min-width: 768px) {
+  .c-trustbar-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.c-trustbar-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 22px;
+  border-right: 1px solid var(--c-line);
+  border-bottom: 1px solid var(--c-line);
+}
+@media (min-width: 768px) {
+  .c-trustbar-item { border-bottom: 0; }
+  .c-trustbar-item:last-child { border-right: 0; }
+}
+.c-trustbar-item:nth-child(2n) { border-right: 0; }
+@media (min-width: 768px) {
+  .c-trustbar-item:nth-child(2n) { border-right: 1px solid var(--c-line); }
+  .c-trustbar-item:last-child { border-right: 0; }
+}
+.c-trustbar-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: var(--c-clay-wash);
+  color: var(--c-clay);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.c-trustbar-text .c-trustbar-head {
+  font-family: var(--c-serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-ink);
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.c-trustbar-text .c-trustbar-sub {
+  font-size: 11px;
+  color: var(--c-muted);
+  margin-top: 2px;
+  letter-spacing: 0.04em;
+}
+
+/* ==========================================================================
+   Hero value strip — price range + brand count inline
+   ========================================================================== */
+.c-hero-stripe {
+  margin-top: 28px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 18px;
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--c-line);
+  border-radius: 14px;
+}
+.c-hero-stripe-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--c-ink-soft);
+}
+.c-hero-stripe-item strong {
+  font-family: var(--c-serif);
+  color: var(--c-ink);
+  font-weight: 600;
+  font-size: 14px;
+}
+.c-hero-stripe-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--c-line);
+}
+
+/* ==========================================================================
+   CARD SAFETY — user asked cards to stay fixed.
+   Restore original text colors inside dark (#020817) card surfaces.
+   ========================================================================== */
+
+.welcome-claude [class*="bg-[#020817]"] .text-white:not([class*="text-white/"]) { color: #ffffff !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/25   { color: rgba(255,255,255,0.25) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/30   { color: rgba(255,255,255,0.30) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/40   { color: rgba(255,255,255,0.40) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/45   { color: rgba(255,255,255,0.45) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/50   { color: rgba(255,255,255,0.50) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/60   { color: rgba(255,255,255,0.60) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/70   { color: rgba(255,255,255,0.70) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/80   { color: rgba(255,255,255,0.80) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-white\/85   { color: rgba(255,255,255,0.85) !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-sky-300     { color: #7dd3fc !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-sky-400     { color: #38bdf8 !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-emerald-300 { color: #6ee7b7 !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-emerald-400 { color: #34d399 !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-amber-300   { color: #fcd34d !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-amber-400   { color: #fbbf24 !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-rose-300    { color: #fda4af !important; }
+.welcome-claude [class*="bg-[#020817]"] .text-fuchsia-300 { color: #f0abfc !important; }
+
+/* Bestseller WHITE cards keep their original red price + navy hover + gray meta */
+.welcome-claude .group.bg-white .text-\[\#222\],
+.welcome-claude .group.bg-white .text-\[rgb\(40\,120\,191\)\] { color: inherit !important; }
+
+/* Preserve rounded corners of merchant cards exactly as they are */
+.welcome-claude .group.bg-white.rounded-xl { border-radius: 12px !important; }
+
+/* Restore dashboard buttons / nav labels inside dark cards */
+.welcome-claude [class*="bg-[#020817]"] h4 { color: #ffffff !important; font-family: inherit !important; letter-spacing: -0.01em !important; }
+.welcome-claude [class*="bg-[#020817]"] h3 { color: #ffffff !important; }

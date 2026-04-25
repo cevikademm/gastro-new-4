@@ -1,0 +1,351 @@
+/* 2MC Gastro — Professional B2B Kitchen Equipment Brand Color System
+ * Conveys: Trust, reliability, clean professionalism, industrial strength, premium quality
+ */
+
+:root {
+  /* PRIMARY: Professional deep blue — trust, expertise, authority */
+  --brand-primary: #1E3A5F;        /* Deep navy blue — institutional trust */
+  --brand-primary-light: #2D5A8E;  /* Medium navy — hover states */
+  --brand-primary-lighter: #3D7ABE; /* Light navy — focus states */
+  --brand-primary-dark: #0F2440;   /* Very dark navy — pressed states */
+
+  /* ACCENT: Warm gastro orange — energy, action, kitchen warmth */
+  --brand-accent: #E85D26;         /* Gastro orange — CTAs, highlights, fire */
+  --brand-accent-light: #FF7A45;   /* Bright orange — hover states */
+  --brand-accent-lighter: #FFA566; /* Light orange — disabled/secondary states */
+  --brand-accent-dark: #C44A1A;    /* Dark orange — pressed states */
+
+  /* NEUTRALS: Stainless steel palette — clean, hygienic, professional */
+  --steel-50: #F8FAFB;             /* Almost white — light surfaces */
+  --steel-100: #EEF2F6;            /* Very light — card backgrounds */
+  --steel-200: #D5DCE4;            /* Light gray — borders, dividers */
+  --steel-300: #B0BEC5;            /* Medium light — subtle elements */
+  --steel-400: #78909C;            /* Medium gray — secondary text */
+  --steel-500: #546E7A;            /* Gray — body text */
+  --steel-600: #37474F;            /* Dark gray — headings */
+  --steel-700: #263238;            /* Darker gray — emphasis */
+  --steel-800: #1A2328;            /* Very dark — footer/headers */
+  --steel-900: #0D1418;            /* Nearly black — highest contrast */
+
+  /* FUNCTIONAL COLORS */
+  --success: #22C55E;              /* Success states — green */
+  --success-light: #86EFAC;        /* Success light — backgrounds */
+  --error: #EF4444;                /* Error states — red */
+  --error-light: #FCA5A5;          /* Error light — backgrounds */
+  --warning: #F59E0B;              /* Warning states — amber */
+  --warning-light: #FCD34D;        /* Warning light — backgrounds */
+  --info: #3B82F6;                 /* Info states — blue */
+  --info-light: #93C5FD;           /* Info light — backgrounds */
+
+  /* GRADIENTS — Brand identity */
+  --gradient-brand: linear-gradient(135deg, var(--brand-primary), var(--brand-primary-light));
+  --gradient-brand-dark: linear-gradient(135deg, var(--brand-primary-dark), var(--brand-primary));
+  --gradient-accent: linear-gradient(135deg, var(--brand-accent), var(--brand-accent-light));
+  --gradient-hero: linear-gradient(135deg, var(--brand-primary-dark), var(--brand-primary-light));
+  --gradient-steel: linear-gradient(135deg, var(--steel-600), var(--steel-700));
+
+  /* SEMANTIC ALIASES — For component development */
+  /* Buttons & CTAs */
+  --button-primary-bg: var(--brand-primary);
+  --button-primary-bg-hover: var(--brand-primary-light);
+  --button-primary-bg-active: var(--brand-primary-dark);
+  --button-primary-text: #FFFFFF;
+
+  --button-accent-bg: var(--brand-accent);
+  --button-accent-bg-hover: var(--brand-accent-light);
+  --button-accent-bg-active: var(--brand-accent-dark);
+  --button-accent-text: #FFFFFF;
+
+  --button-secondary-bg: var(--steel-100);
+  --button-secondary-bg-hover: var(--steel-200);
+  --button-secondary-bg-active: var(--steel-300);
+  --button-secondary-text: var(--steel-700);
+
+  /* Surfaces & Backgrounds */
+  --surface-primary: #FFFFFF;
+  --surface-secondary: var(--steel-50);
+  --surface-tertiary: var(--steel-100);
+  --surface-dark: var(--steel-800);
+
+  /* Text Colors */
+  --text-primary: var(--steel-900);
+  --text-secondary: var(--steel-700);
+  --text-tertiary: var(--steel-500);
+  --text-muted: var(--steel-400);
+  --text-inverted: #FFFFFF;
+
+  /* Borders & Dividers */
+  --border-color: var(--steel-200);
+  --border-color-light: var(--steel-100);
+  --border-color-dark: var(--steel-400);
+  --border-color-accent: var(--brand-primary);
+
+  /* Focus & Interactive States */
+  --focus-ring: var(--brand-primary-lighter);
+  --focus-ring-offset: 2px;
+  --focus-ring-width: 2px;
+
+  /* Component States */
+  --state-hover: rgba(0, 0, 0, 0.04);
+  --state-active: rgba(0, 0, 0, 0.08);
+  --state-disabled: rgba(0, 0, 0, 0.12);
+}
+
+/* DARK MODE OVERRIDES (for future dark theme support) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-primary: var(--steel-900);
+    --surface-secondary: var(--steel-800);
+    --surface-tertiary: var(--steel-700);
+    --surface-dark: var(--steel-900);
+
+    --text-primary: #FFFFFF;
+    --text-secondary: var(--steel-300);
+    --text-tertiary: var(--steel-400);
+    --text-muted: var(--steel-500);
+    --text-inverted: var(--steel-900);
+
+    --border-color: var(--steel-700);
+    --border-color-light: var(--steel-600);
+    --border-color-dark: var(--steel-500);
+
+    --state-hover: rgba(255, 255, 255, 0.08);
+    --state-active: rgba(255, 255, 255, 0.12);
+    --state-disabled: rgba(255, 255, 255, 0.16);
+  }
+}
+
+/* UTILITY CLASSES — Common patterns */
+.btn-primary {
+  background-color: var(--button-primary-bg);
+  color: var(--button-primary-text);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.btn-primary:hover {
+  background-color: var(--button-primary-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30, 58, 95, 0.15);
+}
+
+.btn-primary:active,
+.btn-primary.active {
+  background-color: var(--button-primary-bg-active);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(30, 58, 95, 0.1);
+}
+
+.btn-primary:disabled,
+.btn-primary:disabled:hover {
+  background-color: var(--steel-300);
+  color: var(--steel-500);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-accent {
+  background-color: var(--button-accent-bg);
+  color: var(--button-accent-text);
+  border: none;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.btn-accent:hover {
+  background-color: var(--button-accent-bg-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(232, 93, 38, 0.15);
+}
+
+.btn-accent:active,
+.btn-accent.active {
+  background-color: var(--button-accent-bg-active);
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(232, 93, 38, 0.1);
+}
+
+.btn-accent:disabled,
+.btn-accent:disabled:hover {
+  background-color: var(--steel-300);
+  color: var(--steel-500);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  background-color: var(--button-secondary-bg);
+  color: var(--button-secondary-text);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 150ms ease-out;
+}
+
+.btn-secondary:hover {
+  background-color: var(--button-secondary-bg-hover);
+  border-color: var(--border-color-dark);
+}
+
+.btn-secondary:active,
+.btn-secondary.active {
+  background-color: var(--button-secondary-bg-active);
+  border-color: var(--border-color-dark);
+}
+
+/* Card — standard elevation pattern */
+.card {
+  background-color: var(--surface-primary);
+  border: 1px solid var(--border-color-light);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: all 150ms ease-out;
+}
+
+.card:hover {
+  border-color: var(--border-color);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card.elevated {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+/* Focus ring — accessible focus states */
+.focus-ring:focus {
+  outline: none;
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--surface-primary),
+              0 0 0 calc(var(--focus-ring-width) + var(--focus-ring-offset)) var(--focus-ring);
+}
+
+/* Links — brand primary color with accent on hover */
+a {
+  color: var(--brand-primary);
+  text-decoration: none;
+  transition: color 150ms ease-out;
+}
+
+a:hover {
+  color: var(--brand-accent);
+  text-decoration: underline;
+}
+
+a:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Badge — small status indicator */
+.badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-primary {
+  background-color: var(--brand-primary);
+  color: white;
+}
+
+.badge-accent {
+  background-color: var(--brand-accent);
+  color: white;
+}
+
+.badge-success {
+  background-color: var(--success);
+  color: white;
+}
+
+.badge-error {
+  background-color: var(--error);
+  color: white;
+}
+
+.badge-warning {
+  background-color: var(--warning);
+  color: white;
+}
+
+.badge-info {
+  background-color: var(--info);
+  color: white;
+}
+
+/* Input/Form focus ring */
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
+  border-color: var(--focus-ring) !important;
+  box-shadow: 0 0 0 3px rgba(61, 122, 190, 0.1);
+}
+
+/* Divider — light border for content separation */
+.divider {
+  border-color: var(--border-color);
+}
+
+/* Gradient backgrounds for hero sections */
+.gradient-brand-hero {
+  background: var(--gradient-hero);
+}
+
+.gradient-brand {
+  background: var(--gradient-brand);
+}
+
+.gradient-accent {
+  background: var(--gradient-accent);
+}
+
+/* Spinner/Loading indicator — accent color */
+.spinner {
+  border: 2px solid var(--steel-200);
+  border-top-color: var(--brand-accent);
+}
+
+/* Toast notification backgrounds */
+.toast-success {
+  background-color: var(--success-light);
+  color: var(--success);
+  border: 1px solid var(--success);
+}
+
+.toast-error {
+  background-color: var(--error-light);
+  color: var(--error);
+  border: 1px solid var(--error);
+}
+
+.toast-warning {
+  background-color: var(--warning-light);
+  color: var(--warning);
+  border: 1px solid var(--warning);
+}
+
+.toast-info {
+  background-color: var(--info-light);
+  color: var(--info);
+  border: 1px solid var(--info);
+}

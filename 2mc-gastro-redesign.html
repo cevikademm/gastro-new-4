@@ -1,0 +1,2417 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>2MC Gastro | Profesyonel Mutfak Çözümleri · 5.265+ Ürün</title>
+<meta name="description" content="Avrupa'nın gastro ekipman platformu. 5.265+ ürün, 15 marka, 15 ülke. Ücretsiz mutfak planlama + 3D tasarım. 24-48 saat teslimat." />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+<style>
+  /* ============ DESIGN TOKENS ============ */
+  :root {
+    --c-clay: #E85D26;
+    --c-clay-deep: #C44A1A;
+    --c-clay-soft: #FF7A45;
+    --c-clay-wash: #FFF3EC;
+    --c-navy: #1E3A5F;
+    --c-navy-deep: #0B1A2E;
+    --c-navy-light: #2D5A8E;
+    --c-amber: #C89A3C;
+    --c-amber-soft: #F0C14B;
+    --c-ink: #141413;
+    --c-ink-soft: #2a2927;
+    --c-muted: #6b6964;
+    --c-line: #e8e6dc;
+    --c-bg: #ffffff;
+    --c-bg-alt: #faf9f5;
+    --c-bg-deep: #f0ede4;
+    --c-success: #2e7d32;
+    --c-danger: #d32f2f;
+    --c-gold: #C89A3C;
+    --c-shadow: 0 4px 24px rgba(11,26,46,0.08);
+    --c-shadow-xl: 0 24px 64px rgba(11,26,46,0.16);
+    --radius: 16px;
+    --radius-lg: 24px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    color: var(--c-ink);
+    background: var(--c-bg);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+  .serif { font-family: 'Playfair Display', 'Georgia', serif; }
+  img { max-width: 100%; display: block; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; }
+  em { font-style: italic; font-family: 'Playfair Display', serif; }
+
+  .container { max-width: 1280px; margin: 0 auto; padding: 0 24px; }
+
+  /* ============ TOP ANNOUNCEMENT BAR ============ */
+  .top-bar {
+    background: linear-gradient(90deg, var(--c-navy-deep) 0%, var(--c-navy) 50%, var(--c-navy-deep) 100%);
+    color: white;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+  }
+  .marquee {
+    display: flex;
+    gap: 64px;
+    animation: scroll 30s linear infinite;
+    white-space: nowrap;
+    width: max-content;
+  }
+  .marquee span { display: inline-flex; align-items: center; gap: 10px; }
+  .marquee svg { width: 16px; height: 16px; color: var(--c-clay-soft); }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ============ NAVIGATION ============ */
+  .nav {
+    background: rgba(255,255,255,0.92);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--c-line);
+    padding: 18px 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    transition: all .3s ease;
+  }
+  .nav-inner { display: flex; align-items: center; gap: 32px; }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: -0.02em;
+    color: var(--c-ink);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .logo-badge {
+    width: 40px; height: 40px;
+    background: linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 18px; font-weight: 800;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 14px rgba(232,93,38,0.35);
+  }
+  .nav-links { display: flex; gap: 28px; margin-left: 24px; flex: 1; }
+  .nav-links a {
+    font-size: 14px; font-weight: 500; color: var(--c-ink-soft);
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 0; position: relative;
+    transition: color .2s;
+  }
+  .nav-links a::after {
+    content:''; position:absolute; left:0; right:0; bottom:-2px; height:2px;
+    background: var(--c-clay); transform: scaleX(0); transform-origin: left;
+    transition: transform .3s cubic-bezier(.2,.8,.2,1);
+  }
+  .nav-links a:hover { color: var(--c-clay); }
+  .nav-links a:hover::after { transform: scaleX(1); }
+  .nav-actions { display: flex; align-items: center; gap: 12px; }
+  .icon-btn {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: var(--c-bg-alt); border: 1px solid var(--c-line);
+    display: flex; align-items: center; justify-content: center;
+    transition: all .2s; position: relative;
+  }
+  .icon-btn:hover { background: var(--c-clay-wash); border-color: var(--c-clay); color: var(--c-clay); }
+  .icon-btn .badge {
+    position: absolute; top: -4px; right: -4px;
+    background: var(--c-clay); color: white;
+    font-size: 10px; font-weight: 700; min-width: 18px; height: 18px;
+    border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    padding: 0 5px; border: 2px solid white;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%);
+    color: white; padding: 11px 22px; border-radius: 999px;
+    font-weight: 600; font-size: 14px;
+    display: inline-flex; align-items: center; gap: 6px;
+    box-shadow: 0 4px 14px rgba(232,93,38,0.3);
+    transition: all .25s cubic-bezier(.2,.8,.2,1);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(232,93,38,0.45); }
+  .btn-ghost {
+    border: 1.5px solid var(--c-line); color: var(--c-ink);
+    padding: 11px 22px; border-radius: 999px;
+    font-weight: 600; font-size: 14px;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all .2s;
+  }
+  .btn-ghost:hover { border-color: var(--c-ink); background: var(--c-bg-alt); }
+  .lang-chip {
+    padding: 8px 12px; border-radius: 8px; background: var(--c-bg-alt);
+    border: 1px solid var(--c-line); font-size: 13px; font-weight: 600;
+    display: inline-flex; gap: 6px; align-items: center;
+  }
+  .lang-chip:hover { border-color: var(--c-clay); }
+
+  /* ============ HERO ============ */
+  .hero {
+    position: relative;
+    min-height: 92vh;
+    overflow: hidden;
+    background: var(--c-bg-alt);
+    padding: 80px 0 100px;
+  }
+  .hero-orb {
+    position: absolute; width: 600px; height: 600px; border-radius: 50%;
+    filter: blur(100px); opacity: .45; pointer-events: none;
+    animation: float 12s ease-in-out infinite;
+  }
+  .hero-orb.o1 { top: -200px; right: -150px;
+    background: radial-gradient(circle, var(--c-clay-soft) 0%, transparent 70%); }
+  .hero-orb.o2 { bottom: -250px; left: -200px;
+    background: radial-gradient(circle, var(--c-navy-light) 0%, transparent 70%);
+    animation-delay: -3s; opacity: .28; }
+  .hero-orb.o3 { top: 40%; left: 55%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, var(--c-amber-soft) 0%, transparent 70%);
+    animation-delay: -6s; opacity: .2; }
+  @keyframes float {
+    0%, 100% { transform: translate(0,0) scale(1); }
+    50% { transform: translate(30px, -40px) scale(1.08); }
+  }
+
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 64px; align-items: center; position: relative; z-index: 2; }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    background: var(--c-clay-wash); color: var(--c-clay-deep);
+    font-size: 12px; font-weight: 700;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    margin-bottom: 24px;
+    border: 1px solid rgba(232,93,38,0.2);
+  }
+  .hero-eyebrow .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--c-clay); animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(232,93,38,0.6); }
+    50% { box-shadow: 0 0 0 10px rgba(232,93,38,0); }
+  }
+
+  .hero-headline {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.6rem, 5.8vw, 5rem);
+    line-height: 1.02;
+    letter-spacing: -0.03em;
+    color: var(--c-ink);
+    font-weight: 500;
+    margin-bottom: 24px;
+  }
+  .hero-headline .rotator {
+    position: relative;
+    display: inline-block;
+    color: var(--c-clay);
+    font-style: italic;
+    min-width: 300px;
+  }
+  .hero-headline .rotator-word {
+    position: absolute; left: 0; top: 0;
+    opacity: 0; transform: translateY(20px);
+    transition: all .6s cubic-bezier(.2,.8,.2,1);
+    white-space: nowrap;
+  }
+  .hero-headline .rotator-word.active {
+    opacity: 1; transform: translateY(0); position: relative;
+  }
+
+  .hero-sub {
+    font-size: 18px; line-height: 1.6; color: var(--c-muted);
+    max-width: 540px; margin-bottom: 32px;
+  }
+
+  .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 40px; }
+  .hero-cta-primary {
+    background: linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%);
+    color: white; padding: 18px 32px; border-radius: 999px;
+    font-weight: 700; font-size: 16px;
+    display: inline-flex; align-items: center; gap: 10px;
+    box-shadow: 0 10px 30px rgba(232,93,38,0.35);
+    transition: all .3s cubic-bezier(.2,.8,.2,1);
+    position: relative; overflow: hidden;
+  }
+  .hero-cta-primary::before {
+    content:''; position:absolute; top:0; left:-100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left .6s;
+  }
+  .hero-cta-primary:hover { transform: translateY(-3px); box-shadow: 0 16px 40px rgba(232,93,38,0.5); }
+  .hero-cta-primary:hover::before { left: 100%; }
+  .hero-cta-secondary {
+    background: white; color: var(--c-ink);
+    padding: 18px 28px; border-radius: 999px;
+    font-weight: 600; font-size: 16px;
+    display: inline-flex; align-items: center; gap: 10px;
+    border: 1.5px solid var(--c-line);
+    transition: all .25s;
+  }
+  .hero-cta-secondary:hover { border-color: var(--c-ink); transform: translateY(-2px); }
+  .play-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--c-clay-wash); color: var(--c-clay);
+    display: inline-flex; align-items: center; justify-content: center;
+    margin-right: -4px;
+  }
+
+  .hero-trust {
+    display: flex; flex-wrap: wrap; gap: 28px;
+    padding-top: 32px; border-top: 1px solid var(--c-line);
+  }
+  .trust-item {
+    display: flex; align-items: center; gap: 10px;
+    font-size: 14px; font-weight: 600; color: var(--c-ink-soft);
+  }
+  .trust-item svg { color: var(--c-clay); width: 20px; height: 20px; }
+
+  /* Hero visual — PRODUCT CAROUSEL */
+  .hero-visual {
+    position: relative;
+    aspect-ratio: 1/1.1;
+    max-width: 520px;
+    margin-left: auto;
+    perspective: 1200px;
+  }
+  .carousel-stage {
+    position: relative;
+    width: 100%; height: 100%;
+    transform-style: preserve-3d;
+  }
+  .carousel-badge-top {
+    position: absolute; top: -12px; left: 50%;
+    transform: translateX(-50%); z-index: 20;
+    background: linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%);
+    color: white; padding: 8px 16px; border-radius: 999px;
+    font-size: 11px; font-weight: 700; letter-spacing: .12em;
+    text-transform: uppercase;
+    box-shadow: 0 10px 24px rgba(232,93,38,0.4);
+    display: inline-flex; align-items: center; gap: 6px;
+    white-space: nowrap;
+  }
+  .carousel-badge-top::before {
+    content:''; width: 6px; height: 6px; border-radius: 50%;
+    background: white; animation: pulse-w 1.2s infinite;
+  }
+  @keyframes pulse-w {
+    0%,100% { opacity: 1; }
+    50% { opacity: .3; }
+  }
+
+  .hero-product {
+    position: absolute;
+    inset: 0;
+    background: white;
+    border-radius: 24px;
+    box-shadow: 0 30px 70px rgba(11,26,46,0.18);
+    overflow: hidden;
+    transition: all .9s cubic-bezier(.22,.8,.3,1);
+    display: flex; flex-direction: column;
+    border: 1px solid var(--c-line);
+  }
+  /* 3-card stack */
+  .hero-product[data-pos="0"] {
+    transform: translate(0,0) scale(1) rotate(0deg);
+    z-index: 3; opacity: 1;
+  }
+  .hero-product[data-pos="1"] {
+    transform: translate(28px,-22px) scale(0.94) rotate(2.5deg);
+    z-index: 2; opacity: .92;
+  }
+  .hero-product[data-pos="2"] {
+    transform: translate(56px,-44px) scale(0.88) rotate(5deg);
+    z-index: 1; opacity: .75;
+  }
+  .hero-product[data-pos="out"] {
+    transform: translate(-120%, 40px) scale(0.8) rotate(-14deg);
+    opacity: 0; z-index: 0;
+  }
+
+  .hp-img-wrap {
+    position: relative;
+    aspect-ratio: 1/1;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(232,93,38,0.06) 0%, transparent 60%),
+      linear-gradient(180deg, #fafaf7 0%, #f0ede4 100%);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+    flex: 1;
+  }
+  .hp-img-wrap img {
+    max-width: 82%;
+    max-height: 82%;
+    object-fit: contain;
+    filter: drop-shadow(0 20px 40px rgba(11,26,46,0.18));
+    transition: transform 1.2s cubic-bezier(.22,.8,.3,1);
+  }
+  .hero-product[data-pos="0"] .hp-img-wrap img {
+    animation: floatImg 6s ease-in-out infinite;
+  }
+  @keyframes floatImg {
+    0%,100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+  }
+
+  .hp-chip {
+    position: absolute; top: 16px; left: 16px;
+    padding: 6px 12px; border-radius: 999px;
+    background: rgba(11,26,46,0.88);
+    color: white; font-size: 11px; font-weight: 700;
+    letter-spacing: .06em; text-transform: uppercase;
+    backdrop-filter: blur(10px);
+  }
+  .hp-chip.hot { background: var(--c-clay); }
+  .hp-price-tag {
+    position: absolute; bottom: 16px; right: 16px;
+    background: linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%);
+    color: white; border-radius: 14px;
+    padding: 10px 16px;
+    box-shadow: 0 10px 24px rgba(232,93,38,0.4);
+  }
+  .hp-price-tag .old {
+    display: block; font-size: 11px;
+    text-decoration: line-through; opacity: .75;
+    line-height: 1;
+  }
+  .hp-price-tag .now {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700; line-height: 1.1;
+  }
+
+  .hp-body {
+    padding: 22px 22px 24px;
+    background: white;
+  }
+  .hp-brand {
+    font-size: 10px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--c-muted);
+    margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center;
+  }
+  .hp-brand .rating {
+    color: var(--c-amber); letter-spacing: 1px;
+    display: inline-flex; gap: 2px;
+  }
+  .hp-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px; font-weight: 600; line-height: 1.3;
+    color: var(--c-ink); margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+    overflow: hidden; min-height: 42px;
+  }
+  .hp-meta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+  .hp-stock {
+    font-size: 12px; font-weight: 600; color: var(--c-success);
+    display: inline-flex; align-items: center; gap: 6px;
+  }
+  .hp-stock::before {
+    content:''; width: 7px; height: 7px; border-radius: 50%;
+    background: var(--c-success);
+    animation: pulse-green 1.8s infinite;
+  }
+  .hp-cta {
+    margin-left: auto;
+    background: var(--c-ink); color: white;
+    padding: 8px 14px; border-radius: 10px;
+    font-size: 12px; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 6px;
+    transition: all .2s;
+  }
+  .hp-cta:hover { background: var(--c-clay); transform: translateX(3px); }
+
+  /* Floating metric pills next to carousel */
+  .hero-pill {
+    position: absolute; z-index: 10;
+    background: white; border-radius: 14px;
+    padding: 10px 14px; box-shadow: 0 12px 30px rgba(11,26,46,0.15);
+    animation: floatSmall 4s ease-in-out infinite;
+    display: flex; align-items: center; gap: 10px;
+    border: 1px solid var(--c-line);
+  }
+  .hero-pill.p1 { bottom: 14%; left: -30px; animation-delay: 0s; }
+  .hero-pill.p2 { top: 18%; right: -30px; animation-delay: -2s; }
+  @keyframes floatSmall {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+  .hero-pill-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    background: var(--c-clay-wash); color: var(--c-clay);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .hero-pill-icon.green { background: rgba(46,125,50,0.12); color: var(--c-success); }
+  .hero-pill-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 700; color: var(--c-ink); line-height: 1;
+  }
+  .hero-pill-label {
+    font-size: 10px; color: var(--c-muted); font-weight: 600;
+    letter-spacing: .06em; text-transform: uppercase; margin-top: 2px;
+  }
+
+  /* Dots navigation */
+  .carousel-dots {
+    position: absolute; bottom: -40px; left: 50%;
+    transform: translateX(-50%);
+    display: flex; gap: 6px; z-index: 10;
+  }
+  .carousel-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--c-line); cursor: pointer;
+    transition: all .3s;
+  }
+  .carousel-dot.active { background: var(--c-clay); width: 22px; border-radius: 4px; }
+
+  /* ============ FLASH SALE STRIP ============ */
+  .flash-strip {
+    background: linear-gradient(90deg, var(--c-clay-deep) 0%, var(--c-clay) 100%);
+    color: white;
+    padding: 28px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .flash-strip::before {
+    content:''; position: absolute; inset: 0;
+    background-image: repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.04) 20px, rgba(255,255,255,0.04) 40px);
+    animation: slide 20s linear infinite;
+  }
+  @keyframes slide {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+  }
+  .flash-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 32px; flex-wrap: wrap; position: relative; z-index: 2;
+  }
+  .flash-title {
+    display: flex; align-items: center; gap: 16px;
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700;
+  }
+  .flash-title .bolt {
+    width: 50px; height: 50px; border-radius: 50%;
+    background: rgba(255,255,255,0.18);
+    display: flex; align-items: center; justify-content: center;
+    animation: shake 2s infinite;
+  }
+  @keyframes shake {
+    0%,100% { transform: rotate(0); }
+    15% { transform: rotate(-8deg); }
+    30% { transform: rotate(10deg); }
+    45% { transform: rotate(-5deg); }
+    60% { transform: rotate(0); }
+  }
+  .flash-sub { font-size: 14px; opacity: .9; margin-top: 2px; }
+  .countdown { display: flex; gap: 10px; }
+  .count-box {
+    background: rgba(255,255,255,0.18);
+    padding: 8px 14px; border-radius: 10px;
+    text-align: center; min-width: 62px;
+    backdrop-filter: blur(10px);
+  }
+  .count-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px; font-weight: 700; line-height: 1;
+  }
+  .count-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; opacity: .8; }
+  .flash-cta {
+    background: white; color: var(--c-clay-deep);
+    padding: 14px 24px; border-radius: 999px;
+    font-weight: 700; font-size: 15px;
+    display: inline-flex; align-items: center; gap: 8px;
+    transition: transform .2s;
+  }
+  .flash-cta:hover { transform: scale(1.05); }
+
+  /* ============ SECTIONS ============ */
+  .section { padding: 120px 0; position: relative; }
+  .section-alt { background: var(--c-bg-alt); }
+  .section-header { text-align: center; max-width: 700px; margin: 0 auto 64px; }
+  .section-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: .22em;
+    text-transform: uppercase; color: var(--c-clay);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05; letter-spacing: -0.025em;
+    color: var(--c-ink); font-weight: 500;
+  }
+  .section-title em { color: var(--c-clay); font-style: italic; }
+  .section-sub {
+    margin-top: 16px; font-size: 17px; color: var(--c-muted);
+    line-height: 1.6;
+  }
+
+  /* ============ CATEGORIES ============ */
+  .category-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+  }
+  .cat-card {
+    position: relative;
+    background: var(--c-bg);
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-lg);
+    padding: 36px 24px;
+    display: flex; flex-direction: column;
+    align-items: center; text-align: center;
+    gap: 16px;
+    transition: all .35s cubic-bezier(.2,.8,.2,1);
+    overflow: hidden;
+  }
+  .cat-card::before {
+    content:''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, var(--cat-bg,#fff) 0%, transparent 100%);
+    opacity: 0; transition: opacity .35s;
+  }
+  .cat-card:hover {
+    transform: translateY(-6px);
+    border-color: var(--c-clay);
+    box-shadow: 0 20px 40px rgba(11,26,46,0.1);
+  }
+  .cat-card:hover::before { opacity: 1; }
+  .cat-icon {
+    width: 72px; height: 72px; border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    position: relative; z-index: 2;
+    transition: transform .4s cubic-bezier(.2,.8,.2,1);
+  }
+  .cat-card:hover .cat-icon { transform: scale(1.1) rotate(-5deg); }
+  .cat-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px; font-weight: 600;
+    color: var(--c-ink); position: relative; z-index: 2;
+  }
+  .cat-count {
+    font-size: 12px; color: var(--c-muted);
+    font-weight: 500; position: relative; z-index: 2;
+  }
+  .cat-arrow {
+    position: absolute; top: 16px; right: 16px;
+    color: var(--c-clay); opacity: 0;
+    transition: all .3s;
+  }
+  .cat-card:hover .cat-arrow { opacity: 1; transform: translate(3px,-3px); }
+
+  /* ============ STATS BAND ============ */
+  .stats-band {
+    background: linear-gradient(135deg, var(--c-navy-deep) 0%, var(--c-navy) 60%, var(--c-navy-deep) 100%);
+    padding: 90px 0;
+    position: relative; overflow: hidden;
+  }
+  .stats-band::before {
+    content:''; position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 15% 50%, rgba(232,93,38,0.15) 0%, transparent 50%),
+      radial-gradient(circle at 85% 50%, rgba(200,154,60,0.1) 0%, transparent 50%);
+  }
+  .stats-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    position: relative; z-index: 2;
+  }
+  .stat-item {
+    padding: 20px 24px; text-align: center;
+    color: white; border-right: 1px solid rgba(255,255,255,0.1);
+  }
+  .stat-item:last-child { border-right: 0; }
+  .stat-icon {
+    display: inline-flex; width: 48px; height: 48px;
+    border-radius: 12px; background: rgba(232,93,38,0.2);
+    align-items: center; justify-content: center;
+    color: var(--c-clay-soft);
+    margin-bottom: 20px;
+  }
+  .stat-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 64px; font-weight: 700;
+    line-height: 1; margin-bottom: 8px;
+  }
+  .stat-label {
+    font-size: 12px; text-transform: uppercase;
+    letter-spacing: .14em; font-weight: 500;
+    color: rgba(255,255,255,0.6);
+  }
+
+  /* ============ BEST SELLERS ============ */
+  .bestsellers-grid {
+    display: grid; grid-template-columns: repeat(4,1fr); gap: 24px;
+  }
+  .product-card {
+    background: white;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    position: relative;
+    transition: all .3s;
+    display: flex; flex-direction: column;
+  }
+  .product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--c-shadow-xl);
+    border-color: transparent;
+  }
+  .product-img {
+    aspect-ratio: 1/1;
+    background: var(--c-bg-alt);
+    position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .product-img svg { width: 60%; height: 60%; opacity: .9; transition: transform .5s; }
+  .product-img img {
+    width: 85%; height: 85%; object-fit: contain;
+    filter: drop-shadow(0 10px 20px rgba(11,26,46,0.12));
+    transition: transform .6s cubic-bezier(.2,.8,.2,1);
+  }
+  .product-card:hover .product-img svg { transform: scale(1.08) rotate(-2deg); }
+  .product-card:hover .product-img img { transform: scale(1.07) rotate(-2deg); }
+  .product-tags {
+    position: absolute; top: 12px; left: 12px;
+    display: flex; flex-direction: column; gap: 6px;
+  }
+  .tag {
+    padding: 4px 10px; border-radius: 999px;
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  .tag-hot { background: var(--c-clay); color: white; }
+  .tag-sale { background: var(--c-navy-deep); color: white; }
+  .tag-new { background: var(--c-success); color: white; }
+  .tag-stock { background: #fff; color: var(--c-success); border: 1px solid var(--c-success); }
+  .wishlist-btn {
+    position: absolute; top: 12px; right: 12px;
+    width: 36px; height: 36px; border-radius: 50%;
+    background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--c-muted); transition: all .2s;
+  }
+  .wishlist-btn:hover { color: var(--c-clay); transform: scale(1.1); }
+  .product-body { padding: 20px; flex: 1; display: flex; flex-direction: column; }
+  .product-brand {
+    font-size: 11px; color: var(--c-muted); font-weight: 600;
+    letter-spacing: .08em; text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .product-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 17px; font-weight: 600; color: var(--c-ink);
+    line-height: 1.25; margin-bottom: 10px;
+    min-height: 42px;
+  }
+  .product-rating {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; color: var(--c-muted);
+    margin-bottom: 12px;
+  }
+  .stars { color: var(--c-amber); display: inline-flex; gap: 2px; }
+  .product-price-row {
+    display: flex; align-items: baseline; gap: 8px;
+    margin-bottom: 14px;
+  }
+  .price {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 700; color: var(--c-ink);
+  }
+  .price-old {
+    font-size: 14px; color: var(--c-muted);
+    text-decoration: line-through;
+  }
+  .price-discount {
+    background: var(--c-clay-wash); color: var(--c-clay-deep);
+    padding: 3px 8px; border-radius: 6px;
+    font-size: 12px; font-weight: 700;
+  }
+  .stock-line {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 12px; color: var(--c-success);
+    font-weight: 600; margin-bottom: 12px;
+  }
+  .stock-line .pulse-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--c-success);
+    animation: pulse-green 2s infinite;
+  }
+  @keyframes pulse-green {
+    0%,100% { box-shadow: 0 0 0 0 rgba(46,125,50,0.4); }
+    50% { box-shadow: 0 0 0 6px rgba(46,125,50,0); }
+  }
+  .stock-bar {
+    height: 4px; background: var(--c-line);
+    border-radius: 999px; overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .stock-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--c-clay) 0%, var(--c-clay-soft) 100%);
+    border-radius: 999px;
+    animation: fill 1.5s ease-out;
+  }
+  @keyframes fill { from { width: 0; } }
+  .stock-urgency {
+    font-size: 11px; color: var(--c-clay-deep);
+    font-weight: 700; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 4px;
+  }
+  .add-cart {
+    margin-top: auto;
+    background: var(--c-ink);
+    color: white; padding: 12px 18px;
+    border-radius: 12px;
+    font-size: 14px; font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; transition: all .25s;
+  }
+  .add-cart:hover {
+    background: var(--c-clay);
+    transform: translateY(-1px);
+  }
+
+  /* ============ CONFIGURATOR TEASER ============ */
+  .configurator {
+    background: linear-gradient(135deg, var(--c-navy-deep) 0%, var(--c-navy) 100%);
+    color: white;
+    border-radius: 32px;
+    padding: 80px 64px;
+    position: relative; overflow: hidden;
+    margin: 0 auto;
+  }
+  .config-grid {
+    display: grid; grid-template-columns: 1.1fr 1fr;
+    gap: 64px; align-items: center; position: relative; z-index: 2;
+  }
+  .config-tag {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border-radius: 999px;
+    background: rgba(232,93,38,0.2); color: var(--c-clay-soft);
+    font-size: 12px; font-weight: 700; letter-spacing: .08em;
+    text-transform: uppercase; margin-bottom: 24px;
+  }
+  .config-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 4vw, 3rem);
+    line-height: 1.05; letter-spacing: -0.025em;
+    margin-bottom: 20px;
+  }
+  .config-title em { color: var(--c-clay-soft); font-style: italic; }
+  .config-features { display: grid; gap: 14px; margin: 32px 0; }
+  .config-feat {
+    display: flex; align-items: flex-start; gap: 14px;
+    color: rgba(255,255,255,0.88);
+  }
+  .check-circle {
+    width: 26px; height: 26px; border-radius: 50%;
+    background: rgba(232,93,38,0.25); color: var(--c-clay-soft);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; margin-top: 2px;
+  }
+  .config-visual {
+    aspect-ratio: 1/1.1;
+    background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+    border-radius: 24px;
+    border: 1px solid rgba(255,255,255,0.1);
+    position: relative; overflow: hidden;
+  }
+  .config-orb {
+    position: absolute; border-radius: 50%;
+    filter: blur(40px); opacity: .6;
+    animation: float 10s ease-in-out infinite;
+  }
+  .config-orb.c1 { width: 200px; height: 200px; top: 10%; left: 10%; background: var(--c-clay); }
+  .config-orb.c2 { width: 150px; height: 150px; bottom: 20%; right: 15%; background: var(--c-navy-light); animation-delay: -3s; }
+
+  /* ============ TESTIMONIALS ============ */
+  .testimonials-wrap {
+    display: grid; grid-template-columns: 1.3fr 1fr;
+    gap: 48px; align-items: center;
+  }
+  .trust-score {
+    background: white;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--c-shadow);
+  }
+  .trust-logo {
+    display: flex; align-items: center; gap: 12px;
+    margin-bottom: 20px;
+  }
+  .trust-logo-icon {
+    width: 40px; height: 40px;
+    background: var(--c-success);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 800; font-size: 18px;
+  }
+  .trust-logo-text {
+    font-weight: 700; font-size: 18px;
+  }
+  .trust-score-big {
+    font-family: 'Playfair Display', serif;
+    font-size: 72px; font-weight: 700; line-height: 1;
+    color: var(--c-ink); margin-bottom: 8px;
+  }
+  .trust-score-big small { font-size: 32px; color: var(--c-muted); font-weight: 500; }
+  .trust-stars { color: var(--c-amber); font-size: 24px; letter-spacing: 2px; margin-bottom: 12px; }
+  .trust-reviews-count { font-size: 14px; color: var(--c-muted); }
+
+  .testimonial-list { display: grid; gap: 16px; }
+  .testimonial {
+    background: white;
+    border-radius: var(--radius);
+    padding: 24px;
+    border: 1px solid var(--c-line);
+    display: grid; gap: 12px;
+    transition: all .3s;
+  }
+  .testimonial:hover {
+    border-color: var(--c-clay);
+    transform: translateX(4px);
+  }
+  .test-top { display: flex; align-items: center; gap: 14px; }
+  .test-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-clay) 0%, var(--c-amber) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; font-size: 18px;
+  }
+  .test-name { font-weight: 600; font-size: 15px; }
+  .test-role { font-size: 12px; color: var(--c-muted); }
+  .test-stars { color: var(--c-amber); font-size: 14px; }
+  .test-text {
+    font-size: 14px; color: var(--c-ink-soft);
+    line-height: 1.55; font-style: italic;
+  }
+
+  /* ============ BRAND STRIP ============ */
+  .brand-strip {
+    background: var(--c-bg-deep);
+    padding: 48px 0;
+    overflow: hidden;
+  }
+  .brand-row {
+    display: flex; gap: 80px;
+    animation: scroll 40s linear infinite;
+    width: max-content;
+  }
+  .brand-pill {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px; font-weight: 700;
+    color: var(--c-muted); letter-spacing: -0.02em;
+    white-space: nowrap;
+    opacity: .6;
+    transition: opacity .3s;
+  }
+  .brand-pill:hover { opacity: 1; color: var(--c-clay); }
+
+  /* ============ FINANCING ============ */
+  .fin-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+  .fin-card {
+    background: white;
+    border: 1px solid var(--c-line);
+    border-radius: var(--radius-lg);
+    padding: 36px;
+    position: relative; overflow: hidden;
+    transition: all .3s;
+  }
+  .fin-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--c-shadow-xl);
+    border-color: var(--c-clay);
+  }
+  .fin-icon {
+    width: 56px; height: 56px; border-radius: 16px;
+    background: var(--c-clay-wash); color: var(--c-clay);
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 20px;
+  }
+  .fin-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; font-weight: 600; margin-bottom: 10px;
+  }
+  .fin-desc { font-size: 14px; color: var(--c-muted); line-height: 1.6; margin-bottom: 16px; }
+  .fin-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: var(--c-clay); font-weight: 600; font-size: 14px;
+  }
+
+  /* ============ BLOG PREVIEW ============ */
+  .blog-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 28px; }
+  .blog-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    border: 1px solid var(--c-line);
+    transition: all .3s;
+    display: flex; flex-direction: column;
+  }
+  .blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--c-shadow-xl);
+  }
+  .blog-img {
+    aspect-ratio: 16/10;
+    background: linear-gradient(135deg, var(--c-navy) 0%, var(--c-navy-deep) 100%);
+    position: relative; display: flex; align-items: center; justify-content: center;
+  }
+  .blog-img.i1 { background: linear-gradient(135deg, #E85D26 0%, #C44A1A 100%); }
+  .blog-img.i2 { background: linear-gradient(135deg, #2D5A8E 0%, #1E3A5F 100%); }
+  .blog-img.i3 { background: linear-gradient(135deg, #C89A3C 0%, #8a6a22 100%); }
+  .blog-img svg { width: 80px; height: 80px; color: rgba(255,255,255,0.35); }
+  .blog-body { padding: 28px; flex: 1; display: flex; flex-direction: column; }
+  .blog-cat {
+    font-size: 11px; font-weight: 700; letter-spacing: .14em;
+    text-transform: uppercase; color: var(--c-clay);
+    margin-bottom: 10px;
+  }
+  .blog-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 20px; font-weight: 600;
+    line-height: 1.25; color: var(--c-ink);
+    margin-bottom: 12px;
+  }
+  .blog-meta {
+    margin-top: auto;
+    display: flex; align-items: center; justify-content: space-between;
+    font-size: 13px; color: var(--c-muted);
+  }
+
+  /* ============ FINAL CTA ============ */
+  .final-cta {
+    background: linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%);
+    color: white;
+    padding: 120px 0;
+    text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .final-cta::before {
+    content:''; position: absolute;
+    top: -300px; right: -200px;
+    width: 800px; height: 800px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.06);
+    animation: slowpulse 8s ease-in-out infinite;
+  }
+  .final-cta::after {
+    content:''; position: absolute;
+    bottom: -200px; left: -150px;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+    animation: slowpulse 10s ease-in-out infinite reverse;
+  }
+  @keyframes slowpulse {
+    0%,100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+  }
+  .final-inner { max-width: 720px; margin: 0 auto; position: relative; z-index: 2; }
+  .final-title {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 1.05; letter-spacing: -0.025em;
+    margin-bottom: 16px; font-weight: 500;
+  }
+  .final-title em { color: rgba(255,255,255,0.7); font-style: italic; }
+  .final-sub { font-size: 18px; opacity: .9; margin-bottom: 36px; }
+  .final-ctas { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+  .cta-white {
+    background: white; color: var(--c-clay-deep);
+    padding: 18px 32px; border-radius: 999px;
+    font-weight: 700; font-size: 16px;
+    display: inline-flex; align-items: center; gap: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    transition: all .25s;
+  }
+  .cta-white:hover { transform: translateY(-2px); box-shadow: 0 16px 40px rgba(0,0,0,0.3); }
+  .cta-outline {
+    background: transparent; color: white;
+    padding: 18px 28px; border-radius: 999px;
+    font-weight: 600; font-size: 16px;
+    border: 1.5px solid rgba(255,255,255,0.5);
+    display: inline-flex; align-items: center; gap: 10px;
+    transition: all .25s;
+  }
+  .cta-outline:hover { background: rgba(255,255,255,0.12); border-color: white; }
+
+  /* ============ FOOTER ============ */
+  .footer {
+    background: var(--c-navy-deep);
+    color: rgba(255,255,255,0.7);
+    padding: 80px 0 32px;
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.3fr;
+    gap: 40px; margin-bottom: 60px;
+  }
+  .footer-col h4 {
+    color: white; font-size: 14px; font-weight: 700;
+    margin-bottom: 20px; text-transform: uppercase; letter-spacing: .12em;
+  }
+  .footer-col a {
+    display: block; margin-bottom: 10px;
+    font-size: 14px; color: rgba(255,255,255,0.6);
+    transition: color .2s;
+  }
+  .footer-col a:hover { color: var(--c-clay-soft); }
+  .footer-brand { max-width: 320px; }
+  .footer-brand .logo { color: white; margin-bottom: 16px; }
+  .footer-brand p { font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+  .footer-social { display: flex; gap: 10px; }
+  .social-btn {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    color: white; transition: all .2s;
+  }
+  .social-btn:hover { background: var(--c-clay); }
+  .footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 32px;
+    display: flex; justify-content: space-between;
+    font-size: 13px; color: rgba(255,255,255,0.5);
+    flex-wrap: wrap; gap: 16px;
+  }
+  .footer-bottom .payments { display: flex; gap: 12px; align-items: center; }
+  .pay-chip {
+    padding: 4px 10px; border-radius: 6px;
+    background: rgba(255,255,255,0.1); color: white;
+    font-size: 11px; font-weight: 700; letter-spacing: .04em;
+  }
+  .newsletter {
+    background: linear-gradient(135deg, rgba(232,93,38,0.2) 0%, rgba(232,93,38,0.05) 100%);
+    border: 1px solid rgba(232,93,38,0.25);
+    padding: 20px; border-radius: 16px;
+    margin-top: 4px;
+  }
+  .newsletter strong { color: white; display: block; font-size: 14px; margin-bottom: 8px; }
+  .newsletter .form { display: flex; gap: 6px; margin-top: 10px; }
+  .newsletter input {
+    flex: 1; padding: 10px 14px;
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px; color: white; font-size: 13px;
+  }
+  .newsletter input::placeholder { color: rgba(255,255,255,0.5); }
+  .newsletter button {
+    background: var(--c-clay); color: white;
+    padding: 10px 16px; border-radius: 8px;
+    font-weight: 700; font-size: 13px;
+    transition: background .2s;
+  }
+  .newsletter button:hover { background: var(--c-clay-deep); }
+  .newsletter .deal { font-size: 12px; color: var(--c-clay-soft); }
+
+  /* ============ FLOATING WIDGETS ============ */
+  .whatsapp-btn {
+    position: fixed; bottom: 24px; right: 24px;
+    width: 64px; height: 64px; border-radius: 50%;
+    background: #25D366; color: white;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 10px 30px rgba(37,211,102,0.4);
+    z-index: 90;
+    animation: wobble 4s infinite;
+    transition: transform .2s;
+  }
+  .whatsapp-btn:hover { transform: scale(1.1); }
+  .whatsapp-btn::before {
+    content:''; position: absolute; inset: -6px; border-radius: 50%;
+    border: 2px solid #25D366; opacity: .5;
+    animation: ripple 2s infinite;
+  }
+  @keyframes ripple {
+    0% { transform: scale(1); opacity: .6; }
+    100% { transform: scale(1.4); opacity: 0; }
+  }
+  @keyframes wobble {
+    0%,100% { transform: rotate(0); }
+    45% { transform: rotate(0); }
+    50% { transform: rotate(-10deg); }
+    55% { transform: rotate(10deg); }
+    60% { transform: rotate(-8deg); }
+    65% { transform: rotate(0); }
+  }
+  .whatsapp-tooltip {
+    position: fixed; bottom: 36px; right: 100px;
+    background: white; color: var(--c-ink);
+    padding: 12px 16px; border-radius: 12px;
+    box-shadow: var(--c-shadow-xl);
+    font-size: 13px; font-weight: 600;
+    z-index: 89; pointer-events: none;
+    opacity: 0; transform: translateX(10px);
+    transition: all .25s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .whatsapp-tooltip.visible { opacity: 1; transform: translateX(0); }
+  .whatsapp-tooltip::after {
+    content:''; position: absolute; right: -6px; top: 50%; transform: translateY(-50%);
+    width: 0; height: 0;
+    border-top: 6px solid transparent; border-bottom: 6px solid transparent;
+    border-left: 6px solid white;
+  }
+
+  .chat-widget {
+    position: fixed; bottom: 24px; left: 24px;
+    background: white; border-radius: 20px;
+    box-shadow: var(--c-shadow-xl);
+    padding: 16px; z-index: 80;
+    display: flex; align-items: center; gap: 12px;
+    max-width: 320px;
+    animation: slideUp 0.6s cubic-bezier(.2,.8,.2,1) 2s backwards;
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(40px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chat-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-clay) 0%, var(--c-amber) 100%);
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700; flex-shrink: 0;
+    position: relative;
+  }
+  .chat-avatar::after {
+    content:''; position: absolute; bottom: 2px; right: 2px;
+    width: 12px; height: 12px; border-radius: 50%;
+    background: var(--c-success); border: 2px solid white;
+  }
+  .chat-body { font-size: 13px; }
+  .chat-body strong { display: block; color: var(--c-ink); margin-bottom: 2px; }
+  .chat-body p { color: var(--c-muted); line-height: 1.4; margin-bottom: 6px; }
+  .chat-body button {
+    color: var(--c-clay); font-weight: 700; font-size: 12px;
+    display: inline-flex; gap: 4px; align-items: center;
+  }
+  .chat-close {
+    position: absolute; top: 6px; right: 8px;
+    color: var(--c-muted); font-size: 18px;
+    line-height: 1; padding: 4px;
+  }
+
+  /* ============ SCROLL REVEAL ============ */
+  .reveal { opacity: 0; transform: translateY(24px); transition: all .8s cubic-bezier(.2,.8,.2,1); }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  /* ============ RESPONSIVE ============ */
+  @media (max-width: 1024px) {
+    .hero-grid, .testimonials-wrap, .config-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-visual { margin: 0 auto; max-width: 420px; }
+    .category-grid, .bestsellers-grid { grid-template-columns: repeat(2,1fr); }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .fin-grid, .blog-grid { grid-template-columns: 1fr; }
+    .nav-links { display: none; }
+    .stats-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .stat-item { border-right: 0; }
+    .configurator { padding: 48px 28px; border-radius: 20px; }
+    .section { padding: 80px 0; }
+  }
+  @media (max-width: 640px) {
+    .hero-badge { display: none; }
+    .hero-badge.b2, .hero-badge.b4 { display: block; transform: scale(0.8); }
+    .category-grid, .bestsellers-grid { grid-template-columns: 1fr; }
+    .nav-actions .btn-ghost { display: none; }
+    .flash-title { font-size: 20px; }
+    .count-box { min-width: 52px; padding: 6px 10px; }
+    .count-num { font-size: 22px; }
+    .stats-grid { grid-template-columns: 1fr 1fr; }
+    .stat-number { font-size: 44px; }
+    .chat-widget { display: none; }
+  }
+</style>
+</head>
+<body>
+
+  <!-- TOP ANNOUNCEMENT BAR -->
+  <div class="top-bar">
+    <div class="marquee">
+      <span>🚚 24-48 saat hızlı teslimat · 15 ülkeye ücretsiz kargo</span>
+      <span>🎁 İlk siparişe özel %10 indirim — Kod: GASTRO10</span>
+      <span>🔥 Bu hafta Diamond serisi soğutucularda 48 saatlik flash sale</span>
+      <span>💳 Leasing ile 36 aya varan taksitli ödeme imkanı</span>
+      <span>✅ 5.265+ ürün · 15 premium marka · tek platform</span>
+      <span>🚚 24-48 saat hızlı teslimat · 15 ülkeye ücretsiz kargo</span>
+      <span>🎁 İlk siparişe özel %10 indirim — Kod: GASTRO10</span>
+      <span>🔥 Bu hafta Diamond serisi soğutucularda 48 saatlik flash sale</span>
+      <span>💳 Leasing ile 36 aya varan taksitli ödeme imkanı</span>
+      <span>✅ 5.265+ ürün · 15 premium marka · tek platform</span>
+    </div>
+  </div>
+
+  <!-- NAVIGATION -->
+  <nav class="nav">
+    <div class="container nav-inner">
+      <a href="/" class="logo">
+        <span class="logo-badge">2</span>
+        <span>mc <em style="color:var(--c-clay)">gastro</em></span>
+      </a>
+      <div class="nav-links">
+        <a href="/kategori">
+          Kategoriler
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </a>
+        <a href="/kategori">En Çok Satanlar</a>
+        <a href="/design/3d">3D Tasarım</a>
+        <a href="/projects">Projeler</a>
+        <a href="/blog">Blog</a>
+      </div>
+      <div class="nav-actions">
+        <button class="lang-chip" aria-label="Dil ve para birimi">
+          🇹🇷 TR · ₺
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Arama">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+        <button class="icon-btn" aria-label="Favoriler">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+          <span class="badge">3</span>
+        </button>
+        <button class="icon-btn" aria-label="Sepet">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+          <span class="badge">2</span>
+        </button>
+        <a href="/login" class="btn-primary">
+          Giriş Yap
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-orb o1"></div>
+    <div class="hero-orb o2"></div>
+    <div class="hero-orb o3"></div>
+
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="hero-eyebrow reveal">
+            <span class="dot"></span>
+            Avrupa'nın Gastro Ekipman Platformu
+          </div>
+          <h1 class="hero-headline reveal">
+            Profesyonel mutfaklar için<br>
+            <span class="rotator">
+              <span class="rotator-word active">akıllı çözümler.</span>
+              <span class="rotator-word">5.265+ ürün.</span>
+              <span class="rotator-word">hızlı teslimat.</span>
+            </span>
+          </h1>
+          <p class="hero-sub reveal">
+            15 markanın tüm kataloğunu tek platformda keşfet. BOM oluştur, mutfak planla, teklif al.
+          </p>
+          <div class="hero-ctas reveal">
+            <a href="/register" class="hero-cta-primary">
+              Projenize Başlayın
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </a>
+            <a href="/welcome" class="hero-cta-secondary">
+              <span class="play-icon">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="6 4 20 12 6 20 6 4"/></svg>
+              </span>
+              Demo İzle
+            </a>
+          </div>
+
+          <div class="hero-trust reveal">
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m7.5 4.27 9 5.15M21 8 12 13 3 8l9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 22V13"/></svg>
+              5.265+ Ürün
+            </div>
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+              15 Marka
+            </div>
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+              15 Ülke
+            </div>
+            <div class="trust-item">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 17h4V5H2v12h3M14 17H2M14 17v-7h5l4 4v3h-9"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+              24-48s Teslimat
+            </div>
+          </div>
+        </div>
+
+        <div class="hero-visual reveal">
+          <div class="carousel-badge-top">🔥 En Çok Tercih Edilen Profesyonel Ekipmanlar</div>
+
+          <div class="carousel-stage" id="heroCarousel">
+            <!-- Product 1 - Cooling -->
+            <a href="/product/ICE900ISW" class="hero-product" data-pos="0" data-idx="0">
+              <div class="hp-img-wrap">
+                <span class="hp-chip hot">🔥 Popüler</span>
+                <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/12614/conversions/001-ICE900ISW-big.jpg" alt="Scherbeneisbereiter" loading="eager">
+                <div class="hp-price-tag">
+                  <span class="old">21.823 €</span>
+                  <span class="now">18.186 €</span>
+                </div>
+              </div>
+              <div class="hp-body">
+                <div class="hp-brand">
+                  <span>DIAMOND · GOLD LINE</span>
+                  <span class="rating">★★★★★</span>
+                </div>
+                <div class="hp-name">Scherbeneisbereiter 900 kg — Profi Gastronomie</div>
+                <div class="hp-meta">
+                  <span class="hp-stock">Stokta · 24s kargo</span>
+                  <a href="/product/ICE900ISW" class="hp-cta">İncele
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              </div>
+            </a>
+
+            <!-- Product 2 - Cooking -->
+            <a href="/product/EXB-300I" class="hero-product" data-pos="1" data-idx="1">
+              <div class="hp-img-wrap">
+                <span class="hp-chip">Editör Seçimi</span>
+                <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/49786/conversions/001GMB-Rondo-big.jpg" alt="Kippkochkessel" loading="eager">
+                <div class="hp-price-tag">
+                  <span class="old">66.092 €</span>
+                  <span class="now">55.077 €</span>
+                </div>
+              </div>
+              <div class="hp-body">
+                <div class="hp-brand">
+                  <span>DIAMOND · GOLD LINE</span>
+                  <span class="rating">★★★★★</span>
+                </div>
+                <div class="hp-name">Elektro Kippkochkessel 300L, Rührwerk — indirekt beheizt</div>
+                <div class="hp-meta">
+                  <span class="hp-stock">Stokta · 48s kargo</span>
+                  <a href="/product/EXB-300I" class="hp-cta">İncele
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              </div>
+            </a>
+
+            <!-- Product 3 - Cook & Chill -->
+            <a href="/product/SBET-XC-22" class="hero-product" data-pos="2" data-idx="2">
+              <div class="hp-img-wrap">
+                <span class="hp-chip hot">Yeni Sezon</span>
+                <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/50379/conversions/001SBES-XC-20-big.jpg" alt="Kombidämpfer" loading="lazy">
+                <div class="hp-price-tag">
+                  <span class="old">49.808 €</span>
+                  <span class="now">41.507 €</span>
+                </div>
+              </div>
+              <div class="hp-body">
+                <div class="hp-brand">
+                  <span>DIAMOND · PLATINUM</span>
+                  <span class="rating">★★★★★</span>
+                </div>
+                <div class="hp-name">Kombidämpfer Touch 20× GN2/1 — Boiler + Konvektion</div>
+                <div class="hp-meta">
+                  <span class="hp-stock">Stokta · 24s kargo</span>
+                  <a href="/product/SBET-XC-22" class="hp-cta">İncele
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              </div>
+            </a>
+
+            <!-- Product 4 - Pizza -->
+            <a href="/product/TIBERIO-9E" class="hero-product" data-pos="out" data-idx="3">
+              <div class="hp-img-wrap">
+                <span class="hp-chip hot">🔥 İndirim</span>
+                <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/11745761/conversions/001_CFE202_N-big.jpg" alt="Pizzaofen" loading="lazy">
+                <div class="hp-price-tag">
+                  <span class="old">26.432 €</span>
+                  <span class="now">22.028 €</span>
+                </div>
+              </div>
+              <div class="hp-body">
+                <div class="hp-brand">
+                  <span>DIAMOND · PLATINUM</span>
+                  <span class="rating">★★★★★</span>
+                </div>
+                <div class="hp-name">Tiberio Kuppelofen 9 Pizza — fahrbares Untergestell</div>
+                <div class="hp-meta">
+                  <span class="hp-stock">Stokta · 48s kargo</span>
+                  <a href="/product/TIBERIO-9E" class="hp-cta">İncele
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              </div>
+            </a>
+
+            <!-- Product 5 - Bakery -->
+            <a href="/product/FRM-5E-F" class="hero-product" data-pos="out" data-idx="4">
+              <div class="hp-img-wrap">
+                <span class="hp-chip">Profesyonel</span>
+                <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/81984/conversions/001-FRM-4E-L-big.jpg" alt="Rotationsofen" loading="lazy">
+                <div class="hp-price-tag">
+                  <span class="old">43.552 €</span>
+                  <span class="now">36.293 €</span>
+                </div>
+              </div>
+              <div class="hp-body">
+                <div class="hp-brand">
+                  <span>DIAMOND · GOLD LINE</span>
+                  <span class="rating">★★★★★</span>
+                </div>
+                <div class="hp-name">Bäckerei-Rotationsofen 15 Ebenen — Konditorei</div>
+                <div class="hp-meta">
+                  <span class="hp-stock">Stokta · 24s kargo</span>
+                  <a href="/product/FRM-5E-F" class="hp-cta">İncele
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              </div>
+            </a>
+
+            <!-- Product 6 - Vacuum -->
+            <a href="/product/CF-195T-S" class="hero-product" data-pos="out" data-idx="5">
+              <div class="hp-img-wrap">
+                <span class="hp-chip">Premium</span>
+                <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/48738/conversions/001CF-170-S-big.jpg" alt="Vakuummaschine" loading="lazy">
+                <div class="hp-price-tag">
+                  <span class="old">46.307 €</span>
+                  <span class="now">38.589 €</span>
+                </div>
+              </div>
+              <div class="hp-body">
+                <div class="hp-brand">
+                  <span>DIAMOND · GOLD LINE</span>
+                  <span class="rating">★★★★★</span>
+                </div>
+                <div class="hp-name">Vakuummaschine Doppelkammer 1100×730 — 250 m³/h</div>
+                <div class="hp-meta">
+                  <span class="hp-stock">Stokta · 48s kargo</span>
+                  <a href="/product/CF-195T-S" class="hp-cta">İncele
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+                  </a>
+                </div>
+              </div>
+            </a>
+          </div>
+
+          <!-- Floating pills -->
+          <div class="hero-pill p1">
+            <div class="hero-pill-icon green">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <div>
+              <div class="hero-pill-value">1.340+</div>
+              <div class="hero-pill-label">Aktif Proje</div>
+            </div>
+          </div>
+          <div class="hero-pill p2">
+            <div class="hero-pill-icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div>
+              <div class="hero-pill-value">4.8 / 5</div>
+              <div class="hero-pill-label">Trustpilot</div>
+            </div>
+          </div>
+
+          <!-- Dots -->
+          <div class="carousel-dots" id="carouselDots">
+            <span class="carousel-dot active" data-dot="0"></span>
+            <span class="carousel-dot" data-dot="1"></span>
+            <span class="carousel-dot" data-dot="2"></span>
+            <span class="carousel-dot" data-dot="3"></span>
+            <span class="carousel-dot" data-dot="4"></span>
+            <span class="carousel-dot" data-dot="5"></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- FLASH SALE STRIP -->
+  <section class="flash-strip">
+    <div class="container">
+      <div class="flash-inner">
+        <div class="flash-title">
+          <span class="bolt">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </span>
+          <div>
+            <div>Flash Sale: Diamond Soğutucularda %30'a Varan İndirim</div>
+            <div class="flash-sub">Son 48 saat — stoklar hızla tükeniyor</div>
+          </div>
+        </div>
+        <div class="countdown" id="countdown">
+          <div class="count-box"><div class="count-num" id="cd-hh">47</div><div class="count-lbl">Saat</div></div>
+          <div class="count-box"><div class="count-num" id="cd-mm">23</div><div class="count-lbl">Dakika</div></div>
+          <div class="count-box"><div class="count-num" id="cd-ss">08</div><div class="count-lbl">Saniye</div></div>
+        </div>
+        <a href="/kategori" class="flash-cta">
+          İndirimleri İncele
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="section" id="categories">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-eyebrow">Ekipman Kategorileri</div>
+        <h2 class="section-title">Her mutfak ihtiyacı, <em>tek çatı altında.</em></h2>
+        <p class="section-sub">8 ana kategoride 5.265+ profesyonel ekipman. Her birini filtreleme motoru ile saniyeler içinde bul.</p>
+      </div>
+
+      <div class="category-grid">
+        <a href="/kategori/cooling" class="cat-card reveal" style="--cat-bg:rgba(45,90,142,0.08)">
+          <span class="cat-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+          <div class="cat-icon" style="background:rgba(45,90,142,0.1); color:var(--c-navy-light)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 12 10-10 10 10M12 2v20M2 12l5 5M2 12l5-5M22 12l-5 5M22 12l-5-5M7 17l5-5M7 7l5 5M17 17l-5-5M17 7l-5 5"/></svg>
+          </div>
+          <div>
+            <div class="cat-name">Soğutma</div>
+            <div class="cat-count">1.775 ürün</div>
+          </div>
+        </a>
+
+        <a href="/kategori/cooking" class="cat-card reveal" style="--cat-bg:var(--c-clay-wash)">
+          <span class="cat-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+          <div class="cat-icon" style="background:var(--c-clay-wash); color:var(--c-clay)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
+          </div>
+          <div>
+            <div class="cat-name">Pişirme</div>
+            <div class="cat-count">1.439 ürün</div>
+          </div>
+        </a>
+
+        <a href="/kategori/prep_hygiene" class="cat-card reveal" style="--cat-bg:rgba(30,58,95,0.1)">
+          <span class="cat-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+          <div class="cat-icon" style="background:rgba(30,58,95,0.1); color:var(--c-navy)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="6" r="3"/><path d="M8.12 8.12 12 12M20 4 8.12 15.88"/><circle cx="6" cy="18" r="3"/><path d="m14.8 14.8 5.2 5.2"/></svg>
+          </div>
+          <div>
+            <div class="cat-name">Hazırlık</div>
+            <div class="cat-count">615 ürün</div>
+          </div>
+        </a>
+
+        <a href="/kategori/pizza_pasta" class="cat-card reveal" style="--cat-bg:rgba(200,154,60,0.12)">
+          <span class="cat-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+          <div class="cat-icon" style="background:rgba(200,154,60,0.12); color:var(--c-amber)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 11h.01M11 15h.01M16 16h.01m-3.5-4 .5-2M12 7l1.5 1.5M14.5 10.5 16 12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+          </div>
+          <div>
+            <div class="cat-name">Pizza</div>
+            <div class="cat-count">401 ürün</div>
+          </div>
+        </a>
+
+        <a href="/kategori/self_service" class="cat-card reveal" style="--cat-bg:rgba(45,90,142,0.1)">
+          <span class="cat-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+          <div class="cat-icon" style="background:rgba(45,90,142,0.1); color:var(--c-navy-light)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m16 2-2.3 2.3a3 3 0 0 0 0 4.2l1.8 1.8a3 3 0 0 0 4.2 0L22 8M15 15l-3-3a22 22 0 0 1-7-6.2A6.7 6.7 0 0 1 2 8c.4 4 3 6 5.5 7.7 1.1.8 2 1.7 2.5 3a4.6 4.6 0 0 1-.2 2.4M5 15l9 9m-2-5 3-3"/></svg>
+          </div>
+          <div>
+            <div class="cat-name">Self Servis</div>
+            <div class="cat-count">499 ürün</div>
+          </div>
+        </a>
+
+        <a href="/kategori/dynamic_prep" class="cat-card reveal" style="--cat-bg:rgba(255,122,69,0.1)">
+          <span class="cat-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+          <div class="cat-icon" style="background:rgba(255,122,69,0.1); color:var(--c-clay-soft)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          </div>
+          <div>
+            <div class="cat-name">Dinamik</div>
+            <div class="cat-count">359 ürün</div>
+          </div>
+        </a>
+
+        <a href="/kategori/ice_cream" class="cat-card reveal" style="--cat-bg:rgba(45,90,142,0.08)">
+          <span class="cat-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+          <div class="cat-icon" style="background:rgba(45,90,142,0.08); color:var(--c-navy-light)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21c-3 0-5-2-5-5V6a5 5 0 0 1 10 0v10c0 3-2 5-5 5z"/><path d="M7 13h10"/></svg>
+          </div>
+          <div>
+            <div class="cat-name">Dondurma</div>
+            <div class="cat-count">82 ürün</div>
+          </div>
+        </a>
+
+        <a href="/kategori/coffee_tea" class="cat-card reveal" style="--cat-bg:rgba(200,154,60,0.1)">
+          <span class="cat-arrow"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
+          <div class="cat-icon" style="background:rgba(200,154,60,0.1); color:var(--c-amber)">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2v2M14 2v2M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1M6 2v2"/></svg>
+          </div>
+          <div>
+            <div class="cat-name">Kahve</div>
+            <div class="cat-count">95 ürün</div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAND -->
+  <section class="stats-band">
+    <div class="container">
+      <div class="stats-grid">
+        <div class="stat-item reveal">
+          <div class="stat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m7.5 4.27 9 5.15M21 8 12 13 3 8l9-5Z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 22V13"/></svg>
+          </div>
+          <div class="stat-number" data-count="5265" data-suffix="+">0+</div>
+          <div class="stat-label">Ürün</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="stat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/></svg>
+          </div>
+          <div class="stat-number" data-count="15">0</div>
+          <div class="stat-label">Marka</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="stat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+          </div>
+          <div class="stat-number" data-count="15">0</div>
+          <div class="stat-label">Aktif Ülke</div>
+        </div>
+        <div class="stat-item reveal">
+          <div class="stat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 17h4V5H2v12h3M14 17H2M14 17v-7h5l4 4v3h-9"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          </div>
+          <div class="stat-number" data-count="48" data-suffix="h">0h</div>
+          <div class="stat-label">Teslimat Saati</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BEST SELLERS -->
+  <section class="section section-alt" id="bestsellers">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-eyebrow">🔥 En Çok Tercih Edilenler</div>
+        <h2 class="section-title">Bu ay profesyonellerin <em>seçimi.</em></h2>
+        <p class="section-sub">Avrupa'daki 1.340+ aktif projenin şu an tercih ettiği ürünler — stoktan anında sevkiyat.</p>
+      </div>
+
+      <div class="bestsellers-grid">
+        <!-- PRODUCT 1 -->
+        <article class="product-card reveal">
+          <a href="/product/EMB-500I" class="product-img" style="display:flex; text-decoration:none;">
+            <div class="product-tags">
+              <span class="tag tag-hot">🔥 En Çok Satan</span>
+              <span class="tag tag-sale">-25%</span>
+            </div>
+            <button class="wishlist-btn" aria-label="Favorilere ekle" onclick="event.preventDefault()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/49786/conversions/001GMB-Rondo-big.jpg" alt="Elektro Kippkochkessel" loading="lazy">
+          </a>
+          <div class="product-body">
+            <div class="product-brand">DIAMOND · GOLD LINE</div>
+            <h3 class="product-name">Elektro Kippkochkessel 500 L, indirekt beheizt</h3>
+            <div class="product-rating">
+              <span class="stars">★★★★★</span>
+              <span>4.9 · 128 yorum</span>
+            </div>
+            <div class="product-price-row">
+              <span class="price">28.398 €</span>
+              <span class="price-old">37.864 €</span>
+              <span class="price-discount">-25%</span>
+            </div>
+            <div class="stock-line">
+              <span class="pulse-dot"></span>
+              Stokta — 24 saatte kargo
+            </div>
+            <div class="stock-bar"><div class="stock-bar-fill" style="width:30%"></div></div>
+            <div class="stock-urgency">⚡ Son 7 adet! 12 kişi bu ürünü inceliyor</div>
+            <button class="add-cart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              Sepete Ekle
+            </button>
+          </div>
+        </article>
+
+        <!-- PRODUCT 2 -->
+        <article class="product-card reveal">
+          <a href="/product/FTGV100" class="product-img" style="display:flex; text-decoration:none;">
+            <div class="product-tags">
+              <span class="tag tag-new">Yeni</span>
+              <span class="tag tag-stock">Stokta</span>
+            </div>
+            <button class="wishlist-btn" aria-label="Favorilere ekle" onclick="event.preventDefault()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/12614/conversions/001-ICE900ISW-big.jpg" alt="Scherbeneisbereiter" loading="lazy">
+          </a>
+          <div class="product-body">
+            <div class="product-brand">DIAMOND · GOLD LINE</div>
+            <h3 class="product-name">Scherbeneisbereiter 900 Kg — WASSER</h3>
+            <div class="product-rating">
+              <span class="stars">★★★★★</span>
+              <span>5.0 · 86 yorum</span>
+            </div>
+            <div class="product-price-row">
+              <span class="price">15.458 €</span>
+              <span class="price-old">18.186 €</span>
+              <span class="price-discount">-15%</span>
+            </div>
+            <div class="stock-line">
+              <span class="pulse-dot"></span>
+              Stokta — 48 saatte kargo
+            </div>
+            <div class="stock-bar"><div class="stock-bar-fill" style="width:55%"></div></div>
+            <div class="stock-urgency">⚡ 8 kişi son 1 saatte sipariş verdi</div>
+            <button class="add-cart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              Sepete Ekle
+            </button>
+          </div>
+        </article>
+
+        <!-- PRODUCT 3 -->
+        <article class="product-card reveal">
+          <a href="/product/SBGT-XC-22" class="product-img" style="display:flex; text-decoration:none;">
+            <div class="product-tags">
+              <span class="tag tag-hot">🏆 Editör Seçimi</span>
+            </div>
+            <button class="wishlist-btn" aria-label="Favorilere ekle" onclick="event.preventDefault()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/50379/conversions/001SBES-XC-20-big.jpg" alt="Combi-Steamer" loading="lazy">
+          </a>
+          <div class="product-body">
+            <div class="product-brand">DIAMOND · PLATINUM</div>
+            <h3 class="product-name">Kombidämpfer Touch 20× GN2/1, Boiler + Konvektion</h3>
+            <div class="product-rating">
+              <span class="stars">★★★★★</span>
+              <span>4.8 · 214 yorum</span>
+            </div>
+            <div class="product-price-row">
+              <span class="price">37.662 €</span>
+              <span class="price-old">47.078 €</span>
+              <span class="price-discount">-20%</span>
+            </div>
+            <div class="stock-line">
+              <span class="pulse-dot"></span>
+              Stokta — 24 saatte kargo
+            </div>
+            <div class="stock-bar"><div class="stock-bar-fill" style="width:65%"></div></div>
+            <div class="stock-urgency">⚡ Son 11 adet — stok azalıyor</div>
+            <button class="add-cart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              Sepete Ekle
+            </button>
+          </div>
+        </article>
+
+        <!-- PRODUCT 4 -->
+        <article class="product-card reveal">
+          <a href="/product/CFE202-N" class="product-img" style="display:flex; text-decoration:none;">
+            <div class="product-tags">
+              <span class="tag tag-sale">FLASH -30%</span>
+            </div>
+            <button class="wishlist-btn" aria-label="Favorilere ekle" onclick="event.preventDefault()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></svg>
+            </button>
+            <img src="https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/11745761/conversions/001_CFE202_N-big.jpg" alt="Konvektionsofen" loading="lazy">
+          </a>
+          <div class="product-body">
+            <div class="product-brand">DIAMOND · GOLD LINE</div>
+            <h3 class="product-name">Elektro Konvektionsofen 20× GN 2/1 — Luftbefeuchtung</h3>
+            <div class="product-rating">
+              <span class="stars">★★★★☆</span>
+              <span>4.7 · 92 yorum</span>
+            </div>
+            <div class="product-price-row">
+              <span class="price">11.342 €</span>
+              <span class="price-old">16.203 €</span>
+              <span class="price-discount">-30%</span>
+            </div>
+            <div class="stock-line">
+              <span class="pulse-dot"></span>
+              Stokta — 48 saatte kargo
+            </div>
+            <div class="stock-bar"><div class="stock-bar-fill" style="width:20%"></div></div>
+            <div class="stock-urgency">🔥 Son 3 adet — bugün tükenecek!</div>
+            <button class="add-cart">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              Sepete Ekle
+            </button>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- INTERACTIVE CONFIGURATOR -->
+  <section class="section" id="configurator">
+    <div class="container">
+      <div class="configurator reveal">
+        <div class="config-grid">
+          <div>
+            <div class="config-tag">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M2 12h20"/></svg>
+              Sektörde İlk — Yalnızca 2mc Gastro'da
+            </div>
+            <h2 class="config-title">Mutfağını <em>3 dakikada</em><br>3D olarak planla.</h2>
+            <p style="color:rgba(255,255,255,0.75); font-size:17px; line-height:1.6;">
+              Sürükle-bırak tasarım stüdyomuz ile mutfak ekipmanlarını yerleştir, ölçülerini kontrol et, otomatik BOM ve teklif al.
+              Mimar ve proje ofisleri için birebir doğruluk.
+            </p>
+            <div class="config-features">
+              <div class="config-feat">
+                <span class="check-circle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <div>Gerçek ölçü 3D ürün modelleri · 5.265+ SKU</div>
+              </div>
+              <div class="config-feat">
+                <span class="check-circle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <div>Otomatik BOM (Bill of Materials) oluşturma</div>
+              </div>
+              <div class="config-feat">
+                <span class="check-circle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <div>Güç / su / havalandırma planı</div>
+              </div>
+              <div class="config-feat">
+                <span class="check-circle"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg></span>
+                <div>Anında fiyat teklifi — kredi kartı gerekmez</div>
+              </div>
+            </div>
+            <div style="display:flex; gap:12px; flex-wrap:wrap;">
+              <a href="/design" class="cta-white" style="color:var(--c-navy-deep)">
+                Tasarım Stüdyosunu Dene
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+              </a>
+              <a href="/welcome" class="cta-outline">Videoyu İzle (2:14)</a>
+            </div>
+          </div>
+
+          <div class="config-visual">
+            <div class="config-orb c1"></div>
+            <div class="config-orb c2"></div>
+            <svg viewBox="0 0 400 440" style="position:absolute; inset:0; width:100%; height:100%;">
+              <!-- 3D isometric kitchen -->
+              <defs>
+                <linearGradient id="cg1" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stop-color="#E85D26"/>
+                  <stop offset="100%" stop-color="#FF7A45"/>
+                </linearGradient>
+              </defs>
+
+              <!-- Grid floor -->
+              <g opacity="0.18" stroke="white" stroke-width="1">
+                <path d="M80 320 L200 260 L320 320 L200 380 Z"/>
+                <path d="M120 300 L240 240 M80 300 L200 240 M160 280 M200 260 L200 380 M120 340 L240 280"/>
+              </g>
+
+              <!-- Equipment pieces -->
+              <g>
+                <!-- Fridge -->
+                <path d="M130 200 L130 280 L170 300 L170 220 Z" fill="#2D5A8E" opacity="0.9">
+                  <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+                </path>
+                <path d="M130 200 L170 220 L210 200 L170 180 Z" fill="#4A7BA8"/>
+                <path d="M170 220 L210 200 L210 280 L170 300 Z" fill="#1E3A5F"/>
+                <circle cx="195" cy="240" r="2" fill="#E85D26"/>
+
+                <!-- Oven -->
+                <path d="M210 250 L210 320 L250 340 L250 270 Z" fill="#0B1A2E"/>
+                <path d="M210 250 L250 270 L290 250 L250 230 Z" fill="#1E3A5F"/>
+                <path d="M250 270 L290 250 L290 320 L250 340 Z" fill="url(#cg1)" opacity="0.8">
+                  <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+                </path>
+
+                <!-- Counter -->
+                <path d="M270 200 L270 240 L330 260 L330 220 Z" fill="#C89A3C" opacity="0.85"/>
+                <path d="M270 200 L330 220 L370 200 L310 180 Z" fill="#E0B963"/>
+
+                <!-- Animated placement indicators -->
+                <circle cx="170" cy="240" r="4" fill="#E85D26" opacity="0">
+                  <animate attributeName="opacity" values="0;1;0" dur="2.5s" repeatCount="indefinite"/>
+                  <animate attributeName="r" values="4;12;4" dur="2.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="250" cy="290" r="4" fill="#E85D26" opacity="0">
+                  <animate attributeName="opacity" values="0;1;0" dur="3s" begin="0.8s" repeatCount="indefinite"/>
+                  <animate attributeName="r" values="4;12;4" dur="3s" begin="0.8s" repeatCount="indefinite"/>
+                </circle>
+              </g>
+
+              <!-- Floating measurement labels -->
+              <g font-family="Inter, sans-serif" font-size="11" font-weight="600" fill="white">
+                <rect x="60" y="150" width="72" height="22" rx="11" fill="rgba(232,93,38,0.9)"/>
+                <text x="96" y="165" text-anchor="middle">Fridge · 180cm</text>
+                <rect x="280" y="130" width="90" height="22" rx="11" fill="rgba(45,90,142,0.95)"/>
+                <text x="325" y="144" text-anchor="middle">Counter · 200cm</text>
+                <rect x="170" y="400" width="82" height="22" rx="11" fill="rgba(200,154,60,0.95)"/>
+                <text x="211" y="414" text-anchor="middle">Oven · 90cm</text>
+                <!-- Connecting lines -->
+                <line x1="132" y1="161" x2="160" y2="210" stroke="rgba(232,93,38,0.6)" stroke-width="1.5" stroke-dasharray="3,3"/>
+                <line x1="325" y1="152" x2="320" y2="215" stroke="rgba(45,90,142,0.7)" stroke-width="1.5" stroke-dasharray="3,3"/>
+                <line x1="211" y1="400" x2="260" y2="320" stroke="rgba(200,154,60,0.7)" stroke-width="1.5" stroke-dasharray="3,3"/>
+              </g>
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS + TRUSTPILOT -->
+  <section class="section section-alt">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-eyebrow">⭐ Müşteri Yorumları</div>
+        <h2 class="section-title">1.340+ proje, <em>4.8 Trustpilot puanı.</em></h2>
+        <p class="section-sub">Bizi tercih eden mimarlar, zincir restoranlar ve şefler ne diyor?</p>
+      </div>
+
+      <div class="testimonials-wrap">
+        <div class="testimonial-list">
+          <div class="testimonial reveal">
+            <div class="test-top">
+              <div class="test-avatar">MG</div>
+              <div>
+                <div class="test-name">Mehmet G. <span style="color:var(--c-success); font-size:11px;">✓ Doğrulanmış</span></div>
+                <div class="test-role">Executive Chef, Bodrum · 3 şubeli restoran</div>
+              </div>
+              <div class="test-stars" style="margin-left:auto">★★★★★</div>
+            </div>
+            <p class="test-text">"3D tasarım stüdyosu saatlerce mimarla konuşma derdinden kurtardı. Mutfağı 45 dakikada planladık, BOM otomatik çıktı, teklif aldık, 48 saatte sevkiyat geldi."</p>
+          </div>
+          <div class="testimonial reveal">
+            <div class="test-top">
+              <div class="test-avatar" style="background:linear-gradient(135deg,#2D5A8E,#1E3A5F)">AY</div>
+              <div>
+                <div class="test-name">Ayşe Y. <span style="color:var(--c-success); font-size:11px;">✓ Doğrulanmış</span></div>
+                <div class="test-role">Proje Mimarı, İstanbul</div>
+              </div>
+              <div class="test-stars" style="margin-left:auto">★★★★★</div>
+            </div>
+            <p class="test-text">"10 farklı marka katalogu karıştırmak yerine tek platformdan seçim yapmak devrim. Diamond ve Diverso kalitesini distribütör fiyatına almak bonus."</p>
+          </div>
+          <div class="testimonial reveal">
+            <div class="test-top">
+              <div class="test-avatar" style="background:linear-gradient(135deg,#C89A3C,#8a6a22)">SK</div>
+              <div>
+                <div class="test-name">Stefan K. <span style="color:var(--c-success); font-size:11px;">✓ Doğrulanmış</span></div>
+                <div class="test-role">Hotel F&B Manager, Berlin · 120 oda</div>
+              </div>
+              <div class="test-stars" style="margin-left:auto">★★★★★</div>
+            </div>
+            <p class="test-text">"Leasing opsiyonuyla 36 ay taksitli ödeme + hızlı Alman teslimatı. GGMGastro'dan 7 farklı markayla uğraşmak zorunda kalmadım."</p>
+          </div>
+        </div>
+
+        <div class="trust-score reveal">
+          <div class="trust-logo">
+            <span class="trust-logo-icon">★</span>
+            <span class="trust-logo-text">Trustpilot</span>
+          </div>
+          <div class="trust-score-big">4.8<small>/5</small></div>
+          <div class="trust-stars">★★★★★</div>
+          <div class="trust-reviews-count"><strong style="color:var(--c-ink)">2.340+ yorum</strong> · Sektör ortalamasının üstünde</div>
+          <div style="margin-top:24px; padding-top:24px; border-top:1px solid var(--c-line); display:grid; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px;">
+              <span style="color:var(--c-success); font-weight:700; min-width:24px;">94%</span>
+              <div style="flex:1; height:6px; border-radius:3px; background:var(--c-line);"><div style="width:94%; height:100%; background:var(--c-success); border-radius:3px;"></div></div>
+              <span style="color:var(--c-muted)">Mükemmel</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px;">
+              <span style="color:var(--c-navy-light); font-weight:700; min-width:24px;">4%</span>
+              <div style="flex:1; height:6px; border-radius:3px; background:var(--c-line);"><div style="width:4%; height:100%; background:var(--c-navy-light); border-radius:3px;"></div></div>
+              <span style="color:var(--c-muted)">Harika</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; font-size:13px;">
+              <span style="color:var(--c-amber); font-weight:700; min-width:24px;">2%</span>
+              <div style="flex:1; height:6px; border-radius:3px; background:var(--c-line);"><div style="width:2%; height:100%; background:var(--c-amber); border-radius:3px;"></div></div>
+              <span style="color:var(--c-muted)">Ortalama</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BRAND STRIP -->
+  <section class="brand-strip">
+    <div class="brand-row">
+      <span class="brand-pill">DIAMOND</span>
+      <span class="brand-pill">DIVERSO</span>
+      <span class="brand-pill">COMBISTEEL</span>
+      <span class="brand-pill">DIAMOND SILVER</span>
+      <span class="brand-pill">GOLD LINE PLUS</span>
+      <span class="brand-pill">PLATINUM SERIES</span>
+      <span class="brand-pill">DIAMOND</span>
+      <span class="brand-pill">DIVERSO</span>
+      <span class="brand-pill">COMBISTEEL</span>
+      <span class="brand-pill">DIAMOND SILVER</span>
+      <span class="brand-pill">GOLD LINE PLUS</span>
+      <span class="brand-pill">PLATINUM SERIES</span>
+    </div>
+  </section>
+
+  <!-- FINANCING / SERVICES -->
+  <section class="section">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-eyebrow">Ticari Avantajlar</div>
+        <h2 class="section-title">Sadece ekipman değil, <em>komple çözüm.</em></h2>
+      </div>
+      <div class="fin-grid">
+        <div class="fin-card reveal">
+          <div class="fin-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="5" width="20" height="14" rx="3"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="18" cy="15" r="1"/></svg>
+          </div>
+          <div class="fin-title">36 Aya Leasing</div>
+          <p class="fin-desc">500€'dan başlayan taksitli ödeme seçenekleri. Kredi kartı ile 12 aya varan taksit. Peşin alımlara özel %5 indirim.</p>
+          <a href="/tools/kitchen-calculator" class="fin-link">Leasing Hesapla <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fin-card reveal">
+          <div class="fin-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="10" r="3"/><path d="M12 2a8 8 0 0 0-8 8c0 1.892.402 3.13 1.5 4.5L12 22l6.5-7.5c1.098-1.37 1.5-2.608 1.5-4.5a8 8 0 0 0-8-8Z"/></svg>
+          </div>
+          <div class="fin-title">Teknik Servis Ağı</div>
+          <p class="fin-desc">15 ülkede 240+ yetkili servis. Ekipmanın kurulumu, bakımı, yedek parça temini aynı platformdan yönetilir.</p>
+          <a href="/support" class="fin-link">Servis Bul <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+        <div class="fin-card reveal">
+          <div class="fin-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 17h4V5H2v12h3M14 17H2M14 17v-7h5l4 4v3h-9"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>
+          </div>
+          <div class="fin-title">Ücretsiz & Hızlı Kargo</div>
+          <p class="fin-desc">€500 üzeri siparişlerde Avrupa içi ücretsiz kargo. 24-48 saat içinde sevkiyat. Kendi depolarımız Istanbul, Berlin, Milano'da.</p>
+          <a href="/docs" class="fin-link">Kargo Politikası <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 5l7 7-7 7"/></svg></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BLOG PREVIEW -->
+  <section class="section section-alt" id="blog">
+    <div class="container">
+      <div class="section-header reveal">
+        <div class="section-eyebrow">Gastro Rehberi</div>
+        <h2 class="section-title">Mutfak kurmadan önce <em>mutlaka oku.</em></h2>
+      </div>
+      <div class="blog-grid">
+        <a href="/blog" class="blog-card reveal" style="color:inherit; text-decoration:none;">
+          <div class="blog-img i1">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M15 11h.01M11 15h.01M16 16h.01m-3.5-4 .5-2M12 7l1.5 1.5M14.5 10.5 16 12M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </div>
+          <div class="blog-body">
+            <div class="blog-cat">Rehber · 12 dk okuma</div>
+            <h3 class="blog-title">Pizzeria mutfağı nasıl kurulur? 2026 adım adım rehberi</h3>
+            <div class="blog-meta">
+              <span>12 Nisan 2026</span>
+              <span>📖 8.240 okuma</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="/blog" class="blog-card reveal" style="color:inherit; text-decoration:none;">
+          <div class="blog-img i2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m2 12 10-10 10 10M12 2v20"/></svg>
+          </div>
+          <div class="blog-body">
+            <div class="blog-cat">Teknik · 8 dk okuma</div>
+            <h3 class="blog-title">Soğuk zincir rehberi: Blast chiller vs şok dondurucu</h3>
+            <div class="blog-meta">
+              <span>5 Nisan 2026</span>
+              <span>📖 5.120 okuma</span>
+            </div>
+          </div>
+        </a>
+
+        <a href="/blog" class="blog-card reveal" style="color:inherit; text-decoration:none;">
+          <div class="blog-img i3">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2v2M14 2v2M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1M6 2v2"/></svg>
+          </div>
+          <div class="blog-body">
+            <div class="blog-cat">Case Study · 6 dk okuma</div>
+            <h3 class="blog-title">5 yıldızlı otel mutfağı: Bodrum projesi — nasıl 45 günde tamamlandı?</h3>
+            <div class="blog-meta">
+              <span>28 Mart 2026</span>
+              <span>📖 12.450 okuma</span>
+            </div>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="container">
+      <div class="final-inner">
+        <h2 class="final-title reveal">Projenize bugün başlayın <em>hızlı ve ücretsiz.</em></h2>
+        <p class="final-sub reveal">Kayıt ücretsiz · Kredi kartı gerekmez</p>
+        <div class="final-ctas reveal">
+          <a href="/register" class="cta-white">
+            Ücretsiz Kayıt
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+          </a>
+          <a href="/rfq" class="cta-outline">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            Teklif Al
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col footer-brand">
+          <a href="/" class="logo">
+            <span class="logo-badge">2</span>
+            <span style="color:white">mc <em style="color:var(--c-clay-soft)">gastro</em></span>
+          </a>
+          <p>Avrupa'nın gastro ekipman platformu. Diamond ve Diverso premium markalarının tüm kataloğu, 3D tasarım stüdyosu, BOM ve proje araçlarıyla tek platformda.</p>
+          <div class="footer-social">
+            <a href="#" class="social-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M22 6c-.8.4-1.6.6-2.5.8.9-.5 1.6-1.4 1.9-2.4-.8.5-1.8.9-2.7 1.1-.8-.9-2-1.4-3.3-1.4-2.5 0-4.5 2-4.5 4.5 0 .3 0 .7.1 1C7.7 9.4 4.1 7.4 1.7 4.4c-.4.7-.6 1.4-.6 2.2 0 1.6.8 3 2 3.8-.7 0-1.4-.2-2-.6v.1c0 2.2 1.5 4 3.6 4.4-.4.1-.7.1-1.1.1-.3 0-.5 0-.8-.1.5 1.8 2.2 3.1 4.1 3.1-1.5 1.2-3.4 1.9-5.4 1.9H0c2 1.3 4.3 2 6.9 2 8.3 0 12.8-6.9 12.8-12.8v-.6c.9-.6 1.6-1.4 2.3-2.3z"/></svg></a>
+            <a href="#" class="social-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.2c3.2 0 3.6 0 4.9.1 1.2.1 1.8.3 2.2.4.6.2 1 .5 1.4.9.4.4.7.9.9 1.4.2.4.4 1 .4 2.2.1 1.3.1 1.7.1 4.9s0 3.6-.1 4.9c-.1 1.2-.3 1.8-.4 2.2-.2.6-.5 1-.9 1.4-.4.4-.9.7-1.4.9-.4.2-1 .4-2.2.4-1.3.1-1.7.1-4.9.1s-3.6 0-4.9-.1c-1.2-.1-1.8-.3-2.2-.4-.6-.2-1-.5-1.4-.9-.4-.4-.7-.9-.9-1.4-.2-.4-.4-1-.4-2.2-.1-1.3-.1-1.7-.1-4.9s0-3.6.1-4.9c.1-1.2.3-1.8.4-2.2.2-.6.5-1 .9-1.4.4-.4.9-.7 1.4-.9.4-.2 1-.4 2.2-.4 1.3-.1 1.7-.1 4.9-.1zm0-2.2C8.7 0 8.3 0 7.1.1 5.8.1 5 .3 4.2.6c-.8.3-1.5.7-2.1 1.4-.7.6-1.1 1.3-1.4 2.1-.3.8-.5 1.6-.6 2.9C0 8.3 0 8.7 0 12s0 3.7.1 4.9c.1 1.3.3 2.1.6 2.9.3.8.7 1.5 1.4 2.1.7.7 1.3 1.1 2.1 1.4.8.3 1.6.5 2.9.6 1.2.1 1.6.1 4.9.1s3.7 0 4.9-.1c1.3-.1 2.1-.3 2.9-.6.8-.3 1.5-.7 2.1-1.4.7-.7 1.1-1.3 1.4-2.1.3-.8.5-1.6.6-2.9.1-1.2.1-1.6.1-4.9s0-3.7-.1-4.9c-.1-1.3-.3-2.1-.6-2.9-.3-.8-.7-1.5-1.4-2.1-.6-.7-1.3-1.1-2.1-1.4-.8-.3-1.6-.5-2.9-.6C15.7 0 15.3 0 12 0zm0 5.8c-3.4 0-6.2 2.8-6.2 6.2s2.8 6.2 6.2 6.2 6.2-2.8 6.2-6.2-2.8-6.2-6.2-6.2zm0 10.2c-2.2 0-4-1.8-4-4s1.8-4 4-4 4 1.8 4 4-1.8 4-4 4zm7.8-10.4c0 .8-.6 1.4-1.4 1.4-.8 0-1.4-.6-1.4-1.4 0-.8.6-1.4 1.4-1.4.8 0 1.4.6 1.4 1.4z"/></svg></a>
+            <a href="#" class="social-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19 0h-14c-2.8 0-5 2.2-5 5v14c0 2.8 2.2 5 5 5h14c2.8 0 5-2.2 5-5v-14c0-2.8-2.2-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.3c-1 0-1.8-.8-1.8-1.7s.8-1.7 1.8-1.7 1.8.8 1.8 1.7-.8 1.7-1.8 1.7zm13.5 12.3h-3v-5.6c0-3.4-4-3.1-4 0v5.6h-3v-11h3v1.8c1.4-2.6 7-2.8 7 2.5v6.7z"/></svg></a>
+            <a href="#" class="social-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M23 3a10.9 10.9 0 0 1-3.14 1.53 4.48 4.48 0 0 0-7.86 3v1A10.66 10.66 0 0 1 3 4s-4 9 5 13a11.64 11.64 0 0 1-7 2c9 5 20 0 20-11.5a4.5 4.5 0 0 0-.08-.83A7.72 7.72 0 0 0 23 3z"/></svg></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Kategoriler</h4>
+          <a href="/kategori/cooling">Soğutma</a>
+          <a href="/kategori/cooking">Pişirme</a>
+          <a href="/kategori/prep_hygiene">Hazırlık</a>
+          <a href="/kategori/pizza_pasta">Pizza</a>
+          <a href="/kategori/self_service">Self Servis</a>
+          <a href="/kategori/dynamic_prep">Dinamik</a>
+          <a href="/kategori/ice_cream">Dondurma</a>
+          <a href="/kategori/coffee_tea">Kahve</a>
+        </div>
+        <div class="footer-col">
+          <h4>Araçlar</h4>
+          <a href="/design">3D Tasarım Stüdyosu</a>
+          <a href="/bom">BOM Oluşturucu</a>
+          <a href="/projects">Projeler</a>
+          <a href="/rfq">Teklif Talebi</a>
+          <a href="/tools/kitchen-calculator">Leasing Hesaplayıcı</a>
+          <a href="/support">Teknik Servis</a>
+        </div>
+        <div class="footer-col">
+          <h4>Şirket</h4>
+          <a href="/brand">Hakkımızda</a>
+          <a href="/blog">Blog</a>
+          <a href="/resources">Başarı Hikayeleri</a>
+          <a href="/support">Kariyer</a>
+          <a href="/support">Basın</a>
+          <a href="/support">İletişim</a>
+        </div>
+        <div class="footer-col">
+          <h4>Destek</h4>
+          <a href="/support">Yardım Merkezi</a>
+          <a href="/docs">İade & Garanti</a>
+          <a href="/orders">Kargo Takibi</a>
+          <a href="/docs">Gizlilik Politikası</a>
+          <div class="newsletter">
+            <strong>🎁 %10 indirim kazan</strong>
+            <span>E-postanı bırak, ilk siparişine özel indirim kodu sana gelsin.</span>
+            <div class="form">
+              <input type="email" placeholder="E-posta adresi">
+              <button>Abone Ol</button>
+            </div>
+            <div class="deal" style="margin-top:6px">✓ 12.000+ profesyonel üye oldu</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>© 2026 2mc Gastro · Diamond / Diverso Yetkili Distribütörü · Tüm hakları saklıdır.</div>
+        <div class="payments">
+          <span>Ödeme:</span>
+          <span class="pay-chip">VISA</span>
+          <span class="pay-chip">MasterCard</span>
+          <span class="pay-chip">AMEX</span>
+          <span class="pay-chip">SEPA</span>
+          <span class="pay-chip">LEASING</span>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- FLOATING WIDGETS -->
+  <div class="whatsapp-tooltip" id="wa-tooltip">
+    💬 Hemen fiyat teklifi al — yanıt 2 dakika
+  </div>
+  <a href="https://wa.me/905555555555" class="whatsapp-btn" aria-label="WhatsApp ile iletişime geç" id="wa-btn">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="currentColor">
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/>
+    </svg>
+  </a>
+
+  <div class="chat-widget" id="chat-widget">
+    <button class="chat-close" aria-label="Kapat" onclick="document.getElementById('chat-widget').style.display='none'">×</button>
+    <div class="chat-avatar">AD</div>
+    <div class="chat-body">
+      <strong>Adem · Gastro Danışmanı</strong>
+      <p>Merhaba! Mutfak projen için 5 dakikada ücretsiz teklif hazırlayalım.</p>
+      <button>
+        Sohbete başla
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </button>
+    </div>
+  </div>
+
+<script>
+  // ============ SCROLL REVEAL ============
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.classList.add('visible');
+        io.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+  // ============ HERO ROTATING HEADLINE ============
+  const words = document.querySelectorAll('.rotator-word');
+  let idx = 0;
+  setInterval(() => {
+    words[idx].classList.remove('active');
+    idx = (idx + 1) % words.length;
+    words[idx].classList.add('active');
+  }, 2800);
+
+  // ============ HERO PRODUCT CAROUSEL ============
+  const hpCards = Array.from(document.querySelectorAll('.hero-product'));
+  const hpDots = Array.from(document.querySelectorAll('.carousel-dot'));
+  let hpFront = 0;
+  function renderCarousel() {
+    const n = hpCards.length;
+    hpCards.forEach((card, i) => {
+      const offset = (i - hpFront + n) % n;
+      if (offset === 0) card.setAttribute('data-pos', '0');
+      else if (offset === 1) card.setAttribute('data-pos', '1');
+      else if (offset === 2) card.setAttribute('data-pos', '2');
+      else card.setAttribute('data-pos', 'out');
+    });
+    hpDots.forEach((d, i) => d.classList.toggle('active', i === hpFront));
+  }
+  function nextCarousel() {
+    hpFront = (hpFront + 1) % hpCards.length;
+    renderCarousel();
+  }
+  let hpTimer = setInterval(nextCarousel, 3800);
+  hpDots.forEach((d, i) => {
+    d.addEventListener('click', () => {
+      hpFront = i;
+      renderCarousel();
+      clearInterval(hpTimer);
+      hpTimer = setInterval(nextCarousel, 3800);
+    });
+  });
+  // Pause on hover
+  const stage = document.getElementById('heroCarousel');
+  if (stage) {
+    stage.addEventListener('mouseenter', () => clearInterval(hpTimer));
+    stage.addEventListener('mouseleave', () => {
+      hpTimer = setInterval(nextCarousel, 3800);
+    });
+  }
+  renderCarousel();
+
+  // ============ COUNTDOWN TIMER (48h) ============
+  const endsAt = Date.now() + (47 * 3600 + 23 * 60 + 8) * 1000;
+  function pad(n) { return n.toString().padStart(2,'0'); }
+  function tick() {
+    const diff = Math.max(0, endsAt - Date.now());
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-hh').textContent = pad(h);
+    document.getElementById('cd-mm').textContent = pad(m);
+    document.getElementById('cd-ss').textContent = pad(s);
+  }
+  tick(); setInterval(tick, 1000);
+
+  // ============ STAT COUNTERS ============
+  const counterIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target;
+      const to = parseInt(el.dataset.count, 10);
+      const suffix = el.dataset.suffix || '';
+      const dur = 1800;
+      const start = performance.now();
+      function step(now) {
+        const p = Math.min(1, (now - start) / dur);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.floor(to * eased).toLocaleString('tr-TR') + suffix;
+        if (p < 1) requestAnimationFrame(step);
+        else el.textContent = to.toLocaleString('tr-TR') + suffix;
+      }
+      requestAnimationFrame(step);
+      counterIO.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-count]').forEach(el => counterIO.observe(el));
+
+  // ============ WHATSAPP TOOLTIP ============
+  setTimeout(() => {
+    document.getElementById('wa-tooltip').classList.add('visible');
+    setTimeout(() => {
+      document.getElementById('wa-tooltip').classList.remove('visible');
+    }, 5000);
+  }, 4000);
+
+  // ============ NAV SCROLL EFFECT ============
+  let lastY = 0;
+  const nav = document.querySelector('.nav');
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y > 40) {
+      nav.style.boxShadow = '0 4px 20px rgba(11,26,46,0.08)';
+    } else {
+      nav.style.boxShadow = 'none';
+    }
+    lastY = y;
+  });
+
+  // ============ ADD-TO-CART TOAST (optional flourish) ============
+  document.querySelectorAll('.add-cart').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const orig = btn.innerHTML;
+      btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg> Sepete Eklendi';
+      btn.style.background = 'var(--c-success)';
+      setTimeout(() => {
+        btn.innerHTML = orig;
+        btn.style.background = '';
+      }, 2000);
+    });
+  });
+</script>
+</body>
+</html>

@@ -30,8 +30,11 @@ export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { login, loginWithGoogle, isLoading } = useAuthStore();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  // Dev convenience: localhost'ta sahip hesabıyla otomatik dolsun (prod'da boş kalır)
+  const DEV_EMAIL = 'cevikademm@gmail.com';
+  const DEV_PASSWORD = 'Adem123';
+  const [email, setEmail] = useState(import.meta.env.DEV ? DEV_EMAIL : '');
+  const [password, setPassword] = useState(import.meta.env.DEV ? DEV_PASSWORD : '');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 

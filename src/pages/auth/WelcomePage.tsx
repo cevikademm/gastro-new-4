@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import productsData from '../../data/products.json';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import { useBannerStore } from '../../stores/bannerStore';
@@ -6,12 +7,12 @@ import {
   Ruler, Refrigerator, Shield, BarChart3,
   ArrowRight, Sparkles, Star,
   Award, CheckCircle2,
-  Menu, ChevronDown, Heart, Repeat, Gem, Box, PencilRuler, ListOrdered, FileText, FolderKanban,
-  Flame, Snowflake, Droplets, Scissors, Armchair, Coffee, UtensilsCrossed, Package,
-  Home, LayoutGrid, ShoppingCart, CreditCard, Search, User, Building2, Newspaper, PhoneCall,
-  Info, HelpCircle, Scale, Calculator,
-  Pizza, Sandwich, Utensils, Cookie, Soup, Martini, IceCream, Beef, ShoppingBasket, Truck,
-  Globe, Tag, Zap, ChefHat, X
+  Gem, Box, PencilRuler, FileText, FolderKanban,
+  Flame, Snowflake, Droplets, Scissors, Coffee, UtensilsCrossed, Package,
+  Search, User, Building2, PhoneCall, Mail, MessageCircle, MapPin,
+  HelpCircle, Calculator, Clock, Truck, Tag, Zap, ChefHat,
+  Youtube, Wrench, Globe, Pizza, Martini, IceCream, Cookie,
+  ShoppingCart, Heart, Play, Repeat, CreditCard,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import LanguageSelector from '../../components/LanguageSelector';
@@ -19,14 +20,20 @@ import NewsletterSection from '../../components/home/NewsletterSection';
 import BlogPreviewSection from '../../components/home/BlogPreviewSection';
 import LiveChatWidget from '../../components/LiveChatWidget';
 import SiteFooter from '../../components/SiteFooter';
+import WelcomeScrollFX from './WelcomeScrollFX';
 import './welcome-2mc.css';
+import './welcome-claude.css';
+import './welcome-hyper.css';
+import SectionSlot from '../../components/welcome/SectionSlot';
 
-const FEATURES_KEYS = [
-  { icon: Refrigerator, titleKey: 'welcome.featureEquipment', descKey: 'welcome.featureEquipmentDescLong' },
-  { icon: Ruler, titleKey: 'welcome.featureDesign', descKey: 'welcome.featureDesignDesc' },
-  { icon: BarChart3, titleKey: 'welcome.featureQuoteLong', descKey: 'welcome.featureQuoteLongDesc' },
-  { icon: Shield, titleKey: 'welcome.featureHACCP', descKey: 'welcome.featureHACCPDescLong' },
-];
+// ─────────────────────────────────────────────────────────────────────────
+// MARKA AKSAN PALETİ (bordo)
+// Renk değişikliği için bu 4 değeri güncelle (ya da Adem'e söyle).
+//   ana   : #7B1F26  (rgba: 123,31,38)
+//   koyu  : #5A1219
+//   açık  : #A04654
+// Üzerindeki yazılar BEYAZ (#fff) olarak ayarlandı.
+// ─────────────────────────────────────────────────────────────────────────
 
 // Video listesi — public/videos/ klasörüne yeni .mp4 ekleyince buraya da ekle
 const VIDEO_URLS = [
@@ -34,18 +41,33 @@ const VIDEO_URLS = [
   '/videos/Industrial_dough_mixer_202604100951.mp4',
 ];
 
+type ShowcaseItem = {
+  id: string;
+  src: string;
+  title: string;
+  subtitle: string;
+  desc: string;
+  accent: string;
+  ring: string;
+  text: string;
+  tag: string;
+  specs: Array<{ k: string; v: string }>;
+  features: string[];
+  priceLabel: string | null;
+};
+
 export default function WelcomePage() {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const { slides: allSlides, intervalMs } = useBannerStore();
   const slides = allSlides.filter((s) => s.enabled);
   const [bannerIdx, setBannerIdx] = useState(0);
+  const [videoIdx, setVideoIdx] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
     if (slides.length <= 1) return;
-    const id = setInterval(() => {
-      setBannerIdx((i) => (i + 1) % slides.length);
-    }, intervalMs);
+    const id = setInterval(() => setBannerIdx((i) => (i + 1) % slides.length), intervalMs);
     return () => clearInterval(id);
   }, [slides.length, intervalMs]);
 
@@ -53,30 +75,80 @@ export default function WelcomePage() {
     if (bannerIdx >= slides.length) setBannerIdx(0);
   }, [slides.length, bannerIdx]);
 
-  const advanceBanner = () => setBannerIdx((i) => (i + 1) % Math.max(1, slides.length));
   const currentSlide = slides[bannerIdx];
 
-  // Video carousel
-  const videoUrls = VIDEO_URLS;
-  const [videoIdx, setVideoIdx] = useState(0);
-  const [exploreTab, setExploreTab] = useState<'categories' | 'pages'>('categories');
-  const videoRef = useRef<HTMLVideoElement>(null);
+  // Bestsellers — €3.000-€10.000 aralığı; mutfak ekipmanları öne çıkar, sürekli rotasyonla değişir
+  const KITCHEN_HERO_CATS = useMemo(
+    () => new Set(['cooking', 'pizza_pasta', 'bakery', 'cook_chill', 'dynamic_prep']),
+    []
+  );
+  type BestsellerRow = { id: string; name: string; img: string; price: number; cat: string };
+  type BestsellerCard = { id: string; name: string; img: string; price: number; badge: string };
+
+  const bestsellerPool = useMemo<BestsellerRow[]>(() => {
+    const rows = (productsData as BestsellerRow[]).filter(
+      (p) =>
+        p.price >= 3000 &&
+        p.price <= 10000 &&
+        typeof p.img === 'string' &&
+        /^https?:\/\//.test(p.img)
+    );
+    // Mutfak öne çıkanları 3 kez ekleyerek seçilme şansını artır (ağırlıklı havuz)
+    const weighted: BestsellerRow[] = [];
+    rows.forEach((p) => {
+      const reps = KITCHEN_HERO_CATS.has(p.cat) ? 3 : 1;
+      for (let i = 0; i < reps; i++) weighted.push(p);
+    });
+    return weighted;
+  }, [KITCHEN_HERO_CATS]);
+
+  const toBestsellerCard = (p: BestsellerRow): BestsellerCard => ({
+    id: p.id,
+    name: p.name,
+    img: p.img,
+    price: p.price,
+    badge: p.price >= 7000 ? 'PREMIUM' : p.price >= 5000 ? 'EMPFEHLUNG' : 'BESTSELLER',
+  });
+
+  const pickBestsellerBatch = (pool: BestsellerRow[], exclude = new Set<string>()): BestsellerCard[] => {
+    const seen = new Set<string>(exclude);
+    const picks: BestsellerRow[] = [];
+    let safety = 0;
+    while (picks.length < 10 && safety++ < 1000) {
+      const r = pool[Math.floor(Math.random() * pool.length)];
+      if (!r || seen.has(r.id)) continue;
+      seen.add(r.id);
+      picks.push(r);
+    }
+    return picks.map(toBestsellerCard);
+  };
+
+  const [bestsellers, setBestsellers] = useState<BestsellerCard[]>(() =>
+    pickBestsellerBatch(bestsellerPool)
+  );
+
+  // Tek tek kart değiştirerek dönen vitrin — sıradan değil rastgele indeksle
+  useEffect(() => {
+    if (bestsellerPool.length < 12) return;
+    let t: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      setBestsellers((prev) => {
+        const currentIds = new Set<string>(prev.map((p) => p.id));
+        const slot = Math.floor(Math.random() * prev.length);
+        currentIds.delete(prev[slot].id);
+        const replacement = pickBestsellerBatch(bestsellerPool, currentIds)[0];
+        if (!replacement) return prev;
+        const next = [...prev];
+        next[slot] = replacement;
+        return next;
+      });
+      t = setTimeout(tick, 2200 + Math.random() * 1600);
+    };
+    t = setTimeout(tick, 2800);
+    return () => clearTimeout(t);
+  }, [bestsellerPool]);
 
   // ── 3D showcase modelleri (GLB) ──
-  type ShowcaseItem = {
-    id: string;
-    src: string;
-    title: string;
-    subtitle: string;
-    desc: string;
-    accent: string;
-    ring: string;
-    text: string;
-    tag: string;
-    specs: Array<{ k: string; v: string }>;
-    features: string[];
-    priceLabel: string | null;
-  };
   const SHOWCASE_3D: ShowcaseItem[] = [
     {
       id: 'planetary-mixer-60l',
@@ -153,7 +225,7 @@ export default function WelcomePage() {
       priceLabel: '€ 2.450,00 *',
     },
   ];
-  const [view3D, setView3D] = useState<null | typeof SHOWCASE_3D[number]>(null);
+  const [view3D, setView3D] = useState<null | ShowcaseItem>(null);
 
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -172,1087 +244,1525 @@ export default function WelcomePage() {
     return () => window.removeEventListener('keydown', onKey);
   }, [view3D]);
 
-  const handleVideoEnd = () => {
-    setVideoIdx((i) => (i + 1) % Math.max(1, videoUrls.length));
-  };
+  const handleVideoEnd = () => setVideoIdx((i) => (i + 1) % Math.max(1, VIDEO_URLS.length));
 
-  // Banner JSX — BigGastro düzeninde kategori çubuklarının altında render edilir
-  const bannerBlock = currentSlide && (
-    <motion.div
-      initial={{ opacity: 0, y: -10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8 }}
-      onClick={advanceBanner}
-      title={t('welcome.bannerHint', 'Sonraki banner için tıkla')}
-      className="group relative w-full max-w-6xl mb-12 overflow-hidden cursor-pointer aspect-[820/312] rounded-xl sm:rounded-2xl"
-    >
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={currentSlide.id}
-          initial={{ opacity: 0, scale: 1.04 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.98 }}
-          transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-          className="absolute inset-0 w-full h-full flex flex-col justify-center px-5 sm:px-10 md:px-16"
-          style={
-            currentSlide.image
-              ? { backgroundImage: `url(${currentSlide.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-              : { background: currentSlide.gradient }
-          }
-        >
-          {!currentSlide.image && (
-            <div
-              className="absolute inset-0 opacity-20 pointer-events-none"
-              style={{
-                backgroundImage:
-                  'linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)',
-                backgroundSize: '40px 40px',
-              }}
-            />
-          )}
-          {!currentSlide.image && (
-            <div className="relative z-10 max-w-2xl">
-              <div className="text-[11px] font-mono uppercase tracking-[0.3em] text-white/70 mb-4">
-                {currentSlide.eyebrow}
-              </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-white leading-tight mb-3 drop-shadow">
-                {currentSlide.title}
-              </h2>
-              <p className="text-sm md:text-base text-white/80 max-w-xl">
-                {currentSlide.subtitle}
-              </p>
-            </div>
-          )}
-        </motion.div>
-      </AnimatePresence>
-      <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#020817] to-transparent pointer-events-none" />
-      {slides.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-          {slides.map((_, i) => (
-            <button
-              key={i}
-              onClick={(e) => {
-                e.stopPropagation();
-                setBannerIdx(i);
-              }}
-              aria-label={`Banner ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all ${
-                i === bannerIdx ? 'w-8 bg-sky-300' : 'w-1.5 bg-white/30 hover:bg-white/60'
-              }`}
-            />
-          ))}
-        </div>
-      )}
-      <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-[10px] font-mono uppercase tracking-wider text-white/70 opacity-0 group-hover:opacity-100 transition-opacity">
-        click → next
-      </div>
-    </motion.div>
-  );
+  // ── Kategori şeridi (header altı) — her kategori kendi hue'una sahip ──
+  const TOP_CATS = [
+    { Icon: Flame,           label: t('welcome.topcat.cooking', 'Pişirme'),       q: 'ocak',       hue: '#7B1F26' }, // ateş — sıcak turuncu
+    { Icon: Snowflake,       label: t('welcome.topcat.cooling', 'Soğutma'),       q: 'kühl',       hue: '#0EA5E9' }, // buz — açık mavi
+    { Icon: Pizza,           label: t('welcome.topcat.pizza', 'Pizza Fırınları'), q: 'pizza',      hue: '#DC2626' }, // domates kırmızısı
+    { Icon: Droplets,        label: t('welcome.topcat.washing', 'Bulaşık'),       q: 'spül',       hue: '#2563EB' }, // su — koyu mavi
+    { Icon: Scissors,        label: t('welcome.topcat.prep', 'Hazırlama'),        q: 'teig',       hue: '#10B981' }, // taze — yeşil
+    { Icon: Box,             label: t('welcome.topcat.steel', 'Paslanmaz'),       q: 'edelstahl',  hue: '#64748B' }, // çelik — slate
+    { Icon: Coffee,          label: t('welcome.topcat.bar', 'Bar & Kahve'),       q: 'kahve',      hue: '#92400E' }, // kahve — koyu kahverengi
+    { Icon: UtensilsCrossed, label: t('welcome.topcat.service', 'Servis'),        q: 'servis',     hue: '#9333EA' }, // mor — premium servis
+    { Icon: Package,         label: t('welcome.topcat.catering', 'Catering'),     q: 'gastronorm', hue: '#D97706' }, // amber — sıcak catering
+    { Icon: ChefHat,         label: t('welcome.topcat.pro', 'Profesyonel'),       q: 'chef',       hue: '#0F2440' }, // navy — premium pro
+  ];
+
+  // ── Themenwelten — 4 büyük tematik kart ──
+  const THEMENWELTEN = [
+    {
+      key: 'cooling',
+      title: t('welcome.tw.cooling.title', 'Market & Süper Soğutma'),
+      sub: t('welcome.tw.cooling.sub', 'Soğutulmuş vitrin · dolap · teşhir ünitesi'),
+      tag: t('welcome.tw.cooling.tag', 'PROFESYONEL'),
+      img: 'https://images.unsplash.com/photo-1604719312566-8912e9227c6a?w=900&q=80&auto=format&fit=crop',
+      q: 'kühl',
+      accent: '#1E3A5F',
+    },
+    {
+      key: 'pizza',
+      title: t('welcome.tw.pizza.title', 'Pizza Fırınları & Grill'),
+      sub: t('welcome.tw.pizza.sub', 'Taş tabanlı · gazlı · elektrikli modeller'),
+      tag: t('welcome.tw.pizza.tag', 'EMPFEHLUNG'),
+      img: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=900&q=80&auto=format&fit=crop',
+      q: 'pizza',
+      accent: '#5A1219',
+    },
+    {
+      key: 'coffee',
+      title: t('welcome.tw.coffee.title', 'Espresso & Siebträger'),
+      sub: t('welcome.tw.coffee.sub', 'Profesyonel kahve makineleri · değirmenler'),
+      tag: t('welcome.tw.coffee.tag', 'BESTSELLER'),
+      img: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?w=900&q=80&auto=format&fit=crop',
+      q: 'espresso',
+      accent: '#7a7a5e',
+    },
+    {
+      key: 'buffet',
+      title: t('welcome.tw.buffet.title', 'Büfe & Catering'),
+      sub: t('welcome.tw.buffet.sub', 'Chafing · bain-marie · servis üniteleri'),
+      tag: t('welcome.tw.buffet.tag', 'PREMIUM'),
+      img: 'https://images.unsplash.com/photo-1555244162-803834f70033?w=900&q=80&auto=format&fit=crop',
+      q: 'gastronorm',
+      accent: '#c89a3c',
+    },
+  ];
 
   return (
-    <div className="welcome-2mc min-h-screen overflow-hidden relative">
+    <div className="welcome-2mc welcome-claude min-h-screen overflow-hidden relative">
+      <WelcomeScrollFX />
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col items-center px-3 sm:px-6 pt-4 sm:pt-8 pb-10">
-        {/* ====== 2mcwerbung tarzı nav ====== */}
-        <div className="wd-header w-full max-w-6xl mb-8 sm:mb-12 border-x border-b border-black/[0.06] bg-white">
-          <div className="px-4 sm:px-8 h-[64px] flex items-center justify-between gap-4">
-            {/* Left: nav links */}
-            <nav className="flex items-center gap-6 sm:gap-8">
-              {[
-                { key: 'home', label: t('welcome.nav.home', 'Anasayfa'), to: '/dashboard', active: true },
-                { key: 'contact', label: t('welcome.nav.contact', 'İletişim'), to: '#contact' },
-                { key: 'enter', label: t('welcome.enterPlatform', 'Platforma Gir'), to: '/dashboard' },
-                { key: 'login', label: t('welcome.nav.loginRegister', 'Giriş / Kayıt'), to: '/login' },
-              ].map((n) => (
-                <button
-                  key={n.key}
-                  onClick={() => n.to.startsWith('#') ? null : navigate(n.to)}
-                  className={`text-[11px] sm:text-[13px] font-semibold uppercase tracking-wider transition-colors whitespace-nowrap ${
-                    n.active ? 'text-[rgb(40,120,191)]' : 'text-[#333] hover:text-[rgb(40,120,191)]'
-                  }`}
+      <div className="relative z-10 flex flex-col items-center pb-10">
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            1 — USP TOP STRIP
+            Ücretsiz teslimat · Fiyat garantisi · Ekspres · Garanti
+           ═══════════════════════════════════════════════════════════════════ */}
+        <div className="w-full" style={{ background: '#0F2440', color: '#fff' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-center flex-wrap gap-x-6 gap-y-1 text-[11.5px] font-semibold tracking-wide">
+            <span className="inline-flex items-center gap-1.5">
+              <Truck size={13} style={{ color: '#A04654' }} />
+              {t('welcome.uspbar.freeShip', 'Ücretsiz Teslimat · Tüm Avrupa')}
+            </span>
+            <span className="hidden sm:inline opacity-30">·</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Tag size={13} style={{ color: '#A04654' }} />
+              {t('welcome.uspbar.priceGuar', 'Düşük Fiyat Garantisi')}
+            </span>
+            <span className="hidden sm:inline opacity-30">·</span>
+            <span className="inline-flex items-center gap-1.5">
+              <Zap size={13} style={{ color: '#A04654' }} />
+              {t('welcome.uspbar.express', 'Ekspres Kargo 24-48 saat')}
+            </span>
+            <span className="hidden md:inline opacity-30">·</span>
+            <span className="hidden md:inline-flex items-center gap-1.5">
+              <Shield size={13} style={{ color: '#A04654' }} />
+              {t('welcome.uspbar.warranty', '2 Yıl Üretici Garantisi')}
+            </span>
+          </div>
+        </div>
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            2 — HEADER
+            Logo + arama + hesap + dil + sepet
+           ═══════════════════════════════════════════════════════════════════ */}
+        <header className="w-full bg-white border-b" style={{ borderColor: '#e8e6df' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center gap-4">
+            {/* Logo */}
+            <button
+              type="button"
+              onClick={() => navigate('/welcome')}
+              className="flex items-center gap-2 shrink-0"
+              aria-label="2MC Gastro"
+            >
+              <div
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black"
+                style={{ background: 'linear-gradient(135deg, #7B1F26, #5A1219)', fontFamily: 'Fraunces, Georgia, serif' }}
+              >
+                2
+              </div>
+              <div className="leading-none">
+                <div
+                  className="text-[18px] font-black tracking-tight"
+                  style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 600 }}
                 >
-                  {n.label}
-                </button>
-              ))}
-            </nav>
+                  2MC <span style={{ color: '#7B1F26', fontStyle: 'italic', fontWeight: 500 }}>Gastro</span>
+                </div>
+                <div className="text-[9px] uppercase tracking-[0.25em] mt-0.5" style={{ color: 'rgba(15,36,64,0.5)' }}>
+                  Professional Kitchen
+                </div>
+              </div>
+            </button>
 
-            {/* Right: language selector */}
-            <div className="flex items-center">
+            {/* Arama */}
+            <div className="flex-1 max-w-xl hidden md:block">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const fd = new FormData(e.currentTarget);
+                  const q = String(fd.get('q') || '').trim();
+                  if (q) navigate(`/diamond?q=${encodeURIComponent(q)}`);
+                }}
+                className="relative"
+              >
+                <Search
+                  size={17}
+                  className="absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none"
+                  style={{ color: 'rgba(15,36,64,0.4)' }}
+                />
+                <input
+                  name="q"
+                  type="search"
+                  placeholder={t('welcome.header.searchPh', 'Ürün, marka veya kategori ara…')}
+                  className="w-full py-2.5 pl-11 pr-24 text-sm border rounded-full outline-none transition-all focus:ring-2"
+                  style={{
+                    borderColor: '#e8e6df',
+                    background: '#faf9f5',
+                    color: '#0F2440',
+                    // @ts-expect-error — CSS var for ring color
+                    '--tw-ring-color': 'rgba(123,31,38,0.25)',
+                  }}
+                />
+                <button
+                  type="submit"
+                  className="absolute right-1.5 top-1/2 -translate-y-1/2 px-4 py-1.5 rounded-full text-[12px] font-bold text-white transition-all hover:-translate-y-[55%]"
+                  style={{ background: '#7B1F26' }}
+                >
+                  {t('welcome.header.searchBtn', 'Ara')}
+                </button>
+              </form>
+            </div>
+
+            {/* Sağ aksiyonlar */}
+            <div className="ml-auto flex items-center gap-1 sm:gap-2 shrink-0">
               <LanguageSelector variant="light" />
+              <button
+                type="button"
+                onClick={() => navigate('/support')}
+                title={t('welcome.header.help', 'Yardım merkezi')}
+                className="hidden sm:flex w-10 h-10 items-center justify-center rounded-full border transition-colors hover:bg-[#faf9f5]"
+                style={{ borderColor: '#e8e6df', color: '#0F2440' }}
+              >
+                <HelpCircle size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                title={t('welcome.header.account', 'Hesap')}
+                className="flex w-10 h-10 items-center justify-center rounded-full border transition-colors hover:bg-[#faf9f5]"
+                style={{ borderColor: '#e8e6df', color: '#0F2440' }}
+              >
+                <User size={18} />
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/cart')}
+                title={t('welcome.header.cart', 'Sepet')}
+                className="relative flex w-10 h-10 items-center justify-center rounded-full transition-colors text-white"
+                style={{ background: '#0F2440' }}
+              >
+                <ShoppingCart size={18} />
+                <span
+                  className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center text-[10px] font-black"
+                  style={{ background: '#7B1F26', color: '#fff' }}
+                >
+                  0
+                </span>
+              </button>
             </div>
           </div>
 
-          {/* Modül ikonları şeridi */}
-          <div className="border-t border-black/[0.04] bg-[#fafafa]">
-            <div className="px-3 sm:px-6 py-4 sm:py-6 grid grid-cols-3 md:grid-cols-6 gap-3 sm:gap-4">
-              {[
-                { Icon: Gem, label: 'DIAMOND', sub: t('welcome.modules.diamond', 'Katalog'), to: '/diamond' },
-                { Icon: Box, label: 'COMBISTEEL', sub: t('welcome.modules.combisteel', 'Mağaza'), to: '/combisteel' },
-                { Icon: PencilRuler, label: 'STUDIO', sub: t('welcome.modules.studio', 'Tasarım'), to: '/design' },
-                { Icon: Repeat, label: t('welcome.modules.compareLabel', 'KARŞILAŞTIR'), sub: t('welcome.modules.compare', 'Ürün'), to: '/compare' },
-                { Icon: FileText, label: t('welcome.modules.quoteLabel', 'TEKLİF'), sub: t('welcome.modules.quote', 'PDF'), to: '/payment' },
-                { Icon: FolderKanban, label: t('welcome.modules.projectsLabel', 'PROJELER'), sub: t('welcome.modules.projects', 'Yönetim'), to: '/projects' },
-              ].map((m) => {
-                const Icon = m.Icon;
-                return (
-                  <button
-                    key={m.label}
-                    onClick={() => navigate(m.to)}
-                    className="group flex flex-col items-center gap-2 py-3 transition-all"
+          {/* Kategori şeridi — yatay row stili (icon sol, etiket sağ), yoğun grid */}
+          <nav
+            className="topcat-strip border-t"
+            style={{
+              borderColor: 'rgba(123,31,38,0.14)',
+              background:
+                'linear-gradient(180deg, #faf9f5 0%, #f3ede0 100%)',
+            }}
+          >
+            <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5">
+              {/* Tablo benzeri grid — hücreler arasında ince ayraçlar */}
+              <div
+                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 rounded-xl overflow-hidden"
+                style={{
+                  background: '#ffffff',
+                  border: '1px solid rgba(15,36,64,0.09)',
+                  boxShadow: '0 1px 2px rgba(15,36,64,0.04)',
+                }}
+              >
+                {TOP_CATS.map((c, idx) => {
+                  const I = c.Icon;
+                  // 5 sütun varsayımıyla son sütundaki hücrelerin sağ kenarı yok
+                  const isLastCol = (idx + 1) % 5 === 0;
+                  // Son sıradaki hücrelerin alt kenarı yok (10 öğe → son sıra: 5-9)
+                  const isLastRow = idx >= TOP_CATS.length - 5;
+                  return (
+                    <button
+                      key={c.label}
+                      type="button"
+                      onClick={() => navigate(`/diamond?q=${encodeURIComponent(c.q)}`)}
+                      className="topcat-tile group flex items-center gap-3 px-3 py-3 text-left transition-colors duration-200"
+                      style={{
+                        borderRight: isLastCol ? 'none' : '1px solid rgba(15,36,64,0.08)',
+                        borderBottom: isLastRow ? 'none' : '1px solid rgba(15,36,64,0.08)',
+                        background: 'transparent',
+                        ['--hue' as string]: c.hue,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.background = `${c.hue}10`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.background = 'transparent';
+                      }}
+                    >
+                      {/* İkon — küçük kare, per-hue gradient */}
+                      <span
+                        className="topcat-icon shrink-0 w-9 h-9 rounded-lg flex items-center justify-center transition-all duration-200 group-hover:scale-105"
+                        style={{
+                          background: `linear-gradient(135deg, ${c.hue}1f 0%, ${c.hue}0a 100%)`,
+                          border: `1px solid ${c.hue}2e`,
+                          color: c.hue,
+                        }}
+                      >
+                        <I size={18} strokeWidth={2} />
+                      </span>
+                      {/* Etiket — sağda, yatay */}
+                      <span
+                        className="topcat-label text-[13px] font-semibold leading-tight transition-colors duration-200"
+                        style={{ color: '#0F2440' }}
+                      >
+                        {c.label}
+                      </span>
+                      {/* Hover ok — hafif sağa kayma */}
+                      <ArrowRight
+                        size={13}
+                        className="ml-auto opacity-0 group-hover:opacity-70 -translate-x-1 group-hover:translate-x-0 transition-all duration-200 shrink-0"
+                        style={{ color: c.hue }}
+                      />
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Alt: tek bir CTA + ince eyebrow — sağa hizalı */}
+              <div className="mt-4 flex items-center justify-between gap-3">
+                <span
+                  className="text-[10px] font-mono uppercase tracking-[0.28em] hidden sm:inline-block"
+                  style={{ color: 'rgba(15,36,64,0.45)' }}
+                >
+                  // 10.000+ {t('welcome.topcat.products', 'ÜRÜN')} · 50+ {t('welcome.topcat.brands', 'MARKA')}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => navigate('/diamond')}
+                  className="group inline-flex items-center gap-2 pl-5 pr-2 py-2 rounded-full text-[12px] font-bold uppercase tracking-wider text-white transition-all hover:-translate-y-0.5"
+                  style={{
+                    background:
+                      'linear-gradient(135deg, #7B1F26 0%, #5A1219 100%)',
+                    boxShadow: '0 6px 18px rgba(123,31,38,0.32)',
+                  }}
+                >
+                  {t('welcome.header.allCats', 'Tüm Kategoriler')}
+                  <span
+                    className="flex items-center justify-center w-7 h-7 rounded-full transition-transform group-hover:translate-x-0.5"
+                    style={{ background: 'rgba(255,255,255,0.18)' }}
                   >
-                    <Icon
-                      strokeWidth={1.5}
-                      className="text-[rgb(40,120,191)] group-hover:scale-110 transition-transform w-8 h-8 sm:w-12 sm:h-12"
-                    />
-                    <div className="text-[10px] sm:text-[13px] font-bold uppercase tracking-wider text-[#333] group-hover:text-[rgb(40,120,191)] text-center leading-tight">
-                      {m.label}
+                    <ArrowRight size={14} />
+                  </span>
+                </button>
+              </div>
+            </div>
+          </nav>
+        </header>
+
+        {/* ═══════════════════════════════════════════════════════════════════
+            4 — THEMENWELTEN
+            4 büyük tematik kart — fotoğraflı, overlay başlıklı
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="themenwelten">
+        <section className="w-full" style={{ background: '#f5f3eb' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+            <div className="flex items-end justify-between gap-4 mb-8">
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2" style={{ color: '#7B1F26' }}>
+                  // THEMENWELTEN
+                </div>
+                <h2
+                  className="text-3xl md:text-4xl lg:text-[44px] leading-[1.05]"
+                  style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.028em' }}
+                >
+                  {t('welcome.tw.heading', 'Ürün dünyalarımızı')}{' '}
+                  <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>{t('welcome.tw.headingAccent', 'keşfedin')}</em>
+                </h2>
+                <p className="text-sm mt-2 max-w-md" style={{ color: 'rgba(15,36,64,0.6)' }}>
+                  {t('welcome.tw.sub', 'İşletme tipinize özel konseptler · 14+ iş kolu için hazır paketler')}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/diamond')}
+                className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold group"
+                style={{ color: '#7B1F26' }}
+              >
+                {t('welcome.tw.viewAll', 'Tüm dünyaları gör')}
+                <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+              {THEMENWELTEN.map((w, i) => (
+                <motion.button
+                  key={w.key}
+                  type="button"
+                  onClick={() => navigate(`/diamond?q=${encodeURIComponent(w.q)}`)}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+                  className="group relative aspect-[3/4] rounded-3xl overflow-hidden text-left border hover:-translate-y-1 transition-all"
+                  style={{ borderColor: '#e8e6df', boxShadow: '0 12px 30px -12px rgba(15,36,64,0.14)' }}
+                >
+                  <img
+                    src={w.img}
+                    alt={w.title}
+                    loading="lazy"
+                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                  <div
+                    aria-hidden
+                    className="absolute inset-0"
+                    style={{
+                      background:
+                        'linear-gradient(180deg, rgba(15,36,64,0.05) 0%, rgba(15,36,64,0.35) 55%, rgba(15,36,64,0.88) 100%)',
+                    }}
+                  />
+                  <span
+                    className="absolute top-4 left-4 text-[9px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full"
+                    style={{ background: w.accent, color: '#fff' }}
+                  >
+                    {w.tag}
+                  </span>
+                  <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                    <div
+                      className="text-xl font-black leading-tight"
+                      style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.02em' }}
+                    >
+                      {w.title}
                     </div>
-                    <div className="text-[9px] sm:text-[10px] uppercase tracking-wider text-[#999] hidden sm:block">{m.sub}</div>
-                  </button>
+                    <div className="text-[12px] opacity-85 mt-1">{w.sub}</div>
+                    <div className="inline-flex items-center gap-1.5 mt-3 text-[11px] font-bold uppercase tracking-wider group-hover:gap-2.5 transition-all">
+                      {t('welcome.tw.explore', 'İncele')} <ArrowRight size={13} />
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            5 — SERVICES
+            4-col hizmet grid — YouTube / Yerinde / 3D Planlama / Yardım
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="services">
+        <section className="w-full" style={{ background: '#faf9f5' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+            <div className="text-center mb-10">
+              <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2" style={{ color: '#7B1F26' }}>
+                // SERVICES
+              </div>
+              <h2
+                className="text-3xl md:text-4xl lg:text-[44px] leading-[1.05]"
+                style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.028em' }}
+              >
+                {t('welcome.sv.heading', 'Satıştan sonrası da')}{' '}
+                <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>{t('welcome.sv.headingAccent', 'yanınızdayız')}</em>
+              </h2>
+              <p className="text-sm mt-3 max-w-xl mx-auto" style={{ color: 'rgba(15,36,64,0.6)' }}>
+                {t('welcome.sv.sub', '4 temel hizmet: AI planlama, yerinde kurulum, video rehberler ve 7/24 yardım merkezi')}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
+              {[
+                {
+                  Icon: PencilRuler,
+                  title: t('welcome.sv.s1.title', '2D / 3D Planlama'),
+                  desc: t('welcome.sv.s1.desc', 'Mutfağınızı sürükle-bırak ile tasarlayın, AI destekli öneriler alın.'),
+                  to: '/design',
+                  cta: t('welcome.sv.s1.cta', 'Planlayıcıyı aç'),
+                },
+                {
+                  Icon: Wrench,
+                  title: t('welcome.sv.s2.title', 'Yerinde Servis'),
+                  desc: t('welcome.sv.s2.desc', 'Uzman teknisyen ekibimiz kurulum ve periyodik bakım için geliyor.'),
+                  to: '/support',
+                  cta: t('welcome.sv.s2.cta', 'Randevu al'),
+                },
+                {
+                  Icon: Youtube,
+                  title: t('welcome.sv.s3.title', 'YouTube Rehberler'),
+                  desc: t('welcome.sv.s3.desc', 'Ürün tanıtımları, kurulum videoları ve şef ipuçları tek kanalda.'),
+                  to: '/docs',
+                  cta: t('welcome.sv.s3.cta', 'Kanalı izle'),
+                },
+                {
+                  Icon: HelpCircle,
+                  title: t('welcome.sv.s4.title', 'Yardım Merkezi'),
+                  desc: t('welcome.sv.s4.desc', 'SSS, kargo durumu, iade/değişim — 7/24 canlı destek ekibi.'),
+                  to: '/support',
+                  cta: t('welcome.sv.s4.cta', 'Destek al'),
+                },
+              ].map((s, i) => {
+                const I = s.Icon;
+                return (
+                  <motion.button
+                    key={s.title}
+                    type="button"
+                    onClick={() => navigate(s.to)}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.08, duration: 0.5 }}
+                    className="group relative rounded-3xl p-6 lg:p-7 text-left border hover:-translate-y-1 transition-all"
+                    style={{ background: '#ffffff', borderColor: '#e8e6df', boxShadow: '0 1px 2px rgba(15,36,64,0.04)' }}
+                  >
+                    <div
+                      className="w-12 h-12 rounded-2xl flex items-center justify-center mb-5"
+                      style={{ background: 'rgba(123,31,38,0.1)', color: '#7B1F26' }}
+                    >
+                      <I size={22} strokeWidth={1.8} />
+                    </div>
+                    <h3
+                      className="text-lg leading-tight mb-2"
+                      style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.018em' }}
+                    >
+                      {s.title}
+                    </h3>
+                    <p className="text-[13px] leading-relaxed mb-5" style={{ color: 'rgba(15,36,64,0.65)' }}>
+                      {s.desc}
+                    </p>
+                    <span
+                      className="inline-flex items-center gap-1.5 text-[12px] font-bold group-hover:gap-2 transition-all"
+                      style={{ color: '#7B1F26' }}
+                    >
+                      {s.cta} <ArrowRight size={13} />
+                    </span>
+                  </motion.button>
                 );
               })}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* ===== Banner ===== */}
-        {bannerBlock}
-
-        {/* ===== En Popüler Kategoriler — büyük daire ikonlar (BigGastro tarzı) ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-6xl mb-16"
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            6 — CREDIBILITY / NEDEN 2MC?
+            Büyük istatistik blokları (Statista tarzı)
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="why-2mc">
+        <section
+          className="w-full"
+          style={{
+            background: 'linear-gradient(180deg, #faf9f5 0%, #f5f0e3 100%)',
+            color: '#0F2440',
+          }}
         >
-          <div className="flex items-baseline justify-between mb-8">
-            <h3 className="text-white font-black text-2xl md:text-3xl tracking-tight">
-              {t('welcome.popularCategories', 'En Popüler Kategoriler')}
-            </h3>
-            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/40">
-              ↓ Top 6
-            </span>
-          </div>
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 sm:gap-6">
-            {[
-              { Icon: Flame,           label: t('welcome.cat.pizzaGrill', 'Pizza & Grill'),       q: 'pizza',     from: 'from-rose-500/20',   to: 'to-rose-600/5',   ring: 'border-rose-400/30',   text: 'text-rose-300' },
-              { Icon: Snowflake,       label: t('welcome.cat.cooling', 'Soğutma'),              q: 'kühl',      from: 'from-sky-500/20',    to: 'to-sky-600/5',    ring: 'border-sky-400/30',    text: 'text-sky-300' },
-              { Icon: Droplets,        label: t('welcome.cat.washing', 'Yıkama & Temizlik'),    q: 'spül',      from: 'from-cyan-500/20',   to: 'to-cyan-600/5',   ring: 'border-cyan-400/30',   text: 'text-cyan-300' },
-              { Icon: Armchair,        label: t('welcome.cat.steelFurniture', 'Paslanmaz Mobilya'), q: 'edelstahl', from: 'from-slate-400/20',  to: 'to-slate-500/5',  ring: 'border-slate-300/30',  text: 'text-slate-200' },
-              { Icon: Scissors,        label: t('welcome.cat.doughMachines', 'Hamur Makineleri'),   q: 'teig',      from: 'from-amber-500/20',  to: 'to-amber-600/5',  ring: 'border-amber-400/30',  text: 'text-amber-300' },
-              { Icon: UtensilsCrossed, label: t('welcome.cat.cookingDevices', 'Pişirme Cihazları'), q: 'herd',      from: 'from-orange-500/20', to: 'to-orange-600/5', ring: 'border-orange-400/30', text: 'text-orange-300' },
-            ].map((c, i) => {
-              const Icon = c.Icon;
-              return (
-                <motion.button
-                  key={c.label}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.06 }}
-                  onClick={() => {
-                    window.scrollTo({ top: 0, behavior: 'auto' });
-                    navigate(`/diamond?q=${encodeURIComponent(c.q)}&concept=${encodeURIComponent(c.label)}`);
-                  }}
-                  className="group flex flex-col items-center gap-3 text-center"
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+            <div className="grid lg:grid-cols-[1fr_1.3fr] gap-10 lg:gap-14 items-center">
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-3" style={{ color: '#7B1F26' }}>
+                  // NEDEN 2MC GASTRO?
+                </div>
+                <h2
+                  className="text-3xl md:text-4xl lg:text-[46px] leading-[1.05] mb-5"
+                  style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.03em', color: '#0F2440' }}
                 >
-                  <div className={`relative w-20 h-20 sm:w-28 sm:h-28 rounded-full bg-gradient-to-br ${c.from} ${c.to} border-2 ${c.ring} flex items-center justify-center group-hover:scale-105 group-hover:border-opacity-80 transition-all shadow-lg shadow-black/30`}>
-                    <div className="absolute inset-0 rounded-full bg-white/[0.02] group-hover:bg-white/[0.05] transition-colors" />
-                    <Icon size={38} strokeWidth={1.6} className={`${c.text} relative z-10 group-hover:scale-110 transition-transform`} />
-                  </div>
-                  <span className="text-white/80 font-bold text-xs sm:text-sm tracking-tight group-hover:text-sky-300 transition-colors">
-                    {c.label}
-                  </span>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
+                  {t('welcome.why.title', 'Endüstriyel mutfağın dijital')}{' '}
+                  <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>{t('welcome.why.titleAccent', 'çözüm ortağı.')}</em>
+                </h2>
+                <p className="text-[15px] leading-relaxed mb-6" style={{ color: 'rgba(15,36,64,0.7)' }}>
+                  {t(
+                    'welcome.why.lede',
+                    '15 yılı aşkın tecrübemizle Avrupa\'nın önde gelen restoran, otel ve catering işletmelerine profesyonel mutfak ekipmanları, 3D tasarım ve teklif hazırlama hizmetleri sunuyoruz.'
+                  )}
+                </p>
+                <ul className="space-y-2.5 mb-7">
+                  {[
+                    t('welcome.why.p1', 'Avrupa\'nın önde gelen gastro tedarikçisi'),
+                    t('welcome.why.p2', 'Ücretsiz AI mutfak planlama & 3D stüdyosu'),
+                    t('welcome.why.p3', 'Avrupa geneli ücretsiz teslimat · 24-48 saat kargo'),
+                    t('welcome.why.p4', 'CE sertifikalı · 2 yıl üretici garantisi'),
+                  ].map((li) => (
+                    <li key={li} className="flex items-start gap-2.5 text-[14px]" style={{ color: 'rgba(15,36,64,0.85)' }}>
+                      <CheckCircle2 size={16} style={{ color: '#7B1F26' }} className="mt-0.5 shrink-0" strokeWidth={2.2} />
+                      <span className="leading-snug">{li}</span>
+                    </li>
+                  ))}
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => navigate('/brand')}
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:-translate-y-0.5"
+                  style={{ background: '#7B1F26', color: '#fff', boxShadow: '0 14px 32px -12px rgba(123,31,38,0.5)' }}
+                >
+                  {t('welcome.why.cta', 'Hakkımızda')} <ArrowRight size={15} />
+                </button>
+              </div>
 
-        {/* ===== Unsere Bestseller — ürün kartları şeridi (BigGastro tarzı) ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-6xl mb-20"
-        >
-          <div className="flex items-baseline justify-between mb-6">
-            <h3 className="text-white font-black text-2xl md:text-3xl tracking-tight">
-              {t('welcome.bestsellers', 'Unsere Bestseller')}
-            </h3>
-            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/40">
-              ↓ Top 4
-            </span>
-          </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              {
-                id: 'BMIV15/R2',
-                name: 'Kühltisch, Umluft, 2 Türen (245 L.)',
-                img: 'https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/76541/conversions/001-BMIV15-R2-big.jpg',
-                price: 2082,
-                badges: ['PREMIUM', 'EXPRESS'],
-              },
-              {
-                id: '03D/6H',
-                name: 'Geschirrspülmaschine, Korb 500×600 mm',
-                img: 'https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/61702/conversions/001-03D6H-big.jpg',
-                price: 4029,
-                badges: ['ANGEBOT', 'PREMIUM'],
-              },
-              {
-                id: '015-25D/6',
-                name: 'Durchschubspülmaschine, Korb 500×500 mm',
-                img: 'https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/61937/conversions/001-D6-big.jpg',
-                price: 5175,
-                badges: ['EMPFEHLUNG', 'PREMIUM'],
-              },
-              {
-                id: 'DF45',
-                name: 'Perforierter Ablageboden für Pizza Ø 450 mm',
-                img: 'https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/62426/conversions/001-DF26-big.jpg',
-                price: 16,
-                badges: ['EXPRESS'],
-              },
-            ].map((p, i) => {
-              const badgeColor = (b: string) =>
-                b === 'PREMIUM'    ? 'bg-amber-400 text-amber-950' :
-                b === 'EXPRESS'    ? 'bg-rose-500 text-white' :
-                b === 'ANGEBOT'    ? 'bg-red-600 text-white' :
-                b === 'EMPFEHLUNG' ? 'bg-green-500 text-green-950' :
-                                     'bg-sky-400 text-sky-950';
-              return (
-                <motion.button
-                  key={p.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.06 }}
-                  onClick={() => navigate('/diamond')}
-                  className="group relative bg-white rounded-xl overflow-hidden border border-white/10 hover:border-sky-400/60 hover:shadow-xl hover:shadow-sky-500/10 transition-all text-left flex flex-col"
-                >
-                  {/* Badges (sol üst, sarı-turuncu ribbon tarzı) */}
-                  <div className="absolute top-2 left-2 z-10 flex flex-col gap-0.5">
-                    {p.badges.map((b) => (
-                      <span
-                        key={b}
-                        className={`relative text-[9px] font-black uppercase tracking-wider px-2 py-0.5 ${badgeColor(b)}`}
-                        style={{ clipPath: 'polygon(0 0, 100% 0, 92% 50%, 100% 100%, 0 100%)' }}
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                {[
+                  { Icon: Award, value: '15+', label: t('welcome.why.stat1', 'Yıl Tecrübe'), sub: t('welcome.why.stat1sub', 'Türkiye & Avrupa pazarında') },
+                  { Icon: CheckCircle2, value: '500+', label: t('welcome.why.stat2', 'Tamamlanan Proje'), sub: t('welcome.why.stat2sub', 'Restoran · otel · catering') },
+                  { Icon: Refrigerator, value: '10K+', label: t('welcome.why.stat3', 'Ekipman Modeli'), sub: t('welcome.why.stat3sub', '50+ premium marka') },
+                  { Icon: Star, value: '4.9/5', label: t('welcome.why.stat4', 'Müşteri Puanı'), sub: t('welcome.why.stat4sub', '320+ Google yorumu') },
+                ].map((s, i) => {
+                  const I = s.Icon;
+                  return (
+                    <motion.div
+                      key={s.label}
+                      initial={{ opacity: 0, y: 14 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ delay: i * 0.08 }}
+                      className="relative overflow-hidden rounded-2xl p-5 sm:p-6"
+                      style={{
+                        background: '#ffffff',
+                        border: '1px solid #e8e6df',
+                        boxShadow: '0 12px 30px -18px rgba(15,36,64,0.18)',
+                      }}
+                    >
+                      <div
+                        aria-hidden
+                        className="absolute -top-10 -right-10 w-28 h-28 rounded-full opacity-[0.08] pointer-events-none"
+                        style={{ background: '#7B1F26' }}
+                      />
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center mb-3"
+                        style={{ background: 'rgba(123,31,38,0.10)', color: '#7B1F26' }}
                       >
-                        {b}
+                        <I size={20} strokeWidth={1.8} />
+                      </div>
+                      <div
+                        className="leading-none"
+                        style={{
+                          fontFamily: 'Fraunces, Georgia, serif',
+                          fontWeight: 500,
+                          fontSize: 'clamp(32px, 3.5vw, 46px)',
+                          letterSpacing: '-0.03em',
+                          color: '#0F2440',
+                        }}
+                      >
+                        {s.value}
+                      </div>
+                      <div className="mt-2 font-bold text-[13.5px]" style={{ color: '#0F2440' }}>{s.label}</div>
+                      <div className="text-[11px] mt-0.5" style={{ color: 'rgba(15,36,64,0.55)' }}>
+                        {s.sub}
+                      </div>
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            6.5 — REFERENCES / REFERANSLARIMIZ
+            Müşteri logoları yatay şerit — şimdilik stilize stok kartlar
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="references">
+        <section className="w-full" style={{ background: '#f5f3eb' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-18">
+            <div className="text-center mb-10">
+              <div
+                className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2"
+                style={{ color: '#7B1F26' }}
+              >
+                // {t('welcome.refs.eyebrow', 'BİZE GÜVENENLER')}
+              </div>
+              <h2
+                className="text-3xl md:text-4xl lg:text-[44px] leading-[1.05]"
+                style={{
+                  color: '#0F2440',
+                  fontFamily: 'Fraunces, Georgia, serif',
+                  fontWeight: 500,
+                  letterSpacing: '-0.028em',
+                }}
+              >
+                {t('welcome.refs.title', 'Avrupa genelinde')}{' '}
+                <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>
+                  {t('welcome.refs.titleAccent', 'referanslarımız')}
+                </em>
+              </h2>
+              <p
+                className="text-sm mt-3 max-w-xl mx-auto"
+                style={{ color: 'rgba(15,36,64,0.6)' }}
+              >
+                {t(
+                  'welcome.refs.sub',
+                  '500+ restoran, otel ve catering işletmesi 2mc Gastro çözümleriyle çalışıyor.'
+                )}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 lg:gap-4">
+              {[
+                { mono: 'RB', name: 'Restorante Bella',  city: 'Roma',     bg: '#FAF3E7', fg: '#B8202A', accent: '#7B1F26' },
+                { mono: 'LP', name: 'Le Petit Café',     city: 'Paris',    bg: '#0F2440', fg: '#F4E9D8', accent: '#D4A574' },
+                { mono: 'SH', name: 'Sofra Hotel',       city: 'İstanbul', bg: '#1F4D3A', fg: '#E8C547', accent: '#E8C547' },
+                { mono: 'BC', name: 'Berlin Catering',   city: 'Berlin',   bg: '#1A1A1A', fg: '#FFC857', accent: '#FFC857' },
+                { mono: 'SK', name: 'Star Kitchen',      city: 'Munich',   bg: '#7B1F26', fg: '#FFFFFF', accent: '#FFFFFF' },
+                { mono: 'GP', name: 'Grand Palace',      city: 'Vienna',   bg: '#0A0A0A', fg: '#D4AF37', accent: '#D4AF37' },
+                { mono: 'MP', name: 'Mensa Pro',         city: 'Hamburg',  bg: '#1E40AF', fg: '#FFFFFF', accent: '#93C5FD' },
+                { mono: 'BM', name: 'Bäckerei Müller',   city: 'Frankfurt',bg: '#5C3A1E', fg: '#F5E6D3', accent: '#D4A574' },
+              ].map((r, i) => (
+                <motion.div
+                  key={r.name}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.05, duration: 0.4 }}
+                  className="group relative aspect-square rounded-2xl overflow-hidden cursor-default transition-all hover:-translate-y-1"
+                  style={{
+                    background: r.bg,
+                    boxShadow: '0 1px 2px rgba(15,36,64,0.04)',
+                    border: '1px solid rgba(15,36,64,0.06)',
+                  }}
+                >
+                  {/* Dekoratif arka plan: hafif radial glow */}
+                  <div
+                    aria-hidden
+                    className="absolute inset-0 pointer-events-none transition-opacity duration-300 opacity-60 group-hover:opacity-100"
+                    style={{
+                      background: `radial-gradient(circle at 50% 30%, ${r.accent}1f 0%, transparent 65%)`,
+                    }}
+                  />
+                  {/* Köşe çentik (sticker hissi) */}
+                  <div
+                    aria-hidden
+                    className="absolute top-2 right-2 w-1.5 h-1.5 rounded-full"
+                    style={{ background: r.accent, opacity: 0.55 }}
+                  />
+                  {/* Ana içerik */}
+                  <div className="absolute inset-0 flex flex-col items-center justify-center p-3 text-center">
+                    {/* Monogram halka */}
+                    <div
+                      className="w-12 h-12 rounded-full flex items-center justify-center mb-2 transition-transform duration-300 group-hover:scale-110"
+                      style={{
+                        border: `1.5px solid ${r.accent}`,
+                        color: r.fg,
+                        fontFamily: 'Fraunces, Georgia, serif',
+                        fontWeight: 600,
+                        fontSize: '15px',
+                        letterSpacing: '-0.02em',
+                      }}
+                    >
+                      {r.mono}
+                    </div>
+                    <div
+                      className="text-[11.5px] font-bold leading-tight"
+                      style={{ color: r.fg, letterSpacing: '-0.01em' }}
+                    >
+                      {r.name}
+                    </div>
+                    <div
+                      className="text-[9px] uppercase tracking-[0.2em] mt-0.5"
+                      style={{ color: r.fg, opacity: 0.55 }}
+                    >
+                      {r.city}
+                    </div>
+                  </div>
+                  {/* Alt çizgi: hover'da animate */}
+                  <div
+                    aria-hidden
+                    className="absolute bottom-0 left-1/2 h-0.5 -translate-x-1/2 w-0 group-hover:w-2/3 transition-all duration-500"
+                    style={{ background: r.accent }}
+                  />
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Alt bant: stok rozet */}
+            <div className="mt-8 flex flex-wrap items-center justify-center gap-2.5">
+              {[
+                t('welcome.refs.badge1', '500+ aktif müşteri'),
+                t('welcome.refs.badge2', '15+ yıl tecrübe'),
+                t('welcome.refs.badge3', '8 ülkede teslimat'),
+                t('welcome.refs.badge4', 'CE sertifikalı'),
+              ].map((b) => (
+                <span
+                  key={b}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold"
+                  style={{
+                    background: '#ffffff',
+                    border: '1px solid #e8e6df',
+                    color: '#0F2440',
+                  }}
+                >
+                  <CheckCircle2 size={12} style={{ color: '#7B1F26' }} strokeWidth={2.5} />
+                  {b}
+                </span>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            7 — LOGISTICS 2-COL
+            Teslimat + Depo
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="logistics">
+        <section className="w-full" style={{ background: '#faf9f5' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-18">
+            <div className="grid md:grid-cols-2 gap-4 lg:gap-6">
+              {[
+                {
+                  Icon: Truck,
+                  eyebrow: t('welcome.lg.a.eyebrow', 'LOJİSTİK'),
+                  title: t('welcome.lg.a.title', 'Avrupa\'da 48 saatte teslim'),
+                  desc: t('welcome.lg.a.desc', 'Kendi lojistik ağımız ve anlaşmalı nakliyecilerimiz ile sipariş sonrası 24-48 saat içinde kapınıza.'),
+                  value: '48h',
+                  valueLabel: t('welcome.lg.a.vlabel', 'ekspres teslim'),
+                  bg: 'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&q=80&auto=format&fit=crop',
+                },
+                {
+                  Icon: Package,
+                  eyebrow: t('welcome.lg.b.eyebrow', 'DEPO'),
+                  title: t('welcome.lg.b.title', '10.000+ ürün, anında stokta'),
+                  desc: t('welcome.lg.b.desc', '220.000 m² depolama kapasitesi · hazır stok · anında kargo · uygun fiyat.'),
+                  value: '10K+',
+                  valueLabel: t('welcome.lg.b.vlabel', 'ürün stokta'),
+                  bg: 'https://images.unsplash.com/photo-1553413077-190dd305871c?w=900&q=80&auto=format&fit=crop',
+                },
+              ].map((b, i) => {
+                const I = b.Icon;
+                return (
+                  <motion.div
+                    key={b.title}
+                    initial={{ opacity: 0, y: 18 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.1 }}
+                    className="relative overflow-hidden rounded-3xl aspect-[4/3] sm:aspect-[16/9] md:aspect-auto md:min-h-[320px] border p-6 sm:p-8"
+                    style={{ borderColor: '#e8e6df' }}
+                  >
+                    <img
+                      src={b.bg}
+                      alt=""
+                      aria-hidden
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <div
+                      aria-hidden
+                      className="absolute inset-0"
+                      style={{
+                        background:
+                          'linear-gradient(110deg, rgba(15,36,64,0.9) 0%, rgba(15,36,64,0.7) 45%, rgba(15,36,64,0.25) 100%)',
+                      }}
+                    />
+                    <div className="relative h-full flex flex-col justify-between gap-6 text-white">
+                      <div>
+                        <div className="flex items-center gap-2.5 mb-4">
+                          <div
+                            className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+                            style={{ background: '#7B1F26' }}
+                          >
+                            <I size={20} />
+                          </div>
+                          <div className="text-[10px] font-mono uppercase tracking-[0.25em]" style={{ color: '#A04654' }}>
+                            {b.eyebrow}
+                          </div>
+                        </div>
+                        <h3
+                          className="text-2xl md:text-3xl leading-tight max-w-md"
+                          style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.022em' }}
+                        >
+                          {b.title}
+                        </h3>
+                        <p className="text-[13.5px] leading-relaxed mt-3 max-w-md" style={{ color: 'rgba(255,255,255,0.75)' }}>
+                          {b.desc}
+                        </p>
+                      </div>
+                      <div className="flex items-end justify-between">
+                        <div>
+                          <div
+                            className="leading-none"
+                            style={{
+                              fontFamily: 'Fraunces, Georgia, serif',
+                              fontWeight: 500,
+                              fontSize: 'clamp(36px, 4vw, 56px)',
+                              letterSpacing: '-0.035em',
+                              color: '#A04654',
+                            }}
+                          >
+                            {b.value}
+                          </div>
+                          <div className="text-[11px] uppercase tracking-[0.15em] mt-1" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                            {b.valueLabel}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            8 — 3D SHOWCASE
+            Modelleri döndürün, yakınlaştırın — korunuyor
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="showcase-3d">
+        <section className="w-full" style={{ background: '#f5f3eb' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2" style={{ color: '#7B1F26' }}>
+                  // 3D SHOWROOM · REAL-TIME
+                </div>
+                <h2
+                  className="text-3xl md:text-4xl lg:text-[44px] leading-[1.05]"
+                  style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.028em' }}
+                >
+                  {t('welcome.showcase3d.title', 'Ürünlerimize')}{' '}
+                  <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>
+                    {t('welcome.showcase3d.titleAccent', '3 boyutlu')}
+                  </em>{' '}
+                  {t('welcome.showcase3d.titleSuffix', 'dokunun')}
+                </h2>
+                <p className="text-sm mt-3 max-w-md" style={{ color: 'rgba(15,36,64,0.6)' }}>
+                  {t(
+                    'welcome.showcase3d.subtitle',
+                    'Modelleri döndürün, yakınlaştırın · karta tıklayın ve tüm teknik detayları inceleyin'
+                  )}
+                </p>
+              </div>
+              <div
+                className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-mono uppercase tracking-[0.2em]"
+                style={{ background: '#fff', border: '1px solid #e8e6df', color: 'rgba(15,36,64,0.6)' }}
+              >
+                <span className="w-2 h-2 rounded-full animate-pulse" style={{ background: '#7B1F26' }} />
+                {t('welcome.showcase3d.liveTag', 'canlı 3D')}
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+              {SHOWCASE_3D.map((m, i) => (
+                <motion.button
+                  key={m.id}
+                  type="button"
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1, duration: 0.6 }}
+                  onClick={() => setView3D(m)}
+                  className="group relative text-left rounded-3xl overflow-hidden bg-white border hover:-translate-y-1 transition-all"
+                  style={{ borderColor: '#e8e6df', boxShadow: '0 1px 2px rgba(15,36,64,0.04), 0 12px 30px -12px rgba(15,36,64,0.14)' }}
+                >
+                  <div className="p-5">
+                    <div
+                      className="relative aspect-[5/4] w-full rounded-2xl overflow-hidden border"
+                      style={{ background: 'linear-gradient(135deg, #faf9f5, #ffffff)', borderColor: '#f0eee6' }}
+                    >
+                      <span
+                        className="absolute top-3 left-3 z-10 text-[9px] font-mono uppercase tracking-[0.2em] px-2 py-1 rounded-full"
+                        style={{ background: 'rgba(255,255,255,0.92)', color: '#0F2440', border: '1px solid #e8e6df' }}
+                      >
+                        {m.tag}
                       </span>
+                      {/* @ts-expect-error model-viewer custom element */}
+                      <model-viewer
+                        src={m.src}
+                        alt={m.title}
+                        auto-rotate
+                        auto-rotate-delay="0"
+                        rotation-per-second="22deg"
+                        camera-controls
+                        interaction-prompt="none"
+                        disable-zoom
+                        shadow-intensity="1"
+                        shadow-softness="0.9"
+                        exposure="1.1"
+                        environment-image="neutral"
+                        style={{ width: '100%', height: '100%', backgroundColor: 'transparent' }}
+                      />
+                    </div>
+
+                    <div className="mt-5 flex items-center justify-between gap-3">
+                      <div className="min-w-0 flex-1">
+                        <h3
+                          className="text-lg leading-tight truncate"
+                          style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.018em' }}
+                        >
+                          {m.title}
+                        </h3>
+                        <p className="text-[12.5px] mt-1 truncate font-semibold" style={{ color: '#7B1F26' }}>
+                          {m.priceLabel ?? m.subtitle}
+                        </p>
+                      </div>
+                      <div
+                        className="shrink-0 w-11 h-11 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110"
+                        style={{ background: '#faf9f5', border: '1px solid #e8e6df', color: '#0F2440' }}
+                      >
+                        <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
+                      </div>
+                    </div>
+                  </div>
+                </motion.button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            10 — CATALOG BANNER 2-COL
+            Asymmetric — büyük katalog banner + küçük trend/video
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="catalog-banner">
+        <section className="w-full" style={{ background: '#f5f3eb' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-18">
+            <div className="grid md:grid-cols-[1.4fr_1fr] gap-4 lg:gap-6">
+              {/* Büyük katalog kartı */}
+              <motion.button
+                type="button"
+                onClick={() => navigate('/diamond')}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="group relative overflow-hidden rounded-3xl text-left min-h-[320px] border p-8 sm:p-10"
+                style={{
+                  borderColor: 'rgba(123,31,38,0.18)',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #faf9f5 60%, #fbe7dc 130%)',
+                  color: '#0F2440',
+                  boxShadow: '0 18px 40px -22px rgba(123,31,38,0.18)',
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="absolute -right-32 -bottom-32 w-96 h-96 rounded-full opacity-30 blur-3xl pointer-events-none"
+                  style={{ background: '#7B1F26' }}
+                />
+                <div
+                  aria-hidden
+                  className="absolute inset-0 opacity-[0.04] pointer-events-none"
+                  style={{
+                    backgroundImage:
+                      'linear-gradient(rgba(15,36,64,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(15,36,64,0.4) 1px, transparent 1px)',
+                    backgroundSize: '32px 32px',
+                  }}
+                />
+                <div className="relative max-w-md">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-3" style={{ color: '#7B1F26' }}>
+                    // KATALOG 2026
+                  </div>
+                  <h3
+                    className="text-3xl md:text-4xl leading-[1.05] mb-4"
+                    style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.025em', color: '#0F2440' }}
+                  >
+                    {t('welcome.cat.title', '10.000+ ürün')}{' '}
+                    <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>{t('welcome.cat.titleAccent', '& 3.5M yedek parça')}</em>
+                  </h3>
+                  <p className="text-[14px] leading-relaxed mb-5" style={{ color: 'rgba(15,36,64,0.7)' }}>
+                    {t('welcome.cat.desc', 'En yeni trendler, inovasyonlar ve klasikleşmiş favoriler — tek bir katalogta bir araya geldi.')}
+                  </p>
+                  <div
+                    className="inline-flex items-center gap-2 text-[12px] font-bold uppercase tracking-wider group-hover:gap-3 transition-all"
+                    style={{ color: '#7B1F26' }}
+                  >
+                    {t('welcome.cat.cta', 'Katalogu aç')} <ArrowRight size={14} />
+                  </div>
+                </div>
+              </motion.button>
+
+              {/* Küçük: Video rehberler */}
+              <motion.button
+                type="button"
+                onClick={() => navigate('/docs')}
+                initial={{ opacity: 0, x: 20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                className="group relative overflow-hidden rounded-3xl text-left min-h-[320px] border"
+                style={{ borderColor: '#e8e6df' }}
+              >
+                {VIDEO_URLS.length > 0 && (
+                  <video
+                    ref={videoRef}
+                    src={VIDEO_URLS[videoIdx]}
+                    autoPlay
+                    muted
+                    playsInline
+                    onEnded={handleVideoEnd}
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                )}
+                <div
+                  aria-hidden
+                  className="absolute inset-0"
+                  style={{
+                    background:
+                      'linear-gradient(180deg, rgba(15,36,64,0.2) 0%, rgba(15,36,64,0.4) 50%, rgba(15,36,64,0.9) 100%)',
+                  }}
+                />
+                <div className="relative h-full flex flex-col justify-end p-7 text-white">
+                  <div className="flex items-center gap-2 mb-3">
+                    <div
+                      className="w-10 h-10 rounded-full flex items-center justify-center"
+                      style={{ background: '#7B1F26' }}
+                    >
+                      <Play size={16} fill="currentColor" />
+                    </div>
+                    <div className="text-[10px] font-mono uppercase tracking-[0.25em]" style={{ color: '#A04654' }}>
+                      {t('welcome.cat.video.tag', 'VIDEO')}
+                    </div>
+                  </div>
+                  <h3
+                    className="text-xl md:text-2xl leading-tight"
+                    style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.02em' }}
+                  >
+                    {t('welcome.cat.video.title', 'Şeflerin tercihi: 2MC Gastro makineleri iş başında')}
+                  </h3>
+                  <div className="text-[12px] mt-2" style={{ color: 'rgba(255,255,255,0.7)' }}>
+                    {t('welcome.cat.video.sub', 'Tanıtım & kurulum videoları')}
+                  </div>
+                </div>
+              </motion.button>
+            </div>
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            11 — VALUE PROP SUMMARY ("Ihr Partner für Ihre Gastronomie")
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="value-prop">
+        <section className="w-full bg-white border-y" style={{ borderColor: '#e8e6df' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-18">
+            <div className="grid lg:grid-cols-[1fr_1.4fr] gap-10 lg:gap-14 items-center">
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2" style={{ color: '#7B1F26' }}>
+                  // IHR PARTNER
+                </div>
+                <h2
+                  className="text-3xl md:text-4xl leading-[1.05]"
+                  style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.028em' }}
+                >
+                  {t('welcome.val.title', 'Gastronomiyi')}{' '}
+                  <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>{t('welcome.val.titleAccent', 'daha kolay')}</em>{' '}
+                  {t('welcome.val.titleB', 'yapıyoruz.')}
+                </h2>
+                <p className="text-[14px] mt-4 max-w-sm" style={{ color: 'rgba(15,36,64,0.65)' }}>
+                  {t('welcome.val.sub', 'Bir restoran açmaktan yıllık tadilata kadar her adımda yanınızda olan bir ekip.')}
+                </p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-x-8 gap-y-4">
+                {[
+                  { Icon: Globe,        label: t('welcome.val.a', 'Avrupa\'nın önde gelen gastro tedarikçisi') },
+                  { Icon: Star,         label: t('welcome.val.b', '4.9/5 müşteri puanı · 320+ doğrulanmış yorum') },
+                  { Icon: Truck,        label: t('welcome.val.c', 'Avrupa içi ücretsiz teslimat') },
+                  { Icon: Tag,          label: t('welcome.val.d', 'Düşük fiyat garantisi · fatura eşleştirme') },
+                  { Icon: Clock,        label: t('welcome.val.e', '2 iş günü içinde kargo · sabit termin') },
+                  { Icon: Shield,       label: t('welcome.val.f', 'CE sertifikalı · 2 yıl garanti') },
+                  { Icon: PencilRuler,  label: t('welcome.val.g', 'Ücretsiz 3D tasarım stüdyosu & AI planlama') },
+                  { Icon: Wrench,       label: t('welcome.val.h', 'Yerinde kurulum & periyodik bakım') },
+                ].map((v) => {
+                  const I = v.Icon;
+                  return (
+                    <div key={v.label} className="flex items-start gap-3 py-2 border-b" style={{ borderColor: '#f0eee6' }}>
+                      <div
+                        className="w-8 h-8 rounded-lg shrink-0 flex items-center justify-center"
+                        style={{ background: 'rgba(123,31,38,0.1)', color: '#7B1F26' }}
+                      >
+                        <I size={15} strokeWidth={1.8} />
+                      </div>
+                      <span className="text-[13.5px] leading-snug mt-1.5" style={{ color: '#0F2440' }}>
+                        {v.label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            12 — SUPPORT & REVIEWS
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="support-reviews">
+        <section className="w-full" style={{ background: '#faf9f5' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-18">
+            <div className="grid md:grid-cols-[1fr_1.3fr] gap-4 lg:gap-6">
+              {/* Support kartı */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative overflow-hidden rounded-3xl p-8 sm:p-10 border text-center md:text-left"
+                style={{
+                  background: 'linear-gradient(135deg, #ffffff 0%, #faf9f5 60%, #fbe7dc 140%)',
+                  borderColor: '#e8e6df',
+                }}
+              >
+                <div
+                  aria-hidden
+                  className="absolute -top-16 -right-16 w-48 h-48 rounded-full blur-3xl opacity-40"
+                  style={{ background: '#7B1F26' }}
+                />
+                <div
+                  className="relative w-14 h-14 mx-auto md:mx-0 rounded-2xl flex items-center justify-center mb-5"
+                  style={{ background: '#7B1F26', color: '#fff', boxShadow: '0 14px 32px -12px rgba(123,31,38,0.5)' }}
+                >
+                  <PhoneCall size={24} />
+                </div>
+                <h3
+                  className="text-2xl leading-tight mb-2"
+                  style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.02em' }}
+                >
+                  {t('welcome.sup.title', 'Sorunuz mu var?')}
+                </h3>
+                <p className="text-[14px] mb-5" style={{ color: 'rgba(15,36,64,0.7)' }}>
+                  {t('welcome.sup.desc', 'Uzman ekibimiz 24 saat içinde dönüş yapar · ücretsiz danışmanlık.')}
+                </p>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/support')}
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold text-white transition-all hover:-translate-y-0.5"
+                    style={{ background: '#7B1F26' }}
+                  >
+                    <MessageCircle size={15} />
+                    {t('welcome.sup.cta', 'Canlı destek')}
+                  </button>
+                  <a
+                    href="mailto:info@2mcgastro.com"
+                    className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-full text-sm font-bold transition-all hover:-translate-y-0.5"
+                    style={{ color: '#0F2440', background: '#fff', border: '1px solid #e8e6df' }}
+                  >
+                    <Mail size={15} />
+                    {t('welcome.sup.email', 'E-posta')}
+                  </a>
+                </div>
+              </motion.div>
+
+              {/* Reviews kartı */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                className="relative overflow-hidden rounded-3xl p-8 sm:p-10 border"
+                style={{ background: '#fff', borderColor: '#e8e6df' }}
+              >
+                <div className="grid grid-cols-1 md:grid-cols-[auto_1fr] gap-6 md:gap-10 items-center">
+                  <div className="flex flex-col md:border-r md:pr-10" style={{ borderColor: '#f0eee6' }}>
+                    <div className="flex items-center gap-2 mb-2">
+                      {[...Array(5)].map((_, i) => (
+                        <Star key={i} size={18} style={{ color: '#c89a3c', fill: '#c89a3c' }} />
+                      ))}
+                    </div>
+                    <div className="flex items-baseline gap-2">
+                      <span
+                        className="text-6xl leading-none"
+                        style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.03em' }}
+                      >
+                        4.9
+                      </span>
+                      <span className="text-base" style={{ color: 'rgba(15,36,64,0.5)' }}>/ 5.0</span>
+                    </div>
+                    <div className="text-[11px] mt-2" style={{ color: 'rgba(15,36,64,0.55)' }}>
+                      {t('welcome.rev.count', '320+ doğrulanmış Google yorumu')}
+                    </div>
+                  </div>
+                  <div className="space-y-2.5">
+                    {[
+                      { label: '5★', pct: 92 },
+                      { label: '4★', pct: 6 },
+                      { label: '3★', pct: 2 },
+                    ].map((r) => (
+                      <div key={r.label} className="flex items-center gap-3 text-[13px]">
+                        <span className="w-8 font-bold" style={{ color: '#0F2440' }}>
+                          {r.label}
+                        </span>
+                        <div className="flex-1 h-2 rounded-full overflow-hidden" style={{ background: '#f0eee6' }}>
+                          <motion.div
+                            initial={{ width: 0 }}
+                            whileInView={{ width: `${r.pct}%` }}
+                            viewport={{ once: true }}
+                            transition={{ duration: 1 }}
+                            className="h-full rounded-full"
+                            style={{ background: 'linear-gradient(90deg, #7B1F26, #A04654)' }}
+                          />
+                        </div>
+                        <span className="w-10 text-right text-[12px]" style={{ color: 'rgba(15,36,64,0.6)' }}>
+                          {r.pct}%
+                        </span>
+                      </div>
                     ))}
                   </div>
+                </div>
+                <a
+                  href="https://www.google.com/search?q=2mc+gastro"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center gap-1.5 text-[13px] font-bold"
+                  style={{ color: '#7B1F26' }}
+                >
+                  {t('welcome.rev.cta', 'Tüm yorumları gör')} <ArrowRight size={13} />
+                </a>
+              </motion.div>
+            </div>
+          </div>
+        </section>
 
-                  {/* Resim */}
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            13 — BLOG + NEWSLETTER (ekran komponentleri)
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="blog-newsletter">
+        <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+          <BlogPreviewSection />
+          <NewsletterSection />
+        </div>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            14 — PAYMENT METHODS STRIP
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="payment">
+        <section className="w-full bg-white border-t" style={{ borderColor: '#e8e6df' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-[0.25em] mb-1" style={{ color: 'rgba(15,36,64,0.45)' }}>
+                  {t('welcome.pay.eyebrow', 'Ödeme Yöntemleri')}
+                </div>
+                <div className="text-sm font-semibold" style={{ color: '#0F2440' }}>
+                  {t('welcome.pay.title', 'Güvenli ve esnek ödeme · B2B ve B2C')}
+                </div>
+              </div>
+              <div className="flex items-center flex-wrap gap-2">
+                {['VISA', 'MASTERCARD', 'AMEX', 'PAYPAL', 'SEPA', 'KLARNA', 'LEASING'].map((m) => (
+                  <span
+                    key={m}
+                    className="inline-flex items-center h-8 px-3 rounded-md text-[10px] font-black tracking-wider"
+                    style={{ background: '#faf9f5', color: 'rgba(15,36,64,0.7)', border: '1px solid #e8e6df' }}
+                  >
+                    {m}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            3 — HERO
+            Tiefstpreisgarantie tarzı büyük başlık + CTA + sağda görsel + banner
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="hero">
+        <section className="w-full" style={{ background: '#faf9f5' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-14 lg:pt-14 lg:pb-20">
+
+            {/* Banner — storeden gelen slide */}
+            {currentSlide && (
+              <motion.button
+                type="button"
+                onClick={() => setBannerIdx((i) => (i + 1) % Math.max(1, slides.length))}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, delay: 0.3 }}
+                className="group relative w-full overflow-hidden rounded-2xl aspect-[820/240] border"
+                style={{ borderColor: '#e8e6df' }}
+              >
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={currentSlide.id}
+                    initial={{ opacity: 0, scale: 1.04 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.98 }}
+                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute inset-0 flex flex-col justify-center px-6 sm:px-12"
+                    style={
+                      currentSlide.image
+                        ? { backgroundImage: `url(${currentSlide.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                        : { background: currentSlide.gradient || '#0F2440' }
+                    }
+                  >
+                    {!currentSlide.image && (
+                      <div className="relative z-10 text-left">
+                        <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/80 mb-3">
+                          {currentSlide.eyebrow}
+                        </div>
+                        <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-xl">
+                          {currentSlide.title}
+                        </h3>
+                        <p className="text-sm text-white/85 mt-2 max-w-lg">{currentSlide.subtitle}</p>
+                      </div>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+                {slides.length > 1 && (
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                    {slides.map((_, i) => (
+                      <span
+                        key={i}
+                        className="h-1 rounded-full transition-all"
+                        style={{
+                          width: i === bannerIdx ? 28 : 8,
+                          background: i === bannerIdx ? '#7B1F26' : 'rgba(255,255,255,0.45)',
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </motion.button>
+            )}
+          </div>
+        </section>
+
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
+            9 — BESTSELLERS
+            €1000+ ürün şeridi
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="bestsellers">
+        <section className="w-full" style={{ background: '#faf9f5' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-14 lg:py-20">
+            <div className="flex items-end justify-between gap-4 mb-8">
+              <div>
+                <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2 flex items-center gap-2" style={{ color: '#7B1F26' }}>
+                  <span>// BESTSELLERS · €3.000 – €10.000</span>
+                  <span
+                    className="inline-block w-1.5 h-1.5 rounded-full animate-pulse"
+                    style={{ background: '#7B1F26' }}
+                    aria-hidden
+                  />
+                  <span style={{ opacity: 0.55 }}>LIVE</span>
+                </div>
+                <h2
+                  className="text-3xl md:text-4xl lg:text-[44px] leading-[1.05]"
+                  style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.028em' }}
+                >
+                  {t('welcome.best.title', 'En çok tercih edilen')}{' '}
+                  <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>{t('welcome.best.titleAccent', 'profesyonel ekipmanlar')}</em>
+                </h2>
+              </div>
+              <button
+                type="button"
+                onClick={() => navigate('/diamond')}
+                className="hidden sm:inline-flex items-center gap-1.5 text-sm font-semibold"
+                style={{ color: '#7B1F26' }}
+              >
+                {t('welcome.best.all', 'Tümü')} <ArrowRight size={14} />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 lg:gap-5">
+              <AnimatePresence mode="popLayout" initial={false}>
+              {bestsellers.map((p) => (
+                <motion.div
+                  key={p.id}
+                  layout
+                  initial={{ opacity: 0, y: 14, scale: 0.96 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.96 }}
+                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+                  onClick={() => navigate(`/diamond?q=${encodeURIComponent(p.id)}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      navigate(`/diamond?q=${encodeURIComponent(p.id)}`);
+                    }
+                  }}
+                  className="group relative bg-white rounded-2xl overflow-hidden border hover:-translate-y-1 transition-all cursor-pointer flex flex-col"
+                  style={{ borderColor: '#e8e6df', boxShadow: '0 1px 2px rgba(15,36,64,0.04)' }}
+                >
+                  <span
+                    className="absolute top-2.5 left-2.5 z-10 text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded"
+                    style={{
+                      background: p.badge === 'PREMIUM' ? '#c89a3c' : p.badge === 'EMPFEHLUNG' ? '#1b7f3a' : '#C62828',
+                      color: '#fff',
+                    }}
+                  >
+                    {p.badge}
+                  </span>
+                  <button
+                    type="button"
+                    aria-label="Favorilere ekle"
+                    onClick={(e) => e.stopPropagation()}
+                    className="absolute top-2.5 right-2.5 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-colors"
+                    style={{ background: 'rgba(255,255,255,0.9)', border: '1px solid #e8e6df', color: 'rgba(15,36,64,0.5)' }}
+                  >
+                    <Heart size={14} />
+                  </button>
                   <div className="aspect-square bg-white flex items-center justify-center p-4">
                     <img
                       src={p.img}
                       alt={p.name}
                       loading="lazy"
+                      referrerPolicy="no-referrer"
                       className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-500"
                       onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).style.display = 'none';
+                        const img = e.currentTarget as HTMLImageElement;
+                        if (!img.dataset.fb) {
+                          img.dataset.fb = '1';
+                          img.src =
+                            'data:image/svg+xml;utf8,' +
+                            encodeURIComponent(
+                              `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><rect width="200" height="200" fill="#faf9f5"/><g fill="none" stroke="#c8c4b6" stroke-width="2"><rect x="40" y="60" width="120" height="90" rx="6"/></g></svg>`
+                            );
+                        }
                       }}
                     />
                   </div>
-
-                  {/* Meta */}
-                  <div className="p-3 bg-white flex-1 flex flex-col border-t border-black/[0.05]">
-                    <h4 className="text-[#222] font-semibold text-[12px] leading-snug line-clamp-2 min-h-[32px] group-hover:text-[rgb(40,120,191)] transition-colors">
+                  <div className="p-4 border-t flex-1 flex flex-col" style={{ borderColor: '#f0eee6' }}>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'rgba(15,36,64,0.4)' }}>
+                      Art.Nr: {p.id}
+                    </div>
+                    <h3
+                      className="text-[13px] leading-snug line-clamp-2 min-h-[34px] mb-2"
+                      style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500 }}
+                    >
                       {p.name}
-                    </h4>
-                    <div className="text-[10px] text-[#888] mt-1">Art.Nr.: {p.id}</div>
-                    <div className="mt-2 text-[rgb(200,30,40)] font-black text-base">
-                      {p.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} € *
+                    </h3>
+                    <div
+                      className="font-black mt-auto"
+                      style={{
+                        color: '#7B1F26',
+                        fontFamily: 'Fraunces, Georgia, serif',
+                        fontWeight: 600,
+                        fontSize: 20,
+                        letterSpacing: '-0.01em',
+                      }}
+                    >
+                      {p.price.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €
+                      <span className="text-[10px] font-normal opacity-60 ml-0.5">*</span>
                     </div>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* ===== Araçlarımız — AI Planlayıcı + Hesap Aracı + 3D Tasarım ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-6xl mb-20"
-        >
-          <div className="text-center mb-12">
-            <span className="inline-block text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-400 bg-emerald-400/10 px-4 py-1.5 rounded-full mb-4">
-              {t('welcome.tools.badge', 'Araçlar')}
-            </span>
-            <h3 className="text-white font-black text-2xl md:text-3xl tracking-tight">
-              {t('welcome.toolsTitle', 'Akıllı Mutfak Araçları')}
-            </h3>
-            <p className="text-white/40 text-sm mt-2 max-w-md mx-auto">
-              {t('welcome.tools.subtitle', 'AI planlama, kapasite hesabı ve 3D tasarım — tek platformda')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                Icon: Sparkles,
-                title: t('welcome.tools.aiPlanner.title', 'AI Mutfak Planlayıcı'),
-                desc: t('welcome.tools.aiPlanner.desc', 'Yapay zeka işletme tipinize göre eksiksiz ekipman listesi çıkarır. Metrekare, kapasite ve bütçeye göre öneriler.'),
-                badge: t('welcome.tools.aiPlanner.badge', 'YAPAY ZEKA'),
-                gradient: 'from-sky-500 to-blue-600',
-                iconColor: 'text-sky-400',
-                steps: [
-                  { Icon: Building2,  label: t('welcome.tools.aiPlanner.step1', 'İşletme tipi') },
-                  { Icon: Ruler,      label: t('welcome.tools.aiPlanner.step2', 'Alan & kuver') },
-                  { Icon: ListOrdered,label: t('welcome.tools.aiPlanner.step3', 'Ekipman listesi') },
-                ],
-              },
-              {
-                Icon: Calculator,
-                title: t('welcome.tools.capacity.title', 'Kapasite Hesap Aracı'),
-                desc: t('welcome.tools.capacity.desc', 'Günlük kuver, menü tipi ve alan bilgileriyle ocak, fırın, soğutma ve bulaşık kapasitelerini anında hesaplayın.'),
-                badge: t('welcome.tools.capacity.badge', 'HESAPLAMA'),
-                gradient: 'from-emerald-500 to-teal-600',
-                iconColor: 'text-emerald-400',
-                steps: [
-                  { Icon: UtensilsCrossed, label: t('welcome.tools.capacity.step1', 'Menü tipi') },
-                  { Icon: Flame,           label: t('welcome.tools.capacity.step2', 'Pişirme') },
-                  { Icon: Snowflake,       label: t('welcome.tools.capacity.step3', 'Soğutma') },
-                  { Icon: Droplets,        label: t('welcome.tools.capacity.step4', 'Bulaşık') },
-                ],
-              },
-              {
-                Icon: PencilRuler,
-                title: t('welcome.tools.studio3d.title', '3D Tasarım Stüdyosu'),
-                desc: t('welcome.tools.studio3d.desc', 'Mutfağınızı sürükle-bırak ile 3D modelleyin, ekipmanları yerleştirin ve teklifinizi tek tıkla PDF olarak alın.'),
-                badge: '3D STUDIO',
-                gradient: 'from-fuchsia-500 to-purple-600',
-                iconColor: 'text-fuchsia-400',
-                steps: [
-                  { Icon: LayoutGrid, label: t('welcome.tools.studio3d.step1', 'Plan çiz') },
-                  { Icon: Box,        label: t('welcome.tools.studio3d.step2', '3D yerleştir') },
-                  { Icon: FileText,   label: t('welcome.tools.studio3d.step3', 'PDF teklif') },
-                ],
-              },
-            ].map((tool, i) => {
-              const Icon = tool.Icon;
-              return (
-                <motion.div
-                  key={tool.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.5 }}
-                  className="group relative rounded-3xl bg-white/[0.03] backdrop-blur-sm border border-white/[0.06] p-7 hover:bg-white/[0.06] hover:border-white/[0.12] transition-all duration-500 overflow-hidden"
-                >
-                  {/* hover glow */}
-                  <div className={`absolute -top-20 -right-20 w-48 h-48 rounded-full bg-gradient-to-br ${tool.gradient} opacity-0 group-hover:opacity-[0.08] blur-3xl transition-opacity duration-700 pointer-events-none`} />
-
-                  <div className="relative z-10 flex flex-col h-full min-h-[260px]">
-                    {/* icon + badge row */}
-                    <div className="flex items-center gap-4 mb-6">
-                      <div className={`w-12 h-12 rounded-2xl bg-gradient-to-br ${tool.gradient} flex items-center justify-center shadow-lg`}>
-                        <Icon size={22} strokeWidth={1.8} className="text-white" />
-                      </div>
-                      <span className={`text-[10px] font-bold uppercase tracking-[0.15em] ${tool.iconColor}`}>
-                        {tool.badge}
-                      </span>
-                    </div>
-
-                    <h4 className="text-white font-bold text-xl tracking-tight mb-2">
-                      {tool.title}
-                    </h4>
-                    <p className="text-white/45 text-[13.5px] leading-relaxed flex-1">
-                      {tool.desc}
-                    </p>
-
-                    {/* steps */}
-                    <div className="mt-6 flex items-center gap-2">
-                      {tool.steps.map((s, idx) => {
-                        const SIcon = s.Icon;
-                        return (
-                          <div key={s.label} className="flex items-center gap-2">
-                            <div className="flex items-center gap-2 bg-white/[0.05] rounded-full px-3 py-1.5">
-                              <SIcon size={13} strokeWidth={2} className={tool.iconColor} />
-                              <span className="text-[11px] font-medium text-white/60">
-                                {s.label}
-                              </span>
-                            </div>
-                            {idx < tool.steps.length - 1 && (
-                              <ArrowRight size={11} className="text-white/20 shrink-0" />
-                            )}
-                          </div>
-                        );
-                      })}
+                    <div className="mt-3 flex gap-1.5">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/diamond?q=${encodeURIComponent(p.id)}`);
+                        }}
+                        className="flex-1 text-[11px] font-bold uppercase tracking-wider py-2 rounded-lg text-white transition-colors"
+                        style={{ background: '#7B1F26' }}
+                      >
+                        {t('welcome.best.view', 'İncele')}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/support?type=quote&sku=${encodeURIComponent(p.id)}`);
+                        }}
+                        aria-label={t('welcome.best.quote', 'Teklif iste')}
+                        className="w-9 rounded-lg flex items-center justify-center transition-colors"
+                        style={{ border: '1px solid #e8e6df', color: '#0F2440' }}
+                      >
+                        <FileText size={13} />
+                      </button>
                     </div>
                   </div>
                 </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* ===== 3D Showcase Banner — GLB model görüntüleyici ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-6xl mb-20"
-        >
-          <div className="mb-8">
-            <h3 className="text-white font-black text-3xl md:text-4xl tracking-tight leading-none">
-              {t('welcome.showcase3d.title', '3D Ürün')} <span className="text-sky-300">{t('welcome.showcase3d.titleAccent', 'Vitrini')}</span>
-            </h3>
-            <p className="text-white/50 text-sm mt-3 max-w-md">
-              {t('welcome.showcase3d.subtitle', 'Modelleri döndürün, yakınlaştırın · karta tıklayın ve tüm detayları inceleyin')}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
-            {SHOWCASE_3D.map((m, i) => (
-              <motion.button
-                key={m.id}
-                type="button"
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                onClick={() => setView3D(m)}
-                className="group relative text-left rounded-3xl overflow-hidden bg-white border border-slate-200 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-500"
-              >
-                <div className="relative p-5 sm:p-6">
-                  <div className="relative aspect-[5/4] w-full rounded-2xl overflow-hidden bg-gradient-to-br from-slate-50 to-white border border-slate-100">
-                    <span className="absolute top-3 left-3 z-10 text-[9px] font-mono uppercase tracking-[0.18em] px-2 py-1 rounded-full border border-slate-200 bg-white/90 text-slate-700 backdrop-blur">
-                      {m.tag}
-                    </span>
-                    {/* @ts-expect-error model-viewer custom element */}
-                    <model-viewer
-                      src={m.src}
-                      alt={m.title}
-                      auto-rotate
-                      auto-rotate-delay="0"
-                      rotation-per-second="22deg"
-                      camera-controls
-                      interaction-prompt="none"
-                      disable-zoom
-                      shadow-intensity="1"
-                      shadow-softness="0.9"
-                      exposure="1.1"
-                      environment-image="neutral"
-                      style={{ width: '100%', height: '100%', backgroundColor: 'transparent' }}
-                    />
-                  </div>
-
-                  <div className="mt-5 flex items-center justify-between gap-4">
-                    <div className="min-w-0 flex-1">
-                      <h4 className="text-slate-900 font-black text-lg sm:text-xl tracking-tight truncate">
-                        {m.title}
-                      </h4>
-                      <p className="text-slate-500 text-[12px] mt-1 truncate font-medium">
-                        {m.priceLabel ?? m.subtitle}
-                      </p>
-                    </div>
-                    <div className="shrink-0 w-11 h-11 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center text-slate-600 group-hover:bg-sky-500 group-hover:border-sky-500 group-hover:text-white group-hover:scale-110 transition-all duration-300">
-                      <ArrowRight size={16} className="group-hover:translate-x-0.5 transition-transform" />
-                    </div>
-                  </div>
-                </div>
-              </motion.button>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* ===== Entdecken Sie unsere Themenwelten — iş kolu odaklı kategoriler ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-6xl mb-16"
-        >
-          <div className="flex items-baseline justify-between mb-8">
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-sky-400/70 mb-2">
-                // THEMENWELTEN
-              </div>
-              <h3 className="text-white font-black text-2xl md:text-3xl tracking-tight">
-                {t('welcome.themedWorlds', 'İşletmenize Özel Çözümler')}
-              </h3>
-              <p className="text-white/40 text-sm mt-1">
-                {t('welcome.themedWorlds.subtitle', '14 iş kolu · her konsept için eksiksiz ekipman seti')}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-3 sm:gap-4">
-            {[
-              { Icon: ChefHat,        label: t('welcome.theme.doner', 'Dönerci'),           q: 'döner',       gradient: 'from-orange-500/30 via-red-500/20 to-amber-700/10', ring: 'border-orange-400/40' },
-              { Icon: Pizza,          label: t('welcome.theme.pizzeria', 'Pizzeria'),       q: 'pizza',       gradient: 'from-red-500/30 via-rose-600/20 to-yellow-600/10', ring: 'border-red-400/40' },
-              { Icon: Sandwich,       label: t('welcome.theme.imbiss', 'Büfe'),             q: 'fritöz',      gradient: 'from-yellow-500/30 via-orange-500/20 to-red-500/10', ring: 'border-yellow-400/40' },
-              { Icon: Utensils,       label: t('welcome.theme.restaurant', 'Restoran'),     q: 'ocak',        gradient: 'from-emerald-500/30 via-teal-500/20 to-cyan-600/10', ring: 'border-emerald-400/40' },
-              { Icon: Coffee,         label: t('welcome.theme.cafe', 'Café'),               q: 'kahve',       gradient: 'from-amber-700/30 via-amber-600/20 to-stone-700/10', ring: 'border-amber-500/40' },
-              { Icon: IceCream,       label: t('welcome.theme.iceCream', 'Dondurmacı'),     q: 'dondurma',    gradient: 'from-pink-400/30 via-rose-400/20 to-fuchsia-500/10', ring: 'border-pink-400/40' },
-              { Icon: Soup,           label: t('welcome.theme.asian', 'Asya Mutfağı'),      q: 'wok',         gradient: 'from-lime-500/30 via-green-600/20 to-emerald-700/10', ring: 'border-lime-400/40' },
-              { Icon: Cookie,         label: t('welcome.theme.bakery', 'Pastane'),          q: 'fırın',       gradient: 'from-amber-400/30 via-yellow-500/20 to-orange-500/10', ring: 'border-amber-300/40' },
-              { Icon: Beef,           label: t('welcome.theme.butcher', 'Kasap'),           q: 'et',          gradient: 'from-rose-600/30 via-red-700/20 to-red-900/10', ring: 'border-rose-500/40' },
-              { Icon: Martini,        label: t('welcome.theme.bar', 'Bar & Pub'),           q: 'bar',         gradient: 'from-fuchsia-500/30 via-purple-600/20 to-indigo-700/10', ring: 'border-fuchsia-400/40' },
-              { Icon: ShoppingBasket, label: t('welcome.theme.market', 'Market'),           q: 'buzdolabı',   gradient: 'from-green-500/30 via-emerald-600/20 to-teal-700/10', ring: 'border-green-400/40' },
-              { Icon: Package,        label: t('welcome.theme.catering', 'Catering'),       q: 'gastronorm',  gradient: 'from-sky-500/30 via-blue-600/20 to-indigo-700/10', ring: 'border-sky-400/40' },
-              { Icon: Building2,      label: t('welcome.theme.hotel', 'Otel'),              q: 'hotel',       gradient: 'from-violet-500/30 via-indigo-600/20 to-slate-700/10', ring: 'border-violet-400/40' },
-              { Icon: Truck,          label: t('welcome.theme.foodTruck', 'Food Truck'),    q: 'truck',       gradient: 'from-cyan-500/30 via-sky-600/20 to-blue-800/10', ring: 'border-cyan-400/40' },
-            ].map((w, i) => {
-              const Icon = w.Icon;
-              return (
-                <motion.button
-                  key={w.label}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.03, duration: 0.4 }}
-                  onClick={() => navigate(`/diamond?q=${encodeURIComponent(w.q)}&concept=${encodeURIComponent(w.label)}`)}
-                  className="group flex flex-col items-center gap-2.5"
-                >
-                  <div className={`relative w-full aspect-square rounded-full bg-gradient-to-br ${w.gradient} border-2 ${w.ring} flex items-center justify-center overflow-hidden group-hover:scale-105 transition-all shadow-lg shadow-black/20`}>
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/30 pointer-events-none" />
-                    <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full bg-white/5 blur-2xl" />
-                    <Icon size={28} strokeWidth={1.6} className="relative z-10 text-white/95 group-hover:scale-110 transition-transform drop-shadow" />
-                  </div>
-                  <span className="text-white/70 font-semibold text-[11px] sm:text-xs tracking-tight text-center group-hover:text-sky-300 transition-colors">
-                    {w.label}
-                  </span>
-                </motion.button>
-              );
-            })}
-          </div>
-
-          {/* Trust badges — BigGastro tarzı 4'lü güven şeridi */}
-          <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-white/[0.06] border border-white/[0.06] rounded-lg overflow-hidden">
-            {[
-              { Icon: Globe, title: t('welcome.trust.euroBiggest', 'Avrupa\'nın En Büyük'), sub: t('welcome.trust.euroBiggestSub', 'Endüstriyel gastro tedarikçisi') },
-              { Icon: Truck, title: t('welcome.trust.freeShipping', 'Ücretsiz Teslimat'),    sub: t('welcome.trust.freeShippingSub', 'Tüm Avrupa geneli') },
-              { Icon: Tag,   title: t('welcome.trust.priceGuarantee', 'Düşük Fiyat Garantisi'), sub: t('welcome.trust.priceGuaranteeSub', 'En iyi fiyat taahhüdü') },
-              { Icon: Zap,   title: t('welcome.trust.expressCargo', 'Ekspres Kargo'),         sub: t('welcome.trust.expressCargoSub', '24-48 saat içinde') },
-            ].map((b, i) => {
-              const Icon = b.Icon;
-              return (
-                <div
-                  key={b.title}
-                  className="bg-[#020817] px-5 py-4 flex items-center gap-3 hover:bg-white/[0.03] transition-colors"
-                >
-                  <div className="w-10 h-10 shrink-0 rounded-lg bg-sky-500/10 border border-sky-400/25 flex items-center justify-center">
-                    <Icon size={18} className="text-sky-300" strokeWidth={1.8} />
-                  </div>
-                  <div className="min-w-0">
-                    <div className="text-white font-bold text-[12px] tracking-tight leading-tight">{b.title}</div>
-                    <div className="text-white/40 text-[10px] leading-tight mt-0.5">{b.sub}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* ===== Video Carousel ===== */}
-        {videoUrls.length > 0 && (
-          <div className="w-full max-w-6xl mb-20">
-            {/* Top meta bar */}
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.25em] text-white/40 border-b border-white/[0.06] pb-3 mb-10"
-            >
-              <span>// 2MC—GASTRO / INDEX_001</span>
-              <span className="hidden md:block">EST. 2010 · ANTALYA / TR</span>
-              <span className="text-sky-400">● ONLINE</span>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-              className="relative w-full rounded-2xl overflow-hidden bg-black"
-            >
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={videoIdx}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="w-full aspect-video"
-                >
-                  <video
-                    ref={videoRef}
-                    src={videoUrls[videoIdx]}
-                    autoPlay
-                    muted
-                    playsInline
-                    onEnded={handleVideoEnd}
-                    className="w-full h-full object-cover"
-                  />
-                </motion.div>
+              ))}
               </AnimatePresence>
-
-              {/* Video indicators */}
-              {videoUrls.length > 1 && (
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
-                  {videoUrls.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setVideoIdx(i)}
-                      aria-label={`Video ${i + 1}`}
-                      className={`h-1.5 rounded-full transition-all ${
-                        i === videoIdx ? 'w-8 bg-sky-300' : 'w-1.5 bg-white/30 hover:bg-white/60'
-                      }`}
-                    />
-                  ))}
-                  <span className="ml-3 text-[10px] font-mono uppercase tracking-[0.25em] text-white/50 bg-black/50 px-2 py-0.5 rounded-full backdrop-blur">
-                    {String(videoIdx + 1).padStart(2, '0')} / {String(videoUrls.length).padStart(2, '0')}
-                  </span>
-                </div>
-              )}
-            </motion.div>
-          </div>
-        )}
-
-        {/* ===== Stats ticker strip ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          className="w-full max-w-6xl mb-20 border-y border-white/[0.08] py-8"
-        >
-          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/[0.06]">
-            {[
-              { value: '10.000+', labelKey: 'welcome.statProducts', n: '01' },
-              { value: '50+', labelKey: 'welcome.statBrands', n: '02' },
-              { value: '3D', labelKey: 'welcome.statPlanning', n: '03' },
-              { value: '∞', labelKey: 'welcome.statProjects', n: '04' },
-            ].map((s, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6 + i * 0.08 }}
-                className="px-6 group"
-              >
-                <div className="text-[10px] font-mono text-sky-400/60 mb-2">[{s.n}]</div>
-                <div className="font-headline text-4xl md:text-5xl font-black text-white tracking-tight group-hover:text-sky-300 transition-colors">
-                  {s.value}
-                </div>
-                <div className="text-white/40 text-[10px] font-mono uppercase tracking-[0.18em] mt-2">
-                  {t(s.labelKey)}
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
-
-        {/* ===== Explore — Categories + Site Map (unified) ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.7 }}
-          className="w-full max-w-6xl mb-20"
-        >
-          {/* Header + tab switch */}
-          <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-5 mb-8">
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-sky-400/70 mb-2">
-                // EXPLORE / 2MC—GASTRO
-              </div>
-              <h3 className="text-white font-black text-2xl md:text-3xl tracking-tight">
-                {exploreTab === 'categories' ? t('welcome.explore.catHeading', 'Ürün Kategorileri') : t('welcome.explore.pagesHeading', 'Site Mimarisi')}
-              </h3>
-              <p className="text-white/40 text-sm mt-1">
-                {exploreTab === 'categories'
-                  ? t('welcome.explore.catSubtitle', '8 ana kategori · 6.300+ ürün')
-                  : t('welcome.explore.pagesSubtitle', '14 sayfa · tüm deneyim noktaları')}
-              </p>
-            </div>
-
-            <div className="inline-flex items-center p-1 rounded-full border border-white/10 bg-white/[0.03] backdrop-blur self-start sm:self-end">
-              {([
-                { k: 'categories', label: t('welcome.explore.tabCategories', 'Kategoriler') },
-                { k: 'pages',      label: t('welcome.explore.tabPages', 'Sayfalar') },
-              ] as const).map((tab) => {
-                const active = exploreTab === tab.k;
-                return (
-                  <button
-                    key={tab.k}
-                    onClick={() => setExploreTab(tab.k)}
-                    className={`relative px-4 py-1.5 text-[11px] font-mono uppercase tracking-[0.18em] rounded-full transition-colors ${
-                      active ? 'text-[#020817]' : 'text-white/60 hover:text-white'
-                    }`}
-                  >
-                    {active && (
-                      <motion.span
-                        layoutId="exploreTabPill"
-                        className="absolute inset-0 rounded-full bg-gradient-to-r from-sky-300 to-blue-400"
-                        transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-                      />
-                    )}
-                    <span className="relative z-10">{tab.label}</span>
-                  </button>
-                );
-              })}
             </div>
           </div>
+        </section>
 
-          {/* Grid */}
-          <AnimatePresence mode="wait">
-            {exploreTab === 'categories' ? (
-              <motion.div
-                key="cats"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35 }}
-                className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-px bg-white/[0.06] border border-white/[0.06]"
-              >
-                {[
-                  { Icon: Flame,            name: t('welcome.explore.cat1', 'Pişirme Ekipmanları'), sub: t('welcome.explore.cat1Sub', 'Ocak, Fırın, Izgara, Fritöz, Pizza Fırını') },
-                  { Icon: Snowflake,        name: t('welcome.explore.cat2', 'Soğutma & Dondurma'),  sub: t('welcome.explore.cat2Sub', 'Buzdolabı, Dondurucu, Salatbar, Blast Chiller') },
-                  { Icon: Droplets,         name: t('welcome.explore.cat3', 'Yıkama & Hijyen'),     sub: t('welcome.explore.cat3Sub', 'Bulaşık & Bardak Makinesi, El Yıkama') },
-                  { Icon: Scissors,         name: t('welcome.explore.cat4', 'Hazırlama & Kesme'),   sub: t('welcome.explore.cat4Sub', 'Sebze Doğrama, Et Kıyma, Dilimleyici') },
-                  { Icon: Armchair,         name: t('welcome.explore.cat5', 'Mobilya & Paslanmaz'), sub: t('welcome.explore.cat5Sub', 'Tezgah, Raf, Arabalar, Evye, Davlumbaz') },
-                  { Icon: Coffee,           name: t('welcome.explore.cat6', 'İçecek & Bar'),        sub: t('welcome.explore.cat6Sub', 'Espresso, Blender, Sıkacak, Bar') },
-                  { Icon: UtensilsCrossed,  name: t('welcome.explore.cat7', 'Servis & Sunum'),      sub: t('welcome.explore.cat7Sub', 'Tabak, Bardak, Servis Arabası, Chafing') },
-                  { Icon: Package,          name: t('welcome.explore.cat8', 'Paketleme & Teslimat'),sub: t('welcome.explore.cat8Sub', 'Vakum, Folyo, Teslimat Çantası') },
-                ].map((cat, i) => {
-                  const Icon = cat.Icon;
-                  const num = String(i + 1).padStart(2, '0');
-                  return (
-                    <motion.button
-                      key={cat.name}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.04 }}
-                      onClick={() => navigate('/diamond')}
-                      className="group relative bg-[#020817] p-6 hover:bg-white/[0.03] transition-all text-left min-h-[170px] flex flex-col"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-sky-500/15 to-blue-600/5 border border-sky-400/20 flex items-center justify-center group-hover:border-sky-300/50 group-hover:from-sky-400/25 transition-all">
-                          <Icon size={20} strokeWidth={1.8} className="text-sky-300 group-hover:scale-110 transition-transform" />
-                        </div>
-                        <span className="text-[9px] font-mono text-white/25">[{num}]</span>
-                      </div>
-                      <h4 className="text-white font-bold text-sm tracking-tight mb-1.5 group-hover:text-sky-300 transition-colors">{cat.name}</h4>
-                      <p className="text-white/40 text-[11px] leading-snug flex-1">{cat.sub}</p>
-                      <ArrowRight size={14} className="mt-3 text-white/20 group-hover:text-sky-300 group-hover:translate-x-1 transition-all" />
-                    </motion.button>
-                  );
-                })}
-              </motion.div>
-            ) : (
-              <motion.div
-                key="pages"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35 }}
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-px bg-white/[0.06] border border-white/[0.06]"
-              >
-                {[
-                  { Icon: Home,            title: t('welcome.explore.page.home', 'Anasayfa'),           desc: t('welcome.explore.page.homeDesc', 'Hero, kategoriler, öneriler'),       tag: t('welcome.explore.tagCritical', 'KRİTİK'),       tagType: 'critical', to: '/welcome' },
-                  { Icon: LayoutGrid,      title: t('welcome.explore.page.catList', 'Kategori Listesi'), desc: t('welcome.explore.page.catListDesc', 'Filtreleme, sıralama, grid/list'),   tag: t('welcome.explore.tagCritical', 'KRİTİK'),       tagType: 'critical', to: '/diamond' },
-                  { Icon: Box,             title: t('welcome.explore.page.prodDetail', 'Ürün Detay'),    desc: t('welcome.explore.page.prodDetailDesc', 'Galeri, spec, fiyat, stok'),         tag: t('welcome.explore.tagCritical', 'KRİTİK'),       tagType: 'critical', to: '/diamond' },
-                  { Icon: ShoppingCart,    title: t('welcome.explore.page.cart', 'Sepet'),               desc: t('welcome.explore.page.cartDesc', 'Slide-over + tam sayfa, özet'),      tag: t('welcome.explore.tagCritical', 'KRİTİK'),       tagType: 'critical', to: '/cart' },
-                  { Icon: CreditCard,      title: t('welcome.explore.page.payment', 'Ödeme'),           desc: t('welcome.explore.page.paymentDesc', '3 adım: bilgi → kargo → ödeme'),     tag: t('welcome.explore.tagCritical', 'KRİTİK'),       tagType: 'critical', to: '/payment' },
-                  { Icon: Search,          title: t('welcome.explore.page.search', 'Arama Sonuçları'),  desc: t('welcome.explore.page.searchDesc', 'Anlık öneriler, filtreler'),         tag: t('welcome.explore.tagCritical', 'KRİTİK'),       tagType: 'critical', to: '/diamond' },
-                  { Icon: User,            title: t('welcome.explore.page.account', 'Kullanıcı Hesabı'),desc: t('welcome.explore.page.accountDesc', 'Siparişler, adres, favoriler'),      tag: t('welcome.explore.tagImportant', 'ÖNEMLİ'),       tagType: 'important', to: '/profile' },
-                  { Icon: Building2,       title: t('welcome.explore.page.b2b', 'B2B Portal'),          desc: t('welcome.explore.page.b2bDesc', 'Toplu fiyat, teklif, fatura'),       tag: t('welcome.explore.tagImportant', 'ÖNEMLİ'),       tagType: 'important', to: '/projects' },
-                  { Icon: Newspaper,       title: t('welcome.explore.page.blog', 'Blog / Rehber'),      desc: t('welcome.explore.page.blogDesc', 'SEO içerikleri, rehberler'),         tag: t('welcome.explore.tagImportant', 'ÖNEMLİ'),       tagType: 'important', to: '/docs' },
-                  { Icon: Scale,           title: t('welcome.explore.page.compare', 'Karşılaştırma'),   desc: t('welcome.explore.page.compareDesc', '2–4 ürün yan yana'),                 tag: t('welcome.explore.tagDifferentiator', 'FARK YARATAN'), tagType: 'differentiator', to: '/diamond' },
-                  { Icon: Calculator,      title: t('welcome.explore.page.planner', 'Mutfak Planlayıcı'),desc: t('welcome.explore.page.plannerDesc', 'AI-destekli ekipman planlama'),      tag: t('welcome.explore.tagDifferentiator', 'FARK YARATAN'), tagType: 'differentiator', to: '/design' },
-                ].map((p, i) => {
-                  const Icon = p.Icon;
-                  const ring =
-                    p.tagType === 'critical'       ? 'from-rose-500/15 to-rose-600/5 border-rose-400/25 text-rose-300' :
-                    p.tagType === 'important'      ? 'from-amber-500/15 to-amber-600/5 border-amber-400/25 text-amber-300' :
-                    p.tagType === 'differentiator' ? 'from-sky-500/15 to-blue-600/5 border-sky-400/25 text-sky-300' :
-                                                     'from-white/10 to-white/0 border-white/15 text-white/60';
-                  const tagColor =
-                    p.tagType === 'critical'       ? 'text-rose-300 bg-rose-500/10 border-rose-500/20' :
-                    p.tagType === 'important'      ? 'text-amber-300 bg-amber-500/10 border-amber-500/20' :
-                    p.tagType === 'differentiator' ? 'text-sky-300 bg-sky-500/10 border-sky-500/20' :
-                                                     'text-white/50 bg-white/[0.03] border-white/10';
-                  const num = String(i + 1).padStart(2, '0');
-                  return (
-                    <motion.button
-                      key={p.title}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: i * 0.025 }}
-                      onClick={() => navigate(p.to)}
-                      className="group relative bg-[#020817] p-5 hover:bg-white/[0.03] transition-all text-left min-h-[180px] flex flex-col"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${ring} border flex items-center justify-center group-hover:scale-105 transition-transform`}>
-                          <Icon size={20} strokeWidth={1.8} />
-                        </div>
-                        <span className="text-[9px] font-mono text-white/25">[{num}]</span>
-                      </div>
-                      <h4 className="text-white font-bold text-sm tracking-tight mb-1.5 group-hover:text-sky-300 transition-colors">{p.title}</h4>
-                      <p className="text-white/40 text-[11px] leading-snug flex-1">{p.desc}</p>
-                      <span className={`mt-3 inline-flex self-start text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 border rounded-sm ${tagColor}`}>
-                        {p.tag}
-                      </span>
-                    </motion.button>
-                  );
-                })}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
-
-        {/* ===== Features — numbered editorial list ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
-          className="w-full max-w-6xl mb-20"
-        >
-          <div className="flex items-baseline justify-between mb-8">
-            <h3 className="text-white font-black text-2xl md:text-3xl tracking-tight">
-              {t('welcome.featuresHeading', 'Capabilities')}
-            </h3>
-            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/40">
-              ↓ 04 Modules
-            </span>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/[0.06]">
-            {FEATURES_KEYS.map((f, i) => {
-              const Icon = f.icon;
-              const num = String(i + 1).padStart(2, '0');
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 + i * 0.08 }}
-                  className="group relative bg-[#020817] p-7 hover:bg-white/[0.03] transition-all cursor-default"
-                >
-                  <div className="flex items-start gap-5">
-                    <div className="text-[10px] font-mono text-sky-400/60 pt-1">[{num}]</div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-3 mb-3">
-                        <Icon size={20} className="text-sky-300 group-hover:scale-110 transition-transform" />
-                        <h4 className="text-white font-bold text-base tracking-tight">{t(f.titleKey)}</h4>
-                      </div>
-                      <p className="text-white/45 text-sm leading-relaxed">{t(f.descKey)}</p>
-                    </div>
-                    <ArrowRight size={16} className="text-white/20 group-hover:text-sky-300 group-hover:translate-x-1 transition-all" />
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* ============ ABOUT / CONTACT / REVIEWS ============ */}
-        <motion.section
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.8 }}
-          className="w-full max-w-6xl mt-8 mb-16"
-        >
-          {/* Section heading */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 mb-4">
-              <Sparkles size={14} className="text-blue-400" />
-              <span className="text-blue-300 text-xs font-semibold uppercase tracking-wider">
-                {t('welcome.aboutBadge', '2MC Gastro Hakkında')}
-              </span>
-            </div>
-            <h3 className="text-3xl md:text-4xl font-black text-white mb-3">
-              {t('welcome.aboutTitle', 'Endüstriyel Mutfağın')}{' '}
-              <span className="bg-gradient-to-r from-sky-400 to-blue-500 bg-clip-text text-transparent">
-                {t('welcome.aboutTitleAccent', 'Dijital Çözüm Ortağı')}
-              </span>
-            </h3>
-            <p className="text-white/40 text-base max-w-2xl mx-auto leading-relaxed">
-              {t('welcome.aboutDescription', '15+ yıllık tecrübemizle Türkiye ve Avrupa\'nın önde gelen markalarına profesyonel mutfak ekipmanları, 3D tasarım ve teklif hazırlama hizmetleri sunuyoruz.')}
-            </p>
-          </div>
-
-          {/* Stats / highlights */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-            {[
-              { icon: Award, value: '15+', label: t('welcome.aboutYears', 'Yıl Tecrübe') },
-              { icon: CheckCircle2, value: '500+', label: t('welcome.aboutProjects', 'Tamamlanan Proje') },
-              { icon: Refrigerator, value: '10.000+', label: t('welcome.aboutEquipment', 'Ekipman Modeli') },
-              { icon: Star, value: '4.9/5', label: t('welcome.aboutRating', 'Müşteri Puanı') },
-            ].map((s, i) => {
-              const Icon = s.icon;
-              return (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  className="p-5 rounded-2xl bg-gradient-to-br from-white/[0.04] to-white/[0.01] border border-white/[0.06] hover:border-blue-500/30 transition-all"
-                >
-                  <Icon size={20} className="text-blue-400 mb-2" />
-                  <div className="text-2xl font-black text-white">{s.value}</div>
-                  <div className="text-white/40 text-xs mt-1">{s.label}</div>
-                </motion.div>
-              );
-            })}
-          </div>
-
-          {/* Google Reviews — full-width banner */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="p-8 md:p-10 rounded-3xl bg-gradient-to-br from-amber-500/[0.10] via-amber-500/[0.04] to-transparent border border-white/[0.08] backdrop-blur-sm relative overflow-hidden"
-          >
-            <div className="absolute -top-20 -right-20 w-80 h-80 rounded-full bg-amber-500/10 blur-3xl" />
-            <div className="absolute -bottom-20 -left-20 w-80 h-80 rounded-full bg-amber-500/5 blur-3xl" />
-            <div className="relative grid grid-cols-1 md:grid-cols-[auto_1fr_auto] gap-8 md:gap-10 items-center">
-              {/* Left — rating */}
-              <div className="flex flex-col items-start md:items-center md:border-r md:border-white/[0.08] md:pr-10">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-12 h-12 rounded-2xl bg-amber-500/15 flex items-center justify-center">
-                    <Star size={22} className="text-amber-400 fill-amber-400" />
-                  </div>
-                  <h4 className="text-white font-bold text-xl">{t('welcome.reviewsTitle', 'Google Yorumları')}</h4>
-                </div>
-                <div className="flex items-end gap-2 mb-2">
-                  <span className="text-6xl font-black text-white leading-none">4.9</span>
-                  <span className="text-white/40 text-base pb-2">/ 5.0</span>
-                </div>
-                <div className="flex items-center gap-1 mb-2">
-                  {[...Array(5)].map((_, i) => (
-                    <Star key={i} size={18} className="text-amber-400 fill-amber-400" />
-                  ))}
-                </div>
-                <p className="text-white/50 text-xs">
-                  {t('welcome.reviewsCount', '320+ doğrulanmış Google yorumu')}
-                </p>
-              </div>
-
-              {/* Middle — bar chart */}
-              <div className="space-y-3 w-full max-w-xl">
-                {[
-                  { label: '5★', pct: 92 },
-                  { label: '4★', pct: 6 },
-                  { label: '3★', pct: 2 },
-                ].map((r) => (
-                  <div key={r.label} className="flex items-center gap-3 text-sm">
-                    <span className="text-white/60 w-8">{r.label}</span>
-                    <div className="flex-1 h-2 rounded-full bg-white/[0.06] overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${r.pct}%` }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 1, delay: 0.4 }}
-                        className="h-full bg-gradient-to-r from-amber-500 to-amber-300"
-                      />
-                    </div>
-                    <span className="text-white/50 w-10 text-right">{r.pct}%</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Right — CTA */}
-              <div className="flex md:justify-end">
-                <a
-                  href="https://www.google.com/search?q=2mc+gastro"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 rounded-2xl bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-200 hover:text-amber-100 text-sm font-semibold transition-all whitespace-nowrap"
-                >
-                  {t('welcome.reviewsCta', 'Tüm yorumları gör')}
-                  <ArrowRight size={16} />
-                </a>
-              </div>
-            </div>
-          </motion.div>
-        </motion.section>
-
-        {/* Blog Preview */}
-        <BlogPreviewSection />
-
-        {/* Newsletter */}
-        <NewsletterSection />
-
-        {/* ===== Bottom Quick Links (Contact / About / FAQ) ===== */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ duration: 0.6 }}
-          className="w-full max-w-6xl mt-8 mb-10"
-        >
-          <div className="flex items-baseline justify-between mb-5">
-            <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-sky-400/70">
-              // QUICK LINKS
-            </div>
-            <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-white/30">
-              ↓ {t('welcome.quickLinks.heading', 'Yardım & İletişim')}
-            </span>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-px bg-white/[0.06] border border-white/[0.06]">
-            {[
-              { Icon: PhoneCall,  title: t('welcome.quickLinks.contact', 'İletişim'),   desc: t('welcome.quickLinks.contactDesc', 'Form, harita, telefon, WhatsApp'), tag: t('welcome.explore.tagImportant', 'ÖNEMLİ'),   to: '/support', ring: 'from-amber-500/15 to-amber-600/5 border-amber-400/25 text-amber-300', tagColor: 'text-amber-300 bg-amber-500/10 border-amber-500/20' },
-              { Icon: Info,       title: t('welcome.quickLinks.about', 'Hakkımızda'), desc: t('welcome.quickLinks.aboutDesc', 'Hikâye, değerler, ekip'),          tag: t('welcome.quickLinks.tagStandard', 'STANDART'), to: '/brand',   ring: 'from-white/10 to-white/0 border-white/15 text-white/70',             tagColor: 'text-white/60 bg-white/[0.03] border-white/10' },
-              { Icon: HelpCircle, title: t('welcome.quickLinks.faq', 'SSS / Yardım'), desc: t('welcome.quickLinks.faqDesc', 'Sık sorulanlar, kargo, iade'),   tag: t('welcome.quickLinks.tagStandard', 'STANDART'), to: '/docs',    ring: 'from-white/10 to-white/0 border-white/15 text-white/70',             tagColor: 'text-white/60 bg-white/[0.03] border-white/10' },
-            ].map((q, i) => {
-              const Icon = q.Icon;
-              const num = String(i + 1).padStart(2, '0');
-              return (
-                <motion.button
-                  key={q.title}
-                  initial={{ opacity: 0, y: 8 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  onClick={() => navigate(q.to)}
-                  className="group relative bg-[#020817] p-6 hover:bg-white/[0.03] transition-all text-left flex items-start gap-4"
-                >
-                  <div className={`w-12 h-12 shrink-0 rounded-xl bg-gradient-to-br ${q.ring} border flex items-center justify-center group-hover:scale-105 transition-transform`}>
-                    <Icon size={22} strokeWidth={1.8} />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <h4 className="text-white font-bold text-sm tracking-tight group-hover:text-sky-300 transition-colors">{q.title}</h4>
-                      <span className="text-[9px] font-mono text-white/25">[{num}]</span>
-                    </div>
-                    <p className="text-white/40 text-[11px] leading-snug mb-2">{q.desc}</p>
-                    <span className={`inline-flex text-[9px] font-mono uppercase tracking-wider px-2 py-0.5 border rounded-sm ${q.tagColor}`}>
-                      {q.tag}
-                    </span>
-                  </div>
-                  <ArrowRight size={14} className="text-white/20 group-hover:text-sky-300 group-hover:translate-x-1 transition-all mt-1" />
-                </motion.button>
-              );
-            })}
-          </div>
-        </motion.div>
-
-        {/* Footer */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.6, delay: 1 }}
-          className="text-white/20 text-xs text-center pt-6 border-t border-white/[0.04] w-full max-w-6xl"
-        >
-          <div className="pt-6">{t('welcome.copyright')}</div>
-        </motion.div>
+        </SectionSlot>
+        {/* AI Live Chat */}
+        <LiveChatWidget />
       </div>
+
+      <SiteFooter />
 
       {/* 3D Showcase Detail Modal */}
       <AnimatePresence>
@@ -1305,22 +1815,19 @@ export default function WelcomePage() {
                   <div className={`inline-flex self-start text-[9px] font-mono uppercase tracking-[0.22em] px-2 py-1 rounded-full border ${view3D.ring} bg-black/40 ${view3D.text} mb-4`}>
                     {view3D.tag} · 3D
                   </div>
-
-                  <h3 className="text-white font-black text-2xl tracking-tight leading-tight mb-2">
-                    {view3D.title}
-                  </h3>
+                  <h3 className="text-white font-black text-2xl tracking-tight leading-tight mb-2">{view3D.title}</h3>
                   <p className={`text-sm font-semibold ${view3D.text} mb-3`}>{view3D.subtitle}</p>
                   <p className="text-white/60 text-[13px] leading-relaxed">{view3D.desc}</p>
-
                   {view3D.priceLabel && (
                     <div className="mt-4 flex items-baseline gap-2">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-white/40">{t('welcome.showcase3d.modal.catalogPrice', 'Katalog fiyatı')}</span>
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-white/40">
+                        {t('welcome.showcase3d.modal.catalogPrice', 'Katalog fiyatı')}
+                      </span>
                       <span className={`text-xl font-black ${view3D.text}`}>{view3D.priceLabel}</span>
                     </div>
                   )}
                 </div>
 
-                {/* Teknik özellikler */}
                 <div className="px-6 py-4 border-t border-white/5">
                   <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-white/40 mb-3">
                     {t('welcome.showcase3d.modal.techSpecs', 'Teknik Özellikler')}
@@ -1335,7 +1842,6 @@ export default function WelcomePage() {
                   </div>
                 </div>
 
-                {/* Öne çıkan özellikler */}
                 <div className="px-6 py-4 border-t border-white/5">
                   <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-white/40 mb-3">
                     {t('welcome.showcase3d.modal.highlights', 'Öne Çıkan Özellikler')}
@@ -1350,7 +1856,7 @@ export default function WelcomePage() {
                   </ul>
                 </div>
 
-<div className="mt-auto p-6 pt-4 flex flex-col gap-2 border-t border-white/5 bg-black/20">
+                <div className="mt-auto p-6 pt-4 flex flex-col gap-2 border-t border-white/5 bg-black/20">
                   <button
                     onClick={() => { setView3D(null); navigate('/diamond'); }}
                     className="w-full px-4 py-2.5 rounded-xl bg-white text-slate-900 text-xs font-black tracking-wide hover:bg-white/90 transition-colors flex items-center justify-center gap-2"
@@ -1369,11 +1875,6 @@ export default function WelcomePage() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* AI Live Chat (global) */}
-      <LiveChatWidget />
-
-      <SiteFooter />
     </div>
   );
 }

@@ -10,7 +10,7 @@ import {
   MousePointer2, Hand, Plus, Minus, Lock, Unlock,
   Package, ArrowLeft, Search, X, Heart, Zap,
   Ruler, Euro, ExternalLink, Pen, RotateCcw,
-  DoorOpen, AppWindow, FileDown, StickyNote, Loader2
+  DoorOpen, AppWindow, FileDown, StickyNote, Loader2, Box
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { debouncedSyncFloorPlan, loadFloorPlan } from '../lib/gastroSync';
@@ -1167,6 +1167,14 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
           <button onClick={zoomIn} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md"><Plus size={15} /></button>
           <button onClick={zoomFit} className="ml-1 px-2 py-1 text-[10px] font-bold text-slate-500 hover:text-primary hover:bg-slate-100 rounded-md">FIT</button>
           <div className="w-px h-5 bg-slate-200 mx-1" />
+          <button
+            onClick={() => navigate(id ? `/projects/${id}/design/3d` : '/design/3d')}
+            className="flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-md transition-all"
+            title="3D Görünüm"
+          >
+            <Box size={13} />
+            <span className="hidden sm:inline">3D</span>
+          </button>
           <button
             onClick={exportFloorPlanPDF}
             disabled={pdfExporting}

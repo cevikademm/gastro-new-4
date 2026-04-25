@@ -1,0 +1,389 @@
+/* ==========================================================================
+   2MC × Claude — Global theme skin
+   Applies warm cream editorial surface + brand palette (navy #1E3A5F,
+   gastro orange #E85D26) across all Layout-wrapped pages.
+   Scope: `.claude-theme` class (added to Layout root).
+   Note: Fraunces font is imported at the top of index.css (welcome-claude
+   also imports it — cached by the browser).
+   ========================================================================== */
+
+.claude-theme {
+  /* Palette — harmonized with brand */
+  --ct-bg:         #faf9f5;
+  --ct-bg-alt:     #f5f3eb;
+  --ct-bg-deep:    #eeebdf;
+  --ct-ink:        #0F2440;
+  --ct-ink-soft:   #1E3A5F;
+  --ct-muted:      #546E7A;
+  --ct-line:       #e8e6df;
+  --ct-line-soft:  #f0eee6;
+  --ct-clay:       #E85D26;
+  --ct-clay-deep:  #C44A1A;
+  --ct-clay-soft:  #FF7A45;
+  --ct-clay-wash:  #fbe7dc;
+  --ct-navy:       #1E3A5F;
+  --ct-navy-deep:  #0F2440;
+  --ct-deal:       #C62828;
+  --ct-success:    #1b7f3a;
+
+  --ct-serif: 'Fraunces', 'Source Serif Pro', Georgia, serif;
+  --ct-sans:  'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+
+  /* Surface fill for the whole app body */
+  background-color: var(--ct-bg) !important;
+  color: var(--ct-ink) !important;
+}
+
+.claude-theme,
+.claude-theme body {
+  font-feature-settings: 'ss01', 'ss02', 'cv11';
+}
+
+/* ── Headings → editorial serif ─────────────────────── */
+.claude-theme h1,
+.claude-theme h2,
+.claude-theme h3 {
+  font-family: var(--ct-serif) !important;
+  font-optical-sizing: auto;
+  letter-spacing: -0.022em !important;
+  font-weight: 500 !important;
+  color: var(--ct-ink);
+}
+.claude-theme h1 { font-size: clamp(1.75rem, 3.5vw, 2.75rem); line-height: 1.1; }
+.claude-theme h2 { font-size: clamp(1.35rem, 2.4vw, 2rem);   line-height: 1.15; }
+.claude-theme h3 { font-size: clamp(1.125rem, 1.6vw, 1.4rem); line-height: 1.25; }
+
+.claude-theme h4,
+.claude-theme h5 {
+  font-family: var(--ct-sans);
+  font-weight: 600;
+  color: var(--ct-ink);
+  letter-spacing: -0.01em;
+}
+
+/* ── Surface tokens — override existing @theme values ─ */
+.claude-theme .bg-surface,
+.claude-theme [class*="bg-surface"]:not([class*="bg-surface-container"]) {
+  background-color: var(--ct-bg) !important;
+}
+.claude-theme .bg-surface-container-lowest {
+  background-color: #ffffff !important;
+}
+.claude-theme .bg-surface-container-low {
+  background-color: var(--ct-bg-alt) !important;
+}
+.claude-theme .bg-surface-container {
+  background-color: var(--ct-bg-alt) !important;
+}
+.claude-theme .bg-surface-container-high {
+  background-color: var(--ct-bg-deep) !important;
+}
+.claude-theme .bg-surface-container-highest {
+  background-color: var(--ct-bg-deep) !important;
+}
+
+/* Text tokens */
+.claude-theme .text-on-surface,
+.claude-theme [class*="text-on-surface"]:not([class*="text-on-surface-variant"]) {
+  color: var(--ct-ink) !important;
+}
+.claude-theme .text-on-surface-variant,
+.claude-theme [class*="text-on-surface-variant"] {
+  color: var(--ct-muted) !important;
+}
+
+/* Border softening */
+.claude-theme .border-outline-variant,
+.claude-theme [class*="border-outline-variant"] {
+  border-color: var(--ct-line) !important;
+}
+
+/* Slate grays — remap to warm neutrals */
+.claude-theme .bg-slate-100 { background-color: var(--ct-bg-alt) !important; }
+.claude-theme .bg-slate-200 { background-color: var(--ct-bg-deep) !important; }
+.claude-theme .hover\:bg-slate-100:hover { background-color: var(--ct-bg-alt) !important; }
+.claude-theme .hover\:bg-slate-200:hover { background-color: var(--ct-bg-deep) !important; }
+.claude-theme .text-slate-400 { color: var(--ct-muted) !important; }
+.claude-theme .text-slate-500 { color: var(--ct-muted) !important; }
+.claude-theme .text-slate-600 { color: var(--ct-ink-soft) !important; }
+.claude-theme .text-slate-700 { color: var(--ct-ink-soft) !important; }
+.claude-theme .text-slate-800 { color: var(--ct-ink) !important; }
+.claude-theme .border-slate-100 { border-color: var(--ct-line-soft) !important; }
+.claude-theme .border-slate-200 { border-color: var(--ct-line) !important; }
+.claude-theme .border-slate-300 { border-color: var(--ct-line) !important; }
+
+/* Brand primary remapping — always use navy */
+.claude-theme .text-primary,
+.claude-theme .text-primary-container {
+  color: var(--ct-navy) !important;
+}
+.claude-theme .bg-primary {
+  background-color: var(--ct-navy) !important;
+}
+.claude-theme .border-primary {
+  border-color: var(--ct-navy) !important;
+}
+
+/* ── Card skin for pages using .card / .rounded-xl / .rounded-2xl ─── */
+.claude-theme .card,
+.claude-theme [class*="rounded-xl"],
+.claude-theme [class*="rounded-2xl"] {
+  border-color: var(--ct-line);
+}
+
+/* Buttons using brand accent — orange is already close, just unify */
+.claude-theme [style*="var(--brand-accent)"],
+.claude-theme [style*="var(--brand-primary)"] {
+  transition: filter 200ms, transform 200ms;
+}
+
+/* Link tint */
+.claude-theme a:not([class]) { color: var(--ct-clay); }
+.claude-theme a:not([class]):hover { color: var(--ct-clay-deep); text-decoration: underline; }
+
+/* Selection */
+.claude-theme ::selection {
+  background: var(--ct-clay);
+  color: #fff;
+}
+
+/* Scrollbar — subtle warm */
+.claude-theme ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+.claude-theme ::-webkit-scrollbar-track {
+  background: var(--ct-bg-alt);
+}
+.claude-theme ::-webkit-scrollbar-thumb {
+  background: var(--ct-line);
+  border-radius: 9999px;
+  border: 2px solid var(--ct-bg-alt);
+}
+.claude-theme ::-webkit-scrollbar-thumb:hover {
+  background: var(--ct-muted);
+}
+
+/* ── Eyebrow helper for editorial intros on inner pages ─ */
+.claude-theme .ct-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ct-muted);
+  font-family: var(--ct-sans);
+}
+.claude-theme .ct-eyebrow::before {
+  content: '';
+  width: 24px;
+  height: 1px;
+  background: var(--ct-clay);
+}
+
+/* Page title serif helper */
+.claude-theme .ct-title {
+  font-family: var(--ct-serif) !important;
+  font-weight: 500;
+  letter-spacing: -0.022em;
+  color: var(--ct-ink);
+}
+.claude-theme .ct-title em,
+.claude-theme .ct-title i,
+.claude-theme .ct-title .ct-accent {
+  font-style: italic;
+  color: var(--ct-clay);
+}
+
+/* Subtle section divider for inner pages */
+.claude-theme .ct-rule {
+  height: 1px;
+  background-image: linear-gradient(to right, var(--ct-line) 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+  border: 0;
+}
+
+/* Pill — generic soft chip (tags, badges) */
+.claude-theme .ct-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: var(--ct-clay-wash);
+  color: var(--ct-clay-deep);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* Editorial button fallback — match welcome page aesthetic */
+.claude-theme .ct-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-family: var(--ct-sans);
+  font-weight: 500;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  transition: transform 200ms, background 200ms, box-shadow 200ms;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.claude-theme .ct-btn-clay {
+  background: var(--ct-clay);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(232,93,38,0.15);
+}
+.claude-theme .ct-btn-clay:hover {
+  background: var(--ct-clay-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px -8px rgba(232,93,38,0.30);
+}
+.claude-theme .ct-btn-ghost {
+  background: transparent;
+  color: var(--ct-ink);
+  border: 1px solid var(--ct-line);
+}
+.claude-theme .ct-btn-ghost:hover {
+  background: var(--ct-bg-alt);
+  border-color: var(--ct-ink-soft);
+}
+
+/* Card editorial skin — use on page-level containers */
+.claude-theme .ct-card {
+  background: #ffffff;
+  border: 1px solid var(--ct-line);
+  border-radius: 20px;
+  padding: 24px;
+  transition: transform 300ms cubic-bezier(0.22,1,0.36,1), box-shadow 300ms, border-color 300ms;
+}
+.claude-theme .ct-card:hover {
+  border-color: var(--ct-ink-soft);
+  box-shadow: 0 12px 24px -8px rgba(15,36,64,0.10), 0 24px 48px -16px rgba(15,36,64,0.12);
+}
+
+/* Soft warm page header (use around top of inner pages) */
+.claude-theme .ct-page-intro {
+  padding: 28px 0 24px;
+  border-bottom: 1px solid var(--ct-line);
+  margin-bottom: 28px;
+  position: relative;
+}
+.claude-theme .ct-page-intro::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: -1px;
+  width: 96px; height: 1px;
+  background: var(--ct-clay);
+}
+
+/* Table — soft editorial */
+.claude-theme table {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+}
+.claude-theme table th {
+  font-family: var(--ct-sans);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ct-muted);
+  font-weight: 600;
+  text-align: left;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--ct-line);
+  background: var(--ct-bg-alt);
+}
+.claude-theme table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--ct-line-soft);
+  font-size: 14px;
+  color: var(--ct-ink-soft);
+}
+
+/* Inputs — warm editorial */
+.claude-theme input[type="text"],
+.claude-theme input[type="email"],
+.claude-theme input[type="password"],
+.claude-theme input[type="number"],
+.claude-theme input[type="search"],
+.claude-theme textarea,
+.claude-theme select {
+  background: #ffffff;
+  border: 1px solid var(--ct-line) !important;
+  border-radius: 12px !important;
+  padding: 10px 14px;
+  font-family: var(--ct-sans);
+  font-size: 14px;
+  color: var(--ct-ink);
+  transition: border-color 180ms, box-shadow 180ms;
+}
+.claude-theme input:focus,
+.claude-theme textarea:focus,
+.claude-theme select:focus {
+  outline: none;
+  border-color: var(--ct-clay) !important;
+  box-shadow: 0 0 0 3px rgba(232,93,38,0.12) !important;
+}
+
+/* Animated section bridge (reusable) */
+.claude-theme .ct-bridge {
+  position: relative;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent 0%, var(--ct-bg-alt) 50%, transparent 100%);
+}
+.claude-theme .ct-bridge::before,
+.claude-theme .ct-bridge::after {
+  content: '';
+  flex: 1;
+  max-width: 240px;
+  height: 1px;
+  background-image: linear-gradient(to right, var(--ct-line) 50%, transparent 50%);
+  background-size: 8px 1px;
+  background-repeat: repeat-x;
+}
+.claude-theme .ct-bridge-glyph {
+  font-family: var(--ct-serif);
+  font-style: italic;
+  font-size: 18px;
+  color: var(--ct-clay);
+}
+
+/* Stat — large editorial number */
+.claude-theme .ct-stat {
+  font-family: var(--ct-serif);
+  font-weight: 500;
+  font-size: clamp(2rem, 5vw, 3.5rem);
+  color: var(--ct-ink);
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.claude-theme .ct-stat .ct-unit {
+  font-size: 0.42em;
+  color: var(--ct-clay);
+  margin-left: 2px;
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* Fade-in-on-mount helper */
+@keyframes ct-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.claude-theme .ct-reveal {
+  animation: ct-fade-up 0.7s cubic-bezier(0.22,1,0.36,1) both;
+}

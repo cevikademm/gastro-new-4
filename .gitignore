@@ -9,3 +9,12 @@ coverage/
 !.env.deploy.example
 
 .vercel
+
+# Build verification artifacts
+dist-verify/
+dist-verify2/
+dist-v2/
+
+# Editor / OS / IDE local cache
+.fuse_hidden*
+.claude/

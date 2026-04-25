@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>2MC Gastro — Yönetim Sunumu — 23 Nisan 2026</title>
+<style>
+  @page { size: A4 portrait; margin: 18mm 16mm 22mm 16mm;
+          @bottom-right { content: counter(page) " / " counter(pages); font: 9pt "Segoe UI", sans-serif; color: #64748b; }
+          @bottom-left  { content: "2MC Gastro — Yönetim Sunumu — 23 Nisan 2026"; font: 9pt "Segoe UI", sans-serif; color: #64748b; }
+        }
+  :root {
+    --ink: #0f172a;
+    --muted: #475569;
+    --soft-muted: #64748b;
+    --accent: #c8102e;
+    --accent-2: #1e3a8a;
+    --soft: #f1f5f9;
+    --softer: #f8fafc;
+    --line: #e2e8f0;
+    --green: #16a34a;
+    --amber: #d97706;
+    --red: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    color: var(--ink);
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.5pt; line-height: 1.55;
+    background: #fff;
+  }
+  .page { padding: 0; page-break-after: always; }
+  .page:last-child { page-break-after: auto; }
+  h1 { font-size: 26pt; line-height: 1.15; margin: 0 0 10pt; letter-spacing: -0.01em; font-weight: 700; }
+  h2 { font-size: 17pt; margin: 0 0 8pt; color: var(--ink); border-bottom: 2.5pt solid var(--accent); padding-bottom: 5pt; font-weight: 700; }
+  h3 { font-size: 12pt; margin: 12pt 0 4pt; color: var(--accent-2); font-weight: 700; }
+  h4 { font-size: 10.5pt; margin: 8pt 0 2pt; color: var(--ink); font-weight: 700; }
+  p { margin: 0 0 6pt; }
+  ul { margin: 4pt 0 8pt; padding-left: 18pt; }
+  li { margin: 2pt 0; }
+  .muted { color: var(--muted); }
+  .small { font-size: 9pt; color: var(--soft-muted); }
+  .lead { font-size: 11.5pt; color: var(--muted); margin-bottom: 10pt; }
+  .accent { color: var(--accent); }
+  strong.lead-phrase { color: var(--accent-2); }
+
+  /* KPI cards */
+  .kpi { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6pt; margin: 10pt 0 14pt; }
+  .kpi .card { border: 1pt solid var(--line); border-radius: 6pt; padding: 10pt 8pt; background: var(--softer); }
+  .kpi .num { font-size: 20pt; font-weight: 700; color: var(--accent); line-height: 1; }
+  .kpi .lbl { font-size: 8.5pt; color: var(--muted); margin-top: 4pt; text-transform: uppercase; letter-spacing: 0.04em; }
+
+  /* Two-column layout */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 9.5pt; margin: 6pt 0 10pt; }
+  th, td { border: 1pt solid var(--line); padding: 5pt 7pt; text-align: left; vertical-align: top; }
+  th { background: var(--soft); font-weight: 700; color: var(--ink); }
+  tr.win td:first-child { color: var(--green); font-weight: 700; }
+
+  /* Feature pill list */
+  .feat-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6pt 14pt; margin: 6pt 0 10pt; }
+  .feat-list .feat { padding: 6pt 8pt; border-left: 3pt solid var(--accent); background: var(--softer); border-radius: 0 4pt 4pt 0; }
+  .feat .t { font-weight: 700; color: var(--ink); font-size: 10pt; }
+  .feat .d { font-size: 9pt; color: var(--muted); margin-top: 2pt; }
+
+  /* Status chips */
+  .chip { display: inline-block; padding: 1pt 7pt; border-radius: 999pt; font-size: 8.5pt; font-weight: 700; vertical-align: middle; }
+  .chip.live  { background: #dcfce7; color: #14532d; }
+  .chip.beta  { background: #fef3c7; color: #78350f; }
+  .chip.plan  { background: #e0e7ff; color: #1e3a8a; }
+
+  /* Locale grid */
+  .locales { display: grid; grid-template-columns: repeat(5, 1fr); gap: 5pt; margin: 6pt 0 10pt; }
+  .locales .loc { border: 1pt solid var(--line); border-radius: 4pt; padding: 5pt 6pt; font-size: 9pt; background: var(--softer); }
+  .locales .loc .code { font-weight: 700; color: var(--accent); font-family: Consolas, monospace; }
+
+  /* Cover page */
+  .cover {
+    display: flex; flex-direction: column; justify-content: space-between;
+    min-height: 257mm;
+    padding: 0;
+  }
+  .cover .top { display: flex; align-items: center; gap: 14pt; }
+  .cover .top img { height: 48pt; }
+  .cover .top .brand-name { font-size: 18pt; font-weight: 700; letter-spacing: 0.02em; color: var(--ink); }
+  .cover .top .brand-tag { font-size: 10pt; color: var(--muted); margin-top: 2pt; }
+  .cover .middle { margin-top: 30pt; }
+  .cover h1 { font-size: 42pt; margin-bottom: 10pt; letter-spacing: -0.015em; }
+  .cover .subtitle { font-size: 16pt; color: var(--muted); font-weight: 400; max-width: 80%; line-height: 1.35; }
+  .cover .meta { margin-top: 30pt; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10pt; max-width: 70%; }
+  .cover .meta .row { border-top: 1pt solid var(--line); padding-top: 6pt; }
+  .cover .meta .row .l { font-size: 8.5pt; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .cover .meta .row .v { font-size: 11pt; color: var(--ink); font-weight: 600; margin-top: 2pt; }
+  .cover .bottom { color: var(--muted); border-top: 2pt solid var(--accent); padding-top: 8pt; font-size: 9pt; display: flex; justify-content: space-between; }
+  .cover .bottom .conf { color: var(--accent); font-weight: 700; letter-spacing: 0.06em; }
+
+  /* TOC */
+  .toc { columns: 1; }
+  .toc ol { padding-left: 22pt; }
+  .toc li { margin: 4pt 0; padding: 3pt 0; border-bottom: 1pt dotted var(--line); font-size: 11pt; }
+
+  /* Callouts */
+  .callout { border-left: 4pt solid var(--accent-2); background: #eff6ff; padding: 8pt 12pt; border-radius: 0 4pt 4pt 0; margin: 8pt 0 12pt; font-size: 10pt; }
+  .callout.warn  { border-color: var(--amber); background: #fffbeb; }
+  .callout.win   { border-color: var(--green); background: #f0fdf4; }
+
+  /* Timeline */
+  .timeline { border-left: 2.5pt solid var(--accent); padding-left: 12pt; margin: 10pt 0; }
+  .timeline .item { margin-bottom: 10pt; position: relative; }
+  .timeline .item::before { content: ""; position: absolute; left: -17pt; top: 4pt; width: 8pt; height: 8pt; background: var(--accent); border-radius: 50%; border: 2pt solid #fff; box-shadow: 0 0 0 1pt var(--accent); }
+  .timeline .when { font-size: 9pt; color: var(--accent); font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+  .timeline .what { font-size: 10pt; font-weight: 700; color: var(--ink); margin: 1pt 0; }
+  .timeline .why  { font-size: 9.5pt; color: var(--muted); }
+
+  /* Image placeholder */
+  .img-ph { border: 2pt dashed var(--line); border-radius: 6pt; padding: 22pt; text-align: center; color: var(--soft-muted); font-size: 9pt; background: var(--softer); margin: 6pt 0 8pt; }
+  .img-ph::before { content: "📷  "; font-size: 14pt; color: var(--accent); }
+
+  /* Risk matrix */
+  .risk td.lvl { font-weight: 700; text-align: center; width: 60pt; }
+  .risk td.lvl.high { background: #fee2e2; color: #991b1b; }
+  .risk td.lvl.med  { background: #fef3c7; color: #92400e; }
+  .risk td.lvl.low  { background: #dcfce7; color: #166534; }
+
+  /* Section header bar with chip */
+  .section-head { display: flex; align-items: center; justify-content: space-between; gap: 10pt; }
+  .section-head .step { font-size: 9pt; color: var(--muted); }
+
+  /* Screen-only tip */
+  .screen-hint {
+    background: #fef3c7; border: 1pt dashed var(--amber); padding: 8pt 12pt;
+    border-radius: 4pt; margin: 0 0 14pt; font-size: 10pt; color: #78350f;
+  }
+  .screen-hint b { color: #92400e; }
+  @media print { .screen-hint { display: none; } }
+
+  /* Footer signature on closing */
+  .signature { margin-top: 24pt; display: grid; grid-template-columns: 1fr 1fr; gap: 30pt; }
+  .signature .box { border-top: 1pt solid var(--ink); padding-top: 6pt; font-size: 9pt; color: var(--muted); }
+  .signature .box .who { font-size: 11pt; color: var(--ink); font-weight: 700; margin-top: 14pt; }
+</style>
+</head>
+<body>
+
+<div class="screen-hint">
+  <b>PDF olarak kaydetmek için:</b> Tarayıcıda <b>Ctrl+P</b> → Hedef: <b>PDF olarak kaydet</b> → Boyut: <b>A4 (Dikey)</b> → Kenar boşlukları: <b>Varsayılan</b>. Bu uyarı kutusu çıktıda görünmeyecek.
+</div>
+
+<!-- ======================== KAPAK ======================== -->
+<section class="page cover">
+  <div class="top">
+    <img src="../public/logo-2mc-gastro.png" alt="2MC Gastro" onerror="this.style.display='none'">
+    <div>
+      <div class="brand-name">2MC Gastro</div>
+      <div class="brand-tag">Profesyonel Mutfak Planlama Platformu</div>
+    </div>
+  </div>
+
+  <div class="middle">
+    <h1>Web Projesi<br>Yönetim Sunumu</h1>
+    <div class="subtitle">Avrupa pazarına yönelik endüstriyel mutfak ekipman platformumuzun mevcut durumu, son 3 ayın ilerlemesi ve önümüzdeki adımlar.</div>
+
+    <div class="meta">
+      <div class="row"><div class="l">Hazırlayan</div><div class="v">Adem Çevik</div></div>
+      <div class="row"><div class="l">Tarih</div><div class="v">23 Nisan 2026</div></div>
+      <div class="row"><div class="l">Sürüm</div><div class="v">v1.0</div></div>
+      <div class="row"><div class="l">Hedef Kitle</div><div class="v">Yönetim</div></div>
+    </div>
+  </div>
+
+  <div class="bottom">
+    <span class="conf">GİZLİ — YALNIZCA YÖNETİM İÇİN</span>
+    <span>2mc-gastro.com</span>
+  </div>
+</section>
+
+<!-- ======================== İÇİNDEKİLER ======================== -->
+<section class="page">
+  <h2>İçindekiler</h2>
+  <div class="toc">
+    <ol>
+      <li>Yönetici Özeti</li>
+      <li>Proje Hakkında — Ne yapıyoruz, neden?</li>
+      <li>Mevcut Durum — Bugün canlı olan özellikler</li>
+      <li>Teknik Altyapı — İş diliyle</li>
+      <li>Çoklu Dil &amp; Pazar Erişimi — 15 Avrupa dili</li>
+      <li>Görsel Tur — Ekran görüntüleri</li>
+      <li>Rakip Karşılaştırması — Pazardaki konumumuz</li>
+      <li>İlerleme Zaman Çizelgesi — Son 90 günde yapılanlar</li>
+      <li>Önümüzdeki Adımlar — Yol haritası</li>
+      <li>Riskler &amp; Bağımlılıklar</li>
+      <li>Kapanış &amp; Karar Beklenen Konular</li>
+    </ol>
+  </div>
+
+  <div class="callout">
+    <strong>Notasyon:</strong>
+    <span class="chip live">CANLI</span> bugün kullanılabilir &nbsp;·&nbsp;
+    <span class="chip beta">BETA</span> test aşamasında &nbsp;·&nbsp;
+    <span class="chip plan">PLAN</span> yol haritasında
+  </div>
+</section>
+
+<!-- ======================== 1. YÖNETİCİ ÖZETİ ======================== -->
+<section class="page">
+  <div class="section-head">
+    <h2>1 · Yönetici Özeti</h2>
+    <span class="step">1 dakikalık okuma</span>
+  </div>
+
+  <p class="lead">2MC Gastro, Avrupa'daki restoran, otel ve catering işletmelerine endüstriyel mutfak ekipmanı satışı için tasarlanmış, çok dilli, uçtan uca bir B2B platformdur. Müşteri ürünü görüyor, mutfağını üç boyutlu tasarlıyor, teklif istiyor ve isterse online ödüyor — hepsi aynı sistemde.</p>
+
+  <div class="kpi">
+    <div class="card"><div class="num">6.316</div><div class="lbl">Aktif Ürün</div></div>
+    <div class="card"><div class="num">15</div><div class="lbl">Avrupa Dili</div></div>
+    <div class="card"><div class="num">17</div><div class="lbl">Ana Kategori</div></div>
+    <div class="card"><div class="num">8</div><div class="lbl">Sunucu Servisi</div></div>
+  </div>
+
+  <h3>Bugün nereye geldik</h3>
+  <ul>
+    <li><strong class="lead-phrase">Tam çalışan satış kanalı.</strong> Müşteri kayıt oluyor, sepet hazırlıyor, kredi kartıyla ödeyebiliyor veya teklif talebi gönderebiliyor — sistem uçtan uca canlı.</li>
+    <li><strong class="lead-phrase">6.300+ ürün otomatik güncel.</strong> Diamond ve CombiSteel ana tedarikçilerin katalogları her gün otomatik olarak siteye senkronize oluyor — manuel veri girişi yok.</li>
+    <li><strong class="lead-phrase">3D Mutfak Planlayıcı.</strong> Müşteri kendi mutfağının ölçülerini girip ekipmanları sürükle-bırak ile yerleştirebiliyor; çıktıyı PDF veya AutoCAD formatında alabiliyor.</li>
+    <li><strong class="lead-phrase">15 dilde tam çeviri.</strong> Türkçe, Almanca, İngilizce, Fransızca, İtalyanca, İspanyolca, Hollandaca, Lehçe, Çekçe, Romence, Yunanca, İsveççe, Danca, Portekizce, Macarca — Avrupa'nın hemen tüm pazarlarına satış altyapısı hazır.</li>
+    <li><strong class="lead-phrase">Profesyonel teklif PDF'i.</strong> Logo, hologram filigran, ürün görselleri ve Türkçe karakter desteğiyle marka kimliğine uygun PDF teklifler tek tıkla üretiliyor.</li>
+    <li><strong class="lead-phrase">Yönetim paneli.</strong> Sipariş, kullanıcı, teklif talebi ve blog içeriği yönetimi tek panelden — ofisten görünürlük tam.</li>
+  </ul>
+
+  <h3>Önümüzdeki 30–60 gün</h3>
+  <ul>
+    <li>Görsel ve içerik zenginleştirme (gerçek mutfak fotoğrafları, müşteri referansları)</li>
+    <li>Pazarlama açılışı (SEO içerikleri zaten hazır, yayına alınacak)</li>
+    <li>Otomatik e-posta akışları (sipariş onayı, teklif takibi) tam devreye</li>
+  </ul>
+
+  <div class="callout win">
+    <strong>Sonuç:</strong> Platform <em>satışa hazır</em>. Bundan sonraki yatırım yazılımdan çok pazarlama ve içerik tarafına kayıyor.
+  </div>
+</section>
+
+<!-- ======================== 2. PROJE HAKKINDA ======================== -->
+<section class="page">
+  <h2>2 · Proje Hakkında</h2>
+
+  <h3>Ne yapıyoruz?</h3>
+  <p>2MC Gastro; restoran, otel, catering şirketleri, bulut mutfaklar ve fırınların ihtiyacı olan profesyonel mutfak ekipmanlarını alabilecekleri, mutfaklarını planlayabilecekleri ve teklif yönetebilecekleri tek bir dijital platformdur. Site açılış cümlemiz bunu özetliyor: <em>"Avrupa'nın Gastro Ekipman Platformu — 15 markanın tüm kataloğunu tek platformda keşfet, BOM oluştur, mutfak planla, teklif al."</em></p>
+
+  <h3>Hedef müşteri</h3>
+  <ul>
+    <li><strong>Yeni mutfak kuran restoranlar / oteller</strong> — sıfırdan ekipman seçmesi gerekenler</li>
+    <li><strong>Catering ve bulut mutfak işletmeleri</strong> — hızlı büyüyen, sürekli ekipman ekleyen yapılar</li>
+    <li><strong>Mutfak danışmanları &amp; mimarlar</strong> — müşterileri için BOM (malzeme listesi) ve planlama yapanlar</li>
+    <li><strong>Fırın ve pastane zincirleri</strong> — özel ekipman ihtiyacı olanlar</li>
+  </ul>
+
+  <h3>Çözdüğümüz problem</h3>
+  <p>Endüstriyel mutfak ekipmanı satın alma süreci bugün hâlâ çok parçalı: müşteri farklı tedarikçi sitelerinden teklif topluyor, mimar AutoCAD'de plan çiziyor, satıcı manuel teklif hazırlıyor, ödeme havale ile ilerliyor. Biz bu zinciri tek platformda birleştiriyoruz: <strong>katalog → 3D planlama → BOM → teklif → ödeme → takip</strong>.</p>
+
+  <div class="two-col">
+    <div>
+      <h4>Geleneksel süreç</h4>
+      <ul>
+        <li>3-5 ayrı tedarikçi sitesi</li>
+        <li>Mimara çizim için ödenen ek ücret</li>
+        <li>E-posta ile dolaşan PDF teklifler</li>
+        <li>Manuel havale, takipsiz</li>
+        <li>Yabancı müşteriye dil bariyeri</li>
+      </ul>
+    </div>
+    <div>
+      <h4>2MC Gastro ile</h4>
+      <ul>
+        <li>Tek platform, 6.300+ ürün</li>
+        <li>Tarayıcıda 3D mutfak planı</li>
+        <li>Otomatik markalı PDF teklif</li>
+        <li>Stripe ile online ödeme</li>
+        <li>15 dilde tam yerelleştirme</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <strong>Stratejik konumumuz:</strong> Türkiye merkezli ama hedefimiz <strong>Avrupa</strong>. Sitemiz baştan 15 dilli kuruldu — bu, rakiplerimizin çoğunda olmayan bir başlangıç avantajı.
+  </div>
+</section>
+
+<!-- ======================== 3. MEVCUT DURUM ======================== -->
+<section class="page">
+  <div class="section-head">
+    <h2>3 · Mevcut Durum — Bugün Canlı Olan Özellikler</h2>
+  </div>
+  <p class="lead">Aşağıdaki özelliklerin tamamı bugün <strong>canlı sistemde çalışıyor</strong> — demo değil, üretim ortamında müşterinin kullanabileceği halde.</p>
+
+  <h3>Müşteri tarafı</h3>
+  <div class="feat-list">
+    <div class="feat"><div class="t">Ana Sayfa &amp; Kategori Vitrini <span class="chip live">CANLI</span></div><div class="d">Marka tanıtımı, kategori showcase, istatistikler, çağrı butonları.</div></div>
+    <div class="feat"><div class="t">6.316 Ürünlük Katalog <span class="chip live">CANLI</span></div><div class="d">Filtreli, sıralanabilir, karşılaştırılabilir; grid/liste/tablo görünüm.</div></div>
+    <div class="feat"><div class="t">Ürün Detay Sayfası <span class="chip live">CANLI</span></div><div class="d">Teknik özellikler, fiyat, görseller, sepete/teklife ekleme.</div></div>
+    <div class="feat"><div class="t">Sepet &amp; Sipariş <span class="chip live">CANLI</span></div><div class="d">Çoklu ürün, miktar, KDV, toplam — Stripe ile ödeme.</div></div>
+    <div class="feat"><div class="t">Teklif Talebi (RFQ) <span class="chip live">CANLI</span></div><div class="d">Müşteri ödeme yapmadan profesyonel PDF teklif alabilir.</div></div>
+    <div class="feat"><div class="t">3D Mutfak Planlayıcı <span class="chip live">CANLI</span></div><div class="d">Oda çiz, kapı/pencere ekle, ekipman sürükle-bırak yerleştir.</div></div>
+    <div class="feat"><div class="t">Manuel Çizim (AutoCAD benzeri) <span class="chip live">CANLI</span></div><div class="d">Mimar profili için: serbest çizim, vertex düzenleme, alan hesabı.</div></div>
+    <div class="feat"><div class="t">Eskiz Modu (Tablet) <span class="chip live">CANLI</span></div><div class="d">Dokunmatik canvas, 5mm snap, kaydet/yükle.</div></div>
+    <div class="feat"><div class="t">Kat Planı PDF Çıktısı <span class="chip live">CANLI</span></div><div class="d">Çizim + ölçüler + ekipman listesi tek PDF'de.</div></div>
+    <div class="feat"><div class="t">3D Model Görüntüleyici <span class="chip live">CANLI</span></div><div class="d">Ürünlerin GLB modelleri tarayıcıda döndürülebilir.</div></div>
+    <div class="feat"><div class="t">Mutfak Hesaplayıcı <span class="chip live">CANLI</span></div><div class="d">Alan, güç, kapasite ön hesabı — satış öncesi araç.</div></div>
+    <div class="feat"><div class="t">Blog &amp; SEO İçerikleri <span class="chip live">CANLI</span></div><div class="d">İçerik yönetim paneli ve sayfa otomasyonu (pSEO) hazır.</div></div>
+  </div>
+
+  <h3>Yönetim tarafı</h3>
+  <div class="feat-list">
+    <div class="feat"><div class="t">Sipariş Yönetimi <span class="chip live">CANLI</span></div><div class="d">Tüm siparişler, durum güncelleme, arama, filtre.</div></div>
+    <div class="feat"><div class="t">Kullanıcı Yönetimi <span class="chip live">CANLI</span></div><div class="d">Müşteri listesi, rol yönetimi, yetkilendirme.</div></div>
+    <div class="feat"><div class="t">Teklif Talebi Paneli <span class="chip live">CANLI</span></div><div class="d">Gelen RFQ'lar, takip, geri dönüş.</div></div>
+    <div class="feat"><div class="t">Blog Yönetimi <span class="chip live">CANLI</span></div><div class="d">İçerik ekleme, düzenleme, yayınlama.</div></div>
+    <div class="feat"><div class="t">Bildirim Paneli <span class="chip live">CANLI</span></div><div class="d">Yeni siparişler, sistem değişiklikleri.</div></div>
+    <div class="feat"><div class="t">Diamond &amp; CombiSteel Senkron Durumu <span class="chip live">CANLI</span></div><div class="d">Günlük otomatik veri çekiminin durumu izlenebiliyor.</div></div>
+  </div>
+</section>
+
+<!-- ======================== 4. TEKNİK ALTYAPI ======================== -->
+<section class="page">
+  <h2>4 · Teknik Altyapı — İş Diliyle</h2>
+  <p class="lead">Yazılım kararlarını teknik dille değil, neyi <em>iş açısından</em> kazandırdığını açıklıyoruz.</p>
+
+  <table>
+    <thead>
+      <tr><th style="width: 30%">Bileşen</th><th>Bize ne kazandırıyor?</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Modern web altyapısı</strong><br><span class="small">React 19 + Vite 6 + Tailwind 4</span></td>
+        <td>Site hızlı açılıyor, mobilde akıcı çalışıyor. Geliştirici işe alımında piyasanın en yaygın araçları — kişiye bağımlı kalmıyoruz.</td>
+      </tr>
+      <tr>
+        <td><strong>Veri ve kullanıcı sistemi</strong><br><span class="small">Supabase (PostgreSQL)</span></td>
+        <td>Müşteri hesapları, siparişler, teklifler, blog içerikleri — hepsi güvenli ve ölçeklenebilir tek bir veritabanında. Google ile giriş, e-posta doğrulama hazır.</td>
+      </tr>
+      <tr>
+        <td><strong>Online ödeme</strong><br><span class="small">Stripe</span></td>
+        <td>Kredi kartı ile ödeme alabiliyoruz — havale takibi yok. Avrupa'nın standart ödeme sağlayıcısı, müşteri güveni yüksek.</td>
+      </tr>
+      <tr>
+        <td><strong>3D &amp; planlama motoru</strong><br><span class="small">Three.js + Meshy AI</span></td>
+        <td>Tarayıcıda gerçek 3D ekipman görüntüleme ve mutfak planlama. Rakiplerin çoğu sadece 2D görüntü ile satıyor.</td>
+      </tr>
+      <tr>
+        <td><strong>PDF &amp; teklif üretimi</strong><br><span class="small">jsPDF + html2canvas</span></td>
+        <td>Marka kimliğine uygun, hologram filigranlı, ürün görselli profesyonel teklifler tek tıkla üretiliyor.</td>
+      </tr>
+      <tr>
+        <td><strong>Çoklu dil sistemi</strong><br><span class="small">i18next + react-i18next</span></td>
+        <td>15 dilde tam çeviri. Yeni dil eklemek artık birkaç saatlik iş — pazar genişlemesi engellenmiyor.</td>
+      </tr>
+      <tr>
+        <td><strong>Tedarikçi entegrasyonları</strong></td>
+        <td><strong>Diamond EU</strong> ve <strong>CombiSteel</strong> tedarikçilerimizden ürünler her gün otomatik güncelleniyor — manuel girişe gerek yok, fiyat/stok her zaman güncel.</td>
+      </tr>
+      <tr>
+        <td><strong>Yapay zekâ destekleri</strong></td>
+        <td>Sohbet asistanı (müşteri soruları), içerik üretici (blog/SEO), 3D model üretici (Meshy) — sunucu fonksiyonları olarak hazır.</td>
+      </tr>
+      <tr>
+        <td><strong>Otomatik dağıtım (deploy)</strong></td>
+        <td>Yapılan her güncelleme tek komutla canlıya çıkıyor; manuel sunucu işlemi yok, hata payı düşük.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Sunucu tarafında çalışan otomasyonlar (8 servis)</h3>
+  <p>Aşağıdaki 8 sunucu fonksiyonu arka planda çalışıyor — müşteri görmez ama hepsi gelir-üretici işlerin temelini taşıyor:</p>
+  <ul>
+    <li><strong>Stripe ödeme oluşturma + webhook</strong> — ödeme alımı ve onaylama</li>
+    <li><strong>Diamond senkronizasyonu</strong> — günlük ürün/fiyat güncellemesi</li>
+    <li><strong>Meilisearch senkronizasyonu</strong> — hızlı ürün arama</li>
+    <li><strong>E-posta gönderici</strong> — sipariş, teklif, bildirim mailleri</li>
+    <li><strong>AI sohbet asistanı</strong> — müşteri sorularına yanıt</li>
+    <li><strong>İçerik üretici</strong> — blog/SEO için brief oluşturma</li>
+    <li><strong>Meshy AI 3D üretici</strong> — ürün için 3D model oluşturma</li>
+  </ul>
+</section>
+
+<!-- ======================== 5. ÇOKLU DİL ======================== -->
+<section class="page">
+  <h2>5 · Çoklu Dil &amp; Pazar Erişimi</h2>
+  <p class="lead">Sitemiz <strong>15 Avrupa dilinde</strong> tam çevrilmiş durumda. Bu, Türkiye merkezli bir B2B platform için Avrupa pazarına çok hızlı satış başlatma avantajı demektir.</p>
+
+  <div class="locales">
+    <div class="loc"><span class="code">TR</span> &nbsp;Türkçe</div>
+    <div class="loc"><span class="code">EN</span> &nbsp;English</div>
+    <div class="loc"><span class="code">DE</span> &nbsp;Deutsch</div>
+    <div class="loc"><span class="code">FR</span> &nbsp;Français</div>
+    <div class="loc"><span class="code">IT</span> &nbsp;Italiano</div>
+    <div class="loc"><span class="code">ES</span> &nbsp;Español</div>
+    <div class="loc"><span class="code">NL</span> &nbsp;Nederlands</div>
+    <div class="loc"><span class="code">PT</span> &nbsp;Português</div>
+    <div class="loc"><span class="code">PL</span> &nbsp;Polski</div>
+    <div class="loc"><span class="code">CS</span> &nbsp;Čeština</div>
+    <div class="loc"><span class="code">RO</span> &nbsp;Română</div>
+    <div class="loc"><span class="code">EL</span> &nbsp;Ελληνικά</div>
+    <div class="loc"><span class="code">SV</span> &nbsp;Svenska</div>
+    <div class="loc"><span class="code">DA</span> &nbsp;Dansk</div>
+    <div class="loc"><span class="code">HU</span> &nbsp;Magyar</div>
+  </div>
+
+  <h3>Niye 15 dil?</h3>
+  <ul>
+    <li><strong>Almanya, Hollanda, İskandinavya:</strong> Avrupa'da gastro ekipman pazarının en büyük alıcıları. Almanca, Hollandaca, İsveççe, Danca müşterinin kendi dilinde alışveriş bekliyor.</li>
+    <li><strong>Doğu Avrupa (PL, CS, RO, HU):</strong> Hızlı büyüyen restoran zincirleri, Türk üreticinin fiyat avantajına en duyarlı pazar.</li>
+    <li><strong>Güney Avrupa (IT, ES, EL, PT):</strong> HoReCa sektörünün ekonomide ağırlığı yüksek olan ülkeler.</li>
+    <li><strong>İngilizce:</strong> Avrupa dışı pazarlar (Orta Doğu, Afrika) için kapı.</li>
+  </ul>
+
+  <div class="callout win">
+    <strong>İş açısından önemi:</strong> Yeni bir pazara açılmak için site geliştirme süresi <em>sıfır</em>. Sadece pazarlama ve lojistik kararı verilmesi yeterli — sitede teknik engel yok.
+  </div>
+
+  <h3>Tutarlılık güvencesi</h3>
+  <p>Her dil için aynı anahtar seti kullanılır; çeviri kalitesini denetlemek için kendi içsel "dil uzmanı" sürecimiz var. Türkçe ana dildir; diğer 14 dil profesyonel kalite kurallarına göre Türkçeden çevrilir (sektör terminolojisi, formal hitap, marka adlarına dokunulmaması).</p>
+</section>
+
+<!-- ======================== 6. GÖRSEL TUR ======================== -->
+<section class="page">
+  <h2>6 · Görsel Tur</h2>
+  <p class="lead">Sitenin en kritik ekranları. (Bu sayfanın yüksek çözünürlüklü ekran görüntüleriyle güncellenmesi tavsiye edilir — aşağıdaki kutular yer ayırıcıdır.)</p>
+
+  <h3>Ana sayfa &amp; ürün vitrini</h3>
+  <div class="img-ph">[ Görsel: Ana sayfa hero + kategori vitrini — ekran görüntüsü eklenecek ]</div>
+
+  <h3>Katalog &amp; filtreler</h3>
+  <div class="img-ph">[ Görsel: 6.316 ürünün filtrelenebilir katalog görünümü — eklenecek ]</div>
+
+  <h3>3D Mutfak Planlayıcı</h3>
+  <div class="img-ph">[ Görsel: Oda çizimi + ekipman yerleştirme — eklenecek ]</div>
+
+  <h3>Profesyonel teklif PDF'i</h3>
+  <div class="img-ph">[ Görsel: Logo, hologram filigran, ürün görseli içeren PDF örneği — eklenecek ]</div>
+
+  <h3>Yönetim paneli</h3>
+  <div class="img-ph">[ Görsel: Sipariş listesi + bildirim paneli — eklenecek ]</div>
+</section>
+
+<!-- ======================== 7. RAKİP KARŞILAŞTIRMASI ======================== -->
+<section class="page">
+  <h2>7 · Rakip Karşılaştırması</h2>
+  <p class="lead">Avrupa pazarında doğrudan rakip kabul ettiğimiz iki büyük oyuncuya göre konumumuz. Bu karşılaştırma kendi platformlarının halka açık özelliklerine ve önceki rekabet analizimize dayanmaktadır.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Özellik</th>
+        <th>2MC Gastro</th>
+        <th>BigGastro</th>
+        <th>GGM Gastro</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>Ürün adedi</td><td><strong>6.300+</strong></td><td>~10.000+</td><td>~7.000+</td></tr>
+      <tr><td>Desteklenen dil</td><td><strong>15 dil</strong></td><td>~6 dil</td><td>~10 dil</td></tr>
+      <tr class="win"><td>Tarayıcıda 3D Mutfak Planlayıcı</td><td>Var</td><td>Yok</td><td>Yok</td></tr>
+      <tr class="win"><td>Manuel çizim (AutoCAD benzeri)</td><td>Var</td><td>Yok</td><td>Yok</td></tr>
+      <tr class="win"><td>Otomatik markalı PDF teklif</td><td>Var (hologram, görsel, çok dilli)</td><td>Sınırlı</td><td>Var (basit)</td></tr>
+      <tr><td>Stripe online ödeme</td><td>Var</td><td>Var</td><td>Var</td></tr>
+      <tr class="win"><td>3D ürün görüntüleme (GLB)</td><td>Var</td><td>Yok</td><td>Yok</td></tr>
+      <tr><td>Tedarikçiden günlük otomatik senkron</td><td>Var (Diamond + CombiSteel)</td><td>—</td><td>—</td></tr>
+      <tr class="win"><td>AI sohbet asistanı</td><td>Var</td><td>Yok</td><td>Yok</td></tr>
+      <tr><td>Türkiye merkezli üretim/lojistik avantajı</td><td>Var</td><td>Yok</td><td>Yok (Almanya)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Üç güçlü yanımız</h3>
+  <ul>
+    <li><strong>3D + planlama:</strong> Rakipler statik ürün siteleri; biz "araç" sunuyoruz. Müşteri sitede daha uzun kalıyor, dönüşüm yüksek.</li>
+    <li><strong>Çok dilli baştan:</strong> Yeni pazara teknik engel yok; rakiplerden daha hızlı genişleyebiliriz.</li>
+    <li><strong>Maliyet/lojistik:</strong> Türkiye üretimi + Avrupa pazarı = fiyat-performans avantajı.</li>
+  </ul>
+
+  <h3>Kapatmamız gereken iki açık</h3>
+  <ul>
+    <li><strong>Ürün adedi:</strong> 6.300, ana rakiplerin altında. Yeni tedarikçi entegrasyonları ile kapatılabilir (entegrasyon altyapısı zaten kurulu).</li>
+    <li><strong>Marka bilinirliği:</strong> Sıfır marka tanınırlığı — pazarlama yatırımı önümüzdeki dönemin önceliği olmalı.</li>
+  </ul>
+</section>
+
+<!-- ======================== 8. ZAMAN ÇİZELGESİ ======================== -->
+<section class="page">
+  <h2>8 · İlerleme Zaman Çizelgesi — Son 90 gün</h2>
+  <p class="lead">Geliştirici terminolojisinde tek tek değişiklikler yerine, <strong>ne işe yaradığı bazında gruplandırılmış</strong> ilerleme.</p>
+
+  <div class="timeline">
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 3. hafta</div>
+      <div class="what">Otomatik dağıtım altyapısı kuruldu</div>
+      <div class="why">Her güncelleme tek komutla canlıya çıkıyor. Sunucu yönetimi otomatik; manuel müdahale ve hata riski azaldı.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 3. hafta</div>
+      <div class="what">Mutfak Planlayıcı baştan tasarlandı + AutoCAD benzeri manuel çizim eklendi</div>
+      <div class="why">Mimar ve danışman kullanıcı segmenti için ciddi bir özellik — rakiplerden ayrıştığımız ana noktalardan biri.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 2. hafta</div>
+      <div class="what">Yeni Supabase altyapısına geçiş + Meshy AI 3D üretici entegrasyonu</div>
+      <div class="why">Veri mimarisi temiz bir başlangıçla yenilendi; AI ile 3D model üretimi devreye girdi.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 2. hafta</div>
+      <div class="what">CombiSteel günlük otomatik senkron</div>
+      <div class="why">Diamond'dan sonra ikinci büyük tedarikçi de otomatik veri akışına bağlandı.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 1. hafta</div>
+      <div class="what">Diamond EU tam senkron + 3 görünüm modu (grid/liste/tablo) + bildirim paneli</div>
+      <div class="why">Diamond ürünleri tüm Excel sütunlarıyla görüntülenebiliyor; değişiklikler bildirimle takip ediliyor. Profesyonel alıcılar tablo görünümünü tercih ediyor.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 1. hafta</div>
+      <div class="what">Tüm verilerin otomatik kaydı (auto-save)</div>
+      <div class="why">Müşteri çiziminin ve sepetinin yarısında tarayıcıyı kapatsa bile kaldığı yerden devam edebiliyor — terkedilmiş sepet kaybı azalıyor.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 1. hafta</div>
+      <div class="what">PDF teklifte hologram filigran, ürün resimleri, Türkçe karakter desteği</div>
+      <div class="why">Marka kimliğine uygun, profesyonel, çok dilli teklif çıktısı. Satışta güven sinyali.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 1. hafta</div>
+      <div class="what">Mobil &amp; tablet deneyimi tam onarıldı</div>
+      <div class="why">Saha kullanıcıları (mimar, satıcı temsilcisi) tablette çizim yapabiliyor — eskiz modu dokunmatik için optimize.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 1. hafta</div>
+      <div class="what">Stripe ödeme + Google ile giriş + BOM fiyatı + teklif formatı</div>
+      <div class="why">Satış kanalının kapanış halkaları — müşteri kayıt olabiliyor ve ödeme yapabiliyor.</div>
+    </div>
+
+    <div class="item">
+      <div class="when">Nisan 2026 — 1. hafta</div>
+      <div class="what">Gerçek ölçekli kat planı + kapı/pencere + alan hesabı</div>
+      <div class="why">Mutfak planlama artık "oyuncak" değil; mimari standartta ölçekli çıktı veriyor.</div>
+    </div>
+
+  </div>
+
+  <div class="callout">
+    <strong>Hız notu:</strong> Yukarıdaki tüm özellikler son 3 hafta içinde devreye alındı. Geliştirme hızı şu an çok yüksek — odak önümüzdeki dönem stabilizasyon ve içerik tarafına kayacak.
+  </div>
+</section>
+
+<!-- ======================== 9. YOL HARİTASI ======================== -->
+<section class="page">
+  <h2>9 · Önümüzdeki Adımlar — Yol Haritası</h2>
+
+  <h3>Kısa vade (önümüzdeki 30 gün) <span class="chip plan">PLAN</span></h3>
+  <ul>
+    <li><strong>Görsel ve içerik tamamlama:</strong> Sunumdaki yer ayırıcı görsellerin gerçek ekran görüntüleriyle değiştirilmesi; ürün kategorisi banner'ları.</li>
+    <li><strong>Otomatik e-posta akışları:</strong> Sipariş onayı, teklif takibi, terkedilmiş sepet hatırlatma.</li>
+    <li><strong>SEO başlangıç içerik yayını:</strong> Hazır olan blog/pSEO altyapısının yayına alınması.</li>
+    <li><strong>Performans &amp; mobil ince ayar:</strong> Sayfa açılış hızı testleri, Lighthouse skoru optimizasyonu.</li>
+  </ul>
+
+  <h3>Orta vade (60–90 gün) <span class="chip plan">PLAN</span></h3>
+  <ul>
+    <li><strong>Yeni tedarikçi entegrasyonları:</strong> Ürün adedini 10.000+ seviyesine taşıyacak 1-2 yeni tedarikçi (Diamond/CombiSteel altyapısı tekrar kullanılabilir).</li>
+    <li><strong>Müşteri referansları &amp; case study:</strong> İlk satışlardan referans, sosyal kanıt için.</li>
+    <li><strong>Almanca pazara odaklı kampanya:</strong> En büyük Avrupa pazarına yönelik içerik + reklam.</li>
+    <li><strong>AI sohbet asistanı satış senaryolarıyla beslenmesi:</strong> Müşteri sorularını gerçek satışa çevirmek için.</li>
+  </ul>
+
+  <h3>Uzun vade (90+ gün) <span class="chip plan">PLAN</span></h3>
+  <ul>
+    <li><strong>Bayilik / dropshipping modülü:</strong> Diğer satıcılar için "white-label" katalog erişimi.</li>
+    <li><strong>Mobil uygulama (React Native):</strong> Mevcut kod tabanından paralel geliştirme.</li>
+    <li><strong>Kurumsal hesap yönetimi:</strong> Zincir restoranlar/oteller için çok kullanıcılı şirket hesapları.</li>
+    <li><strong>Servis &amp; bakım modülü:</strong> Satış sonrası destek — tekrar gelir kanalı.</li>
+  </ul>
+</section>
+
+<!-- ======================== 10. RİSKLER ======================== -->
+<section class="page">
+  <h2>10 · Riskler &amp; Bağımlılıklar</h2>
+  <p class="lead">Açık ve dürüst değerlendirme. Hiçbiri proje durdurucu değil, ancak farkında olmamız gerekiyor.</p>
+
+  <table class="risk">
+    <thead>
+      <tr><th style="width: 25%">Risk</th><th class="lvl">Seviye</th><th>Tanım &amp; Önlem</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Marka bilinirliği yok</strong></td>
+        <td class="lvl high">YÜKSEK</td>
+        <td>Site hazır ama trafik yok. <em>Önlem:</em> SEO içerikleri ve hedefli reklam bütçesi. Kısa vadeli en kritik konu.</td>
+      </tr>
+      <tr>
+        <td><strong>Tek tedarikçi yoğunluğu</strong></td>
+        <td class="lvl med">ORTA</td>
+        <td>Ürünlerin büyük kısmı Diamond ve CombiSteel'den. Tedarikçi koşullarındaki değişiklik etkisi olabilir. <em>Önlem:</em> 3. tedarikçi eklemek.</td>
+      </tr>
+      <tr>
+        <td><strong>Ödeme sağlayıcı (Stripe) bağımlılığı</strong></td>
+        <td class="lvl low">DÜŞÜK</td>
+        <td>Stripe Avrupa standardı; risk düşük. Yedek olarak iyzico/havale akışı eklenebilir.</td>
+      </tr>
+      <tr>
+        <td><strong>Hosting/altyapı maliyetleri</strong></td>
+        <td class="lvl low">DÜŞÜK</td>
+        <td>Şu an aylık maliyet düşük (Vercel + Supabase free/starter). Trafik arttıkça doğrusal artar; satış geliriyle dengelenmesi planlanıyor.</td>
+      </tr>
+      <tr>
+        <td><strong>Ürün görseli/içerik kalitesi</strong></td>
+        <td class="lvl med">ORTA</td>
+        <td>Tedarikçi görselleri yeterli ama "showroom" hissi yok. <em>Önlem:</em> Profesyonel mutfak fotoğrafları + müşteri uygulama örnekleri.</td>
+      </tr>
+      <tr>
+        <td><strong>Yapay zekâ servis maliyetleri</strong></td>
+        <td class="lvl low">DÜŞÜK</td>
+        <td>AI sohbet ve içerik üretimi kullanım başına ücretli. Trafik arttıkça izlenmeli; yüksek hacimde alternatif modellere geçiş mümkün.</td>
+      </tr>
+      <tr>
+        <td><strong>Ekibe geliştirici bağımlılığı</strong></td>
+        <td class="lvl med">ORTA</td>
+        <td>Şu an küçük ekip. <em>Önlem:</em> Standart ve yaygın teknolojiler kullanıldı (React/TypeScript); yeni geliştirici devralabilir.</td>
+      </tr>
+      <tr>
+        <td><strong>Yasal &amp; KVKK/GDPR uyumu</strong></td>
+        <td class="lvl low">DÜŞÜK</td>
+        <td>Çerez bandı, gizlilik politikası, GDPR aksiyonları (veri silme/dışa aktarma) modülleri canlı. Hukuk danışmanı incelemesi tavsiye.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <strong>Tek satırlık değerlendirme:</strong> Teknik tarafta riskimiz düşük; <strong>iş riski yalnızca pazarlama tarafında</strong> — siteye trafik getirmemiz gerekiyor.
+  </div>
+</section>
+
+<!-- ======================== 11. KAPANIŞ ======================== -->
+<section class="page">
+  <h2>11 · Kapanış &amp; Karar Beklenen Konular</h2>
+
+  <h3>Özet</h3>
+  <p>2MC Gastro web platformu <strong>satışa hazır durumda</strong>. Müşteri girebiliyor, ürün seçebiliyor, mutfağını planlayabiliyor, teklif alabiliyor ve ödeme yapabiliyor. 15 dilde Avrupa pazarına açıkız. Geriye kalan iş ağırlıklı olarak <strong>yazılımdan değil pazarlamadan</strong>.</p>
+
+  <h3>Yönetimden beklenen kararlar</h3>
+  <ul>
+    <li><strong>Pazarlama bütçesi:</strong> Önümüzdeki 90 gün için reklam ve içerik üretimi bütçesi onayı.</li>
+    <li><strong>İlk hedef pazar:</strong> Almanya mı, Hollanda mı, Türkiye mi öncelikli açılış pazarı? (Pazarlama planını şekillendirir.)</li>
+    <li><strong>Ürün fotoğrafçılığı yatırımı:</strong> En çok satması beklenen ekipmanlar için profesyonel çekim.</li>
+    <li><strong>3. tedarikçi seçimi:</strong> Ürün adedini 10.000+ seviyesine çıkartmak için strateji.</li>
+    <li><strong>Müşteri hizmetleri kapasitesi:</strong> İlk gelen tekliflere/siparişlere kim cevap verecek? Süreç tanımı.</li>
+  </ul>
+
+  <h3>Bir sonraki gözden geçirme</h3>
+  <p>Önerilen tarih: <strong>Mayıs 2026 sonu</strong> — pazarlama bütçesinin ilk ay sonuçları, ilk satışlar ve trafik metrikleri ile yeniden değerlendirme.</p>
+
+  <div class="signature">
+    <div class="box">
+      <div class="who">Adem Çevik</div>
+      <div>Hazırlayan · Proje Sorumlusu</div>
+      <div class="small" style="margin-top:4pt">23 Nisan 2026</div>
+    </div>
+    <div class="box">
+      <div class="who">&nbsp;</div>
+      <div>Onaylayan · Yönetim</div>
+      <div class="small" style="margin-top:4pt">Tarih: ____________________</div>
+    </div>
+  </div>
+
+  <div style="margin-top: 28pt; text-align: center; color: var(--soft-muted); font-size: 9pt; border-top: 2pt solid var(--accent); padding-top: 8pt;">
+    2MC Gastro &nbsp;·&nbsp; Profesyonel Mutfak Planlama Platformu &nbsp;·&nbsp; 2mc-gastro.com<br>
+    Bu belge gizlidir ve yalnızca yönetim için hazırlanmıştır.
+  </div>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,243 @@
+/* ============================================================
+   welcome-hyper.css  —  Hyper / Blockchain-style skin layer
+   Koyu kanvas, rounded kartlar, ince sınırlar, spot ışıltılar.
+   Tüm JSX/veri sabit kalır; yalnızca görsel dil değişir.
+   Sırası önemli: welcome-claude.css'den SONRA import edilmeli.
+   ============================================================ */
+
+/* --- Tokens --- */
+.welcome-hyper {
+  --hy-bg: #0a0a0a;
+  --hy-bg-2: #0d0d0d;
+  --hy-card: #131313;
+  --hy-card-2: #161616;
+  --hy-border: rgba(255, 255, 255, 0.08);
+  --hy-border-strong: rgba(255, 255, 255, 0.16);
+  --hy-text: #ededed;
+  --hy-muted: rgba(237, 237, 237, 0.62);
+  --hy-faint: rgba(237, 237, 237, 0.38);
+  --hy-accent: #E85D26;       /* clay accent, aksan olarak bırakıyoruz */
+  --hy-accent-2: #D4A574;     /* warm tan */
+  --hy-glow: 0 0 60px rgba(232, 93, 38, 0.12);
+}
+
+/* --- Global canvas --- */
+.welcome-hyper {
+  background: radial-gradient(1400px 900px at 20% -10%, rgba(232,93,38,0.06), transparent 60%),
+              radial-gradient(1200px 800px at 100% 30%, rgba(212,165,116,0.05), transparent 60%),
+              var(--hy-bg) !important;
+  color: var(--hy-text);
+  font-feature-settings: "ss01","ss02","cv11";
+}
+
+/* Body text default over the skin */
+.welcome-hyper p,
+.welcome-hyper span:not([class*="text-"]),
+.welcome-hyper li {
+  color: var(--hy-text);
+}
+
+/* --- White card → dark card conversion (bestsellers, shop rail, etc.) --- */
+.welcome-hyper .bg-white:not([class*="bg-white/"]) {
+  background: var(--hy-card) !important;
+  border-color: var(--hy-border) !important;
+}
+.welcome-hyper .bg-white\/5,
+.welcome-hyper .bg-white\/10 {
+  background: rgba(255,255,255,0.04) !important;
+}
+
+/* Border/surface on cream-ish utility colors used elsewhere */
+.welcome-hyper .bg-\[\#faf9f5\],
+.welcome-hyper .bg-\[\#f5f2ea\],
+.welcome-hyper .bg-slate-50,
+.welcome-hyper .bg-slate-100 {
+  background: var(--hy-card-2) !important;
+  color: var(--hy-text) !important;
+}
+
+/* --- Text color repairs on ex-white cards --- */
+.welcome-hyper .bg-white .text-\[\#222\],
+.welcome-hyper .bg-white .text-slate-900,
+.welcome-hyper .bg-white .text-slate-800,
+.welcome-hyper .bg-white h4 {
+  color: var(--hy-text) !important;
+}
+.welcome-hyper .bg-white .text-\[\#888\],
+.welcome-hyper .bg-white .text-slate-500,
+.welcome-hyper .bg-white .text-slate-600 {
+  color: var(--hy-muted) !important;
+}
+
+/* Price highlight stays warm */
+.welcome-hyper .text-\[rgb\(200\,30\,40\)\] {
+  color: #ff8a66 !important;
+}
+
+/* --- Unify border radius to 14–18px rounded-square feel --- */
+.welcome-hyper .rounded-xl { border-radius: 16px !important; }
+.welcome-hyper .rounded-2xl { border-radius: 20px !important; }
+.welcome-hyper .rounded-lg { border-radius: 12px !important; }
+
+/* --- Card borders → subtle white, soft elevation on hover --- */
+.welcome-hyper [class*="border-white/10"],
+.welcome-hyper .border-slate-200,
+.welcome-hyper .border-black\/\[0\.05\] {
+  border-color: var(--hy-border) !important;
+}
+.welcome-hyper .group:hover {
+  border-color: var(--hy-border-strong) !important;
+}
+
+/* Dark hero blocks already styled (bg-[#020817]) stay; just flatten them */
+.welcome-hyper .bg-\[\#020817\] {
+  background: var(--hy-card) !important;
+  border-color: var(--hy-border) !important;
+}
+
+/* --- Top nav: center pill look --- */
+.welcome-hyper nav,
+.welcome-hyper header {
+  background: rgba(10, 10, 10, 0.72) !important;
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+  border-bottom: 1px solid var(--hy-border) !important;
+}
+
+/* --- Kategori şeridi (topcat-strip): krem/ivori zemin, hyper-skin override --- */
+.welcome-hyper nav.topcat-strip {
+  background: linear-gradient(180deg, #faf9f5 0%, #f3ede0 100%) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  border-top: 1px solid rgba(232, 93, 38, 0.14) !important;
+  border-bottom: 1px solid rgba(232, 93, 38, 0.14) !important;
+}
+/* Tablo-stili row hücreler — inline style'ı ezme */
+.welcome-hyper .topcat-tile .topcat-label {
+  color: #0F2440 !important;
+}
+
+/* --- Hero display: huge ghost outline headline helper ---
+   Kullanım (opsiyonel, mevcut başlık class'ına ekle):
+   <h1 className="hy-display">BLOCKCHAIN</h1>
+----------------------------------------------------------- */
+.welcome-hyper .hy-display {
+  font-family: 'Fraunces', ui-serif, Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  font-size: clamp(64px, 14vw, 220px);
+  line-height: 0.9;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(255,255,255,0.22);
+  background: linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02) 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  text-shadow: 0 0 60px rgba(255,255,255,0.04);
+  user-select: none;
+}
+
+/* --- Primary button: solid clay, bold upper, pill --- */
+.welcome-hyper .btn-primary,
+.welcome-hyper button[style*="#E85D26"],
+.welcome-hyper button[style*="rgb(232"] {
+  box-shadow: var(--hy-glow);
+}
+
+/* --- Badge chip: compact pill for "Uptime · 99.9%" style stats --- */
+.welcome-hyper .hy-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid var(--hy-border);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hy-muted);
+}
+.welcome-hyper .hy-stat b {
+  color: var(--hy-text);
+  font-weight: 800;
+  font-size: 14px;
+}
+
+/* --- Feature card (icon + title + desc) --- */
+.welcome-hyper .hy-feature {
+  background: var(--hy-card);
+  border: 1px solid var(--hy-border);
+  border-radius: 20px;
+  padding: 22px;
+  transition: border-color .2s, transform .2s;
+}
+.welcome-hyper .hy-feature:hover {
+  border-color: var(--hy-border-strong);
+  transform: translateY(-2px);
+}
+.welcome-hyper .hy-feature .hy-icon {
+  width: 42px; height: 42px;
+  border-radius: 12px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--hy-border);
+  margin-bottom: 14px;
+  color: var(--hy-text);
+}
+
+/* --- Muted foreground utilities (existing slate/neutral text) --- */
+.welcome-hyper .text-slate-400,
+.welcome-hyper .text-slate-500,
+.welcome-hyper .text-neutral-500,
+.welcome-hyper .text-neutral-600 {
+  color: var(--hy-muted) !important;
+}
+.welcome-hyper .text-slate-700,
+.welcome-hyper .text-slate-800,
+.welcome-hyper .text-slate-900,
+.welcome-hyper .text-neutral-800,
+.welcome-hyper .text-neutral-900 {
+  color: var(--hy-text) !important;
+}
+
+/* --- Section dividers as hairlines --- */
+.welcome-hyper hr,
+.welcome-hyper .border-t,
+.welcome-hyper .border-b {
+  border-color: var(--hy-border) !important;
+}
+
+/* --- Keep dark hero inner cards (bg-[#020817]) readable --- */
+.welcome-hyper [class*="bg-[#020817]"] .text-white:not([class*="text-white/"]) { color: #fff !important; }
+.welcome-hyper [class*="bg-[#020817]"] .text-white\/40   { color: rgba(255,255,255,0.40) !important; }
+.welcome-hyper [class*="bg-[#020817]"] .text-white\/50   { color: rgba(255,255,255,0.50) !important; }
+.welcome-hyper [class*="bg-[#020817]"] .text-white\/60   { color: rgba(255,255,255,0.60) !important; }
+.welcome-hyper [class*="bg-[#020817]"] .text-white\/70   { color: rgba(255,255,255,0.70) !important; }
+.welcome-hyper [class*="bg-[#020817]"] .text-white\/80   { color: rgba(255,255,255,0.80) !important; }
+.welcome-hyper [class*="bg-[#020817]"] h4 { color: #fff !important; }
+
+/* Soft global glow behind hero section */
+.welcome-hyper main > section:first-of-type,
+.welcome-hyper main > div:first-of-type {
+  position: relative;
+}
+.welcome-hyper main > section:first-of-type::before,
+.welcome-hyper main > div:first-of-type::before {
+  content: "";
+  position: absolute;
+  inset: -10% -10% auto -10%;
+  height: 80%;
+  background: radial-gradient(600px 360px at 50% 20%, rgba(232,93,38,0.10), transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* --- Images sit clean on dark --- */
+.welcome-hyper img {
+  background: transparent;
+}
+
+/* --- Scrollbar --- */
+.welcome-hyper ::-webkit-scrollbar { width: 10px; height: 10px; }
+.welcome-hyper ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 8px; }
+.welcome-hyper ::-webkit-scrollbar-track { background: transparent; }

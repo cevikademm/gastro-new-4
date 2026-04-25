@@ -318,6 +318,7 @@
       "foodTruck": "Food Truck"
     },
     "themedWorlds": {
+      "title": "Maßgeschneiderte Lösungen für Ihr Unternehmen",
       "subtitle": "14 Branchen · komplette Ausstattung für jedes Konzept"
     },
     "trust": {
@@ -729,5 +730,60 @@
   },
   "sketch": {
     "newSketch": "Neue Skizze"
+  },
+  "landing": {
+    "nav": {
+      "login": "Anmelden",
+      "register": "Registrieren"
+    },
+    "hero": {
+      "eyebrow": "Europas Gastro-Equipment-Plattform",
+      "headline": {
+        "static": "Für professionelle Küchen,",
+        "words": {
+          "0": "smarte Lösungen.",
+          "1": "5.265+ Produkte.",
+          "2": "schnelle Lieferung."
+        }
+      },
+      "sub": "15 Marken auf einer Plattform. BOM erstellen, Küchenplanung, Angebot anfragen.",
+      "cta": {
+        "primary": "Projekt starten",
+        "secondary": "Demo ansehen"
+      },
+      "trust": {
+        "products": "5.265+ Produkte",
+        "brands": "15 Marken",
+        "countries": "15 Länder",
+        "delivery": "24-48h Lieferung"
+      }
+    },
+    "stats": {
+      "eyebrow": "2mc-gastro in Zahlen",
+      "products": { "label": "Produkte" },
+      "brands": { "label": "Marken" },
+      "countries": { "label": "Aktive Länder" },
+      "delivery": { "label": "Lieferstunden" }
+    },
+    "categories": {
+      "eyebrow": "Gerätekategorien",
+      "heading": "Jeder Küchenbedarf,",
+      "accent": "eine Plattform.",
+      "cooling": "Kühlung",
+      "cooking": "Kochen",
+      "prep": "Vorbereitung",
+      "pizza": "Pizza",
+      "selfservice": "Selbstbedienung",
+      "dynamic": "Dynamisch",
+      "icecream": "Speiseeis",
+      "coffee": "Kaffee"
+    },
+    "finalcta": {
+      "heading": "Starten Sie noch heute",
+      "accent": "schnell und kostenlos.",
+      "sub": "Kostenlos registrieren · Keine Kreditkarte nötig",
+      "register": "Kostenlos registrieren",
+      "quote": "Angebot anfragen"
+    }
   }
 }

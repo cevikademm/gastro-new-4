@@ -318,7 +318,8 @@
       "foodTruck": "Food Truck"
     },
     "themedWorlds": {
-      "subtitle": "14 business segments · complete equipment set for every concept"
+      "title": "Soluzioni su misura per la tua attività",
+      "subtitle": "14 settori · attrezzatura completa per ogni concept"
     },
     "trust": {
       "euroBiggest": "Europe's Largest",
@@ -729,5 +730,39 @@
   },
   "sketch": {
     "newSketch": "Nuovo schizzo"
+  },
+  "landing": {
+    "nav": { "login": "Log In", "register": "Register" },
+    "hero": {
+      "eyebrow": "Europe's Commercial Kitchen Platform",
+      "headline": {
+        "static": "For professional kitchens,",
+        "words": { "0": "smart solutions.", "1": "5,265+ products.", "2": "fast delivery." }
+      },
+      "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
+      "cta": { "primary": "Start Your Project", "secondary": "Watch Demo" },
+      "trust": { "products": "5,265+ Products", "brands": "15 Brands", "countries": "15 Countries", "delivery": "24-48h Delivery" }
+    },
+    "stats": {
+      "eyebrow": "2mc-gastro by the numbers",
+      "products": { "label": "Products" },
+      "brands": { "label": "Brands" },
+      "countries": { "label": "Active Countries" },
+      "delivery": { "label": "Delivery Hours" }
+    },
+    "categories": {
+      "eyebrow": "Equipment Categories",
+      "heading": "Every kitchen need,",
+      "accent": "one platform.",
+      "cooling": "Cooling", "cooking": "Cooking", "prep": "Preparation", "pizza": "Pizza",
+      "selfservice": "Self Service", "dynamic": "Dynamic", "icecream": "Ice Cream", "coffee": "Coffee"
+    },
+    "finalcta": {
+      "heading": "Start your project today",
+      "accent": "fast and free.",
+      "sub": "Free to register · No credit card required",
+      "register": "Register Free",
+      "quote": "Request a Quote"
+    }
   }
 }

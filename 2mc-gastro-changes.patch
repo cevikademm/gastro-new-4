@@ -1,0 +1,1865 @@
+From 99c4885f12a6f4187a67ecc53bb9809a85493b8b Mon Sep 17 00:00:00 2001
+From: Adem Cevik <cevikademm@gmail.com>
+Date: Fri, 17 Apr 2026 02:43:23 +0300
+Subject: [PATCH] feat: redesign kitchen-planner + AutoCAD manual drawing + Oda
+ panel + hide Projects tab
+
+---
+ src/components/DesignStudio.tsx          |  496 ++++++++++-
+ src/components/Layout.tsx                |   43 +-
+ src/pages/planner/KitchenPlannerPage.tsx | 1014 +++++++++++++++-------
+ 3 files changed, 1207 insertions(+), 346 deletions(-)
+
+diff --git a/src/components/DesignStudio.tsx b/src/components/DesignStudio.tsx
+index 30980a7..c3e57e6 100644
+--- a/src/components/DesignStudio.tsx
++++ b/src/components/DesignStudio.tsx
+@@ -128,6 +128,70 @@ function distancePP(a: Point, b: Point): number {
+   return Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
+ }
+ 
++/* ─── Signed area: >0 CW in SVG space (y-down), <0 CCW ─── */
++function signedArea(pts: Point[]): number {
++  let s = 0;
++  for (let i = 0; i < pts.length; i++) {
++    const j = (i + 1) % pts.length;
++    s += pts[i].x * pts[j].y - pts[j].x * pts[i].y;
++  }
++  return s / 2;
++}
++
++/* ─── Offset polygon inward by `d` cm. Handles convex/concave via bisector miter. ─── */
++function offsetPolygonInward(pts: Point[], d: number): Point[] {
++  const n = pts.length;
++  if (n < 3 || d <= 0) return pts.slice();
++  // In SVG (y-down): CW winding => signed area > 0, inward normal is LEFT of edge dir.
++  // CCW winding => signed area < 0, inward normal is RIGHT. We flip sign accordingly.
++  const sign = signedArea(pts) > 0 ? 1 : -1;
++  const out: Point[] = [];
++  for (let i = 0; i < n; i++) {
++    const prev = pts[(i - 1 + n) % n];
++    const curr = pts[i];
++    const next = pts[(i + 1) % n];
++    const e1x = curr.x - prev.x, e1y = curr.y - prev.y;
++    const e2x = next.x - curr.x, e2y = next.y - curr.y;
++    const l1 = Math.hypot(e1x, e1y) || 1;
++    const l2 = Math.hypot(e2x, e2y) || 1;
++    // Left normals in SVG (y-down)
++    const n1x = -e1y / l1, n1y = e1x / l1;
++    const n2x = -e2y / l2, n2y = e2x / l2;
++    let bx = n1x + n2x, by = n1y + n2y;
++    const bl = Math.hypot(bx, by);
++    let scale = 1;
++    if (bl < 1e-6) {
++      bx = n1x; by = n1y;
++    } else {
++      const dot = n1x * n2x + n1y * n2y;
++      scale = 1 / Math.sqrt(Math.max(0.02, (1 + dot) / 2));
++      bx /= bl; by /= bl;
++    }
++    out.push({ x: curr.x + bx * d * scale * sign, y: curr.y + by * d * scale * sign });
++  }
++  return out;
++}
++
++/* ─── AutoCAD-style rendering configuration ─── */
++const CAD = {
++  wallThicknessCm: 15,              // 15 cm wall thickness (masonry standard)
++  wallOuterStroke: '#0f172a',       // near-black outer wall line
++  wallInnerStroke: '#0f172a',       // near-black inner wall line
++  wallOuterWidth: 2.2,              // outer line weight
++  wallInnerWidth: 1.2,              // inner line weight
++  hatchColor: '#334155',            // wall hatch line color
++  dimColor: '#0f172a',              // dimension text & lines
++  dimOffsetCm: 55,                  // distance of dim line from wall
++  dimExtOvershootCm: 8,             // extension line overshoot past dim line
++  dimExtGapCm: 6,                   // gap from wall to start of extension line
++  gridMinorColor: '#e2e8f0',        // subtle minor grid
++  gridMajorColor: '#cbd5e1',        // bold major grid (1m)
++  gridMinorEvery: 10,               // 10 cm
++  gridMajorEvery: 100,              // 1 m
++  bgColor: '#fafafa',               // near-white engineering paper
++  titleColor: '#0f172a',
++};
++
+ /** Returns { wallIndex, t, dist } for the closest wall segment to point p */
+ function nearestWall(p: Point, polygon: Point[]): { wallIndex: number; t: number; dist: number; foot: Point } {
+   let best = { wallIndex: 0, t: 0, dist: Infinity, foot: p };
+@@ -1125,11 +1189,14 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
+         <div ref={canvasWrapRef} className="flex-1 overflow-hidden relative flex flex-col">
+         <div
+           ref={canvasRef}
+-          className="flex-1 overflow-hidden relative bg-white"
++          className="flex-1 overflow-hidden relative"
+           style={{
+             cursor: isDrawingRoom ? 'crosshair' : activeTool === 'pan' || isPanning ? 'grab' : draggingVertex !== null ? 'move' : 'default',
+-            backgroundImage: 'radial-gradient(circle, #c4c6cf 1px, transparent 1px)',
+-            backgroundSize: '20px 20px',
++            background: manualMode ? CAD.bgColor : '#ffffff',
++            backgroundImage: manualMode
++              ? 'none'
++              : 'radial-gradient(circle, #c4c6cf 1px, transparent 1px)',
++            backgroundSize: manualMode ? 'auto' : '20px 20px',
+           }}
+           onMouseDown={handleCanvasMouseDown}
+           onMouseMove={handleCanvasMouseMove}
+@@ -1186,31 +1253,148 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
+           <div style={{ transform: `translate(${panOffset.x}px, ${panOffset.y}px) scale(${zoom})`, transformOrigin: '0 0', position: 'absolute', willChange: 'transform' }}>
+             <svg width={renderSVGWidth} height={renderSVGHeight} className="overflow-visible">
+ 
++              {/* Global SVG patterns (grid + wall hatch) */}
++              <defs>
++                {/* Minor + major grid (AutoCAD engineering style) */}
++                <pattern id="cadMinorGrid" width={CAD.gridMinorEvery} height={CAD.gridMinorEvery} patternUnits="userSpaceOnUse">
++                  <path d={`M ${CAD.gridMinorEvery} 0 L 0 0 0 ${CAD.gridMinorEvery}`} fill="none" stroke={CAD.gridMinorColor} strokeWidth="0.4" />
++                </pattern>
++                <pattern id="cadMajorGrid" width={CAD.gridMajorEvery} height={CAD.gridMajorEvery} patternUnits="userSpaceOnUse">
++                  <rect width={CAD.gridMajorEvery} height={CAD.gridMajorEvery} fill="url(#cadMinorGrid)" />
++                  <path d={`M ${CAD.gridMajorEvery} 0 L 0 0 0 ${CAD.gridMajorEvery}`} fill="none" stroke={CAD.gridMajorColor} strokeWidth="0.9" />
++                </pattern>
++                {/* Legacy grid (non-manual) */}
++                <pattern id="sGrid" width={gridSize} height={gridSize} patternUnits="userSpaceOnUse">
++                  <path d={`M ${gridSize} 0 L 0 0 0 ${gridSize}`} fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
++                </pattern>
++                <pattern id="bGrid" width={gridSize * 10} height={gridSize * 10} patternUnits="userSpaceOnUse">
++                  <rect width={gridSize * 10} height={gridSize * 10} fill="url(#sGrid)" />
++                  <path d={`M ${gridSize * 10} 0 L 0 0 0 ${gridSize * 10}`} fill="none" stroke="#cbd5e1" strokeWidth="1" />
++                </pattern>
++                {/* Wall hatch pattern (45° diagonal, masonry style) */}
++                <pattern id="wallHatch" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
++                  <line x1="0" y1="0" x2="0" y2="6" stroke={CAD.hatchColor} strokeWidth="0.6" />
++                </pattern>
++                {/* Dimension arrow/tick markers */}
++                <marker id="dimTick" viewBox="-5 -5 10 10" refX="0" refY="0" markerWidth="10" markerHeight="10" orient="auto-start-reverse">
++                  <line x1="-3" y1="-3" x2="3" y2="3" stroke={CAD.dimColor} strokeWidth="1.2" />
++                </marker>
++              </defs>
++
+               {/* Grid */}
+               {showGrid && (
+-                <>
+-                  <defs>
+-                    <pattern id="sGrid" width={gridSize} height={gridSize} patternUnits="userSpaceOnUse">
+-                      <path d={`M ${gridSize} 0 L 0 0 0 ${gridSize}`} fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
+-                    </pattern>
+-                    <pattern id="bGrid" width={gridSize * 10} height={gridSize * 10} patternUnits="userSpaceOnUse">
+-                      <rect width={gridSize * 10} height={gridSize * 10} fill="url(#sGrid)" />
+-                      <path d={`M ${gridSize * 10} 0 L 0 0 0 ${gridSize * 10}`} fill="none" stroke="#cbd5e1" strokeWidth="1" />
+-                    </pattern>
+-                  </defs>
++                manualMode ? (
++                  <>
++                    <rect x={-500} y={-500} width={renderSVGWidth + 1000} height={renderSVGHeight + 1000} fill="url(#cadMajorGrid)" />
++                    {/* X / Y origin axes */}
++                    <line x1={-500} y1={0} x2={renderSVGWidth + 500} y2={0} stroke="#94a3b8" strokeWidth="0.8" strokeDasharray="4 3" />
++                    <line x1={0} y1={-500} x2={0} y2={renderSVGHeight + 500} stroke="#94a3b8" strokeWidth="0.8" strokeDasharray="4 3" />
++                    {/* Origin marker */}
++                    <g>
++                      <circle cx={0} cy={0} r={3} fill="#ef4444" />
++                      <text x={6} y={-6} fontSize={10} fontFamily="monospace" fontWeight="bold" fill="#ef4444">0,0</text>
++                    </g>
++                  </>
++                ) : (
+                   <rect x={-500} y={-500} width={renderSVGWidth + 1000} height={renderSVGHeight + 1000} fill="url(#bGrid)" />
+-                </>
++                )
+               )}
+ 
+               {/* Room shape — architectural polygon */}
+               {roomPolygon.length >= 3 && (
+                 <>
+-                  <path d={polygonSVGPath(roomPolygon)} fill="#ffffff" stroke="#334155" strokeWidth={3} className="room-floor" />
+-                  {/* Wall dimension labels */}
+-                  {roomPolygon.map((p, i) => {
++                  {manualMode ? (() => {
++                    const innerPoly = offsetPolygonInward(roomPolygon, CAD.wallThicknessCm);
++                    const outerPath = polygonSVGPath(roomPolygon);
++                    const innerPath = polygonSVGPath(innerPoly);
++                    const sign = signedArea(roomPolygon) > 0 ? 1 : -1;
++                    return (
++                      <g className="cad-walls">
++                        {/* Interior floor (inside the inner polygon) */}
++                        <path d={innerPath} fill="#ffffff" stroke="none" />
++                        {/* Wall band = outer polygon minus inner polygon (even-odd fill) */}
++                        <path
++                          d={`${outerPath} ${innerPath}`}
++                          fill="url(#wallHatch)"
++                          stroke="none"
++                          fillRule="evenodd"
++                        />
++                        {/* Outer wall line (thicker) */}
++                        <path d={outerPath} fill="none" stroke={CAD.wallOuterStroke} strokeWidth={CAD.wallOuterWidth} strokeLinejoin="miter" />
++                        {/* Inner wall line (thinner) */}
++                        <path d={innerPath} fill="none" stroke={CAD.wallInnerStroke} strokeWidth={CAD.wallInnerWidth} strokeLinejoin="miter" />
++                        {/* External architectural dimensions (extension lines + dim line + tick marks + text) */}
++                        {roomPolygon.map((p, i) => {
++                          const next = roomPolygon[(i + 1) % roomPolygon.length];
++                          const dx = next.x - p.x;
++                          const dy = next.y - p.y;
++                          const len = Math.hypot(dx, dy);
++                          if (len < 30) return null;
++                          const ux = dx / len, uy = dy / len;
++                          // Outward normal (opposite of inward)
++                          const nx = -(-uy) * sign;
++                          const ny = -(ux) * sign;
++                          const off = CAD.dimOffsetCm;
++                          const gap = CAD.dimExtGapCm;
++                          const over = CAD.dimExtOvershootCm;
++                          // Extension line start points (offset slightly away from wall to not overlap)
++                          const a1 = { x: p.x + nx * gap, y: p.y + ny * gap };
++                          const a2 = { x: p.x + nx * (off + over), y: p.y + ny * (off + over) };
++                          const b1 = { x: next.x + nx * gap, y: next.y + ny * gap };
++                          const b2 = { x: next.x + nx * (off + over), y: next.y + ny * (off + over) };
++                          // Dimension line endpoints
++                          const da = { x: p.x + nx * off, y: p.y + ny * off };
++                          const db = { x: next.x + nx * off, y: next.y + ny * off };
++                          // Mid-point for text
++                          const mx = (da.x + db.x) / 2;
++                          const my = (da.y + db.y) / 2;
++                          const angle = Math.atan2(dy, dx) * 180 / Math.PI;
++                          const textAngle = (angle > 90 || angle < -90) ? angle + 180 : angle;
++                          const lenM = (len / 100).toFixed(2);
++                          return (
++                            <g key={`dim-${i}`} className="cad-dim" style={{ pointerEvents: 'none' }}>
++                              {/* Extension lines */}
++                              <line x1={a1.x} y1={a1.y} x2={a2.x} y2={a2.y} stroke={CAD.dimColor} strokeWidth="0.6" />
++                              <line x1={b1.x} y1={b1.y} x2={b2.x} y2={b2.y} stroke={CAD.dimColor} strokeWidth="0.6" />
++                              {/* Dimension line */}
++                              <line x1={da.x} y1={da.y} x2={db.x} y2={db.y} stroke={CAD.dimColor} strokeWidth="0.9" />
++                              {/* Architectural 45° tick marks at endpoints */}
++                              {(() => {
++                                const tick = 5;
++                                const tx = (ux + nx) * tick;
++                                const ty = (uy + ny) * tick;
++                                return (
++                                  <>
++                                    <line x1={da.x - tx} y1={da.y - ty} x2={da.x + tx} y2={da.y + ty} stroke={CAD.dimColor} strokeWidth="1.2" />
++                                    <line x1={db.x - tx} y1={db.y - ty} x2={db.x + tx} y2={db.y + ty} stroke={CAD.dimColor} strokeWidth="1.2" />
++                                  </>
++                                );
++                              })()}
++                              {/* Dimension text (above the line, architectural convention) */}
++                              <g transform={`translate(${mx}, ${my}) rotate(${textAngle})`}>
++                                <rect x={-22} y={-10} width={44} height={13} rx={1} fill={CAD.bgColor} stroke="none" />
++                                <text textAnchor="middle" dominantBaseline="central" y={-3.5} fontSize={9} fontWeight="bold" fontFamily="'Consolas','Courier New',monospace" fill={CAD.dimColor}>
++                                  {lenM} m
++                                </text>
++                              </g>
++                            </g>
++                          );
++                        })}
++                      </g>
++                    );
++                  })() : (
++                    <path d={polygonSVGPath(roomPolygon)} fill="#ffffff" stroke="#334155" strokeWidth={3} className="room-floor" />
++                  )}
++                  {/* Wall dimension labels (non-manual mode only; manualMode has its own CAD dims) */}
++                  {!manualMode && roomPolygon.map((p, i) => {
+                     const next = roomPolygon[(i + 1) % roomPolygon.length];
+                     return <WallLabel key={`wall-${i}`} a={p} b={next} zoom={zoom} wallIndex={i} onLengthChange={handleWallLengthChange} />;
+                   })}
++                  {/* Editable wall length pill (manual mode) — small clickable pill near dim line */}
++                  {manualMode && roomPolygon.map((p, i) => {
++                    const next = roomPolygon[(i + 1) % roomPolygon.length];
++                    return <WallLabel key={`wlabel-${i}`} a={p} b={next} zoom={zoom} wallIndex={i} onLengthChange={handleWallLengthChange} />;
++                  })}
+                   {/* Midpoint "+" handles to insert new vertex */}
+                   {!isDrawingRoom && roomPolygon.map((p, i) => {
+                     const next = roomPolygon[(i + 1) % roomPolygon.length];
+@@ -1334,26 +1518,92 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
+                 );
+               })}
+ 
+-              {/* ─── Scale Ruler ─── */}
++              {/* ─── Scale Ruler (AutoCAD graphic scale bar) ─── */}
+               {(() => {
+-                // 1m = 100cm, göster: 1m çizgisi
+-                const rulerX = roomShape === 'polygon' && roomPolygon.length >= 3 ? bounds.minX : 0;
+-                const rulerY = (roomShape === 'polygon' && roomPolygon.length >= 3 ? bounds.maxY : roomHeightCm) + 20;
+-                const rulerLen = 100; // 100cm = 1m
++                const hasPoly = roomShape === 'polygon' && roomPolygon.length >= 3;
++                const rulerX = hasPoly ? bounds.minX : 0;
++                // In manualMode push ruler below the dimension lines
++                const rulerY = (hasPoly ? bounds.maxY : roomHeightCm) + (manualMode ? (CAD.dimOffsetCm + 40) : 20);
++                if (manualMode) {
++                  // Segmented 0-1-2-3-4-5 m graphic scale: alternating black/white blocks
++                  const seg = 100; // 1 m
++                  const segs = 5;
++                  const h = 6;
++                  return (
++                    <g className="cad-scalebar">
++                      {Array.from({ length: segs }).map((_, i) => (
++                        <rect
++                          key={`sb-${i}`}
++                          x={rulerX + i * seg}
++                          y={rulerY - h / 2}
++                          width={seg}
++                          height={h}
++                          fill={i % 2 === 0 ? CAD.dimColor : '#ffffff'}
++                          stroke={CAD.dimColor}
++                          strokeWidth="0.7"
++                        />
++                      ))}
++                      {/* Tick labels 0..5 m */}
++                      {Array.from({ length: segs + 1 }).map((_, i) => (
++                        <g key={`sbl-${i}`}>
++                          <line x1={rulerX + i * seg} y1={rulerY + h / 2} x2={rulerX + i * seg} y2={rulerY + h / 2 + 4} stroke={CAD.dimColor} strokeWidth="0.7" />
++                          <text x={rulerX + i * seg} y={rulerY + h / 2 + 14} textAnchor="middle" fontSize={9} fontFamily="'Consolas','Courier New',monospace" fontWeight="bold" fill={CAD.dimColor}>{i}</text>
++                        </g>
++                      ))}
++                      <text x={rulerX + segs * seg + 8} y={rulerY + 3} fontSize={10} fontFamily="'Consolas','Courier New',monospace" fontWeight="bold" fill={CAD.dimColor}>m</text>
++                      <text x={rulerX} y={rulerY - h / 2 - 6} fontSize={9} fontFamily="'Consolas','Courier New',monospace" fill={CAD.dimColor}>GRAFİK ÖLÇEK 1:100</text>
++                    </g>
++                  );
++                }
++                const rulerLen = 100;
+                 return (
+                   <g>
+-                    {/* 1m ruler line */}
+                     <line x1={rulerX} y1={rulerY} x2={rulerX + rulerLen} y2={rulerY} stroke="#64748b" strokeWidth={2 / zoom} />
+                     <line x1={rulerX} y1={rulerY - 5 / zoom} x2={rulerX} y2={rulerY + 5 / zoom} stroke="#64748b" strokeWidth={2 / zoom} />
+                     <line x1={rulerX + rulerLen} y1={rulerY - 5 / zoom} x2={rulerX + rulerLen} y2={rulerY + 5 / zoom} stroke="#64748b" strokeWidth={2 / zoom} />
+                     <text x={rulerX + rulerLen / 2} y={rulerY + 14 / zoom} textAnchor="middle" fontSize={10 / zoom} fontWeight="bold" fill="#64748b" fontFamily="monospace">1 m</text>
+-                    {/* 50cm half-marker */}
+                     <line x1={rulerX + 50} y1={rulerY - 3 / zoom} x2={rulerX + 50} y2={rulerY + 3 / zoom} stroke="#94a3b8" strokeWidth={1 / zoom} />
+                     <text x={rulerX + 50} y={rulerY + 14 / zoom} textAnchor="middle" fontSize={8 / zoom} fill="#94a3b8" fontFamily="monospace">50cm</text>
+                   </g>
+                 );
+               })()}
+ 
++              {/* ─── North arrow (manualMode only) ─── */}
++              {manualMode && roomPolygon.length >= 3 && (() => {
++                const nx0 = bounds.maxX + CAD.dimOffsetCm + 40;
++                const ny0 = bounds.minY + 10;
++                return (
++                  <g className="cad-north" transform={`translate(${nx0}, ${ny0})`}>
++                    <circle cx={0} cy={0} r={22} fill="#ffffff" stroke={CAD.dimColor} strokeWidth="0.9" />
++                    {/* North triangle (filled) */}
++                    <polygon points="0,-18 4,0 0,-4 -4,0" fill={CAD.dimColor} />
++                    {/* South triangle (outline) */}
++                    <polygon points="0,18 4,0 0,4 -4,0" fill="#ffffff" stroke={CAD.dimColor} strokeWidth="0.8" />
++                    <text x={0} y={-26} textAnchor="middle" fontSize={10} fontFamily="'Consolas','Courier New',monospace" fontWeight="bold" fill={CAD.dimColor}>K</text>
++                  </g>
++                );
++              })()}
++
++              {/* ─── Mini title block (manualMode only) ─── */}
++              {manualMode && roomPolygon.length >= 3 && (() => {
++                const tbX = bounds.maxX + CAD.dimOffsetCm + 10;
++                const tbY = bounds.maxY - 60;
++                return (
++                  <g className="cad-titleblock" transform={`translate(${tbX}, ${tbY})`}>
++                    <rect x={0} y={0} width={160} height={60} fill="#ffffff" stroke={CAD.dimColor} strokeWidth="0.9" />
++                    <line x1={0} y1={18} x2={160} y2={18} stroke={CAD.dimColor} strokeWidth="0.6" />
++                    <line x1={0} y1={36} x2={160} y2={36} stroke={CAD.dimColor} strokeWidth="0.6" />
++                    <line x1={60} y1={18} x2={60} y2={60} stroke={CAD.dimColor} strokeWidth="0.6" />
++                    <text x={80} y={12} textAnchor="middle" fontSize={10} fontFamily="'Consolas','Courier New',monospace" fontWeight="bold" fill={CAD.dimColor}>2MC GASTRO</text>
++                    <text x={4} y={30} fontSize={8} fontFamily="'Consolas','Courier New',monospace" fill={CAD.dimColor}>ALAN</text>
++                    <text x={64} y={30} fontSize={8} fontFamily="'Consolas','Courier New',monospace" fontWeight="bold" fill={CAD.dimColor}>{roomAreaM2} m²</text>
++                    <text x={4} y={48} fontSize={8} fontFamily="'Consolas','Courier New',monospace" fill={CAD.dimColor}>ÇEVRE</text>
++                    <text x={64} y={48} fontSize={8} fontFamily="'Consolas','Courier New',monospace" fontWeight="bold" fill={CAD.dimColor}>{roomPerimeterM} m</text>
++                    <text x={4} y={58} fontSize={7} fontFamily="'Consolas','Courier New',monospace" fill="#64748b">ÖLÇEK 1:100</text>
++                  </g>
++                );
++              })()}
++
+               {/* Drawing preview */}
+               {isDrawingRoom && drawingPoints.length > 0 && (
+                 <>
+@@ -1497,30 +1747,54 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
+         </div>
+ 
+         <div className="flex-1 overflow-y-auto">
+-          {rightPanelTab === 'room' && (
++          {rightPanelTab === 'room' && (() => {
++            const roomM2Num = Number(roomAreaM2);
++            const eqM2Num = Number(equipmentAreaM2);
++            const occupancyPct = roomM2Num > 0 ? Math.min(100, Math.round((eqM2Num / roomM2Num) * 100)) : 0;
++            const occupancyColor = occupancyPct < 40 ? 'text-emerald-600' : occupancyPct < 70 ? 'text-amber-600' : 'text-red-600';
++            const occupancyBg = occupancyPct < 40 ? 'bg-emerald-500' : occupancyPct < 70 ? 'bg-amber-500' : 'bg-red-500';
++            return (
+             <div className="p-3 space-y-4">
+-              {/* Room stats */}
+-              <div className="bg-slate-50 rounded-xl p-3 space-y-2 border border-slate-200">
+-                <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Alan Bilgileri</h4>
++              {/* ─── Oda Ölçüleri (4-up grid) ─── */}
++              <div className="bg-gradient-to-br from-slate-50 to-white rounded-xl p-3 space-y-2 border border-slate-200 shadow-sm">
++                <div className="flex items-center justify-between">
++                  <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-wider flex items-center gap-1"><Ruler size={11} className="text-primary" /> Oda Ölçüleri</h4>
++                  {roomPolygon.length >= 3 && <span className="text-[9px] font-bold text-slate-400">{roomPolygon.length} köşe</span>}
++                </div>
+                 <div className="grid grid-cols-2 gap-2">
+                   <div className="bg-white rounded-lg p-2.5 text-center border border-slate-200">
+                     <div className="text-[9px] font-bold text-slate-400 uppercase">Alan</div>
+-                    <div className="text-lg font-black text-primary">{roomAreaM2}<span className="text-[10px] ml-0.5">m²</span></div>
++                    <div className="text-lg font-black text-primary leading-tight">{roomAreaM2}<span className="text-[10px] ml-0.5">m²</span></div>
+                   </div>
+                   <div className="bg-white rounded-lg p-2.5 text-center border border-slate-200">
+                     <div className="text-[9px] font-bold text-slate-400 uppercase">Çevre</div>
+-                    <div className="text-lg font-black text-slate-700">{roomPerimeterM}<span className="text-[10px] ml-0.5">m</span></div>
++                    <div className="text-lg font-black text-slate-700 leading-tight">{roomPerimeterM}<span className="text-[10px] ml-0.5">m</span></div>
++                  </div>
++                  <div className="bg-white rounded-lg p-2.5 text-center border border-slate-200">
++                    <div className="text-[9px] font-bold text-slate-400 uppercase">Ekipman</div>
++                    <div className="text-lg font-black text-slate-700 leading-tight">{equipmentAreaM2}<span className="text-[10px] ml-0.5">m²</span></div>
++                  </div>
++                  <div className="bg-white rounded-lg p-2.5 text-center border border-slate-200">
++                    <div className="text-[9px] font-bold text-slate-400 uppercase">Doluluk</div>
++                    <div className={`text-lg font-black leading-tight ${occupancyColor}`}>{occupancyPct}<span className="text-[10px] ml-0.5">%</span></div>
++                  </div>
++                </div>
++                {/* Doluluk progress bar */}
++                <div className="pt-1">
++                  <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
++                    <div className={`h-full rounded-full transition-all duration-300 ${occupancyBg}`} style={{ width: `${occupancyPct}%` }} />
++                  </div>
++                  <div className="flex justify-between text-[8px] text-slate-400 mt-0.5 font-mono">
++                    <span>Boş: {Math.max(0, (roomM2Num - eqM2Num)).toFixed(1)} m²</span>
++                    <span>{placedItems.length} ekipman</span>
+                   </div>
+                 </div>
+-                {roomPolygon.length >= 3 && (
+-                  <div className="text-[9px] text-slate-400 text-center">{roomPolygon.length} köşe nokta</div>
+-                )}
+                 <button onClick={startDrawingRoom} className="w-full py-1.5 text-[10px] font-bold text-emerald-600 bg-emerald-50 hover:bg-emerald-100 rounded-lg flex items-center justify-center gap-1 transition-all">
+                   <RotateCcw size={11} /> {roomPolygon.length >= 3 ? 'Yeniden Çiz' : 'Çizmeye Başla'}
+                 </button>
+               </div>
+ 
+-              {/* Room properties */}
++              {/* ─── Mimari Özellikler ─── */}
+               <div className="space-y-3">
+                 <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Mimari Özellikler</h4>
+ 
+@@ -1589,7 +1863,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
+                 </div>
+               </div>
+ 
+-              {/* Wall openings */}
++              {/* ─── Açıklıklar ─── */}
+               <div className="space-y-2 border-t border-slate-200 pt-3">
+                 <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Açıklıklar (Kapı / Pencere)</h4>
+                 {roomPolygon.length >= 3 && (
+@@ -1621,7 +1895,150 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
+                 )}
+               </div>
+ 
+-              {/* m² price */}
++              {/* ─── Yerleştirilen Ekipmanlar (placed list with area %) ─── */}
++              {placedItems.length > 0 && (
++                <div className="space-y-2 border-t border-slate-200 pt-3">
++                  <div className="flex items-center justify-between">
++                    <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-wider">Yerleştirilenler</h4>
++                    <span className="text-[9px] font-bold text-slate-400">{placedItems.length} adet</span>
++                  </div>
++                  <div className="space-y-1 max-h-48 overflow-y-auto pr-1">
++                    {placedItems.map((it) => {
++                      const itM2 = (it.width * it.height) / 10000;
++                      const pctOfRoom = roomM2Num > 0 ? (itM2 / roomM2Num) * 100 : 0;
++                      const borderColor = CATEGORY_BORDERS[it.category] || '#cbd5e1';
++                      const isSel = it.id === selectedId;
++                      return (
++                        <div key={it.id}
++                          onClick={() => setSelectedId(it.id)}
++                          className={`group flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer border transition-all ${isSel ? 'bg-primary/5 border-primary/40' : 'bg-white hover:bg-slate-50 border-slate-200'}`}>
++                          <div className="w-1.5 h-8 rounded-full shrink-0" style={{ background: borderColor }} />
++                          <div className="flex-1 min-w-0">
++                            <div className="text-[10px] font-bold text-slate-700 truncate">{it.name}</div>
++                            <div className="text-[9px] text-slate-400 font-mono flex items-center gap-2">
++                              <span>{it.width}×{it.height}cm</span>
++                              <span>·</span>
++                              <span>{itM2.toFixed(2)}m²</span>
++                              <span className="text-primary font-bold">·</span>
++                              <span className="text-primary font-bold">%{pctOfRoom.toFixed(1)}</span>
++                            </div>
++                          </div>
++                          <button onClick={(e) => { e.stopPropagation(); setPlacedItems(prev => prev.filter(p => p.id !== it.id)); if (selectedId === it.id) setSelectedId(null); }}
++                            className="shrink-0 p-1 rounded text-red-300 hover:text-red-500 hover:bg-red-50 opacity-0 group-hover:opacity-100 transition-all">
++                            <Trash2 size={10} />
++                          </button>
++                        </div>
++                      );
++                    })}
++                  </div>
++                </div>
++              )}
++
++              {/* ─── Ekipman Kataloğu (inline, manualMode için) ─── */}
++              <div className="space-y-2 border-t border-slate-200 pt-3">
++                <div className="flex items-center justify-between">
++                  <h4 className="text-[10px] font-black uppercase text-slate-500 tracking-wider flex items-center gap-1"><Package size={11} className="text-primary" /> Ekipman Kataloğu</h4>
++                  <span className="text-[8px] text-slate-400 font-mono">{catalogItems.length < 60 ? `${catalogItems.length} ürün` : '60+'}</span>
++                </div>
++
++                {/* Search */}
++                <div className="relative">
++                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" size={13} />
++                  <input type="text" value={catalogSearch} onChange={(e) => setCatalogSearch(e.target.value)}
++                    placeholder="Ürün ara..."
++                    className="w-full pl-8 pr-8 py-1.5 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none" />
++                  {catalogSearch && (
++                    <button onClick={() => setCatalogSearch('')} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-primary"><X size={11} /></button>
++                  )}
++                </div>
++
++                {/* Filters */}
++                <div className="flex items-center gap-1.5">
++                  <button onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
++                    className={`flex items-center gap-1 px-2 py-1 rounded-md text-[10px] font-bold transition-all ${showFavoritesOnly ? 'bg-pink-50 text-pink-600 border border-pink-200' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'}`}
++                    title="Favoriler">
++                    <Heart size={10} fill={showFavoritesOnly ? 'currentColor' : 'none'} />
++                    {equipmentStore.favorites.length > 0 && <span className="text-[8px]">{equipmentStore.favorites.length}</span>}
++                  </button>
++                  <select value={catalogCategory} onChange={(e) => setCatalogCategory(e.target.value)}
++                    className="flex-1 text-[10px] font-bold px-2 py-1 border border-slate-200 rounded-md bg-white text-slate-600 outline-none">
++                    <option value="">Tüm Kategoriler</option>
++                    {CATEGORIES.filter(c => c.count > 0).map(c => <option key={c.id} value={c.id}>{c.name} ({c.count})</option>)}
++                  </select>
++                </div>
++
++                {roomPolygon.length < 3 && (
++                  <div className="text-[9px] text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-2 py-1.5">
++                    ⚠️ Önce odayı çizin, sonra ürün ekleyin.
++                  </div>
++                )}
++
++                {/* Product grid — scale-accurate, drag or click to add */}
++                <div className="grid grid-cols-2 gap-1.5 max-h-96 overflow-y-auto pr-1">
++                  {catalogItems.map((item) => {
++                    const isFav = equipmentStore.favorites.includes(item.id);
++                    // Product size in cm (equipment items store l/w in mm)
++                    const prodWcm = Math.round(item.l / 10);
++                    const prodHcm = Math.round(item.w / 10);
++                    const prodM2 = (prodWcm * prodHcm) / 10000;
++                    const prodPctOfRoom = roomM2Num > 0 ? (prodM2 / roomM2Num) * 100 : 0;
++                    const canAdd = roomPolygon.length >= 3;
++                    return (
++                      <div key={item.id}
++                        draggable={canAdd}
++                        onDragStart={(e) => { if (!canAdd) { e.preventDefault(); return; } setTrayDragItem(item); e.dataTransfer.effectAllowed = 'copy'; }}
++                        className={`bg-white rounded-lg border border-slate-200 ${canAdd ? 'hover:border-primary/40 cursor-grab active:cursor-grabbing' : 'opacity-60 cursor-not-allowed'} transition-all group relative overflow-hidden`}>
++                        {/* Fav button */}
++                        <button onClick={(e) => { e.stopPropagation(); equipmentStore.toggleFavorite(item.id); }} className="absolute top-1 right-1 z-10 p-0.5 rounded-full bg-white/90 shadow-sm">
++                          <Heart size={9} fill={isFav ? '#ec4899' : 'none'} className={isFav ? 'text-pink-500' : 'text-slate-300'} />
++                        </button>
++                        {/* Quick-add button */}
++                        <button onClick={(e) => { e.stopPropagation(); if (canAdd) addEquipmentToFloorPlan(item); }}
++                          disabled={!canAdd}
++                          className="absolute top-1 left-1 z-10 p-0.5 rounded-full bg-primary text-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
++                          title="Mutfağa ekle">
++                          <Plus size={10} />
++                        </button>
++                        {/* Image */}
++                        <div className="w-full aspect-[4/3] bg-slate-50 flex items-center justify-center p-1">
++                          <ProductImage src={item.img} alt={item.name} className="w-full h-full" />
++                        </div>
++                        {/* Meta */}
++                        <div className="p-1.5">
++                          <div className="text-[9px] font-bold text-slate-700 leading-tight line-clamp-2 min-h-[24px]">{item.name}</div>
++                          {/* Size + m² + % of kitchen */}
++                          <div className="mt-1 flex items-center justify-between text-[8px] font-mono">
++                            <span className="text-slate-500">{prodWcm}×{prodHcm}cm</span>
++                            <span className="text-slate-700 font-bold">{prodM2.toFixed(2)}m²</span>
++                          </div>
++                          {/* Proportional bar: shows how much of kitchen this one unit fills */}
++                          {canAdd && (
++                            <div className="mt-1">
++                              <div className="h-1 w-full bg-slate-100 rounded-full overflow-hidden">
++                                <div className="h-full bg-primary/70 rounded-full" style={{ width: `${Math.min(100, prodPctOfRoom)}%` }} />
++                              </div>
++                              <div className="text-[8px] text-primary font-bold mt-0.5">Mutfağın %{prodPctOfRoom.toFixed(1)}'i</div>
++                            </div>
++                          )}
++                          {/* Price + kW */}
++                          <div className="flex items-center justify-between mt-1">
++                            {item.kw > 0 ? <span className="flex items-center gap-0.5 text-[8px] text-amber-600"><Zap size={7} />{item.kw}kW</span> : <span />}
++                            {item.price > 0 && <span className="text-[9px] font-bold text-primary">{formatPrice(item.price)}</span>}
++                          </div>
++                        </div>
++                      </div>
++                    );
++                  })}
++                </div>
++                {catalogItems.length === 0 && (
++                  <div className="text-center py-6 text-slate-400">
++                    <Package size={22} className="mx-auto mb-1 opacity-40" />
++                    <p className="text-[10px] font-medium">Ürün bulunamadı</p>
++                  </div>
++                )}
++              </div>
++
++              {/* ─── m² Birim Fiyatı ─── */}
+               <div className="border-t border-slate-200 pt-3 space-y-1.5">
+                 <label className="text-[9px] font-black uppercase text-slate-400">m² Birim Fiyatı (€)</label>
+                 <input type="number" value={pricePerM2 || ''} onChange={e => setPricePerM2(Number(e.target.value))}
+@@ -1629,18 +2046,19 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
+                 {pricePerM2 > 0 && (
+                   <div className="flex justify-between text-[10px] font-bold text-primary bg-primary/5 rounded-lg px-2.5 py-1.5">
+                     <span>Tahmini Toplam</span>
+-                    <span>€{(pricePerM2 * Number(roomAreaM2)).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</span>
++                    <span>€{(pricePerM2 * roomM2Num).toLocaleString('de-DE', { minimumFractionDigits: 2 })}</span>
+                   </div>
+                 )}
+               </div>
+ 
+-              {/* PDF */}
++              {/* ─── PDF ─── */}
+               <button onClick={exportFloorPlanPDF} disabled={pdfExporting}
+                 className="w-full py-2.5 text-xs font-bold text-white bg-primary hover:bg-primary/90 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-60 shadow-sm">
+                 {pdfExporting ? <><Loader2 size={14} className="animate-spin" /> Hazırlanıyor...</> : <><FileDown size={14} /> PDF İndir</>}
+               </button>
+             </div>
+-          )}
++            );
++          })()}
+ 
+           {rightPanelTab === 'catalog' && (
+             <div className="p-3 space-y-3">
+diff --git a/src/components/Layout.tsx b/src/components/Layout.tsx
+index f1e186c..9934ebe 100644
+--- a/src/components/Layout.tsx
++++ b/src/components/Layout.tsx
+@@ -28,7 +28,7 @@ const NAV_ITEMS = [
+ 
+ const SIDE_ITEMS = [
+   { path: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard, id: 'dashboard' },
+-  { path: '/projects', labelKey: 'nav.project', icon: FolderOpen, id: 'projects' },
++  // Projeler sekmesi gizlendi — gösterge panelinde (Dashboard) zaten erişilebilir durumda.
+   { path: '/manual', labelKey: 'nav.manual', icon: Pencil, id: 'manual' },
+   { path: '/diamond', labelKey: 'Diamond', icon: Diamond, id: 'diamond', raw: true },
+   { path: '/combisteel', labelKey: 'CombiSteel', icon: Box, id: 'combisteel', raw: true },
+@@ -85,14 +85,14 @@ export default function Layout() {
+   return (
+     <div className="bg-surface font-body text-on-surface min-h-screen flex flex-col">
+       {/* TopNavBar */}
+-      <header className="bg-surface-container-lowest border-b border-outline-variant/10 flex justify-between items-center w-full px-4 md:px-6 py-3 h-14 md:h-16 fixed top-0 z-50">
++      <header className="bg-surface-container-lowest border-b border-outline-variant/10 flex justify-between items-center w-full px-4 md:px-6 py-3 h-16 md:h-20 fixed top-0 z-50">
+         <div className="flex items-center gap-3 md:gap-8">
+           {/* Hamburger sadece tablet'te (md) göster, mobilde alt nav var */}
+           <button onClick={toggleMobileMenu} className="hidden md:flex lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-full">
+             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+           </button>
+           <Link to="/welcome" className="flex items-center gap-2">
+-            <img src="/logo-2mc-gastro.jpeg" alt="2MC Gastro" className="h-9 object-contain" />
++            <img src="/logo-2mc-gastro.jpeg" alt="2MC Gastro" className="h-12 md:h-14 object-contain" />
+           </Link>
+           <nav className="hidden lg:flex gap-6 items-center">
+             {NAV_ITEMS.map((item) => {
+@@ -160,18 +160,29 @@ export default function Layout() {
+             <Settings size={18} />
+           </Link>
+           {isAuthenticated && user ? (
+-            <Link to="/profile" className="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-primary/10 hover:bg-primary/20 rounded-full transition-colors">
+-              {user.avatar ? (
+-                <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
+-              ) : (
+-                <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
+-                  {(user.fullName || user.email || '?')[0].toUpperCase()}
+-                </div>
+-              )}
+-              <span className="text-sm font-semibold text-primary hidden sm:inline max-w-[100px] truncate">
+-                {user.fullName || user.email}
+-              </span>
+-            </Link>
++            <>
++              <Link to="/profile" className="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-primary/10 hover:bg-primary/20 rounded-full transition-colors">
++                {user.avatar ? (
++                  <img src={user.avatar} alt="" className="w-7 h-7 rounded-full object-cover" />
++                ) : (
++                  <div className="w-7 h-7 rounded-full bg-primary text-white flex items-center justify-center text-xs font-bold">
++                    {(user.fullName || user.email || '?')[0].toUpperCase()}
++                  </div>
++                )}
++                <span className="text-sm font-semibold text-primary hidden sm:inline max-w-[100px] truncate">
++                  {user.fullName || user.email}
++                </span>
++              </Link>
++              <button
++                onClick={handleLogout}
++                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-bold text-error bg-error-container/60 hover:bg-error-container rounded-lg transition-colors"
++                title={t('nav.logout')}
++                aria-label={t('nav.logout')}
++              >
++                <LogOut size={16} />
++                <span className="hidden sm:inline">{t('nav.logout')}</span>
++              </button>
++            </>
+           ) : (
+             <Link
+               to="/login"
+@@ -248,7 +259,7 @@ export default function Layout() {
+         </div>
+       )}
+ 
+-      <div className="flex flex-1 pt-14 md:pt-16">
++      <div className="flex flex-1 pt-16 md:pt-20">
+         {/* Desktop Sidebar — lg ve üzeri */}
+         <aside className="bg-surface-container-low fixed top-14 md:top-16 left-0 h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] w-64 flex-col space-y-2 p-4 hidden lg:flex z-40 border-r border-outline-variant/10">
+           <div className="mb-4 px-2">
+diff --git a/src/pages/planner/KitchenPlannerPage.tsx b/src/pages/planner/KitchenPlannerPage.tsx
+index eb827d2..82fec8f 100644
+--- a/src/pages/planner/KitchenPlannerPage.tsx
++++ b/src/pages/planner/KitchenPlannerPage.tsx
+@@ -1,10 +1,11 @@
+-import { useMemo, useState } from 'react';
++import { useEffect, useMemo, useState } from 'react';
+ import { useNavigate } from 'react-router-dom';
+ import { motion, AnimatePresence } from 'motion/react';
+ import {
+   Sparkles, ChefHat, Coffee, Pizza, Utensils, Hotel, Store,
+-  ChevronRight, ChevronLeft, Loader2, Plus, Trash2, ShoppingCart,
+-  Ruler, Wallet, Check, Zap, Bot, Calculator,
++  ChevronRight, Loader2, Trash2, ShoppingCart,
++  Ruler, Wallet, Check, Zap, Bot, Calculator, Users, Flame,
++  TrendingUp, Clock, Pencil, Info, Target,
+ } from 'lucide-react';
+ import { useTranslation } from 'react-i18next';
+ import { chatWithAI } from '../../lib/ai';
+@@ -13,25 +14,92 @@ import { supabase } from '../../lib/supabase';
+ import type { DiamondProduct } from '../../stores/diamondStore';
+ import { diamondToEquipment } from '../../lib/diamondAdapter';
+ 
+-type BusinessType = 'restaurant' | 'cafe' | 'hotel' | 'fastfood' | 'bakery' | 'other';
++// ─────────────────────────────────────────────────────────────
++// İŞLETME TİPLERİ — her biri için sektörel katsayılar + varsayılanlar
++// Katsayılar Türkiye gastronomi sektör ortalamalarına göre kalibrelenmiştir.
++// ─────────────────────────────────────────────────────────────
++type BusinessType = 'restaurant' | 'cafe' | 'hotel' | 'fastfood' | 'bakery' | 'catering';
+ 
+-// Hesaplayıcı modülü için segment katsayıları (eski /tools/kitchen-calculator sayfasından taşındı)
+-type CalcSegment = 'restaurant' | 'hotel' | 'catering' | 'cafe';
+-const SEGMENT_FACTORS: Record<CalcSegment, { area: number; power: number; label: string }> = {
+-  restaurant: { area: 0.45, power: 180, label: 'Restoran' },
+-  hotel:      { area: 0.55, power: 220, label: 'Otel' },
+-  catering:   { area: 0.70, power: 260, label: 'Catering' },
+-  cafe:       { area: 0.30, power: 120, label: 'Kafe / Bistro' },
++interface BusinessProfile {
++  id: BusinessType;
++  icon: any;
++  label: string;
++  desc: string;
++  // Renk (gradient)
++  from: string;
++  to: string;
++  // Alan katsayısı (misafir başı m²)
++  areaPerGuest: number;
++  // Kurulu güç (W/m²)
++  powerPerM2: number;
++  // Finansal profil
++  avgTicket: number;      // Ortalama sepet (€)
++  daysOpen: number;       // Aylık açık gün
++  turnover: number;       // Masa devri (günde kaç kez dolar)
++  foodCostPct: number;    // COGS oranı
++  laborCostPct: number;   // İşçilik
++  overheadPct: number;    // Kira + diğer
++  // Tipik ekipman çeşit sayısı
++  typicalItems: number;
++  // Yatırım öneri aralığı (EUR)
++  minInvest: number;
++  maxInvest: number;
++  // Varsayılan misafir kapasitesi
++  defaultGuests: number;
++}
++
++const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
++  restaurant: {
++    id: 'restaurant', icon: Utensils, label: 'Restoran', desc: 'Tam servis · À la carte',
++    from: 'from-amber-500', to: 'to-orange-600',
++    areaPerGuest: 0.45, powerPerM2: 180,
++    avgTicket: 28, daysOpen: 28, turnover: 2.2,
++    foodCostPct: 0.32, laborCostPct: 0.28, overheadPct: 0.15,
++    typicalItems: 18, minInvest: 80_000, maxInvest: 400_000, defaultGuests: 80,
++  },
++  cafe: {
++    id: 'cafe', icon: Coffee, label: 'Kafe / Bistro', desc: 'İçecek & hafif mönü',
++    from: 'from-rose-500', to: 'to-pink-600',
++    areaPerGuest: 0.30, powerPerM2: 120,
++    avgTicket: 12, daysOpen: 30, turnover: 3.0,
++    foodCostPct: 0.28, laborCostPct: 0.25, overheadPct: 0.18,
++    typicalItems: 10, minInvest: 25_000, maxInvest: 120_000, defaultGuests: 50,
++  },
++  hotel: {
++    id: 'hotel', icon: Hotel, label: 'Otel', desc: 'Büyük ölçek · Kahvaltı & akşam',
++    from: 'from-indigo-500', to: 'to-purple-700',
++    areaPerGuest: 0.55, powerPerM2: 220,
++    avgTicket: 22, daysOpen: 30, turnover: 1.8,
++    foodCostPct: 0.35, laborCostPct: 0.30, overheadPct: 0.12,
++    typicalItems: 28, minInvest: 150_000, maxInvest: 1_200_000, defaultGuests: 200,
++  },
++  fastfood: {
++    id: 'fastfood', icon: Pizza, label: 'Fast Food', desc: 'Yüksek sirkülasyon',
++    from: 'from-red-500', to: 'to-rose-600',
++    areaPerGuest: 0.25, powerPerM2: 200,
++    avgTicket: 10, daysOpen: 30, turnover: 4.5,
++    foodCostPct: 0.34, laborCostPct: 0.22, overheadPct: 0.16,
++    typicalItems: 14, minInvest: 40_000, maxInvest: 180_000, defaultGuests: 120,
++  },
++  bakery: {
++    id: 'bakery', icon: ChefHat, label: 'Pastane / Fırın', desc: 'Hamur işi · Tatlı',
++    from: 'from-fuchsia-500', to: 'to-purple-600',
++    areaPerGuest: 0.20, powerPerM2: 250,
++    avgTicket: 8, daysOpen: 28, turnover: 3.5,
++    foodCostPct: 0.30, laborCostPct: 0.26, overheadPct: 0.14,
++    typicalItems: 12, minInvest: 35_000, maxInvest: 200_000, defaultGuests: 60,
++  },
++  catering: {
++    id: 'catering', icon: Store, label: 'Catering / Toplu', desc: 'Düğün, etkinlik, kurumsal',
++    from: 'from-emerald-500', to: 'to-teal-600',
++    areaPerGuest: 0.70, powerPerM2: 260,
++    avgTicket: 18, daysOpen: 22, turnover: 1.5,
++    foodCostPct: 0.38, laborCostPct: 0.30, overheadPct: 0.10,
++    typicalItems: 24, minInvest: 90_000, maxInvest: 600_000, defaultGuests: 300,
++  },
+ };
+ 
+-const BUSINESS_TYPES: { id: BusinessType; icon: any; label: string; desc: string }[] = [
+-  { id: 'restaurant', icon: Utensils, label: 'Restoran', desc: 'Tam servis mutfak' },
+-  { id: 'cafe',       icon: Coffee,   label: 'Kafe',     desc: 'İçecek ve hafif mönü' },
+-  { id: 'hotel',      icon: Hotel,    label: 'Otel',     desc: 'Büyük ölçek kahvaltı/akşam' },
+-  { id: 'fastfood',   icon: Pizza,    label: 'Fast Food', desc: 'Yüksek sirkülasyon' },
+-  { id: 'bakery',     icon: ChefHat,  label: 'Pastane',   desc: 'Fırın ve hamur işi' },
+-  { id: 'other',      icon: Store,    label: 'Diğer',    desc: 'Özel işletme' },
+-];
++const BUSINESS_LIST = Object.values(BUSINESS_PROFILES);
+ 
+ interface Recommendation {
+   name: string;
+@@ -42,51 +110,127 @@ interface Recommendation {
+   matched_product?: DiamondProduct;
+ }
+ 
++// Para biçimlendirme
++const fmtEur = (n: number) =>
++  `€${Math.round(n).toLocaleString('tr-TR')}`;
++
++const fmtShort = (n: number) => {
++  if (n >= 1_000_000) return `€${(n / 1_000_000).toFixed(1)}M`;
++  if (n >= 1_000) return `€${Math.round(n / 1000)}K`;
++  return `€${Math.round(n)}`;
++};
++
++// ─────────────────────────────────────────────────────────────
++// ANA BİLEŞEN
++// ─────────────────────────────────────────────────────────────
+ export default function KitchenPlannerPage() {
+   const { t } = useTranslation();
+   const navigate = useNavigate();
+   const addItem = useCartStore((s) => s.addItem);
+ 
+-  const [step, setStep] = useState<1 | 2 | 3 | 4>(1);
+-  const [business, setBusiness] = useState<BusinessType | null>(null);
+-  const [size, setSize] = useState(50);
+-  const [budget, setBudget] = useState(25000);
+-  const [seats, setSeats] = useState(40);
++  // Seçili işletme
++  const [business, setBusiness] = useState<BusinessType>('restaurant');
++  const profile = BUSINESS_PROFILES[business];
++
++  // Tüm parametreler tek yerden — işletme değişince anlık güncellenir
++  const [guests, setGuests] = useState(profile.defaultGuests);
++  const [avgTicket, setAvgTicket] = useState(profile.avgTicket);
++  const [daysOpen, setDaysOpen] = useState(profile.daysOpen);
++  const [invest, setInvest] = useState(Math.round((profile.minInvest + profile.maxInvest) / 3));
++  const [budget, setBudget] = useState(Math.round(profile.minInvest * 1.2));
++
++  // AI plan
+   const [loading, setLoading] = useState(false);
+   const [streamText, setStreamText] = useState('');
+   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
+   const [error, setError] = useState<string | null>(null);
+ 
+-  // Kapasite & ROI hesaplayıcı state
+-  const [calcSegment, setCalcSegment]     = useState<CalcSegment>('restaurant');
+-  const [calcGuests, setCalcGuests]       = useState(100);
+-  const [calcAvgTicket, setCalcAvgTicket] = useState(25);
+-  const [calcDaysOpen, setCalcDaysOpen]   = useState(26);
+-  const [calcInvest, setCalcInvest]       = useState(150000);
+-
+-  const calcResult = useMemo(() => {
+-    const f = SEGMENT_FACTORS[calcSegment];
+-    const area = Math.round(calcGuests * f.area);
+-    const power = Math.round(area * f.power);
+-    const monthlyRevenue = calcGuests * calcAvgTicket * calcDaysOpen;
+-    const foodCost = monthlyRevenue * 0.32;
+-    const laborCost = monthlyRevenue * 0.28;
+-    const operational = monthlyRevenue * 0.15;
+-    const monthlyProfit = monthlyRevenue - foodCost - laborCost - operational;
+-    const paybackMonths = monthlyProfit > 0 ? calcInvest / monthlyProfit : Infinity;
+-    return { area, power, monthlyRevenue, monthlyProfit, paybackMonths };
+-  }, [calcSegment, calcGuests, calcAvgTicket, calcDaysOpen, calcInvest]);
+-
++  // İşletme tipi değişince → sektör varsayılanlarını senkronla
++  useEffect(() => {
++    setGuests(profile.defaultGuests);
++    setAvgTicket(profile.avgTicket);
++    setDaysOpen(profile.daysOpen);
++    setInvest(Math.round((profile.minInvest + profile.maxInvest) / 3));
++    setBudget(Math.round(profile.minInvest * 1.2));
++    setRecommendations([]);
++  }, [business]); // eslint-disable-line react-hooks/exhaustive-deps
++
++  // ──────── Hesaplamalar (canlı) ────────
++  const calc = useMemo(() => {
++    const area = Math.round(guests * profile.areaPerGuest);
++    const power = Math.round(area * profile.powerPerM2);
++    // Günlük ciro = misafir × sepet × masa devri (oturma sayısı)
++    const dailyRevenue = guests * avgTicket * profile.turnover;
++    const monthlyRevenue = dailyRevenue * daysOpen;
++    const yearlyRevenue = monthlyRevenue * 12;
++    const food = monthlyRevenue * profile.foodCostPct;
++    const labor = monthlyRevenue * profile.laborCostPct;
++    const overhead = monthlyRevenue * profile.overheadPct;
++    const monthlyProfit = monthlyRevenue - food - labor - overhead;
++    const margin = monthlyRevenue > 0 ? monthlyProfit / monthlyRevenue : 0;
++    const paybackMonths = monthlyProfit > 0 ? invest / monthlyProfit : Infinity;
++    const paybackYears = paybackMonths / 12;
++    // Ekipman yatırımı bütçenin yaklaşık %55-65'i olmalı (karşılaştırma için)
++    const recommendedEqBudget = Math.round(invest * 0.6);
++    const budgetFit = budget / Math.max(recommendedEqBudget, 1); // 1.0 = ideal
++    return {
++      area, power, dailyRevenue, monthlyRevenue, yearlyRevenue,
++      food, labor, overhead, monthlyProfit, margin,
++      paybackMonths, paybackYears, recommendedEqBudget, budgetFit,
++    };
++  }, [guests, avgTicket, daysOpen, invest, budget, profile]);
++
++  // Fizibilite skoru (0-100)
++  const feasibility = useMemo(() => {
++    let score = 50;
++    if (calc.margin > 0.20) score += 20;
++    else if (calc.margin > 0.10) score += 10;
++    else if (calc.margin < 0) score -= 30;
++    if (calc.paybackYears < 2) score += 20;
++    else if (calc.paybackYears < 4) score += 10;
++    else if (calc.paybackYears > 8) score -= 20;
++    if (budget >= calc.recommendedEqBudget * 0.85 && budget <= calc.recommendedEqBudget * 1.2) score += 10;
++    else if (budget < calc.recommendedEqBudget * 0.6) score -= 15;
++    return Math.max(0, Math.min(100, score));
++  }, [calc, budget]);
++
++  const feasibilityTone =
++    feasibility >= 75 ? {
++      label: 'Güçlü', bar: 'bg-emerald-500',
++      ring: 'ring-emerald-200', bgFrom: 'from-emerald-50', chipBg: 'bg-emerald-100', chipText: 'text-emerald-700',
++    } :
++    feasibility >= 50 ? {
++      label: 'Uygun', bar: 'bg-sky-500',
++      ring: 'ring-sky-200', bgFrom: 'from-sky-50', chipBg: 'bg-sky-100', chipText: 'text-sky-700',
++    } :
++    feasibility >= 30 ? {
++      label: 'Riskli', bar: 'bg-amber-500',
++      ring: 'ring-amber-200', bgFrom: 'from-amber-50', chipBg: 'bg-amber-100', chipText: 'text-amber-700',
++    } : {
++      label: 'Zorlu', bar: 'bg-rose-500',
++      ring: 'ring-rose-200', bgFrom: 'from-rose-50', chipBg: 'bg-rose-100', chipText: 'text-rose-700',
++    };
++
++  // Mutfak boyutlarını oda için türet (yaklaşık dikdörtgen, 2:3 oranı)
++  const roomDim = useMemo(() => {
++    const ratio = 1.5; // en / boy
++    const h = Math.sqrt(calc.area / ratio);
++    const w = h * ratio;
++    return { wM: +w.toFixed(1), hM: +h.toFixed(1) };
++  }, [calc.area]);
++
++  // ──────── AI plan üretimi ────────
+   const generatePlan = async () => {
+     setLoading(true);
+     setError(null);
+     setStreamText('');
+     setRecommendations([]);
+     try {
+-      const prompt = `Ben bir ${BUSINESS_TYPES.find(b => b.id === business)?.label} işletmesi açıyorum.
+-Mutfak alanı: ${size} m²
+-Koltuk/müşteri kapasitesi: ${seats}
+-Bütçe: ${budget.toLocaleString('tr-TR')} €
++      const prompt = `Ben bir ${profile.label} işletmesi açıyorum.
++Mutfak alanı: ${calc.area} m² (${roomDim.wM}m × ${roomDim.hM}m)
++Günlük misafir: ${guests} · Ortalama sepet: €${avgTicket}
++Aylık ciro beklentisi: €${Math.round(calc.monthlyRevenue).toLocaleString('tr-TR')}
++Ekipman bütçesi: €${budget.toLocaleString('tr-TR')}
+ 
+ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADECE aşağıdaki JSON formatında ver (başka hiçbir metin yazma):
+ 
+@@ -110,7 +254,6 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
+       const parsed = JSON.parse(match[0]);
+       const recs: Recommendation[] = parsed.items || [];
+ 
+-      // Match with real Diamond products
+       if (supabase) {
+         for (const rec of recs) {
+           const { data } = await supabase
+@@ -125,7 +268,6 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
+       }
+ 
+       setRecommendations(recs);
+-      setStep(4);
+     } catch (e: any) {
+       setError(e.message || 'Plan oluşturulamadı');
+     } finally {
+@@ -142,271 +284,543 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
+     navigate('/cart');
+   };
+ 
++  // Manuel çizime hazır parametrelerle geç
++  const openInDrawing = () => {
++    // Proje localStorage'ına başlangıç parametreleri yazabiliriz; basit navigate yapıyoruz
++    try {
++      localStorage.setItem('kitchen-planner:handoff', JSON.stringify({
++        business, guests, area: calc.area, room: roomDim, budget, at: Date.now(),
++      }));
++    } catch { /* yok say */ }
++    navigate('/manual');
++  };
++
++  // ──────────────────────────────────────────
++  // RENDER
++  // ──────────────────────────────────────────
+   return (
+     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50/30 to-purple-50/30 pb-12">
+       <div className="max-w-7xl mx-auto px-4 pt-8">
+-        {/* Hero */}
+-        <div className="text-center mb-8">
++
++        {/* ═══════ HERO ═══════ */}
++        <div className="text-center mb-6">
+           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-100 to-sky-100 text-purple-700 text-xs font-bold mb-3">
+-            <Sparkles size={14} /> AI DESTEKLİ · RAKİPLERDE YOK
++            <Sparkles size={14} /> AI DESTEKLİ · CANLI HESAPLAMA · RAKİPLERDE YOK
+           </div>
+-          <h1 className="text-3xl sm:text-4xl font-black text-slate-900">
+-            Mutfağını <span className="bg-gradient-to-r from-sky-500 to-purple-500 bg-clip-text text-transparent">AI ile Planla</span>
++          <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
++            Mutfağını <span className="bg-gradient-to-r from-sky-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">AI ile Planla</span>
+           </h1>
+-          <p className="text-slate-500 mt-2">4 adımda, sektöre özgü ekipman listesi ve bütçe. Sağdaki hesaplayıcı ile alan, güç ve ROI'yi anında gör.</p>
+-        </div>
+-
+-        {/* Progress */}
+-        <div className="flex items-center justify-center gap-2 mb-8">
+-          {[1, 2, 3, 4].map((n) => (
+-            <div key={n}
+-              className={`h-1.5 rounded-full transition-all ${step >= n ? 'bg-sky-500 w-12' : 'bg-slate-200 w-6'}`} />
+-          ))}
++          <p className="text-slate-500 mt-2 max-w-2xl mx-auto">
++            İşletme tipini seç — alan, güç, gelir, geri dönüş ve ekipman bütçesi <span className="font-bold text-slate-700">anlık</span> hesaplansın.
++            Sonra AI'dan ekipman listesi al veya manuel çizime geç.
++          </p>
+         </div>
+ 
+-        {/* 2 sütun: sol = AI planlayıcı sihirbazı, sağ = kapasite & ROI hesaplayıcı */}
+-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6 lg:gap-8">
+-          <div className="min-w-0">
+-            <AnimatePresence mode="wait">
+-          {/* Step 1 — Business */}
+-          {step === 1 && (
+-            <motion.div key="s1" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+-              <h2 className="text-xl font-bold text-slate-900 mb-4 text-center">İşletme türünüz?</h2>
+-              <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+-                {BUSINESS_TYPES.map((b) => (
+-                  <button
+-                    key={b.id}
+-                    onClick={() => { setBusiness(b.id); setStep(2); }}
+-                    className={`aspect-[4/3] p-6 rounded-2xl border-2 transition text-left group flex flex-col justify-between ${
+-                      business === b.id ? 'border-sky-500 bg-sky-50 shadow-lg' : 'border-slate-200 bg-white hover:border-sky-300 hover:shadow-md'
+-                    }`}
+-                  >
+-                    <div className={`w-14 h-14 rounded-xl flex items-center justify-center transition ${
+-                      business === b.id ? 'bg-sky-500' : 'bg-sky-50 group-hover:bg-sky-100'
++        {/* ═══════ 1) İŞLETME TİPİ — Büyük görsel kartlar ═══════ */}
++        <section className="mb-6">
++          <div className="flex items-baseline justify-between mb-3 px-1">
++            <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">1 · İşletme Tipi</h2>
++            <span className="text-[11px] text-slate-400">seçim anında tüm hesapları günceller</span>
++          </div>
++          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
++            {BUSINESS_LIST.map((b) => {
++              const isActive = business === b.id;
++              return (
++                <motion.button
++                  key={b.id}
++                  type="button"
++                  onClick={() => setBusiness(b.id)}
++                  whileHover={{ y: -3 }}
++                  whileTap={{ scale: 0.96 }}
++                  className={`relative overflow-hidden rounded-2xl p-4 border-2 text-left transition-all ${
++                    isActive
++                      ? 'border-transparent shadow-xl ring-2 ring-offset-2 ring-sky-400'
++                      : 'border-slate-200 bg-white hover:border-slate-300 shadow-sm'
++                  }`}
++                >
++                  {isActive && (
++                    <div className={`absolute inset-0 bg-gradient-to-br ${b.from} ${b.to} opacity-95`} />
++                  )}
++                  <div className="relative">
++                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-2 ${
++                      isActive ? 'bg-white/20 backdrop-blur' : 'bg-slate-100'
+                     }`}>
+-                      <b.icon className={`group-hover:scale-110 transition ${business === b.id ? 'text-white' : 'text-sky-500'}`} size={28} />
++                      <b.icon size={20} className={isActive ? 'text-white' : 'text-slate-600'} />
+                     </div>
+-                    <div>
+-                      <p className="font-bold text-slate-900 text-lg">{b.label}</p>
+-                      <p className="text-sm text-slate-500 mt-1">{b.desc}</p>
++                    <p className={`font-black text-sm leading-tight ${isActive ? 'text-white' : 'text-slate-900'}`}>
++                      {b.label}
++                    </p>
++                    <p className={`text-[10px] mt-0.5 leading-tight ${isActive ? 'text-white/85' : 'text-slate-500'}`}>
++                      {b.desc}
++                    </p>
++                    <div className={`mt-2 flex items-center gap-1 text-[10px] font-bold ${
++                      isActive ? 'text-white/90' : 'text-slate-400'
++                    }`}>
++                      <Target size={10} /> ~{b.typicalItems} ekipman
+                     </div>
+-                  </button>
+-                ))}
++                  </div>
++                </motion.button>
++              );
++            })}
++          </div>
++        </section>
++
++        {/* ═══════ 2) ANA GRID: SOL = parametreler + metrikler · SAĞ = görsel önizleme ═══════ */}
++        <div className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-6">
++
++          {/* ───── SOL: Parametreler + Canlı Metrik Paneli ───── */}
++          <div className="space-y-4 min-w-0">
++
++            {/* Parametre sliders */}
++            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
++              <div className="flex items-center gap-2 mb-4">
++                <Calculator size={18} className="text-sky-500" />
++                <h3 className="font-black text-slate-900">2 · Kapasite & Finansal Parametreler</h3>
+               </div>
+-            </motion.div>
+-          )}
+-
+-          {/* Step 2 — Size */}
+-          {step === 2 && (
+-            <motion.div key="s2" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+-              className="bg-white rounded-3xl p-8 shadow-sm">
+-              <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+-                <Ruler className="text-sky-500" /> Alan ve Kapasite
+-              </h2>
+-              <div className="space-y-6">
+-                <div>
+-                  <div className="flex justify-between mb-2">
+-                    <label className="text-sm font-semibold text-slate-700">Mutfak Alanı</label>
+-                    <span className="text-sm font-bold text-sky-600">{size} m²</span>
++              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
++                <ParamSlider
++                  icon={Users}
++                  label="Günlük Misafir"
++                  value={guests}
++                  onChange={setGuests}
++                  min={10}
++                  max={profile.id === 'hotel' || profile.id === 'catering' ? 2000 : 800}
++                  suffix=" kişi"
++                  tone="sky"
++                />
++                <ParamSlider
++                  icon={Wallet}
++                  label="Ortalama Sepet"
++                  value={avgTicket}
++                  onChange={setAvgTicket}
++                  min={3}
++                  max={150}
++                  prefix="€"
++                  tone="amber"
++                />
++                <ParamSlider
++                  icon={Clock}
++                  label="Aylık Açık Gün"
++                  value={daysOpen}
++                  onChange={setDaysOpen}
++                  min={1}
++                  max={31}
++                  suffix=" gün"
++                  tone="violet"
++                />
++                <ParamSlider
++                  icon={TrendingUp}
++                  label="Toplam Yatırım"
++                  value={invest}
++                  onChange={setInvest}
++                  min={profile.minInvest}
++                  max={profile.maxInvest}
++                  step={1000}
++                  prefix="€"
++                  tone="emerald"
++                />
++              </div>
++
++              {/* Ekipman bütçesi (ayrı — AI'a giriyor) */}
++              <div className="mt-4 pt-4 border-t border-slate-100">
++                <div className="flex items-center justify-between mb-2">
++                  <div className="flex items-center gap-2">
++                    <ShoppingCart size={14} className="text-rose-500" />
++                    <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
++                      Ekipman Bütçesi (AI için)
++                    </label>
++                  </div>
++                  <div className="flex items-baseline gap-2">
++                    <span className="text-lg font-black text-slate-900">{fmtEur(budget)}</span>
++                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
++                      calc.budgetFit >= 0.85 && calc.budgetFit <= 1.2 ? 'bg-emerald-100 text-emerald-700' :
++                      calc.budgetFit < 0.6 ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
++                    }`}>
++                      {calc.budgetFit >= 0.85 && calc.budgetFit <= 1.2 ? 'İDEAL' :
++                       calc.budgetFit < 0.6 ? 'DÜŞÜK' : 'ÖNERİ ÜSTÜ'}
++                    </span>
+                   </div>
+-                  <input type="range" min={10} max={300} value={size}
+-                    onChange={(e) => setSize(+e.target.value)}
+-                    className="w-full accent-sky-500" />
+                 </div>
+-                <div>
+-                  <div className="flex justify-between mb-2">
+-                    <label className="text-sm font-semibold text-slate-700">Müşteri Kapasitesi</label>
+-                    <span className="text-sm font-bold text-sky-600">{seats} kişi</span>
++                <input
++                  type="range"
++                  min={5000}
++                  max={Math.max(profile.maxInvest, budget + 50000)}
++                  step={1000}
++                  value={budget}
++                  onChange={(e) => setBudget(+e.target.value)}
++                  className="w-full h-2 accent-rose-500"
++                />
++                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
++                  <span>€5K</span>
++                  <span className="text-emerald-600 font-bold">
++                    Önerilen: {fmtShort(calc.recommendedEqBudget)}
++                  </span>
++                  <span>{fmtShort(profile.maxInvest)}</span>
++                </div>
++              </div>
++            </div>
++
++            {/* ═══════ CANLI METRİK DASHBOARD ═══════ */}
++            <div className={`rounded-2xl p-5 shadow-lg text-white relative overflow-hidden bg-gradient-to-br ${profile.from} ${profile.to}`}>
++              <div className="absolute inset-0 opacity-10" style={{
++                backgroundImage: 'radial-gradient(circle at 10% 20%, white 0%, transparent 40%), radial-gradient(circle at 90% 80%, white 0%, transparent 40%)',
++              }} />
++              <div className="relative">
++                <div className="flex items-center justify-between mb-4">
++                  <div>
++                    <p className="text-[10px] uppercase tracking-widest opacity-80 font-bold">Canlı Finansal Projeksiyon</p>
++                    <h3 className="text-xl font-black">{profile.label} · {guests} misafir/gün</h3>
++                  </div>
++                  <AnimatePresence mode="wait">
++                    <motion.div
++                      key={feasibility}
++                      initial={{ scale: 0.8, opacity: 0 }}
++                      animate={{ scale: 1, opacity: 1 }}
++                      className="text-right"
++                    >
++                      <div className="text-[10px] uppercase tracking-wider opacity-70 font-bold">Fizibilite</div>
++                      <div className="text-2xl font-black">{feasibility}<span className="text-xs opacity-70">/100</span></div>
++                      <div className="text-[10px] font-bold">{feasibilityTone.label}</div>
++                    </motion.div>
++                  </AnimatePresence>
++                </div>
++
++                {/* 4 ana KPI */}
++                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
++                  <KpiTile icon={Ruler}     label="Alan"        value={`${calc.area} m²`} />
++                  <KpiTile icon={Flame}     label="Kurulu Güç"  value={`${(calc.power/1000).toFixed(1)} kW`} />
++                  <KpiTile icon={TrendingUp} label="Aylık Ciro"  value={fmtShort(calc.monthlyRevenue)} />
++                  <KpiTile icon={Clock}     label="Geri Dönüş"
++                    value={isFinite(calc.paybackMonths) ? `${calc.paybackMonths.toFixed(1)} ay` : '—'} />
++                </div>
++
++                {/* Kar/margin bar */}
++                <div className="mt-4 bg-white/10 rounded-lg p-3 backdrop-blur">
++                  <div className="flex justify-between items-baseline text-xs mb-1.5">
++                    <span className="opacity-80">Aylık Net Kâr</span>
++                    <span className="font-black text-lg">{fmtEur(calc.monthlyProfit)}</span>
++                  </div>
++                  <div className="relative h-2 bg-white/20 rounded-full overflow-hidden">
++                    <motion.div
++                      className="absolute inset-y-0 left-0 bg-white rounded-full"
++                      style={{ width: `${Math.max(0, Math.min(100, calc.margin * 100 * 3))}%` }}
++                      animate={{ width: `${Math.max(0, Math.min(100, calc.margin * 100 * 3))}%` }}
++                      transition={{ type: 'spring', stiffness: 120 }}
++                    />
++                  </div>
++                  <div className="flex justify-between text-[10px] opacity-70 mt-1">
++                    <span>Marj: <span className="font-bold">{(calc.margin * 100).toFixed(1)}%</span></span>
++                    <span>Yıllık: {fmtShort(calc.yearlyRevenue)}</span>
++                  </div>
++                </div>
++
++                {/* Maliyet dağılım barı */}
++                <div className="mt-3">
++                  <div className="flex text-[10px] font-bold uppercase tracking-wider opacity-80 mb-1 gap-4">
++                    <span>Maliyet Dağılımı</span>
++                  </div>
++                  <div className="flex h-6 rounded-md overflow-hidden ring-1 ring-white/20">
++                    <div className="bg-red-400/90 flex items-center justify-center text-[10px] font-bold"
++                      style={{ width: `${profile.foodCostPct * 100}%` }} title="Gıda">
++                      {Math.round(profile.foodCostPct * 100)}% Gıda
++                    </div>
++                    <div className="bg-amber-400/90 flex items-center justify-center text-[10px] font-bold text-slate-900"
++                      style={{ width: `${profile.laborCostPct * 100}%` }} title="İşçilik">
++                      {Math.round(profile.laborCostPct * 100)}% İşçilik
++                    </div>
++                    <div className="bg-sky-400/90 flex items-center justify-center text-[10px] font-bold text-slate-900"
++                      style={{ width: `${profile.overheadPct * 100}%` }} title="Gider">
++                      {Math.round(profile.overheadPct * 100)}% Gider
++                    </div>
++                    <div className="bg-emerald-400/90 flex items-center justify-center text-[10px] font-bold text-slate-900"
++                      style={{ width: `${Math.max(0, calc.margin * 100)}%` }} title="Kâr">
++                      {Math.max(0, Math.round(calc.margin * 100))}% Kâr
++                    </div>
+                   </div>
+-                  <input type="range" min={10} max={500} value={seats}
+-                    onChange={(e) => setSeats(+e.target.value)}
+-                    className="w-full accent-sky-500" />
+                 </div>
+               </div>
+-              <NavButtons onBack={() => setStep(1)} onNext={() => setStep(3)} />
+-            </motion.div>
+-          )}
+-
+-          {/* Step 3 — Budget */}
+-          {step === 3 && (
+-            <motion.div key="s3" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}
+-              className="bg-white rounded-3xl p-8 shadow-sm">
+-              <h2 className="text-xl font-bold text-slate-900 mb-6 flex items-center gap-2">
+-                <Wallet className="text-sky-500" /> Bütçe
+-              </h2>
+-              <div className="text-center py-6">
+-                <p className="text-5xl font-black text-slate-900">
+-                  {budget.toLocaleString('tr-TR')} <span className="text-sky-500">€</span>
+-                </p>
+-                <input type="range" min={5000} max={200000} step={1000} value={budget}
+-                  onChange={(e) => setBudget(+e.target.value)}
+-                  className="w-full mt-6 accent-sky-500" />
+-                <div className="flex justify-between text-xs text-slate-400 mt-1">
+-                  <span>5K €</span><span>200K €</span>
++            </div>
++
++            {/* ═══════ AI BUTONU & SONUÇLAR ═══════ */}
++            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
++              <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
++                <div className="flex items-center gap-2">
++                  <Bot size={18} className="text-purple-500" />
++                  <h3 className="font-black text-slate-900">3 · AI Ekipman Önerisi</h3>
++                </div>
++                <div className="flex gap-2">
++                  <button
++                    type="button"
++                    onClick={openInDrawing}
++                    className="h-10 px-4 rounded-xl border-2 border-slate-200 hover:border-sky-400 text-slate-700 font-bold text-sm flex items-center gap-2 transition"
++                  >
++                    <Pencil size={14} /> Manuel Çizime Geç
++                  </button>
++                  <button
++                    type="button"
++                    onClick={generatePlan}
++                    disabled={loading}
++                    className="h-10 px-5 rounded-xl bg-gradient-to-r from-sky-500 to-purple-500 text-white font-bold text-sm flex items-center gap-2 shadow-lg disabled:opacity-60 hover:shadow-xl transition"
++                  >
++                    {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
++                    {loading ? 'AI düşünüyor...' : 'Ekipman Listesi Üret'}
++                  </button>
+                 </div>
+               </div>
+-              <NavButtons onBack={() => setStep(2)}
+-                onNext={generatePlan}
+-                nextLabel={<><Sparkles size={16} /> AI ile Plan Oluştur</>}
+-                loading={loading} />
++
+               {loading && (
+-                <div className="mt-6 p-4 bg-gradient-to-br from-purple-50 to-sky-50 rounded-xl">
++                <div className="p-4 bg-gradient-to-br from-purple-50 to-sky-50 rounded-xl border border-purple-100">
+                   <div className="flex items-center gap-2 text-sm font-semibold text-purple-700 mb-2">
+-                    <Bot size={16} className="animate-pulse" /> AI düşünüyor...
++                    <Bot size={16} className="animate-pulse" /> AI ekipman listesi hazırlıyor...
+                   </div>
+-                  <pre className="text-xs text-slate-600 whitespace-pre-wrap max-h-32 overflow-y-auto font-mono">
+-                    {streamText || 'Ekipmanlar seçiliyor...'}
++                  <pre className="text-xs text-slate-600 whitespace-pre-wrap max-h-40 overflow-y-auto font-mono">
++                    {streamText || 'Sektör verisi analiz ediliyor...'}
+                   </pre>
+                 </div>
+               )}
+-              {error && <p className="mt-4 text-sm text-red-600 text-center">{error}</p>}
+-            </motion.div>
+-          )}
+-
+-          {/* Step 4 — Results */}
+-          {step === 4 && (
+-            <motion.div key="s4" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+-              <div className="bg-white rounded-3xl p-6 shadow-sm mb-4">
+-                <div className="flex items-center justify-between flex-wrap gap-3">
+-                  <div>
+-                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+-                      <Check className="text-emerald-500" /> Önerilen Ekipmanlar
+-                    </h2>
+-                    <p className="text-sm text-slate-500 mt-1">{recommendations.length} ürün · AI destekli</p>
+-                  </div>
+-                  <div className="text-right">
+-                    <p className="text-xs text-slate-500">Toplam Maliyet</p>
+-                    <p className="text-2xl font-black text-slate-900">{totalCost.toLocaleString('tr-TR')} €</p>
+-                    <p className={`text-xs font-semibold ${totalCost > budget ? 'text-red-500' : 'text-emerald-600'}`}>
+-                      Bütçe: {budget.toLocaleString('tr-TR')} € {totalCost > budget ? '(aşıldı)' : '(uygun)'}
+-                    </p>
+-                  </div>
++
++              {error && (
++                <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-sm text-rose-700 flex items-center gap-2">
++                  <Info size={14} /> {error}
+                 </div>
+-              </div>
++              )}
+ 
+-              <div className="space-y-3">
+-                {recommendations.map((rec, i) => (
+-                  <motion.div
+-                    key={i}
+-                    initial={{ opacity: 0, x: -10 }}
+-                    animate={{ opacity: 1, x: 0 }}
+-                    transition={{ delay: i * 0.05 }}
+-                    className="bg-white rounded-2xl p-4 shadow-sm flex items-center gap-4"
+-                  >
+-                    <div className="w-16 h-16 bg-slate-50 rounded-xl overflow-hidden flex-shrink-0 flex items-center justify-center">
+-                      {rec.matched_product?.image_thumb ? (
+-                        <img src={rec.matched_product.image_thumb} alt="" className="w-full h-full object-contain" />
+-                      ) : (
+-                        <ChefHat className="text-slate-300" size={28} />
+-                      )}
+-                    </div>
+-                    <div className="flex-1 min-w-0">
+-                      <p className="font-bold text-slate-900">{rec.name}</p>
+-                      <p className="text-xs text-slate-500">{rec.reason}</p>
+-                      {rec.matched_product && (
+-                        <span className="inline-flex items-center gap-1 mt-1 text-[10px] font-bold text-emerald-600">
+-                          <Zap size={10} /> Katalogda mevcut
++              {!loading && recommendations.length === 0 && !error && (
++                <div className="text-center py-8 text-slate-400">
++                  <Bot size={32} className="mx-auto mb-2 opacity-40" />
++                  <p className="text-sm">Parametreler hazır. AI sektörünüze özel ekipman listesi üretebilir.</p>
++                </div>
++              )}
++
++              {recommendations.length > 0 && (
++                <>
++                  <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
++                    <div>
++                      <p className="font-bold text-slate-900">{recommendations.length} ürün önerildi</p>
++                      <p className="text-xs text-slate-500">
++                        Toplam: <span className="font-bold">{fmtEur(totalCost)}</span>
++                        {' · '}
++                        <span className={totalCost > budget ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}>
++                          Bütçe {totalCost > budget ? 'aşıldı' : 'uygun'}
+                         </span>
+-                      )}
+-                    </div>
+-                    <div className="text-right">
+-                      <p className="text-xs text-slate-400">x{rec.quantity}</p>
+-                      <p className="font-bold text-slate-900">
+-                        {(rec.estimated_price * rec.quantity).toLocaleString('tr-TR')} €
+                       </p>
+                     </div>
+                     <button
+-                      onClick={() => setRecommendations((prev) => prev.filter((_, j) => j !== i))}
+-                      className="p-2 text-slate-400 hover:text-red-500"
++                      onClick={addAllToCart}
++                      disabled={!recommendations.some((r) => r.matched_product)}
++                      className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm flex items-center gap-2 shadow disabled:opacity-50 transition"
+                     >
+-                      <Trash2 size={16} />
++                      <ShoppingCart size={14} /> Sepete Ekle
+                     </button>
+-                  </motion.div>
+-                ))}
+-              </div>
+-
+-              <div className="mt-6 flex flex-col sm:flex-row gap-3">
+-                <button
+-                  onClick={() => { setStep(1); setRecommendations([]); }}
+-                  className="h-12 px-6 rounded-xl border border-slate-200 font-semibold text-slate-700 hover:bg-white"
+-                >
+-                  Yeniden Başla
+-                </button>
+-                <button
+-                  onClick={addAllToCart}
+-                  disabled={!recommendations.some((r) => r.matched_product)}
+-                  className="flex-1 h-12 rounded-xl bg-gradient-to-r from-sky-500 to-purple-500 text-white font-bold flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+-                >
+-                  <ShoppingCart size={18} /> Tümünü Sepete Ekle
+-                </button>
+-              </div>
+-            </motion.div>
+-          )}
+-            </AnimatePresence>
++                  </div>
++                  <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
++                    {recommendations.map((rec, i) => (
++                      <motion.div
++                        key={i}
++                        initial={{ opacity: 0, x: -8 }}
++                        animate={{ opacity: 1, x: 0 }}
++                        transition={{ delay: i * 0.03 }}
++                        className="bg-slate-50 rounded-lg p-3 flex items-center gap-3 hover:bg-slate-100 transition"
++                      >
++                        <div className="w-12 h-12 bg-white rounded-lg overflow-hidden flex-shrink-0 flex items-center justify-center ring-1 ring-slate-200">
++                          {rec.matched_product?.image_thumb ? (
++                            <img src={rec.matched_product.image_thumb} alt="" className="w-full h-full object-contain" />
++                          ) : (
++                            <ChefHat className="text-slate-300" size={20} />
++                          )}
++                        </div>
++                        <div className="flex-1 min-w-0">
++                          <div className="flex items-center gap-2">
++                            <p className="font-bold text-slate-900 text-sm truncate">{rec.name}</p>
++                            {rec.matched_product && (
++                              <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
++                                <Zap size={8} /> Katalogda
++                              </span>
++                            )}
++                          </div>
++                          <p className="text-[11px] text-slate-500 truncate">{rec.reason}</p>
++                        </div>
++                        <div className="text-right">
++                          <p className="text-[10px] text-slate-400">x{rec.quantity}</p>
++                          <p className="font-bold text-slate-900 text-sm">
++                            {fmtEur(rec.estimated_price * rec.quantity)}
++                          </p>
++                        </div>
++                        <button
++                          onClick={() => setRecommendations((prev) => prev.filter((_, j) => j !== i))}
++                          className="p-1.5 text-slate-400 hover:text-rose-500 rounded"
++                        >
++                          <Trash2 size={14} />
++                        </button>
++                      </motion.div>
++                    ))}
++                  </div>
++                </>
++              )}
++            </div>
+           </div>
+ 
+-          {/* Sağ sütun — Kapasite & ROI Hesaplayıcı (eski /tools/kitchen-calculator içeriği) */}
++          {/* ───── SAĞ: GÖRSEL ÖNİZLEME — Oda simülasyonu ───── */}
+           <aside className="lg:sticky lg:top-6 lg:self-start space-y-4">
+-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
+-              <div className="flex items-center gap-2 mb-4">
+-                <div className="w-9 h-9 rounded-xl bg-sky-100 text-sky-600 flex items-center justify-center">
+-                  <Calculator size={18} />
+-                </div>
++            {/* Mutfak alanı görsel */}
++            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
++              <div className="flex items-center justify-between mb-3">
+                 <div>
+-                  <h3 className="text-base font-black text-slate-900 leading-tight">Kapasite & ROI</h3>
+-                  <p className="text-[11px] text-slate-500">Alan · Güç · Geri dönüş</p>
++                  <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Görsel Önizleme</p>
++                  <h3 className="font-black text-slate-900">Mutfak Alanı</h3>
++                </div>
++                <div className="text-right">
++                  <p className="text-2xl font-black text-slate-900">{calc.area}<span className="text-sm text-slate-500 ml-1">m²</span></p>
++                  <p className="text-[10px] text-slate-500">{roomDim.wM}m × {roomDim.hM}m</p>
+                 </div>
+               </div>
+ 
+-              <div className="space-y-4">
+-                <div>
+-                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">İşletme Tipi</label>
+-                  <div className="grid grid-cols-2 gap-1.5">
+-                    {(Object.keys(SEGMENT_FACTORS) as CalcSegment[]).map((s) => (
+-                      <button
+-                        key={s}
+-                        type="button"
+-                        onClick={() => setCalcSegment(s)}
+-                        className={`px-2 py-1.5 rounded-lg text-[11px] font-semibold border transition ${
+-                          calcSegment === s
+-                            ? 'bg-sky-600 text-white border-sky-600'
+-                            : 'bg-white text-slate-700 border-slate-200 hover:border-sky-300'
+-                        }`}
+-                      >
+-                        {SEGMENT_FACTORS[s].label}
+-                      </button>
+-                    ))}
+-                  </div>
++              {/* SVG oda simülasyonu */}
++              <div className="relative aspect-[3/2] bg-slate-50 rounded-xl overflow-hidden border border-slate-200">
++                <svg viewBox="0 0 300 200" className="w-full h-full">
++                  <defs>
++                    <pattern id="pln-grid" x="0" y="0" width="20" height="20" patternUnits="userSpaceOnUse">
++                      <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#e2e8f0" strokeWidth="0.5" />
++                    </pattern>
++                  </defs>
++                  <rect width="300" height="200" fill="url(#pln-grid)" />
++                  {/* Oda dikdörtgen — ölçek ile çiz */}
++                  <motion.g
++                    animate={{ opacity: 1 }}
++                    transition={{ duration: 0.4 }}
++                  >
++                    {(() => {
++                      // Ölçek: max genişlik 240, max yükseklik 140
++                      const maxW = 240, maxH = 140;
++                      const scale = Math.min(maxW / roomDim.wM, maxH / roomDim.hM);
++                      const w = roomDim.wM * scale;
++                      const h = roomDim.hM * scale;
++                      const x = (300 - w) / 2;
++                      const y = (200 - h) / 2;
++                      return (
++                        <>
++                          {/* Dış duvar */}
++                          <rect x={x-3} y={y-3} width={w+6} height={h+6} fill="#f1f5f9" stroke="#475569" strokeWidth="1" />
++                          {/* İç oda */}
++                          <motion.rect
++                            initial={{ width: 0, height: 0 }}
++                            animate={{ width: w, height: h }}
++                            transition={{ type: 'spring', stiffness: 80, damping: 18 }}
++                            x={x} y={y}
++                            fill="#fff"
++                            stroke="#0ea5e9"
++                            strokeWidth="1.5"
++                            strokeDasharray="4 3"
++                          />
++                          {/* Ekipman izleri (stilize) */}
++                          {[...Array(Math.min(profile.typicalItems, 16))].map((_, i) => {
++                            const col = i % 4;
++                            const row = Math.floor(i / 4);
++                            const ew = Math.min(w / 5, 30);
++                            const eh = Math.min(h / 6, 18);
++                            const ex = x + 8 + col * (ew + 6);
++                            const ey = y + 8 + row * (eh + 6);
++                            if (ex + ew > x + w - 4 || ey + eh > y + h - 4) return null;
++                            return (
++                              <motion.rect
++                                key={i}
++                                initial={{ opacity: 0, scale: 0 }}
++                                animate={{ opacity: 0.9, scale: 1 }}
++                                transition={{ delay: 0.2 + i * 0.04, type: 'spring' }}
++                                x={ex} y={ey} width={ew} height={eh}
++                                rx="2"
++                                fill={i % 3 === 0 ? '#fde68a' : i % 3 === 1 ? '#bae6fd' : '#fecaca'}
++                                stroke="#475569"
++                                strokeWidth="0.6"
++                              />
++                            );
++                          })}
++                          {/* Ölçü etiketi */}
++                          <text x={x + w/2} y={y - 6} fontSize="8" fill="#475569" textAnchor="middle" fontFamily="monospace">
++                            {roomDim.wM}m
++                          </text>
++                          <text x={x - 6} y={y + h/2} fontSize="8" fill="#475569" textAnchor="middle"
++                            transform={`rotate(-90 ${x-6} ${y + h/2})`} fontFamily="monospace">
++                            {roomDim.hM}m
++                          </text>
++                        </>
++                      );
++                    })()}
++                  </motion.g>
++                </svg>
++                {/* Köşe etiketi */}
++                <div className="absolute top-2 left-2 bg-white/90 backdrop-blur rounded-md px-2 py-1 text-[10px] font-bold text-slate-700 shadow-sm">
++                  ÖLÇEK · TAHMİN
++                </div>
++                <div className="absolute bottom-2 right-2 bg-gradient-to-r from-sky-500 to-purple-500 text-white rounded-md px-2 py-1 text-[10px] font-black shadow-sm">
++                  ~{profile.typicalItems} EKİPMAN
+                 </div>
+-
+-                <CalcSlider label="Günlük Misafir"      value={calcGuests}    onChange={setCalcGuests}    min={10}    max={2000}    suffix="" />
+-                <CalcSlider label="Ortalama Sepet (€)"  value={calcAvgTicket} onChange={setCalcAvgTicket} min={5}     max={500}     suffix="€" />
+-                <CalcSlider label="Aylık Açık Gün"      value={calcDaysOpen}  onChange={setCalcDaysOpen}  min={1}     max={31}      suffix="" />
+-                <CalcSlider label="Toplam Yatırım (€)"  value={calcInvest}    onChange={setCalcInvest}    min={10000} max={5000000} step={5000} suffix="€" />
+               </div>
+-            </div>
+ 
+-            <div className="bg-gradient-to-br from-sky-600 to-blue-700 text-white rounded-2xl p-5 shadow-lg">
+-              <div className="flex items-center justify-between mb-4">
+-                <h3 className="text-sm font-bold opacity-90">Tahmini Sonuçlar</h3>
+-                <span className="text-[10px] font-mono uppercase tracking-wider opacity-70">LIVE</span>
+-              </div>
+-              <div className="space-y-2.5">
+-                <ResultRow label="Gerekli Alan"      value={`${calcResult.area} m²`} />
+-                <ResultRow label="Kurulu Güç"        value={`${calcResult.power.toLocaleString('tr-TR')} W`} />
+-                <ResultRow label="Aylık Ciro"        value={`€${calcResult.monthlyRevenue.toLocaleString('tr-TR')}`} />
+-                <ResultRow label="Aylık Net Kâr"     value={`€${Math.round(calcResult.monthlyProfit).toLocaleString('tr-TR')}`} />
+-                <ResultRow label="Geri Dönüş"
+-                  value={isFinite(calcResult.paybackMonths) ? `${calcResult.paybackMonths.toFixed(1)} ay` : 'N/A'} />
+-              </div>
+               <button
+                 type="button"
+-                onClick={() => navigate('/design')}
+-                className="mt-4 w-full py-2.5 bg-white/95 text-sky-700 rounded-xl font-bold text-sm hover:bg-white transition"
++                onClick={openInDrawing}
++                className="mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-800 transition"
+               >
+-                3D Tasarıma Başla →
++                <Pencil size={14} /> Manuel Çizime Aktar
++                <ChevronRight size={14} />
+               </button>
+             </div>
++
++            {/* Hızlı karşılaştırma / sektör notları */}
++            <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
++              <div className="flex items-center gap-2 mb-3">
++                <Info size={14} className="text-sky-500" />
++                <h4 className="font-black text-slate-900 text-sm">Sektör Karşılaştırma</h4>
++              </div>
++              <div className="space-y-2.5 text-xs">
++                <CompareRow label="Misafir başı alan"
++                  current={`${profile.areaPerGuest} m²`}
++                  benchmark={`Ort: ${(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.areaPerGuest, 0) / BUSINESS_LIST.length).toFixed(2)} m²`} />
++                <CompareRow label="Masa devri / gün"
++                  current={`${profile.turnover}x`}
++                  benchmark={`Ort: ${(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.turnover, 0) / BUSINESS_LIST.length).toFixed(1)}x`} />
++                <CompareRow label="Gıda maliyeti"
++                  current={`${Math.round(profile.foodCostPct * 100)}%`}
++                  benchmark={`Ort: ${Math.round(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.foodCostPct, 0) / BUSINESS_LIST.length * 100)}%`} />
++                <CompareRow label="Net marj hedefi"
++                  current={`${(calc.margin * 100).toFixed(1)}%`}
++                  benchmark="Hedef: 20%+" />
++                <CompareRow label="Geri dönüş süresi"
++                  current={isFinite(calc.paybackYears) ? `${calc.paybackYears.toFixed(1)} yıl` : '—'}
++                  benchmark="İdeal: 2-3 yıl" />
++              </div>
++            </div>
++
++            {/* Fizibilite özet kartı */}
++            <div className={`rounded-2xl p-5 shadow-lg relative overflow-hidden ring-2 ${feasibilityTone.ring}`}>
++              <div className={`absolute inset-0 bg-gradient-to-br ${feasibilityTone.bgFrom} to-white`} />
++              <div className="relative">
++                <div className="flex items-center justify-between mb-2">
++                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Fizibilite Skoru</span>
++                  <span className={`text-xs font-black px-2 py-0.5 rounded-full ${feasibilityTone.chipBg} ${feasibilityTone.chipText}`}>
++                    {feasibilityTone.label}
++                  </span>
++                </div>
++                <div className="flex items-end gap-2 mb-3">
++                  <div className="text-5xl font-black text-slate-900">{feasibility}</div>
++                  <div className="text-slate-500 text-sm mb-1.5">/ 100</div>
++                </div>
++                <div className="h-2 bg-white rounded-full overflow-hidden ring-1 ring-slate-200">
++                  <motion.div
++                    className={`h-full ${feasibilityTone.bar}`}
++                    animate={{ width: `${feasibility}%` }}
++                    transition={{ type: 'spring', stiffness: 100 }}
++                  />
++                </div>
++                <p className="text-[11px] text-slate-600 mt-2 leading-relaxed">
++                  {feasibility >= 75 && 'Parametreler sağlıklı. Yatırım ve kapasite dengede.'}
++                  {feasibility >= 50 && feasibility < 75 && 'Planınız uygun. Marj veya geri dönüş hafifçe iyileştirilebilir.'}
++                  {feasibility >= 30 && feasibility < 50 && 'Dikkat: Bütçe-ciro dengesini veya sepet fiyatını gözden geçirin.'}
++                  {feasibility < 30 && 'Risk yüksek. Misafir kapasitesini artırın veya yatırımı düşürün.'}
++                </p>
++              </div>
++            </div>
+           </aside>
+         </div>
+       </div>
+@@ -414,23 +828,39 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
+   );
+ }
+ 
+-function CalcSlider({
+-  label, value, onChange, min, max, step = 1, suffix,
++// ═══════════════════════════════════════════════════════════
++// ALT BİLEŞENLER
++// ═══════════════════════════════════════════════════════════
++
++function ParamSlider({
++  icon: Icon, label, value, onChange, min, max, step = 1, prefix = '', suffix = '', tone = 'sky',
+ }: {
++  icon: any;
+   label: string;
+   value: number;
+   onChange: (v: number) => void;
+   min: number;
+   max: number;
+   step?: number;
++  prefix?: string;
+   suffix?: string;
++  tone?: 'sky' | 'amber' | 'violet' | 'emerald';
+ }) {
++  const toneMap: Record<string, string> = {
++    sky: 'accent-sky-500 text-sky-600',
++    amber: 'accent-amber-500 text-amber-600',
++    violet: 'accent-violet-500 text-violet-600',
++    emerald: 'accent-emerald-500 text-emerald-600',
++  };
+   return (
+     <div>
+-      <div className="flex justify-between mb-1.5">
+-        <span className="text-[11px] font-semibold text-slate-600">{label}</span>
+-        <span className="text-[11px] font-bold text-sky-600">
+-          {suffix === '€' ? `€${value.toLocaleString('tr-TR')}` : `${value.toLocaleString('tr-TR')}${suffix}`}
++      <div className="flex items-center justify-between mb-1.5">
++        <div className="flex items-center gap-1.5">
++          <Icon size={13} className={toneMap[tone].split(' ')[1]} />
++          <label className="text-[11px] font-bold uppercase tracking-wider text-slate-600">{label}</label>
++        </div>
++        <span className={`text-sm font-black ${toneMap[tone].split(' ')[1]}`}>
++          {prefix}{value.toLocaleString('tr-TR')}{suffix}
+         </span>
+       </div>
+       <input
+@@ -439,35 +869,37 @@ function CalcSlider({
+         max={max}
+         step={step}
+         value={value}
+-        onChange={(e) => onChange(Number(e.target.value))}
+-        className="w-full h-1.5 accent-sky-600"
++        onChange={(e) => onChange(+e.target.value)}
++        className={`w-full h-1.5 ${toneMap[tone].split(' ')[0]}`}
+       />
++      <div className="flex justify-between text-[9px] text-slate-400 mt-0.5 font-mono">
++        <span>{prefix}{min.toLocaleString('tr-TR')}{suffix}</span>
++        <span>{prefix}{max.toLocaleString('tr-TR')}{suffix}</span>
++      </div>
+     </div>
+   );
+ }
+ 
+-function ResultRow({ label, value }: { label: string; value: string }) {
++function KpiTile({ icon: Icon, label, value }: { icon: any; label: string; value: string }) {
+   return (
+-    <div className="flex justify-between items-baseline border-b border-white/10 pb-1.5 last:border-0 last:pb-0">
+-      <span className="text-[11px] opacity-80">{label}</span>
+-      <span className="text-sm font-black">{value}</span>
++    <div className="bg-white/15 rounded-lg p-2.5 backdrop-blur border border-white/20">
++      <div className="flex items-center gap-1 opacity-80 mb-0.5">
++        <Icon size={11} />
++        <span className="text-[9px] font-bold uppercase tracking-wider">{label}</span>
++      </div>
++      <div className="text-lg font-black leading-tight">{value}</div>
+     </div>
+   );
+ }
+ 
+-function NavButtons({
+-  onBack, onNext, nextLabel, loading,
+-}: { onBack: () => void; onNext: () => void; nextLabel?: React.ReactNode; loading?: boolean }) {
++function CompareRow({ label, current, benchmark }: { label: string; current: string; benchmark: string }) {
+   return (
+-    <div className="flex justify-between mt-8">
+-      <button onClick={onBack}
+-        className="h-11 px-5 rounded-xl border border-slate-200 font-semibold text-slate-600 flex items-center gap-1 hover:bg-slate-50">
+-        <ChevronLeft size={16} /> Geri
+-      </button>
+-      <button onClick={onNext} disabled={loading}
+-        className="h-11 px-6 rounded-xl bg-sky-500 text-white font-bold flex items-center gap-2 disabled:opacity-60 hover:bg-sky-600">
+-        {loading ? <Loader2 size={16} className="animate-spin" /> : (nextLabel || <>Devam <ChevronRight size={16} /></>)}
+-      </button>
++    <div className="flex items-center justify-between">
++      <span className="text-slate-600">{label}</span>
++      <div className="flex items-center gap-2">
++        <span className="font-black text-slate-900">{current}</span>
++        <span className="text-[10px] text-slate-400">{benchmark}</span>
++      </div>
+     </div>
+   );
+ }
+-- 
+2.34.1
+

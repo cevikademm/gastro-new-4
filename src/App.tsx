@@ -38,6 +38,7 @@ const BrandPage = lazy(() => import('./pages/brand/BrandPage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const BlogAdminPage = lazy(() => import('./pages/admin/BlogAdminPage'));
+const WelcomeOrderPage = lazy(() => import('./pages/admin/WelcomeOrderPage'));
 const BlogListPage = lazy(() => import('./pages/blog/BlogListPage'));
 const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'));
 const KitchenCalculatorPage = lazy(() => import('./pages/tools/KitchenCalculatorPage'));
@@ -49,6 +50,8 @@ const BrandSeoPage = lazy(() => import('./pages/pseo/BrandPage'));
 const CompareIndexPage = lazy(() => import('./pages/compare/CompareIndexPage'));
 const CompareDetailPage = lazy(() => import('./pages/compare/CompareDetailPage'));
 const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
+const LandingPage = lazy(() => import('./pages/landing/LandingPage'));
+const FloorPlan3DPage = lazy(() => import('./pages/design/FloorPlan3DPage'));
 
 function RouteFallback() {
   return (
@@ -71,6 +74,7 @@ export default function App() {
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           {/* Welcome & Auth routes */}
+          <Route path="/landing" element={<LandingPage />} />
           <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -82,6 +86,7 @@ export default function App() {
             <Route index element={<Navigate to="/welcome" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="design" element={<DesignStudio />} />
+            <Route path="design/3d" element={<FloorPlan3DPage />} />
             <Route path="manual" element={<DesignStudio manualMode />} />
             <Route path="bom" element={<BOM />} />
             <Route path="bom/:id" element={<BOM />} />
@@ -99,6 +104,7 @@ export default function App() {
             <Route path="projects/:id" element={<ProjectDetailPage />} />
             <Route path="projects/:projectId/products/add" element={<AddProductPage />} />
             <Route path="projects/:id/design" element={<DesignStudio />} />
+            <Route path="projects/:id/design/3d" element={<FloorPlan3DPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="support" element={<SupportPage />} />
             <Route path="docs" element={<DocsPage />} />
@@ -127,6 +133,7 @@ export default function App() {
             <Route path="admin/orders" element={<AdminGuard><AdminOrdersPage /></AdminGuard>} />
             <Route path="admin/users"  element={<AdminGuard><AdminUsersPage /></AdminGuard>} />
             <Route path="admin/blog"   element={<AdminGuard><BlogAdminPage /></AdminGuard>} />
+            <Route path="admin/welcome-order" element={<AdminGuard><WelcomeOrderPage /></AdminGuard>} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

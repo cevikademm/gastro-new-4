@@ -318,6 +318,7 @@
       "foodTruck": "Food Truck"
     },
     "themedWorlds": {
+      "title": "İşletmenize Özel Çözümler",
       "subtitle": "14 iş kolu · her konsept için eksiksiz ekipman seti"
     },
     "trust": {
@@ -729,5 +730,60 @@
   },
   "sketch": {
     "newSketch": "Yeni Eskiz"
+  },
+  "landing": {
+    "nav": {
+      "login": "Giriş Yap",
+      "register": "Kayıt Ol"
+    },
+    "hero": {
+      "eyebrow": "Avrupa'nın Gastro Ekipman Platformu",
+      "headline": {
+        "static": "Profesyonel mutfaklar için",
+        "words": {
+          "0": "akıllı çözümler.",
+          "1": "5.265+ ürün.",
+          "2": "hızlı teslimat."
+        }
+      },
+      "sub": "15 markanın tüm kataloğunu tek platformda keşfet. BOM oluştur, mutfak planla, teklif al.",
+      "cta": {
+        "primary": "Projenize Başlayın",
+        "secondary": "Demo İzle"
+      },
+      "trust": {
+        "products": "5.265+ Ürün",
+        "brands": "15 Marka",
+        "countries": "15 Ülke",
+        "delivery": "24-48s Teslimat"
+      }
+    },
+    "stats": {
+      "eyebrow": "Rakamlarla 2mc-gastro",
+      "products": { "label": "Ürün" },
+      "brands": { "label": "Marka" },
+      "countries": { "label": "Aktif Ülke" },
+      "delivery": { "label": "Teslimat Saati" }
+    },
+    "categories": {
+      "eyebrow": "Ekipman Kategorileri",
+      "heading": "Her mutfak ihtiyacı,",
+      "accent": "tek çatı altında.",
+      "cooling": "Soğutma",
+      "cooking": "Pişirme",
+      "prep": "Hazırlık",
+      "pizza": "Pizza",
+      "selfservice": "Self Servis",
+      "dynamic": "Dinamik",
+      "icecream": "Dondurma",
+      "coffee": "Kahve"
+    },
+    "finalcta": {
+      "heading": "Projenize bugün başlayın",
+      "accent": "hızlı ve ücretsiz.",
+      "sub": "Kayıt ücretsiz · Kredi kartı gerekmez",
+      "register": "Ücretsiz Kayıt",
+      "quote": "Teklif Al"
+    }
   }
 }
