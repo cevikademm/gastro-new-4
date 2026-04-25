@@ -9,11 +9,11 @@ import { persist } from 'zustand/middleware';
 export const SORTABLE_SECTION_IDS = [
   'hero',
   'themenwelten',
+  'showcase-3d',
   'bestsellers',
+  'catalog-banner',
   'services',
   'why-2mc',
-  'showcase-3d',
-  'catalog-banner',
   'logistics',
   'references',
   'value-prop',
