@@ -7,19 +7,19 @@ import { persist } from 'zustand/middleware';
  * Yeni bir bölüm eklersen burayı + WelcomePage.tsx içindeki <SectionSlot id="..."> sarmalayıcısını güncelle.
  */
 export const SORTABLE_SECTION_IDS = [
+  'hero',
   'themenwelten',
+  'bestsellers',
   'services',
   'why-2mc',
-  'references',
-  'logistics',
   'showcase-3d',
   'catalog-banner',
+  'logistics',
+  'references',
   'value-prop',
   'support-reviews',
   'blog-newsletter',
   'payment',
-  'hero',
-  'bestsellers',
 ] as const;
 
 export type WelcomeSectionId = typeof SORTABLE_SECTION_IDS[number];
