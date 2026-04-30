@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import productsData from '../../data/products.json';
 import { useNavigate } from 'react-router-dom';
@@ -300,6 +301,165 @@ export default function WelcomePage() {
     },
   ];
 
+  const [twIdx, setTwIdx] = useState(0);
+  const [twVisible, setTwVisible] = useState(4);
+  const [twAnimate, setTwAnimate] = useState(true);
+  const twContainerRef = useRef<HTMLDivElement | null>(null);
+  const twDragRef = useRef({ startX: 0, dx: 0, armed: false, dragging: false, pointerId: 0 });
+  const [twDx, setTwDx] = useState(0);
+  const [twOffsetPx, setTwOffsetPx] = useState(0);
+  const [twDragging, setTwDragging] = useState(false);
+  useEffect(() => {
+    const calc = () => {
+      if (typeof window === 'undefined') return;
+      if (window.matchMedia('(min-width: 1024px)').matches) setTwVisible(4);
+      else if (window.matchMedia('(min-width: 640px)').matches) setTwVisible(2);
+      else setTwVisible(1);
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, []);
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (twDragRef.current.dragging) return;
+      setTwAnimate(true);
+      setTwIdx((i) => i + 1);
+    }, 3000);
+    return () => clearInterval(id);
+  }, []);
+  useEffect(() => {
+    if (twIdx === THEMENWELTEN.length) {
+      const t = setTimeout(() => {
+        setTwAnimate(false);
+        setTwIdx(0);
+      }, 700);
+      return () => clearTimeout(t);
+    }
+  }, [twIdx, THEMENWELTEN.length]);
+  useEffect(() => {
+    if (!twAnimate) {
+      const t = setTimeout(() => setTwAnimate(true), 50);
+      return () => clearTimeout(t);
+    }
+  }, [twAnimate]);
+
+  const [bsIdx, setBsIdx] = useState(0);
+  const [bsVisible, setBsVisible] = useState(5);
+  const [bsAnimate, setBsAnimate] = useState(true);
+  const bsContainerRef = useRef<HTMLDivElement | null>(null);
+  const bsDragRef = useRef({ startX: 0, dx: 0, armed: false, dragging: false, pointerId: 0 });
+  const [bsDx, setBsDx] = useState(0);
+  const [bsOffsetPx, setBsOffsetPx] = useState(0);
+  const [bsDragging, setBsDragging] = useState(false);
+  useEffect(() => {
+    const calc = () => {
+      if (typeof window === 'undefined') return;
+      if (window.matchMedia('(min-width: 768px)').matches) setBsVisible(5);
+      else setBsVisible(2);
+    };
+    calc();
+    window.addEventListener('resize', calc);
+    return () => window.removeEventListener('resize', calc);
+  }, []);
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (bsDragRef.current.dragging) return;
+      setBsAnimate(true);
+      setBsIdx((i) => i + 1);
+    }, 3000);
+    return () => clearInterval(id);
+  }, []);
+  useEffect(() => {
+    if (bsIdx === bestsellers.length) {
+      const t = setTimeout(() => {
+        setBsAnimate(false);
+        setBsIdx(0);
+      }, 700);
+      return () => clearTimeout(t);
+    }
+  }, [bsIdx, bestsellers.length]);
+  useEffect(() => {
+    if (!bsAnimate) {
+      const t = setTimeout(() => setBsAnimate(true), 50);
+      return () => clearTimeout(t);
+    }
+  }, [bsAnimate]);
+
+  const makeDragHandlers = (
+    containerRef: React.RefObject<HTMLDivElement | null>,
+    dragRef: React.MutableRefObject<{ startX: number; dx: number; armed: boolean; dragging: boolean; pointerId: number }>,
+    setDx: (v: number) => void,
+    setDragging: (v: boolean) => void,
+    setIdx: (fn: (i: number) => number) => void,
+    setAnim: (v: boolean) => void,
+    setOffset: (fn: (o: number) => number) => void,
+    visible: number,
+    total: number,
+    wasDraggedRef: React.MutableRefObject<boolean>,
+  ) => ({
+    onClickCapture: (e: React.MouseEvent<HTMLDivElement>) => {
+      if (wasDraggedRef.current) {
+        e.preventDefault();
+        e.stopPropagation();
+        wasDraggedRef.current = false;
+      }
+    },
+    onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      dragRef.current = { startX: e.clientX, dx: 0, armed: true, dragging: false, pointerId: e.pointerId };
+    },
+    onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
+      if (!dragRef.current.armed) return;
+      const dx = e.clientX - dragRef.current.startX;
+      if (!dragRef.current.dragging) {
+        if (Math.abs(dx) <= 5) return;
+        dragRef.current.dragging = true;
+        setDragging(true);
+        setAnim(false);
+        try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch {}
+      }
+      dragRef.current.dx = dx;
+      setDx(dx);
+    },
+    onPointerUp: (e: React.PointerEvent<HTMLDivElement>) => {
+      const wasDragging = dragRef.current.dragging;
+      const dx = dragRef.current.dx;
+      dragRef.current = { startX: 0, dx: 0, armed: false, dragging: false, pointerId: 0 };
+      if (!wasDragging) return;
+      const w = containerRef.current?.clientWidth ?? 1;
+      const cardW = w / visible;
+      wasDraggedRef.current = Math.abs(dx) > 5;
+      setDragging(false);
+      setDx(0);
+      setOffset((prev) => {
+        let off = prev + dx;
+        let shift = 0;
+        while (off <= -cardW) { shift += 1; off += cardW; }
+        while (off >= cardW) { shift -= 1; off -= cardW; }
+        if (shift !== 0) {
+          setIdx((i) => {
+            const raw = i + shift;
+            const wrapped = ((raw % total) + total) % total;
+            if (raw !== wrapped) {
+              setAnim(false);
+              setTimeout(() => setAnim(true), 50);
+            }
+            return wrapped;
+          });
+        }
+        return off;
+      });
+      setAnim(true);
+      try { (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId); } catch {}
+    },
+  });
+
+  const twWasDraggedRef = useRef(false);
+  const bsWasDraggedRef = useRef(false);
+  const twDrag = makeDragHandlers(twContainerRef, twDragRef, setTwDx, setTwDragging, setTwIdx, setTwAnimate, setTwOffsetPx, twVisible, THEMENWELTEN.length, twWasDraggedRef);
+  const bsDrag = makeDragHandlers(bsContainerRef, bsDragRef, setBsDx, setBsDragging, setBsIdx, setBsAnimate, setBsOffsetPx, bsVisible, bestsellers.length, bsWasDraggedRef);
+
   return (
     <div className="welcome-2mc welcome-claude min-h-screen overflow-hidden relative">
       <WelcomeScrollFX />
@@ -582,53 +742,73 @@ export default function WelcomePage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-5">
-              {THEMENWELTEN.map((w, i) => (
-                <motion.button
-                  key={w.key}
+            <div
+              ref={twContainerRef}
+              className="overflow-hidden touch-pan-y select-none"
+              style={{ cursor: twDragging ? 'grabbing' : 'grab' }}
+              {...twDrag}
+            >
+              <div
+                className="flex"
+                style={{
+                  transform: `translateX(calc(-${(twIdx * 100) / (THEMENWELTEN.length * 2)}% + ${twOffsetPx + twDx}px))`,
+                  transition: twAnimate ? 'transform 700ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
+                  width: `${THEMENWELTEN.length * 2 * (100 / twVisible)}%`,
+                }}
+              >
+              {[...THEMENWELTEN, ...THEMENWELTEN].map((w, i) => (
+                <button
+                  key={`${w.key}-${i}`}
                   type="button"
                   onClick={() => navigate(`/diamond?q=${encodeURIComponent(w.q)}`)}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                  className="group relative aspect-[3/4] rounded-3xl overflow-hidden text-left border hover:-translate-y-1 transition-all"
-                  style={{ borderColor: '#e8e6df', boxShadow: '0 12px 30px -12px rgba(15,36,64,0.14)' }}
+                  className="group text-left shrink-0"
+                  style={{
+                    flex: `0 0 ${100 / (THEMENWELTEN.length * 2)}%`,
+                    padding: '0 10px',
+                    background: 'transparent',
+                    border: 'none',
+                  }}
                 >
-                  <img
-                    src={w.img}
-                    alt={w.title}
-                    loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                  />
                   <div
-                    aria-hidden
-                    className="absolute inset-0"
-                    style={{
-                      background:
-                        'linear-gradient(180deg, rgba(15,36,64,0.05) 0%, rgba(15,36,64,0.35) 55%, rgba(15,36,64,0.88) 100%)',
-                    }}
-                  />
-                  <span
-                    className="absolute top-4 left-4 text-[9px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full"
-                    style={{ background: w.accent, color: '#fff' }}
+                    className="relative aspect-[3/4] rounded-3xl overflow-hidden border hover:-translate-y-1 transition-all"
+                    style={{ borderColor: '#e8e6df', boxShadow: '0 12px 30px -12px rgba(15,36,64,0.14)' }}
                   >
-                    {w.tag}
-                  </span>
-                  <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                    <img
+                      src={w.img}
+                      alt={w.title}
+                      loading="lazy"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                    />
                     <div
-                      className="text-xl font-black leading-tight"
-                      style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.02em' }}
+                      aria-hidden
+                      className="absolute inset-0"
+                      style={{
+                        background:
+                          'linear-gradient(180deg, rgba(15,36,64,0.05) 0%, rgba(15,36,64,0.35) 55%, rgba(15,36,64,0.88) 100%)',
+                      }}
+                    />
+                    <span
+                      className="absolute top-4 left-4 text-[9px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full"
+                      style={{ background: w.accent, color: '#fff' }}
                     >
-                      {w.title}
-                    </div>
-                    <div className="text-[12px] opacity-85 mt-1">{w.sub}</div>
-                    <div className="inline-flex items-center gap-1.5 mt-3 text-[11px] font-bold uppercase tracking-wider group-hover:gap-2.5 transition-all">
-                      {t('welcome.tw.explore', 'İncele')} <ArrowRight size={13} />
+                      {w.tag}
+                    </span>
+                    <div className="absolute bottom-0 left-0 right-0 p-5 text-white">
+                      <div
+                        className="text-xl font-black leading-tight"
+                        style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.02em' }}
+                      >
+                        {w.title}
+                      </div>
+                      <div className="text-[12px] opacity-85 mt-1">{w.sub}</div>
+                      <div className="inline-flex items-center gap-1.5 mt-3 text-[11px] font-bold uppercase tracking-wider group-hover:gap-2.5 transition-all">
+                        {t('welcome.tw.explore', 'İncele')} <ArrowRight size={13} />
+                      </div>
                     </div>
                   </div>
-                </motion.button>
+                </button>
               ))}
+              </div>
             </div>
           </div>
         </section>
@@ -1641,16 +1821,29 @@ export default function WelcomePage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 lg:gap-5">
-              <AnimatePresence mode="popLayout" initial={false}>
-              {bestsellers.map((p) => (
-                <motion.div
-                  key={p.id}
-                  layout
-                  initial={{ opacity: 0, y: 14, scale: 0.96 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.96 }}
-                  transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+            <div
+              ref={bsContainerRef}
+              className="overflow-hidden touch-pan-y select-none"
+              style={{ cursor: bsDragging ? 'grabbing' : 'grab' }}
+              {...bsDrag}
+            >
+              <div
+                className="flex"
+                style={{
+                  transform: `translateX(calc(-${(bsIdx * 100) / (bestsellers.length * 2)}% + ${bsOffsetPx + bsDx}px))`,
+                  transition: bsAnimate ? 'transform 700ms cubic-bezier(0.22, 1, 0.36, 1)' : 'none',
+                  width: `${bestsellers.length * 2 * (100 / bsVisible)}%`,
+                }}
+              >
+              {[...bestsellers, ...bestsellers].map((p, bsI) => (
+                <div
+                  key={`${p.id}-${bsI}`}
+                  style={{
+                    flex: `0 0 ${100 / (bestsellers.length * 2)}%`,
+                    padding: '0 10px',
+                  }}
+                >
+                <div
                   onClick={() => navigate(`/diamond?q=${encodeURIComponent(p.id)}`)}
                   role="button"
                   tabIndex={0}
@@ -1750,9 +1943,10 @@ export default function WelcomePage() {
                       </button>
                     </div>
                   </div>
-                </motion.div>
+                </div>
+                </div>
               ))}
-              </AnimatePresence>
+              </div>
             </div>
           </div>
         </section>

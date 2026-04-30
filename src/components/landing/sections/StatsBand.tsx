@@ -14,21 +14,41 @@ export function StatsBand() {
   const { t } = useTranslation();
 
   return (
-    <section className="bg-[var(--c-navy-deep)] py-20 md:py-24">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="bg-[var(--c-navy-deep)] py-20 md:py-24 relative overflow-hidden">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 opacity-40"
+        style={{
+          background:
+            'radial-gradient(ellipse at 20% 0%, rgba(232,93,38,0.18), transparent 55%), radial-gradient(ellipse at 90% 100%, rgba(45,90,142,0.35), transparent 50%)',
+        }}
+      />
+      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <p className="text-center text-[11px] font-medium uppercase tracking-[0.22em] text-white/60 mb-10">
+          {t('landing.stats.eyebrow')}
+        </p>
         <div className="grid grid-cols-2 lg:grid-cols-4">
           {STATS.map(({ to, suffix, labelKey, icon: Icon }, index) => (
             <Reveal key={labelKey} delay={index * 0.1}>
-              <div className="flex flex-col items-center text-center gap-3 py-8 px-4 border-r border-[var(--c-navy-light)] even:border-r-0 lg:even:border-r lg:last:border-r-0">
-                <Icon size={24} strokeWidth={1.5} style={{ color: 'var(--c-clay-soft)' }} />
+              <div className="group/stat relative flex flex-col items-center text-center gap-3 py-8 px-4 border-r border-[var(--c-navy-light)] even:border-r-0 lg:even:border-r lg:last:border-r-0 transition-transform duration-300 hover:-translate-y-1">
+                <Icon
+                  size={24}
+                  strokeWidth={1.5}
+                  style={{ color: 'var(--c-clay-soft)' }}
+                  className="transition-transform duration-300 group-hover/stat:scale-110"
+                />
                 <CountUp
                   to={to}
                   suffix={suffix}
-                  className="c-serif text-[3.5rem] sm:text-[4rem] font-semibold text-white leading-none"
+                  className="c-serif text-[3.5rem] sm:text-[4rem] font-semibold text-white leading-none tracking-[-0.02em] tabular-nums"
                 />
-                <span className="text-[11px] font-medium uppercase tracking-[0.14em] text-white/50">
+                <span className="text-[11px] font-medium uppercase tracking-[0.16em] text-white/70 transition-colors duration-300 group-hover/stat:text-white">
                   {t(labelKey)}
                 </span>
+                <span
+                  aria-hidden="true"
+                  className="block h-[2px] w-0 bg-[var(--c-clay)] transition-all duration-500 group-hover/stat:w-10"
+                />
               </div>
             </Reveal>
           ))}

@@ -21,14 +21,14 @@ export function FinalCTASection() {
 
       <div className="max-w-3xl mx-auto text-center px-4 relative z-10">
         <Reveal delay={0}>
-          <h2 className="c-serif text-[2.6rem] md:text-[3.6rem] leading-[1.02] text-white font-medium">
+          <h2 className="c-serif text-[2.6rem] md:text-[3.6rem] leading-[1.02] tracking-[-0.025em] text-white font-medium">
             {t('landing.finalcta.heading')}{' '}
-            <em className="text-white/70 italic">{t('landing.finalcta.accent')}</em>
+            <em className="text-white/85 italic">{t('landing.finalcta.accent')}</em>
           </h2>
         </Reveal>
 
         <Reveal delay={0.1}>
-          <p className="text-white/80 text-base mt-4">
+          <p className="text-white/90 text-[15px] md:text-base mt-5">
             {t('landing.finalcta.sub')}
           </p>
         </Reveal>
@@ -37,16 +37,20 @@ export function FinalCTASection() {
           <div className="flex flex-col sm:flex-row gap-4 mt-10 justify-center">
             <Link
               to="/register"
-              className="inline-flex items-center justify-center gap-2 bg-white text-[color:var(--c-clay)] hover:bg-white/90 shadow-lg rounded-full text-[15px] px-8 py-4 font-medium transition-all"
+              className="group/fcta relative overflow-hidden inline-flex items-center justify-center gap-2 bg-white text-[color:var(--c-clay)] hover:bg-white shadow-lg hover:shadow-2xl hover:-translate-y-0.5 rounded-full text-[15px] px-8 py-4 font-medium transition-all duration-300"
             >
-              {t('landing.finalcta.register')}
-              <ArrowRight size={16} />
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-[color:var(--c-clay)]/10 to-transparent transition-transform duration-700 ease-out group-hover/fcta:translate-x-full"
+              />
+              <span className="relative">{t('landing.finalcta.register')}</span>
+              <ArrowRight size={16} className="relative transition-transform duration-300 group-hover/fcta:translate-x-1" />
             </Link>
             <Link
               to="/rfq"
-              className="inline-flex items-center justify-center gap-2 border border-white/50 text-white hover:bg-white/10 rounded-full text-[15px] px-8 py-4 font-medium transition-all"
+              className="group/sec inline-flex items-center justify-center gap-2 border border-white/70 text-white hover:bg-white/10 hover:border-white hover:-translate-y-0.5 rounded-full text-[15px] px-8 py-4 font-medium transition-all duration-300"
             >
-              <MessageSquare size={16} />
+              <MessageSquare size={16} className="transition-transform duration-300 group-hover/sec:scale-110" />
               {t('landing.finalcta.quote')}
             </Link>
           </div>

@@ -43,7 +43,7 @@ const DEFAULT_SLIDES: BannerSlide[] = [
     title: 'Paslanmaz Çelik Ekipman Hatları',
     subtitle: 'AISI 304 — endüstriyel dayanıklılık, HACCP uyumlu yüzeyler',
     gradient: LIGHT_EQUIPMENT,
-    image: UNSPLASH('1514516345957-556ca7d90a29'),
+    image: UNSPLASH('1547592180-85f173990554'),
     enabled: true,
   },
   {
@@ -70,7 +70,16 @@ const DEFAULT_SLIDES: BannerSlide[] = [
     title: 'Soğuk Zincir & Depolama',
     subtitle: 'Blast chiller · walk-in · buzdolabı — gıda güvenliği garantisi',
     gradient: LIGHT_SUPPORT,
-    image: UNSPLASH('1565299624946-b28f40a0ae38'),
+    image: UNSPLASH('1414235077428-338989a2e8c0'),
+    enabled: true,
+  },
+  {
+    id: 'pizza_bakery',
+    eyebrow: '05 / PIZZA & BAKERY',
+    title: 'Pizza Fırınları & Pastane',
+    subtitle: 'Taş tabanlı fırınlar · rotasyon · konveyör — yüksek hacim için',
+    gradient: LIGHT_DESIGN,
+    image: UNSPLASH('1513104890138-7c749659a591'),
     enabled: true,
   },
 ];
@@ -111,7 +120,7 @@ export const useBannerStore = create<BannerState>()(
     }),
     {
       name: '2mc-banner-slides',
-      version: 6,
+      version: 11,
       migrate: (_persisted, _ver) => ({ slides: DEFAULT_SLIDES, intervalMs: 10000 } as any),
     }
   )

@@ -2,10 +2,12 @@ import '../auth/welcome-claude.css';
 import { LandingNav } from '../../components/landing/LandingNav';
 import { AnnouncementBar } from '../../components/landing/sections/AnnouncementBar';
 import { HeroSection } from '../../components/landing/sections/HeroSection';
+import { BrandStrip } from '../../components/landing/sections/BrandStrip';
 import { FlashStrip } from '../../components/landing/sections/FlashStrip';
 import { CategoryShowcase } from '../../components/landing/sections/CategoryShowcase';
 import { StatsBand } from '../../components/landing/sections/StatsBand';
 import { BestSellersSection } from '../../components/landing/sections/BestSellersSection';
+import { TestimonialsBand } from '../../components/landing/sections/TestimonialsBand';
 import { FinalCTASection } from '../../components/landing/sections/FinalCTASection';
 import { FloatingWidgets } from '../../components/landing/sections/FloatingWidgets';
 import SiteFooter from '../../components/SiteFooter';
@@ -31,10 +33,12 @@ export default function LandingPage() {
       <LandingNav />
       <main className="welcome-claude" id="main-content">
         <HeroSection />
+        <BrandStrip />
         <FlashStrip />
         <CategoryShowcase />
         <StatsBand />
         <BestSellersSection />
+        <TestimonialsBand />
         <FinalCTASection />
       </main>
       <SiteFooter />

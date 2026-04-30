@@ -19,7 +19,8 @@ export function HeroSection() {
     t('landing.hero.headline.words.0'),
     t('landing.hero.headline.words.1'),
     t('landing.hero.headline.words.2'),
-  ];
+    t('landing.hero.headline.words.3', { defaultValue: '' }),
+  ].filter(Boolean);
 
   return (
     <section className="relative overflow-hidden">
@@ -55,7 +56,7 @@ export function HeroSection() {
         }
       `}</style>
 
-      <div className="min-h-[92vh] flex flex-col justify-center py-20 md:py-28 relative z-[2]">
+      <div className="lg:min-h-[88vh] flex flex-col justify-center py-16 sm:py-20 md:py-28 relative z-[2]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
           <div className="grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-12 lg:gap-16 items-center">
             {/* Left column */}
@@ -84,7 +85,7 @@ export function HeroSection() {
                 <AnimatedHeadline
                   staticBefore={t('landing.hero.headline.static')}
                   words={words}
-                  className="c-serif text-[2.8rem] sm:text-[3.6rem] lg:text-[4.5rem] leading-[1.01] tracking-[-0.03em] text-[color:var(--c-ink)] mb-6"
+                  className="c-serif text-[2.6rem] sm:text-[3.6rem] lg:text-[4.6rem] leading-[1.02] tracking-[-0.035em] text-[color:var(--c-ink)] mb-6"
                 />
               </Reveal>
 
@@ -95,17 +96,21 @@ export function HeroSection() {
               </Reveal>
 
               <Reveal delay={0.35}>
-                <div className="flex flex-wrap gap-3 mb-10">
+                <div className="flex flex-wrap gap-3 mb-4">
                   <Link
-                    to="/register"
-                    className="inline-flex items-center gap-2.5 px-7 py-4 rounded-full text-white text-[16px] font-bold transition-all hover:-translate-y-0.5"
+                    to="/rfq"
+                    className="group/cta relative inline-flex items-center gap-2.5 px-7 py-4 rounded-full text-white text-[16px] font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(232,93,38,0.5)] overflow-hidden"
                     style={{
                       background: 'linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%)',
                       boxShadow: '0 10px 30px rgba(232,93,38,0.35)',
                     }}
                   >
-                    {t('landing.hero.cta.primary')}
-                    <ArrowRight size={18} strokeWidth={2.5} />
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/25 to-transparent transition-transform duration-700 ease-out group-hover/cta:translate-x-full"
+                    />
+                    <span className="relative">{t('landing.hero.cta.primary')}</span>
+                    <ArrowRight size={18} strokeWidth={2.5} className="relative transition-transform duration-300 group-hover/cta:translate-x-1" />
                   </Link>
                   <Link
                     to="/welcome"
@@ -125,16 +130,26 @@ export function HeroSection() {
                 </div>
               </Reveal>
 
+              <Reveal delay={0.42}>
+                <p className="text-[13px] text-[color:var(--c-muted)] mb-10 flex items-center gap-1.5">
+                  <span className="text-[color:var(--c-clay)] font-bold">✓</span>
+                  {t('landing.hero.microtrust', { defaultValue: 'Kayıt ücretsiz · Kredi kartı yok · 1 dakikada başla' })}
+                </p>
+              </Reveal>
+
               <Reveal delay={0.5}>
                 <div className="flex flex-wrap gap-7 pt-8 border-t border-[var(--c-line)]">
                   {TRUST_ITEMS.map(({ icon: Icon, key }) => (
-                    <div key={key} className="flex items-center gap-2.5">
+                    <div
+                      key={key}
+                      className="group/trust flex items-center gap-2.5 transition-transform duration-300 hover:-translate-y-0.5"
+                    >
                       <Icon
                         size={20}
-                        className="text-[color:var(--c-clay)]"
+                        className="text-[color:var(--c-clay)] transition-transform duration-300 group-hover/trust:scale-110"
                         strokeWidth={1.75}
                       />
-                      <span className="text-[14px] font-semibold text-[color:var(--c-ink-soft)]">
+                      <span className="text-[14px] font-semibold text-[color:var(--c-ink-soft)] transition-colors duration-300 group-hover/trust:text-[color:var(--c-ink)]">
                         {t(key)}
                       </span>
                     </div>

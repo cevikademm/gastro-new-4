@@ -739,24 +739,34 @@
     "hero": {
       "eyebrow": "Avrupa'nın Gastro Ekipman Platformu",
       "headline": {
-        "static": "Profesyonel mutfaklar için",
+        "static": "Profesyonel mutfağınızı kuruyoruz —",
         "words": {
-          "0": "akıllı çözümler.",
-          "1": "5.265+ ürün.",
-          "2": "hızlı teslimat."
+          "0": "tek platformdan.",
+          "1": "48 saatte teslim.",
+          "2": "uçtan uca.",
+          "3": "sıfır komisyonla."
         }
       },
-      "sub": "15 markanın tüm kataloğunu tek platformda keşfet. BOM oluştur, mutfak planla, teklif al.",
+      "sub": "5.265+ premium ekipman, 15 marka, 15 ülke. Mutfağınızı dakikalar içinde planlayın, ücretsiz teklif alın, 48 saatte teslim alın.",
       "cta": {
-        "primary": "Projenize Başlayın",
+        "primary": "Ücretsiz Teklif Alın",
         "secondary": "Demo İzle"
       },
+      "microtrust": "Kayıt ücretsiz · Kredi kartı yok · 1 dakikada başla",
       "trust": {
         "products": "5.265+ Ürün",
         "brands": "15 Marka",
         "countries": "15 Ülke",
         "delivery": "24-48s Teslimat"
       }
+    },
+    "brands": {
+      "eyebrow": "15 premium markanın resmi distribütörü"
+    },
+    "testimonials": {
+      "eyebrow": "Müşteri deneyimleri",
+      "heading": "Avrupa'nın dört bir yanından",
+      "accent": "profesyoneller bize güveniyor."
     },
     "stats": {
       "eyebrow": "Rakamlarla 2mc-gastro",
@@ -767,8 +777,8 @@
     },
     "categories": {
       "eyebrow": "Ekipman Kategorileri",
-      "heading": "Her mutfak ihtiyacı,",
-      "accent": "tek çatı altında.",
+      "heading": "Her mutfak ihtiyacı için —",
+      "accent": "doğru ekipman, doğru fiyat.",
       "cooling": "Soğutma",
       "cooking": "Pişirme",
       "prep": "Hazırlık",
@@ -779,11 +789,11 @@
       "coffee": "Kahve"
     },
     "finalcta": {
-      "heading": "Projenize bugün başlayın",
-      "accent": "hızlı ve ücretsiz.",
-      "sub": "Kayıt ücretsiz · Kredi kartı gerekmez",
-      "register": "Ücretsiz Kayıt",
-      "quote": "Teklif Al"
+      "heading": "Projenizi bugün başlatın —",
+      "accent": "ilk teklifiniz 24 saat içinde elinizde.",
+      "sub": "Kayıt ücretsiz · Kredi kartı gerekmez · Uzman desteği dahil",
+      "register": "Ücretsiz Hesap Aç",
+      "quote": "Hemen Teklif Al"
     }
   }
 }

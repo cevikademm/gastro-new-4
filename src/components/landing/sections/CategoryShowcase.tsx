@@ -36,7 +36,7 @@ export function CategoryShowcase() {
           <p className="text-[11px] font-medium uppercase tracking-[0.22em] text-[color:var(--c-muted)] mb-4">
             {t('landing.categories.eyebrow')}
           </p>
-          <h2 className="c-serif text-[2rem] md:text-[2.8rem] leading-[1.02] tracking-[-0.025em] text-[color:var(--c-ink)]">
+          <h2 className="c-serif text-[2.2rem] md:text-[3rem] leading-[1.02] tracking-[-0.03em] text-[color:var(--c-ink)] max-w-3xl mx-auto">
             {t('landing.categories.heading')}{' '}
             <em className="text-[color:var(--c-clay)]">{t('landing.categories.accent')}</em>
           </h2>
@@ -47,7 +47,7 @@ export function CategoryShowcase() {
             <Reveal key={key} delay={index * 0.06} y={20} duration={0.7}>
               <Link
                 to={href}
-                className="group relative flex flex-col items-center justify-center gap-4 rounded-2xl p-6 md:p-8 bg-[var(--c-bg)] border border-[var(--c-line)] hover:border-[var(--c-clay)] transition-all duration-300 aspect-square sm:aspect-auto sm:h-44"
+                className="group relative flex flex-col items-center justify-center gap-4 rounded-2xl p-6 md:p-8 bg-[var(--c-bg)] border border-[var(--c-line)] hover:border-[var(--c-clay)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(232,93,38,0.18)] transition-all duration-300 aspect-square sm:aspect-auto sm:h-44"
                 style={{ boxShadow: 'none' }}
               >
                 <ArrowUpRight
