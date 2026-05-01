@@ -31,7 +31,7 @@ export default function ProfilePage() {
 
   return (
     <div className="max-w-3xl mx-auto w-full space-y-6">
-      <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight">{t('profile.title')}</h1>
+      <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight">{t('profile.title')}</h1>
 
       <div className="bg-surface-container-lowest rounded-xl shadow-sm p-8 border border-outline-variant/10 space-y-6">
         <div className="flex items-center gap-4 pb-6 border-b border-outline-variant/10">

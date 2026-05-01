@@ -30,7 +30,7 @@ export default function CartQuantityButton({ product, size = 'sm', className = '
           size === 'sm'
             ? 'py-1.5 px-2 rounded-lg text-[10px]'
             : 'py-2.5 px-4 rounded-xl text-sm'
-        } bg-sky-50 text-sky-600 hover:bg-sky-500 hover:text-white ${className}`}
+        } bg-red-50 text-[#7B1F26] hover:bg-[#7B1F26] hover:text-white ${className}`}
       >
         <ShoppingCart size={size === 'sm' ? 10 : 16} /> {t('cart.addToCart')}
       </button>

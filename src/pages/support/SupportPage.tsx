@@ -26,7 +26,7 @@ export default function SupportPage() {
 
   return (
     <div className="max-w-5xl mx-auto w-full space-y-8">
-      <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight">{t('support.title')}</h1>
+      <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight">{t('support.title')}</h1>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">

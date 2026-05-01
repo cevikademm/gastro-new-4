@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useState } from 'react';
 import { Mail, CheckCircle2 } from 'lucide-react';
 import { submitLead } from '../lib/leadCapture';
@@ -53,13 +54,13 @@ export default function NewsletterSignup({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="email@sirketiniz.com"
-          className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-sky-500"
+          className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-[#7B1F26]"
           required
         />
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2.5 bg-sky-600 text-white rounded-lg text-sm font-bold hover:bg-sky-700 disabled:opacity-50 transition"
+          className="px-5 py-2.5 bg-[#7B1F26] text-white rounded-lg text-sm font-bold hover:bg-[#5A1219] disabled:opacity-50 transition"
         >
           {loading ? '...' : 'Abone Ol'}
         </button>
@@ -68,9 +69,9 @@ export default function NewsletterSignup({
   }
 
   return (
-    <div className="bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 rounded-2xl p-6">
+    <div className="bg-gradient-to-br from-red-50 to-rose-50 border border-red-200 rounded-2xl p-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-10 h-10 bg-sky-600 rounded-xl flex items-center justify-center">
+        <div className="w-10 h-10 bg-[#7B1F26] rounded-xl flex items-center justify-center">
           <Mail className="text-white" size={20} />
         </div>
         <h3 className="text-lg font-bold text-slate-900">{title}</h3>
@@ -83,14 +84,14 @@ export default function NewsletterSignup({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="email@sirketiniz.com"
-          className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-sky-500"
+          className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-[#7B1F26]"
           required
         />
         {error && <p className="text-xs text-red-600">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-sky-600 text-white rounded-xl font-bold hover:bg-sky-700 disabled:opacity-50 transition"
+          className="w-full py-3 bg-[#7B1F26] text-white rounded-xl font-bold hover:bg-[#5A1219] disabled:opacity-50 transition"
         >
           {loading ? 'Gönderiliyor…' : 'Abone Ol'}
         </button>

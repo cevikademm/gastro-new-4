@@ -4,15 +4,17 @@ import Layout from './components/Layout';
 import CookieBanner from './components/CookieBanner';
 import { useAuthStore } from './stores/authStore';
 
-// Eager: auth + shell critical path
-import WelcomePage from './pages/auth/WelcomePage';
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
-import PendingApprovalPage from './pages/auth/PendingApprovalPage';
-import Dashboard from './components/Dashboard';
-import NotFoundPage from './pages/NotFoundPage';
+// Eager: minimal shell
 import AdminGuard from './components/AdminGuard';
 import AnalyticsListener from './components/AnalyticsListener';
+import NotFoundPage from './pages/NotFoundPage';
+
+// Lazy: all pages
+const WelcomePage = lazy(() => import('./pages/auth/WelcomePage'));
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
+const PendingApprovalPage = lazy(() => import('./pages/auth/PendingApprovalPage'));
+const Dashboard = lazy(() => import('./components/Dashboard'));
 
 // Lazy: everything else — code-split per route
 const DesignStudio = lazy(() => import('./components/DesignStudio'));
@@ -55,8 +57,9 @@ const FloorPlan3DPage = lazy(() => import('./pages/design/FloorPlan3DPage'));
 
 function RouteFallback() {
   return (
-    <div className="flex items-center justify-center min-h-[50vh] text-slate-400 text-sm">
-      Yükleniyor…
+    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
+      <div className="w-8 h-8 border-3 border-slate-200 border-t-sky-500 rounded-full animate-spin" />
+      <span className="text-slate-400 text-sm">Yükleniyor…</span>
     </div>
   );
 }

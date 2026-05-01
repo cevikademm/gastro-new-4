@@ -27,8 +27,8 @@ const COMPARE_ROWS: { labelKey: string; key: string; render: (p: CompareItem) =>
 ];
 
 const SOURCE_COLORS = {
-  diamond: { bg: 'from-indigo-500 to-violet-500', badge: 'bg-indigo-100 text-indigo-700', icon: Diamond },
-  combisteel: { bg: 'from-sky-500 to-cyan-500', badge: 'bg-sky-100 text-sky-700', icon: Box },
+  diamond: { bg: 'from-[#7B1F26] to-[#5A1219]', badge: 'bg-red-100 text-[#7B1F26]', icon: Diamond },
+  combisteel: { bg: 'from-[#0F2440] to-[#1E3A5F]', badge: 'bg-blue-50 text-[#0F2440]', icon: Box },
 };
 
 export default function ComparePanel() {
@@ -45,7 +45,7 @@ export default function ComparePanel() {
   // Floating bar
   if (!showPanel) {
     return (
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-lg border border-violet-200 shadow-2xl shadow-violet-100/50 rounded-2xl px-5 py-3 flex items-center gap-3 max-w-[90vw]">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-lg border border-red-200 shadow-2xl shadow-red-100/50 rounded-2xl px-5 py-3 flex items-center gap-3 max-w-[90vw]">
         <div className="flex -space-x-2.5">
           {items.slice(0, 6).map(item => {
             const colors = SOURCE_COLORS[item.source];
@@ -61,16 +61,16 @@ export default function ComparePanel() {
           <p className="font-bold text-on-surface">{t('compare.productsSelected', { count: items.length })}</p>
           <p className="text-slate-400">
             {hasMixed && <>
-              <span className="text-indigo-500">{items.filter(i => i.source === 'diamond').length} Diamond</span>
+              <span className="text-[#7B1F26]">{items.filter(i => i.source === 'diamond').length} Diamond</span>
               {' + '}
-              <span className="text-sky-500">{items.filter(i => i.source === 'combisteel').length} CombiSteel</span>
+              <span className="text-[#0F2440]">{items.filter(i => i.source === 'combisteel').length} CombiSteel</span>
             </>}
             {!hasMixed && `${6 - items.length} ${t('common.moreCanBeAdded')}`}
           </p>
         </div>
         <button
           onClick={() => setShowPanel(true)}
-          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-violet-500 to-purple-600 text-white shadow-lg hover:shadow-xl transition-all"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-xs font-bold bg-gradient-to-r from-[#7B1F26] to-[#5A1219] text-white shadow-lg hover:shadow-xl transition-all"
         >
           <GitCompareArrows size={14} /> {t('compare.compare')}
         </button>
@@ -86,7 +86,7 @@ export default function ComparePanel() {
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-end sm:items-center justify-center" onClick={() => setShowPanel(false)}>
       <div className="bg-white w-full max-w-6xl max-h-[90vh] rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
         {/* Header */}
-        <div className="bg-gradient-to-r from-violet-600 via-purple-500 to-fuchsia-500 px-6 py-4 flex items-center justify-between relative overflow-hidden">
+        <div className="bg-gradient-to-r from-[#7B1F26] via-[#5A1219] to-[#0F2440] px-6 py-4 flex items-center justify-between relative overflow-hidden">
           <div className="absolute top-0 right-0 w-60 h-60 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
           <div className="relative z-10 flex items-center gap-3">
             <div className="bg-white/20 rounded-xl p-2"><GitCompareArrows size={20} className="text-white" /></div>
@@ -107,7 +107,7 @@ export default function ComparePanel() {
                     key={src}
                     onClick={() => setFilterSource(src)}
                     className={`px-3 py-1 rounded-md text-[10px] font-bold transition-all ${
-                      filterSource === src ? 'bg-white text-violet-700 shadow-sm' : 'text-white/70 hover:text-white'
+                      filterSource === src ? 'bg-white text-[#7B1F26] shadow-sm' : 'text-white/70 hover:text-white'
                     }`}
                   >
                     {src === 'all' ? t('common.all') : src === 'diamond' ? 'Diamond' : 'CombiSteel'}
@@ -146,10 +146,10 @@ export default function ComparePanel() {
                         <span className={`inline-flex items-center gap-1 ${colors.badge} text-[9px] font-bold px-2 py-0.5 rounded-full mb-2`}>
                           <Icon size={10} /> {item.source === 'diamond' ? 'Diamond' : 'CombiSteel'}
                         </span>
-                        <div className={`bg-gradient-to-br from-slate-50 ${item.source === 'diamond' ? 'to-indigo-50' : 'to-sky-50'} rounded-2xl p-3 mb-3`}>
+                        <div className={`bg-gradient-to-br from-slate-50 ${item.source === 'diamond' ? 'to-red-50' : 'to-blue-50'} rounded-2xl p-3 mb-3`}>
                           <ProductImage src={item.image} alt={item.name} className="w-24 h-24 mx-auto" />
                         </div>
-                        <p className={`text-[10px] font-mono ${item.source === 'diamond' ? 'text-indigo-400' : 'text-sky-400'}`}>{item.sku}</p>
+                        <p className={`text-[10px] font-mono ${item.source === 'diamond' ? 'text-[#7B1F26]/60' : 'text-[#0F2440]/60'}`}>{item.sku}</p>
                         <p className="text-xs font-bold text-on-surface mt-1 line-clamp-2 leading-snug">{item.name}</p>
                       </div>
                     </th>

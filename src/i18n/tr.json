@@ -87,7 +87,9 @@
     "search": "Ara...",
     "brand": "Marka Kimliği",
     "adminOrders": "Siparişler",
-    "adminUsers": "Kullanıcılar"
+    "adminUsers": "Kullanıcılar",
+    "contact": "İletişim",
+    "about": "Hakkımızda"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -770,10 +772,18 @@
     },
     "stats": {
       "eyebrow": "Rakamlarla 2mc-gastro",
-      "products": { "label": "Ürün" },
-      "brands": { "label": "Marka" },
-      "countries": { "label": "Aktif Ülke" },
-      "delivery": { "label": "Teslimat Saati" }
+      "products": {
+        "label": "Ürün"
+      },
+      "brands": {
+        "label": "Marka"
+      },
+      "countries": {
+        "label": "Aktif Ülke"
+      },
+      "delivery": {
+        "label": "Teslimat Saati"
+      }
     },
     "categories": {
       "eyebrow": "Ekipman Kategorileri",

@@ -66,7 +66,7 @@ export default function OrdersPage() {
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight flex items-center gap-3">
+          <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight flex items-center gap-3">
             <Package size={28} className="text-primary" /> {t('orders.myOrders')}
           </h1>
           <p className="text-on-surface-variant text-sm mt-1">

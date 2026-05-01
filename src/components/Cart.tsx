@@ -561,7 +561,7 @@ export default function Cart() {
           </button>
           <button
             onClick={() => navigate('/checkout')}
-            className="bg-sky-500 hover:bg-sky-600 text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
+            className="bg-[#7B1F26] hover:bg-[#5A1219] text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
           >
             <Package size={16} /> {t('cart.checkout', 'Ödemeye Git')}
           </button>
@@ -588,13 +588,13 @@ export default function Cart() {
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center relative z-10">
           <div className="flex-1">
             <img src="/logo-werbung.png" alt="2MC Werbung" className="h-8 object-contain mb-2" style={{ filter: 'brightness(0) invert(1)' }} />
-            <p className="text-xs text-blue-200">{COMPANY_INFO.tagline}</p>
+            <p className="text-xs text-red-200">{COMPANY_INFO.tagline}</p>
           </div>
-          <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-blue-100">
-            <span className="flex items-center gap-1.5"><MapPin size={11} className="text-blue-300" /> {COMPANY_INFO.address}</span>
-            <span className="flex items-center gap-1.5"><Phone size={11} className="text-blue-300" /> {COMPANY_INFO.phone}</span>
-            <span className="flex items-center gap-1.5"><Mail size={11} className="text-blue-300" /> {COMPANY_INFO.email}</span>
-            <span className="flex items-center gap-1.5"><Globe size={11} className="text-blue-300" /> {COMPANY_INFO.website}</span>
+          <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-red-100">
+            <span className="flex items-center gap-1.5"><MapPin size={11} className="text-red-300" /> {COMPANY_INFO.address}</span>
+            <span className="flex items-center gap-1.5"><Phone size={11} className="text-red-300" /> {COMPANY_INFO.phone}</span>
+            <span className="flex items-center gap-1.5"><Mail size={11} className="text-red-300" /> {COMPANY_INFO.email}</span>
+            <span className="flex items-center gap-1.5"><Globe size={11} className="text-red-300" /> {COMPANY_INFO.website}</span>
           </div>
         </div>
       </div>
@@ -786,7 +786,7 @@ export default function Cart() {
           >
             {/* Glow */}
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-amber-500/20 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-blue-500/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#7B1F26]/20 blur-3xl pointer-events-none" />
 
             <button
               onClick={() => setPaywallOpen(false)}

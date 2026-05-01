@@ -59,23 +59,13 @@
 .welcome-2mc h4,
 .welcome-2mc h5 {
   font-family: var(--wd-title-font) !important;
-  color: var(--wd-title-color) !important;
+  /* color override kaldırıldı — koyu arka planlarda beyaz başlıklar kırılıyordu */
   font-weight: 600 !important;
   letter-spacing: -0.01em !important;
 }
 
 .welcome-2mc h2 {
   text-transform: none;
-}
-
-/* Beyaz/açık tonlu metinleri koyu temaya çevir */
-.welcome-2mc .text-white,
-.welcome-2mc [class*="text-white"]:not([class*="text-white/"]) {
-  color: var(--wd-title-color) !important;
-}
-
-.welcome-2mc [class*="text-white/"] {
-  color: var(--wd-text-color) !important;
 }
 
 /* Mavi/sky aksanları WoodMart mavisine çevir */

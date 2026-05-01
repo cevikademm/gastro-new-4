@@ -153,8 +153,8 @@ export default function ProductFilter({
           onClick={() => setIsOpen(!isOpen)}
           className={`flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
             isOpen || hasActiveFilters
-              ? 'bg-indigo-100 text-indigo-700 border border-indigo-300'
-              : 'bg-white text-slate-600 border border-slate-200 hover:border-indigo-200'
+              ? 'bg-red-100 text-[#7B1F26] border border-red-300'
+              : 'bg-white text-slate-600 border border-slate-200 hover:border-red-200'
           }`}
         >
           <Sliders size={16} />
@@ -178,7 +178,7 @@ export default function ProductFilter({
 
       {/* Result Count */}
       <div className="text-xs font-medium text-slate-600">
-        <span className="text-indigo-600 font-bold">{resultCount}</span> {t('filter.productsFound')}
+        <span className="text-[#7B1F26] font-bold">{resultCount}</span> {t('filter.productsFound')}
       </div>
 
       {/* Filter Panel */}
@@ -195,7 +195,7 @@ export default function ProductFilter({
               value={filters.search}
               onChange={(e) => onFilterChange({ ...filters, search: e.target.value })}
               placeholder={t('filter.searchPlaceholder')}
-              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none transition-all"
+              className="w-full px-4 py-2.5 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none transition-all"
             />
           </div>
 
@@ -212,8 +212,8 @@ export default function ProductFilter({
                     onClick={() => handleCategoryToggle(cat)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                       filters.categories.includes(cat)
-                        ? 'bg-indigo-500 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                        ? 'bg-[#7B1F26] text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#7B1F26]'
                     }`}
                   >
                     {filters.categories.includes(cat) && <Check size={12} />}
@@ -237,8 +237,8 @@ export default function ProductFilter({
                     onClick={() => handleBrandToggle(brand)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                       filters.brands.includes(brand)
-                        ? 'bg-indigo-500 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                        ? 'bg-[#7B1F26] text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#7B1F26]'
                     }`}
                   >
                     {filters.brands.includes(brand) && <Check size={12} />}
@@ -263,7 +263,7 @@ export default function ProductFilter({
                   value={filters.minPrice || ''}
                   onChange={(e) => onFilterChange({ ...filters, minPrice: Number(e.target.value) || 0 })}
                   placeholder={t('filter.minimum')}
-                  className="w-full pl-6 pr-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="w-full pl-6 pr-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
               </div>
               <div className="relative">
@@ -274,7 +274,7 @@ export default function ProductFilter({
                   value={filters.maxPrice || ''}
                   onChange={(e) => onFilterChange({ ...filters, maxPrice: Number(e.target.value) || 0 })}
                   placeholder={t('filter.maximum')}
-                  className="w-full pl-6 pr-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="w-full pl-6 pr-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
               </div>
             </div>
@@ -294,7 +294,7 @@ export default function ProductFilter({
                   value={filters.minKw || ''}
                   onChange={(e) => onFilterChange({ ...filters, minKw: Number(e.target.value) || 0 })}
                   placeholder={t('filter.minKw')}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
               </div>
               <div>
@@ -305,7 +305,7 @@ export default function ProductFilter({
                   value={filters.maxKw || ''}
                   onChange={(e) => onFilterChange({ ...filters, maxKw: Number(e.target.value) || 0 })}
                   placeholder={t('filter.maxKw')}
-                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
               </div>
             </div>
@@ -324,7 +324,7 @@ export default function ProductFilter({
                   value={filters.minWidth || ''}
                   onChange={(e) => onFilterChange({ ...filters, minWidth: Number(e.target.value) || 0 })}
                   placeholder={t('filter.minWidth')}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
                 <input
                   type="number"
@@ -332,7 +332,7 @@ export default function ProductFilter({
                   value={filters.maxWidth || ''}
                   onChange={(e) => onFilterChange({ ...filters, maxWidth: Number(e.target.value) || 0 })}
                   placeholder={t('filter.maxWidth')}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
               </div>
               <p className="text-[10px] text-slate-400">{t('filter.height')}</p>
@@ -343,7 +343,7 @@ export default function ProductFilter({
                   value={filters.minHeight || ''}
                   onChange={(e) => onFilterChange({ ...filters, minHeight: Number(e.target.value) || 0 })}
                   placeholder={t('filter.minHeight')}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
                 <input
                   type="number"
@@ -351,7 +351,7 @@ export default function ProductFilter({
                   value={filters.maxHeight || ''}
                   onChange={(e) => onFilterChange({ ...filters, maxHeight: Number(e.target.value) || 0 })}
                   placeholder={t('filter.maxHeight')}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
               </div>
               <p className="text-[10px] text-slate-400">{t('filter.depth')}</p>
@@ -362,7 +362,7 @@ export default function ProductFilter({
                   value={filters.minDepth || ''}
                   onChange={(e) => onFilterChange({ ...filters, minDepth: Number(e.target.value) || 0 })}
                   placeholder={t('filter.minDepth')}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
                 <input
                   type="number"
@@ -370,7 +370,7 @@ export default function ProductFilter({
                   value={filters.maxDepth || ''}
                   onChange={(e) => onFilterChange({ ...filters, maxDepth: Number(e.target.value) || 0 })}
                   placeholder={t('filter.maxDepth')}
-                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                  className="px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 />
               </div>
             </div>
@@ -388,8 +388,8 @@ export default function ProductFilter({
                   onClick={() => onFilterChange({ ...filters, powerType: type })}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     filters.powerType === type
-                      ? 'bg-indigo-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                      ? 'bg-[#7B1F26] text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#7B1F26]'
                   }`}
                 >
                   {t(`filter.powerType_${type}`)}
@@ -431,8 +431,8 @@ export default function ProductFilter({
                   onClick={() => onFilterChange({ ...filters, sortBy: sort.key as any })}
                   className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     filters.sortBy === sort.key
-                      ? 'bg-indigo-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-indigo-50 hover:text-indigo-600'
+                      ? 'bg-[#7B1F26] text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#7B1F26]'
                   }`}
                 >
                   {sort.label}
@@ -455,7 +455,7 @@ export default function ProductFilter({
                   <div key={preset.id} className="flex items-center gap-2">
                     <button
                       onClick={() => handleLoadPreset(preset)}
-                      className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all text-left truncate"
+                      className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-red-50 hover:text-[#7B1F26] transition-all text-left truncate"
                     >
                       {preset.name}
                     </button>
@@ -476,7 +476,7 @@ export default function ProductFilter({
           {!showSavePreset ? (
             <button
               onClick={() => setShowSavePreset(true)}
-              className="w-full px-4 py-2.5 rounded-lg text-sm font-bold bg-slate-100 text-slate-700 hover:bg-indigo-50 hover:text-indigo-700 transition-all flex items-center justify-center gap-2"
+              className="w-full px-4 py-2.5 rounded-lg text-sm font-bold bg-slate-100 text-slate-700 hover:bg-red-50 hover:text-[#7B1F26] transition-all flex items-center justify-center gap-2"
             >
               <Save size={14} /> {t('filter.saveAsPreset')}
             </button>
@@ -487,14 +487,14 @@ export default function ProductFilter({
                 value={presetName}
                 onChange={(e) => setPresetName(e.target.value)}
                 placeholder={t('filter.presetName')}
-                className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-indigo-300 outline-none"
+                className="w-full px-3 py-2 rounded-lg border border-slate-200 text-sm focus:ring-2 focus:ring-red-300 outline-none"
                 onKeyPress={(e) => e.key === 'Enter' && handleSavePreset()}
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleSavePreset}
                   disabled={!presetName.trim()}
-                  className="flex-1 px-3 py-2 rounded-lg text-xs font-bold bg-indigo-500 text-white hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="flex-1 px-3 py-2 rounded-lg text-xs font-bold bg-[#7B1F26] text-white hover:bg-[#9B2D35] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {t('common.save')}
                 </button>

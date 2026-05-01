@@ -127,7 +127,7 @@ export default function Catalog() {
           <p className="text-on-surface-variant text-sm mt-1">{totalFiltered.toLocaleString()} {t('common.products')}{selectedCategory ? ` — ${CATEGORIES.find(c => c.id === selectedCategory)?.name}` : ''}</p>
         </div>
         <div className="flex items-center gap-3 w-full md:w-auto">
-          <div className="relative flex-1 md:w-80">
+          <div className="relative w-full sm:w-72 md:w-80">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={18} />
             <input
               type="text"
@@ -223,7 +223,7 @@ export default function Catalog() {
 
       {/* Product Grid / List */}
       {viewMode === 'grid' ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4">
           {items.map((item) => {
             const isFav = favorites.includes(item.id);
             return (
@@ -264,7 +264,7 @@ export default function Catalog() {
               <ProductImage
                 src={item.img}
                 alt={item.name}
-                className="w-full h-36 bg-white"
+                className="w-full h-24 sm:h-32 md:h-36 bg-white"
               />
               <div className="p-3">
                 <h3 className="text-xs font-bold text-on-surface line-clamp-2 leading-tight mb-1 group-hover:text-primary transition-colors">{item.name}</h3>
@@ -415,7 +415,7 @@ export default function Catalog() {
       {/* Detail Modal */}
       {detailItem && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setDetailItem(null)}>
-          <div className="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+          <div className="bg-surface-container-lowest rounded-2xl shadow-2xl max-w-sm sm:max-w-md md:max-w-2xl w-full max-h-[85vh] sm:max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="relative">
               <ProductImage src={detailItem.img} alt={detailItem.name} className="w-full h-64 bg-white" />
               <button onClick={() => setDetailItem(null)} className="absolute top-3 right-3 bg-black/40 text-white rounded-full p-2 hover:bg-black/60 transition-colors">

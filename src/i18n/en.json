@@ -87,7 +87,9 @@
     "search": "Search...",
     "brand": "Brand Identity",
     "adminOrders": "Orders",
-    "adminUsers": "Users"
+    "adminUsers": "Users",
+    "contact": "Contact",
+    "about": "About Us"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -760,10 +762,18 @@
     },
     "stats": {
       "eyebrow": "2mc-gastro by the numbers",
-      "products": { "label": "Products" },
-      "brands": { "label": "Brands" },
-      "countries": { "label": "Active Countries" },
-      "delivery": { "label": "Delivery Hours" }
+      "products": {
+        "label": "Products"
+      },
+      "brands": {
+        "label": "Brands"
+      },
+      "countries": {
+        "label": "Active Countries"
+      },
+      "delivery": {
+        "label": "Delivery Hours"
+      }
     },
     "categories": {
       "eyebrow": "Equipment Categories",

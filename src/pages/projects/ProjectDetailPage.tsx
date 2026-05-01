@@ -658,7 +658,7 @@ export default function ProjectDetailPage() {
 
   const p = project;
   const statusColors: Record<string, string> = {
-    drafting: 'bg-blue-100 text-primary',
+    drafting: 'bg-red-100 text-primary',
     quoted: 'bg-amber-100 text-amber-900',
     complete: 'bg-emerald-100 text-emerald-900',
     inProgress: 'bg-violet-100 text-violet-900',

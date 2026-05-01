@@ -73,44 +73,16 @@
   font-family: 'Inter', ui-monospace, 'JetBrains Mono', monospace !important;
 }
 
-/* ── Editorial ink rule — typography overrides ───────── */
+/* ── Editorial typography — sadece font, renk inline style'a bırakıldı ─────── */
 .welcome-claude h1,
 .welcome-claude h2,
 .welcome-claude h3,
 .welcome-claude h4,
 .welcome-claude h5 {
   font-family: var(--c-serif) !important;
-  color: var(--c-ink) !important;
   font-optical-sizing: auto;
   letter-spacing: -0.025em !important;
   font-weight: 500 !important;
-}
-
-/* Kill dark-mode leftovers — turn any text-white/*, text-sky/blue into clay/ink */
-.welcome-claude .text-white,
-.welcome-claude [class*="text-white"]:not([class*="text-white/"]) {
-  color: var(--c-ink) !important;
-}
-.welcome-claude [class*="text-white/"] {
-  color: var(--c-muted) !important;
-}
-.welcome-claude [class*="text-sky-"],
-.welcome-claude [class*="text-blue-"],
-.welcome-claude [class*="text-indigo-"] {
-  color: var(--c-clay) !important;
-}
-.welcome-claude [class*="text-rose-"],
-.welcome-claude [class*="text-red-"] {
-  color: var(--c-clay-deep) !important;
-}
-.welcome-claude [class*="text-amber-"],
-.welcome-claude [class*="text-yellow-"] {
-  color: var(--c-amber) !important;
-}
-.welcome-claude [class*="text-emerald-"],
-.welcome-claude [class*="text-green-"],
-.welcome-claude [class*="text-teal-"] {
-  color: var(--c-sage) !important;
 }
 
 /* ── Noise texture — subtle paper feel ─────────────── */

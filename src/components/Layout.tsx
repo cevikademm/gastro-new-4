@@ -24,6 +24,8 @@ const ADMIN_ITEMS = [
 const NAV_ITEMS = [
   { path: '/dashboard', labelKey: 'nav.project', id: 'project' },
   { path: '/design', labelKey: 'nav.design', id: 'design' },
+  { path: '/support', labelKey: 'nav.contact', id: 'contact' },
+  { path: '/brand', labelKey: 'nav.about', id: 'about' },
 ];
 
 const SIDE_ITEMS = [
@@ -49,6 +51,7 @@ const BOTTOM_NAV = [
   { path: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.panel' },
   { path: '/design', icon: Ruler, labelKey: 'nav.drawing' },
   { path: '/cart', icon: ShoppingCart, labelKey: 'nav.cart' },
+  { path: '/diamond', icon: Search, labelKey: 'nav.search' },
 ];
 
 export default function Layout() {
@@ -88,7 +91,7 @@ export default function Layout() {
       <header className="bg-surface-container-lowest border-b border-outline-variant/10 flex justify-between items-center w-full px-4 md:px-6 py-3 h-16 md:h-20 fixed top-0 z-50">
         <div className="flex items-center gap-3 md:gap-8">
           {/* Hamburger sadece tablet'te (md) göster, mobilde alt nav var */}
-          <button onClick={toggleMobileMenu} className="hidden md:flex lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-full">
+          <button onClick={toggleMobileMenu} className="hidden md:flex lg:hidden p-2 text-on-surface hover:bg-primary/10 rounded-full">
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <Link to="/welcome" className="flex items-center gap-2">
@@ -122,7 +125,7 @@ export default function Layout() {
           </div>
           <button
             onClick={() => setSearchOpen(true)}
-            className="hidden md:flex items-center gap-2 px-3 h-9 text-xs text-slate-400 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
+            className="hidden md:flex items-center gap-2 px-3 h-9 text-xs text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors"
             title="Ara (Ctrl+K)"
           >
             <Search size={14} />
@@ -131,12 +134,12 @@ export default function Layout() {
           </button>
           <button
             onClick={() => setSearchOpen(true)}
-            className="md:hidden p-1.5 text-slate-500 hover:bg-slate-100 rounded-full"
+            className="md:hidden p-1.5 text-on-surface hover:bg-primary/10 rounded-full"
             aria-label="Ara"
           >
             <Search size={18} />
           </button>
-          <Link to="/cart" className="relative p-1.5 md:p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
+          <Link to="/cart" className="relative p-1.5 md:p-2 text-on-surface hover:bg-primary/10 rounded-full transition-colors">
             <ShoppingCart size={18} />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
@@ -146,7 +149,7 @@ export default function Layout() {
           </Link>
           <LanguageSelector />
           <div className="relative">
-            <button onClick={toggleNotificationPanel} className="p-1.5 md:p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors relative">
+            <button onClick={toggleNotificationPanel} className="p-1.5 md:p-2 text-on-surface hover:bg-primary/10 rounded-full transition-colors relative">
               <Bell size={18} />
               {unreadCount() > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-error text-white text-[9px] font-bold rounded-full flex items-center justify-center">
@@ -156,7 +159,7 @@ export default function Layout() {
             </button>
             <NotificationPanel />
           </div>
-          <Link to="/settings" className="p-1.5 md:p-2 text-slate-500 hover:bg-slate-100 rounded-full transition-colors">
+          <Link to="/settings" className="p-1.5 md:p-2 text-on-surface hover:bg-primary/10 rounded-full transition-colors">
             <Settings size={18} />
           </Link>
           {isAuthenticated && user ? (
@@ -199,7 +202,7 @@ export default function Layout() {
       {mobileMenuOpen && (
         <div className="fixed inset-0 z-40 hidden md:flex lg:hidden">
           <div className="absolute inset-0 bg-black/30" onClick={toggleMobileMenu} />
-          <div className="absolute top-14 left-0 w-64 h-[calc(100vh-3.5rem)] bg-surface-container-low p-4 shadow-xl overflow-y-auto">
+          <div className="absolute top-16 md:top-20 left-0 w-64 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] bg-surface-container-low p-4 shadow-xl overflow-y-auto">
             <nav className="space-y-1">
               {SIDE_ITEMS.map((item) => {
                 const Icon = item.icon;
@@ -261,7 +264,7 @@ export default function Layout() {
 
       <div className="flex flex-1 pt-16 md:pt-20">
         {/* Desktop Sidebar — lg ve üzeri */}
-        <aside className="bg-surface-container-low fixed top-14 md:top-16 left-0 h-[calc(100vh-3.5rem)] md:h-[calc(100vh-4rem)] w-64 flex-col space-y-2 p-4 hidden lg:flex z-40 border-r border-outline-variant/10">
+        <aside className="bg-surface-container-low fixed top-16 md:top-20 left-0 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] w-64 flex-col space-y-2 p-4 hidden lg:flex z-40 border-r border-outline-variant/10">
           <div className="mb-4 px-2">
             <Link to="/welcome">
               <img src="/logo-2mc-gastro.jpeg" alt="2MC Gastro" className="h-10 object-contain object-left" />
@@ -288,7 +291,7 @@ export default function Layout() {
                   className={`w-full flex items-center gap-3 px-4 py-2 transition-all duration-200 rounded-md text-sm font-medium ${
                     isActive
                       ? 'bg-primary/10 text-primary border-r-4 border-primary'
-                      : 'text-slate-500 hover:bg-slate-200 hover:translate-x-1'
+                      : 'text-on-surface-variant hover:bg-primary/10 hover:translate-x-1'
                   }`}
                 >
                   <Icon size={18} />
@@ -309,7 +312,7 @@ export default function Layout() {
                       className={`w-full flex items-center gap-3 px-4 py-2 transition-all duration-200 rounded-md text-sm font-medium ${
                         isActive
                           ? 'bg-primary/10 text-primary border-r-4 border-primary'
-                          : 'text-slate-500 hover:bg-slate-200 hover:translate-x-1'
+                          : 'text-on-surface-variant hover:bg-primary/10 hover:translate-x-1'
                       }`}
                     >
                       <Icon size={18} />
@@ -359,7 +362,7 @@ export default function Layout() {
               ? 'lg:ml-64 overflow-hidden'
               : 'lg:ml-64 p-4 md:p-6 lg:p-8 pb-20 md:pb-8',
           ].join(' ')}
-          style={isDesign ? { height: 'calc(100vh - 3.5rem)' } : undefined}
+          style={isDesign ? { height: 'calc(100dvh - 4rem)' } : undefined}
         >
           <Outlet />
         </main>
@@ -369,7 +372,10 @@ export default function Layout() {
 
       {/* Mobile Bottom Navigation — sadece telefon (<md) */}
       {!isDesign && (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 flex md:hidden safe-area-inset-bottom">
+        <nav
+          className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-slate-200 flex md:hidden"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
           {BOTTOM_NAV.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
@@ -378,7 +384,7 @@ export default function Layout() {
                 key={item.path}
                 to={item.path}
                 className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
-                  isActive ? 'text-primary' : 'text-slate-400'
+                  isActive ? 'text-primary' : 'text-slate-500'
                 }`}
               >
                 <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />

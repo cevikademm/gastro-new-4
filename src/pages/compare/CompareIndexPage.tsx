@@ -20,10 +20,10 @@ export default function CompareIndexPage() {
       />
 
       <header className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-sky-50 text-sky-700 rounded-full text-xs font-semibold mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 text-[#7B1F26] rounded-full text-xs font-semibold mb-4">
           <TrendingUp size={14} /> Pazar Karşılaştırması
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
+        <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
           2MC Gastro vs Rakipler
         </h1>
         <p className="mt-3 text-lg text-slate-600 max-w-2xl">
@@ -31,20 +31,20 @@ export default function CompareIndexPage() {
         </p>
       </header>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
         {COMPETITORS.map((c) => (
           <Link
             key={c.slug}
             to={`/compare/${c.slug}`}
-            className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-sky-400 hover:shadow-md transition group"
+            className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-[#7B1F26] hover:shadow-md transition group"
           >
             <div className="text-xs text-slate-500 mb-1">vs</div>
-            <h2 className="text-2xl font-bold text-slate-900 mb-2">{c.name}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">{c.name}</h2>
             <div className="text-xs text-slate-500 mb-4">
               {c.origin} · {c.monthlyTraffic} aylık ziyaret
             </div>
             <p className="text-sm text-slate-600 line-clamp-3">{c.positioning}</p>
-            <div className="mt-4 inline-flex items-center gap-1 text-sm text-sky-600 font-semibold group-hover:gap-2 transition-all">
+            <div className="mt-4 inline-flex items-center gap-1 text-sm text-[#7B1F26] font-semibold group-hover:gap-2 transition-all">
               Karşılaştırmayı gör <ArrowRight size={14} />
             </div>
           </Link>

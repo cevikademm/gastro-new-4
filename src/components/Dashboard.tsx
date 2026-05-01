@@ -29,22 +29,22 @@ export default function Dashboard() {
     <div className="welcome-2mc relative min-h-full">
       <GradientDots className="z-0 pointer-events-none opacity-30 absolute inset-0" backgroundColor="#ffffff" />
 
-      <div className="relative z-10 max-w-7xl mx-auto w-full space-y-10 p-2">
+      <div className="relative z-10 max-w-7xl mx-auto w-full space-y-10 p-3 sm:p-4 md:p-6">
         {/* Top meta bar */}
         <div className="flex items-center justify-between text-[10px] font-mono uppercase tracking-[0.25em] border-b border-black/[0.06] pb-3">
           <span>// 2MC—GASTRO / DASHBOARD_001</span>
           <span className="hidden md:block">EST. 2010 · ANTALYA / TR</span>
-          <span className="text-[rgb(40,120,191)]">● ONLINE</span>
+          <span className="text-primary">● ONLINE</span>
         </div>
 
         {/* Hero header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4 sm:gap-6">
           <div>
-            <div className="flex items-center gap-3 mb-4 text-[10px] font-mono uppercase tracking-[0.3em] text-[rgb(40,120,191)]">
-              <span className="w-8 h-px bg-[rgb(40,120,191)]/50" />
+            <div className="flex items-center gap-3 mb-4 text-[10px] font-mono uppercase tracking-[0.3em] text-primary">
+              <span className="w-8 h-px bg-primary/50" />
               <span>{t('dashboard.eyebrow', 'Overview · Vol. I')}</span>
             </div>
-            <h1 className="font-black text-5xl md:text-6xl tracking-[-0.03em] leading-[0.95]">
+            <h1 className="font-black text-2xl sm:text-3xl md:text-5xl lg:text-6xl tracking-[-0.03em] leading-[0.95]">
               {t('dashboard.title')}
             </h1>
             <p className="mt-3 text-base">
@@ -53,7 +53,7 @@ export default function Dashboard() {
           </div>
           <Link
             to="/projects/new"
-            className="flex items-center gap-2 bg-[rgb(40,120,191)] hover:bg-[rgb(1,84,178)] text-white px-6 py-3.5 font-bold uppercase tracking-[0.1em] text-sm transition-all"
+            className="flex items-center gap-2 bg-primary hover:bg-primary-container text-white px-6 py-3.5 font-bold uppercase tracking-[0.1em] text-sm transition-all w-full sm:w-auto justify-center"
           >
             <Plus size={18} /> {t('dashboard.newProject')}
           </Link>
@@ -64,10 +64,10 @@ export default function Dashboard() {
           <div className="lg:col-span-8 bg-white flex flex-col">
             <div className="p-6 border-b border-black/[0.06] flex justify-between items-center">
               <div className="flex items-center gap-3">
-                <span className="text-[10px] font-mono text-[rgb(40,120,191)]">[01]</span>
+                <span className="text-[10px] font-mono text-primary">[01]</span>
                 <h2 className="text-sm font-bold uppercase tracking-[0.2em]">{t('dashboard.activeProjects')}</h2>
               </div>
-              <Link to="/projects" className="text-[#777] hover:text-[rgb(40,120,191)] transition-colors">
+              <Link to="/projects" className="text-[#777] hover:text-primary transition-colors">
                 <Filter size={18} />
               </Link>
             </div>
@@ -99,12 +99,12 @@ export default function Dashboard() {
                       </td>
                       <td className="px-6 py-5">
                         <div className="w-24 h-1 bg-black/[0.06] overflow-hidden">
-                          <div className="bg-[rgb(40,120,191)] h-full" style={{ width: `${project.progress}%` }}></div>
+                          <div className="bg-primary h-full" style={{ width: `${project.progress}%` }}></div>
                         </div>
                       </td>
                       <td className="px-6 py-5 text-right">
                         <Link to={`/projects/${project.id}`}>
-                          <ChevronRight size={18} className="text-[#999] group-hover:text-[rgb(40,120,191)] transition-colors inline-block" />
+                          <ChevronRight size={18} className="text-[#999] group-hover:text-primary transition-colors inline-block" />
                         </Link>
                       </td>
                     </tr>
@@ -117,21 +117,21 @@ export default function Dashboard() {
           {/* Sidebar */}
           <div className="lg:col-span-4 bg-white flex flex-col">
             <div className="p-6 border-b border-black/[0.06] flex items-center gap-3">
-              <span className="text-[10px] font-mono text-[rgb(40,120,191)]">[02]</span>
-              <History size={16} className="text-[rgb(40,120,191)]" />
+              <span className="text-[10px] font-mono text-primary">[02]</span>
+              <History size={16} className="text-primary" />
               <h2 className="text-sm font-bold uppercase tracking-[0.2em]">{t('dashboard.recentActivity')}</h2>
             </div>
             <div className="p-6 space-y-6 flex-1">
               {activities.map((activity, i) => (
                 <div key={activity.id} className="flex gap-4">
                   <div className="flex flex-col items-center">
-                    <div className={`w-2 h-2 rounded-full mt-1.5 ${activity.active ? 'bg-[rgb(40,120,191)]' : 'bg-black/20'}`}></div>
+                    <div className={`w-2 h-2 rounded-full mt-1.5 ${activity.active ? 'bg-primary' : 'bg-black/20'}`}></div>
                     {i < activities.length - 1 && <div className="w-px h-full bg-black/[0.08] mt-2"></div>}
                   </div>
                   <div className="pb-2 flex-1">
                     <p className="text-sm font-bold">{t(`dashboard.${activity.title}`, { defaultValue: activity.title })}</p>
                     <p className="text-xs mt-0.5">{activity.desc}</p>
-                    <p className="text-[10px] text-[rgb(40,120,191)] font-mono mt-1.5 uppercase tracking-[0.15em]">
+                    <p className="text-[10px] text-primary font-mono mt-1.5 uppercase tracking-[0.15em]">
                       {activity.time === 'yesterday' ? t('dashboard.yesterday') : activity.time}
                     </p>
                   </div>
@@ -140,13 +140,13 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-2 gap-px bg-black/[0.06] border-t border-black/[0.06]">
-              <Link to="/catalog" className="bg-[rgb(40,120,191)] hover:bg-[rgb(1,84,178)] p-5 flex flex-col justify-between group transition-colors min-h-[140px]">
+              <Link to="/catalog" className="bg-primary hover:bg-primary-container p-5 flex flex-col justify-between group transition-colors min-h-[100px] sm:min-h-[120px] md:min-h-[140px]">
                 <Refrigerator className="text-white mb-4" size={26} />
                 <span className="text-white font-bold text-xs uppercase tracking-[0.1em] leading-tight">{t('dashboard.equipmentCatalog')}</span>
               </Link>
-              <Link to="/docs" className="bg-[#fafafa] hover:bg-[#f0f0f0] p-5 flex flex-col justify-between group transition-colors min-h-[140px]">
-                <FolderOpen className="text-[rgb(40,120,191)] mb-4" size={26} />
-                <span className="text-[rgb(40,120,191)] font-bold text-xs uppercase tracking-[0.1em] leading-tight">{t('dashboard.standardsGuides')}</span>
+              <Link to="/docs" className="bg-[#fafafa] hover:bg-[#f0f0f0] p-5 flex flex-col justify-between group transition-colors min-h-[100px] sm:min-h-[120px] md:min-h-[140px]">
+                <FolderOpen className="text-primary mb-4" size={26} />
+                <span className="text-primary font-bold text-xs uppercase tracking-[0.1em] leading-tight">{t('dashboard.standardsGuides')}</span>
               </Link>
             </div>
           </div>
@@ -156,7 +156,7 @@ export default function Dashboard() {
         <div className="space-y-6 pt-6">
           <div className="flex items-baseline justify-between border-b border-black/[0.06] pb-3">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] font-mono text-[rgb(40,120,191)]">[03]</span>
+              <span className="text-[10px] font-mono text-primary">[03]</span>
               <h2 className="text-sm font-bold uppercase tracking-[0.2em]">{t('dashboard.featuredItems')}</h2>
             </div>
             <span className="text-[10px] font-mono uppercase tracking-[0.25em] text-[#999]">↓ 03 Items</span>
@@ -171,15 +171,15 @@ export default function Dashboard() {
               return (
                 <Link key={i} to="/catalog" className="relative group bg-white h-64 cursor-pointer overflow-hidden">
                   <div className="w-full h-full bg-[#fafafa] flex items-center justify-center group-hover:bg-[#f0f0f0] transition-colors">
-                    <Refrigerator size={72} className="text-[rgb(40,120,191)]/20 group-hover:text-[rgb(40,120,191)]/40 transition-colors" />
+                    <Refrigerator size={72} className="text-primary/20 group-hover:text-primary/40 transition-colors" />
                   </div>
                   <div className="absolute inset-0 p-6 flex flex-col justify-between">
                     <div className="flex items-start justify-between">
-                      <span className="text-[10px] font-mono text-[rgb(40,120,191)]">[{num}]</span>
-                      <ArrowRight size={16} className="text-[#999] group-hover:text-[rgb(40,120,191)] group-hover:translate-x-1 transition-all" />
+                      <span className="text-[10px] font-mono text-primary">[{num}]</span>
+                      <ArrowRight size={16} className="text-[#999] group-hover:text-primary group-hover:translate-x-1 transition-all" />
                     </div>
                     <div>
-                      <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[rgb(40,120,191)] block mb-1">{item.tag}</span>
+                      <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-primary block mb-1">{item.tag}</span>
                       <h3 className="font-black text-lg tracking-tight">{item.title}</h3>
                     </div>
                   </div>

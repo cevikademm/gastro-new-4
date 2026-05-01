@@ -99,7 +99,7 @@ export default function PaymentMethodSelector({
               onClick={() => handleMethodSelect(method.id)}
               className={`p-4 rounded-xl border-2 text-left transition-all ${
                 isSelected
-                  ? 'border-sky-500 bg-sky-50'
+                  ? 'border-[#7B1F26] bg-red-50'
                   : 'border-slate-200 hover:border-slate-300'
               }`}
             >
@@ -107,7 +107,7 @@ export default function PaymentMethodSelector({
                 {Icon && (
                   <Icon
                     size={20}
-                    className={isSelected ? 'text-sky-600' : 'text-slate-400'}
+                    className={isSelected ? 'text-[#7B1F26]' : 'text-slate-400'}
                   />
                 )}
                 <div className="flex-1">
@@ -133,8 +133,8 @@ export default function PaymentMethodSelector({
 
       {/* Method-Specific Fields */}
       {selectedMethodId === 'sepa' && (
-        <div className="bg-blue-50 rounded-xl p-4 space-y-4 border border-blue-200">
-          <h4 className="font-semibold text-blue-900">
+        <div className="bg-red-50 rounded-xl p-4 space-y-4 border border-red-200">
+          <h4 className="font-semibold text-[#5A1219]">
             {t('payment.sepaDetails', 'SEPA Direct Debit')}
           </h4>
 
@@ -147,7 +147,7 @@ export default function PaymentMethodSelector({
               placeholder="DE89 3704 0044 0532 0130 00"
               value={paymentData.iban || ''}
               onChange={(e) => handleIBANChange(e.target.value)}
-              className={`w-full px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-blue-300 outline-none ${
+              className={`w-full px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-red-300 outline-none ${
                 ibanError ? 'border-red-500' : 'border-slate-200'
               }`}
             />
@@ -165,7 +165,7 @@ export default function PaymentMethodSelector({
               placeholder="COBADEFF"
               value={paymentData.bic || ''}
               onChange={(e) => handleBICChange(e.target.value)}
-              className={`w-full px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-blue-300 outline-none ${
+              className={`w-full px-3 py-2 rounded-lg border text-sm focus:ring-2 focus:ring-red-300 outline-none ${
                 bicError ? 'border-red-500' : 'border-slate-200'
               }`}
             />

@@ -504,26 +504,10 @@ export default function WelcomePage() {
             <button
               type="button"
               onClick={() => navigate('/welcome')}
-              className="flex items-center gap-2 shrink-0"
+              className="flex items-center shrink-0"
               aria-label="2MC Gastro"
             >
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center text-white font-black"
-                style={{ background: 'linear-gradient(135deg, #7B1F26, #5A1219)', fontFamily: 'Fraunces, Georgia, serif' }}
-              >
-                2
-              </div>
-              <div className="leading-none">
-                <div
-                  className="text-[18px] font-black tracking-tight"
-                  style={{ color: '#0F2440', fontFamily: 'Fraunces, Georgia, serif', fontWeight: 600 }}
-                >
-                  2MC <span style={{ color: '#7B1F26', fontStyle: 'italic', fontWeight: 500 }}>Gastro</span>
-                </div>
-                <div className="text-[9px] uppercase tracking-[0.25em] mt-0.5" style={{ color: 'rgba(15,36,64,0.5)' }}>
-                  Professional Kitchen
-                </div>
-              </div>
+              <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-12 sm:h-14 object-contain" />
             </button>
 
             {/* Arama */}
@@ -681,7 +665,7 @@ export default function WelcomePage() {
               <div className="mt-4 flex items-center justify-between gap-3">
                 <span
                   className="text-[10px] font-mono uppercase tracking-[0.28em] hidden sm:inline-block"
-                  style={{ color: 'rgba(15,36,64,0.45)' }}
+                  style={{ color: 'rgba(15,36,64,0.65)' }}
                 >
                   // 10.000+ {t('welcome.topcat.products', 'ÜRÜN')} · 50+ {t('welcome.topcat.brands', 'MARKA')}
                 </span>
@@ -1010,7 +994,7 @@ export default function WelcomePage() {
                         {s.value}
                       </div>
                       <div className="mt-2 font-bold text-[13.5px]" style={{ color: '#0F2440' }}>{s.label}</div>
-                      <div className="text-[11px] mt-0.5" style={{ color: 'rgba(15,36,64,0.55)' }}>
+                      <div className="text-[11px] mt-0.5" style={{ color: 'rgba(15,36,64,0.72)' }}>
                         {s.sub}
                       </div>
                     </motion.div>
@@ -1630,9 +1614,9 @@ export default function WelcomePage() {
                       >
                         4.9
                       </span>
-                      <span className="text-base" style={{ color: 'rgba(15,36,64,0.5)' }}>/ 5.0</span>
+                      <span className="text-base" style={{ color: 'rgba(15,36,64,0.70)' }}>/ 5.0</span>
                     </div>
-                    <div className="text-[11px] mt-2" style={{ color: 'rgba(15,36,64,0.55)' }}>
+                    <div className="text-[11px] mt-2" style={{ color: 'rgba(15,36,64,0.72)' }}>
                       {t('welcome.rev.count', '320+ doğrulanmış Google yorumu')}
                     </div>
                   </div>
@@ -1696,7 +1680,7 @@ export default function WelcomePage() {
           <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
               <div>
-                <div className="text-[10px] font-mono uppercase tracking-[0.25em] mb-1" style={{ color: 'rgba(15,36,64,0.45)' }}>
+                <div className="text-[10px] font-mono uppercase tracking-[0.25em] mb-1" style={{ color: 'rgba(15,36,64,0.65)' }}>
                   {t('welcome.pay.eyebrow', 'Ödeme Yöntemleri')}
                 </div>
                 <div className="text-sm font-semibold" style={{ color: '#0F2440' }}>
@@ -1724,63 +1708,165 @@ export default function WelcomePage() {
             Tiefstpreisgarantie tarzı büyük başlık + CTA + sağda görsel + banner
            ═══════════════════════════════════════════════════════════════════ */}
         <SectionSlot id="hero">
-        <section className="w-full" style={{ background: '#faf9f5' }}>
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 pt-10 pb-14 lg:pt-14 lg:pb-20">
+        <section className="w-full" style={{ background: 'linear-gradient(160deg, #0F2440 0%, #1a3a5c 40%, #0F2440 100%)' }}>
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
 
-            {/* Banner — storeden gelen slide */}
-            {currentSlide && (
-              <motion.button
-                type="button"
-                onClick={() => setBannerIdx((i) => (i + 1) % Math.max(1, slides.length))}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.7, delay: 0.3 }}
-                className="group relative w-full overflow-hidden rounded-2xl aspect-[820/240] border"
-                style={{ borderColor: '#e8e6df' }}
+            {/* Hero içerik alanı */}
+            <div className="grid lg:grid-cols-[1fr_1fr] gap-8 lg:gap-14 items-center pt-12 pb-10 lg:pt-16 lg:pb-14">
+
+              {/* Sol: Başlık + CTA */}
+              <motion.div
+                initial={{ opacity: 0, x: -30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, ease: 'easeOut' }}
               >
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={currentSlide.id}
-                    initial={{ opacity: 0, scale: 1.04 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.98 }}
-                    transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
-                    className="absolute inset-0 flex flex-col justify-center px-6 sm:px-12"
-                    style={
-                      currentSlide.image
-                        ? { backgroundImage: `url(${currentSlide.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
-                        : { background: currentSlide.gradient || '#0F2440' }
-                    }
+                <div
+                  className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] mb-5"
+                  style={{ background: 'rgba(123,31,38,0.25)', color: '#e8a0a8', border: '1px solid rgba(123,31,38,0.4)' }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full animate-pulse" style={{ background: '#A04654' }} />
+                  {t('welcome.hero.badge', 'Avrupa\'nın Profesyonel Gastro Mağazası')}
+                </div>
+
+                <h1
+                  className="text-4xl sm:text-5xl lg:text-[56px] font-black leading-[1.02] tracking-tight text-white"
+                  style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500 }}
+                >
+                  {t('welcome.hero.title1', 'Profesyonel mutfak')}{' '}
+                  <span style={{ color: '#A04654', fontStyle: 'italic' }}>
+                    {t('welcome.hero.title2', 'ekipmanları')}
+                  </span>
+                  <br />
+                  {t('welcome.hero.title3', 'tek çatı altında.')}
+                </h1>
+
+                <p className="mt-5 text-[15px] leading-relaxed max-w-lg" style={{ color: 'rgba(255,255,255,0.88)' }}>
+                  {t('welcome.hero.sub', '10.000+ CE sertifikalı ürün · Ücretsiz Avrupa teslimatı · 2 yıl garanti · 3D mutfak tasarım stüdyosu')}
+                </p>
+
+                <div className="flex flex-wrap gap-3 mt-8">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/diamond')}
+                    className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-[14px] text-white transition-all hover:-translate-y-0.5 hover:shadow-2xl"
+                    style={{ background: 'linear-gradient(135deg, #7B1F26 0%, #5A1219 100%)', boxShadow: '0 8px 24px rgba(123,31,38,0.45)' }}
                   >
-                    {!currentSlide.image && (
-                      <div className="relative z-10 text-left">
-                        <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-white/80 mb-3">
-                          {currentSlide.eyebrow}
+                    {t('welcome.hero.cta1', 'Ürün Kataloğu')}
+                    <ArrowRight size={16} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => navigate('/login')}
+                    className="flex items-center gap-2 px-6 py-3.5 rounded-xl font-bold text-[14px] transition-all hover:-translate-y-0.5"
+                    style={{ background: 'rgba(255,255,255,0.1)', color: '#fff', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(8px)' }}
+                  >
+                    <User size={16} />
+                    {t('welcome.hero.cta2', 'Giriş Yap / Kayıt Ol')}
+                  </button>
+                </div>
+
+                {/* Trust stats */}
+                <div className="flex flex-wrap gap-x-6 gap-y-2 mt-8 pt-6 border-t" style={{ borderColor: 'rgba(255,255,255,0.1)' }}>
+                  {[
+                    { v: '10.000+', l: t('welcome.hero.stat1', 'Ürün') },
+                    { v: '15+',     l: t('welcome.hero.stat2', 'Yıl Deneyim') },
+                    { v: '4.9/5',   l: t('welcome.hero.stat3', 'Müşteri Puanı') },
+                    { v: '50+',     l: t('welcome.hero.stat4', 'Marka') },
+                  ].map((s) => (
+                    <div key={s.l} className="flex items-baseline gap-1.5">
+                      <span className="text-xl font-black text-white" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>{s.v}</span>
+                      <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.75)' }}>{s.l}</span>
+                    </div>
+                  ))}
+                </div>
+              </motion.div>
+
+              {/* Sağ: Banner slider */}
+              <motion.div
+                initial={{ opacity: 0, x: 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
+                className="relative"
+              >
+                {currentSlide ? (
+                  <div
+                    className="relative w-full overflow-hidden rounded-2xl border"
+                    style={{ borderColor: 'rgba(255,255,255,0.12)', boxShadow: '0 32px 64px rgba(0,0,0,0.4)', aspectRatio: '4/3' }}
+                  >
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={currentSlide.id}
+                        initial={{ opacity: 0, scale: 1.04 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.98 }}
+                        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+                        className="absolute inset-0 flex flex-col justify-end px-6 pb-6"
+                        style={
+                          currentSlide.image
+                            ? { backgroundImage: `url(${currentSlide.image})`, backgroundSize: 'cover', backgroundPosition: 'center' }
+                            : { background: currentSlide.gradient || 'linear-gradient(135deg, #1a3a5c, #0F2440)' }
+                        }
+                      >
+                        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(15,36,64,0.85) 0%, transparent 60%)' }} />
+                        <div className="relative z-10">
+                          {currentSlide.eyebrow && (
+                            <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-1" style={{ color: 'rgba(255,255,255,0.85)' }}>
+                              {currentSlide.eyebrow}
+                            </div>
+                          )}
+                          <div className="text-lg font-bold text-white leading-tight">{currentSlide.title}</div>
+                          {currentSlide.subtitle && (
+                            <div className="text-[12px] mt-1" style={{ color: 'rgba(255,255,255,0.90)' }}>{currentSlide.subtitle}</div>
+                          )}
                         </div>
-                        <h3 className="text-2xl md:text-3xl font-black text-white leading-tight max-w-xl">
-                          {currentSlide.title}
-                        </h3>
-                        <p className="text-sm text-white/85 mt-2 max-w-lg">{currentSlide.subtitle}</p>
+                      </motion.div>
+                    </AnimatePresence>
+                    {slides.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setBannerIdx((i) => (i + 1) % Math.max(1, slides.length))}
+                        className="absolute inset-0 z-20"
+                        aria-label="Sonraki slayt"
+                      />
+                    )}
+                    {slides.length > 1 && (
+                      <div className="absolute bottom-3 right-4 flex gap-1.5 z-30">
+                        {slides.map((_, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); setBannerIdx(i); }}
+                            className="h-1.5 rounded-full transition-all"
+                            style={{ width: i === bannerIdx ? 24 : 6, background: i === bannerIdx ? '#A04654' : 'rgba(255,255,255,0.4)' }}
+                          />
+                        ))}
                       </div>
                     )}
-                  </motion.div>
-                </AnimatePresence>
-                {slides.length > 1 && (
-                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
-                    {slides.map((_, i) => (
-                      <span
-                        key={i}
-                        className="h-1 rounded-full transition-all"
-                        style={{
-                          width: i === bannerIdx ? 28 : 8,
-                          background: i === bannerIdx ? '#7B1F26' : 'rgba(255,255,255,0.45)',
-                        }}
-                      />
-                    ))}
+                  </div>
+                ) : (
+                  /* Slide yoksa dekoratif görsel */
+                  <div
+                    className="relative w-full rounded-2xl overflow-hidden flex items-center justify-center border"
+                    style={{ aspectRatio: '4/3', background: 'linear-gradient(135deg, rgba(123,31,38,0.2), rgba(15,36,64,0.5))', borderColor: 'rgba(255,255,255,0.1)' }}
+                  >
+                    <div className="text-center p-8">
+                      <div className="w-20 h-20 mx-auto mb-4 rounded-2xl flex items-center justify-center" style={{ background: 'rgba(123,31,38,0.3)' }}>
+                        <ChefHat size={40} style={{ color: '#A04654' }} />
+                      </div>
+                      <div className="text-white font-bold text-lg" style={{ fontFamily: 'Fraunces, Georgia, serif' }}>
+                        {t('welcome.hero.visual', 'Profesyonel Mutfak Çözümleri')}
+                      </div>
+                      <div className="text-[13px] mt-2" style={{ color: 'rgba(255,255,255,0.78)' }}>
+                        {t('welcome.hero.visualSub', 'Soğutma · Pişirme · Hazırlık · Servis')}
+                      </div>
+                    </div>
+                    {/* Dekoratif daireler */}
+                    <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full" style={{ background: 'rgba(123,31,38,0.15)' }} />
+                    <div className="absolute -bottom-6 -left-6 w-24 h-24 rounded-full" style={{ background: 'rgba(123,31,38,0.1)' }} />
                   </div>
                 )}
-              </motion.button>
-            )}
+              </motion.div>
+            </div>
           </div>
         </section>
 
@@ -1895,7 +1981,7 @@ export default function WelcomePage() {
                     />
                   </div>
                   <div className="p-4 border-t flex-1 flex flex-col" style={{ borderColor: '#f0eee6' }}>
-                    <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'rgba(15,36,64,0.4)' }}>
+                    <div className="text-[10px] font-semibold uppercase tracking-wider mb-1" style={{ color: 'rgba(15,36,64,0.62)' }}>
                       Art.Nr: {p.id}
                     </div>
                     <h3
@@ -1991,7 +2077,7 @@ export default function WelcomePage() {
                   exposure="1.1"
                   style={{ width: '100%', height: '100%', backgroundColor: 'transparent' }}
                 />
-                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-white/15 bg-black/50 text-white/60">
+                <div className="absolute bottom-3 left-1/2 -translate-x-1/2 text-[10px] font-mono uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border border-white/15 bg-black/50 text-white/85">
                   {t('welcome.showcase3d.modal.hint', 'Döndür · Yakınlaştır · Sürükle')}
                 </div>
               </div>
@@ -2011,10 +2097,10 @@ export default function WelcomePage() {
                   </div>
                   <h3 className="text-white font-black text-2xl tracking-tight leading-tight mb-2">{view3D.title}</h3>
                   <p className={`text-sm font-semibold ${view3D.text} mb-3`}>{view3D.subtitle}</p>
-                  <p className="text-white/60 text-[13px] leading-relaxed">{view3D.desc}</p>
+                  <p className="text-white/85 text-[13px] leading-relaxed">{view3D.desc}</p>
                   {view3D.priceLabel && (
                     <div className="mt-4 flex items-baseline gap-2">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-white/40">
+                      <span className="text-[10px] font-mono uppercase tracking-wider text-white/70">
                         {t('welcome.showcase3d.modal.catalogPrice', 'Katalog fiyatı')}
                       </span>
                       <span className={`text-xl font-black ${view3D.text}`}>{view3D.priceLabel}</span>
@@ -2023,13 +2109,13 @@ export default function WelcomePage() {
                 </div>
 
                 <div className="px-6 py-4 border-t border-white/5">
-                  <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-white/40 mb-3">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-white/70 mb-3">
                     {t('welcome.showcase3d.modal.techSpecs', 'Teknik Özellikler')}
                   </div>
                   <div className="space-y-1">
                     {view3D.specs.map((r) => (
                       <div key={r.k} className="flex items-center justify-between text-[12px] py-1.5 border-b border-white/5 last:border-0">
-                        <span className="text-white/45 font-mono uppercase tracking-wider text-[10px]">{r.k}</span>
+                        <span className="text-white/72 font-mono uppercase tracking-wider text-[10px]">{r.k}</span>
                         <span className="text-white/85 font-semibold text-right">{r.v}</span>
                       </div>
                     ))}
@@ -2037,7 +2123,7 @@ export default function WelcomePage() {
                 </div>
 
                 <div className="px-6 py-4 border-t border-white/5">
-                  <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-white/40 mb-3">
+                  <div className="text-[10px] font-mono uppercase tracking-[0.22em] text-white/70 mb-3">
                     {t('welcome.showcase3d.modal.highlights', 'Öne Çıkan Özellikler')}
                   </div>
                   <ul className="space-y-1.5">

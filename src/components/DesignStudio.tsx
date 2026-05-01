@@ -1112,17 +1112,17 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
             <div className="flex bg-slate-100 rounded-lg p-0.5 mr-2">
               <button
                 onClick={() => { setAddOpeningMode(addOpeningMode === 'door' ? null : 'door'); setActiveTool('select'); }}
-                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'door' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400'}`}
+                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'door' ? 'bg-white shadow-sm text-[#7B1F26]' : 'text-slate-400'}`}
                 title="Kapı Ekle"
               ><DoorOpen size={15} /></button>
               <button
                 onClick={() => { setAddOpeningMode(addOpeningMode === 'double-door' ? null : 'double-door'); setActiveTool('select'); }}
-                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'double-door' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400'}`}
+                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'double-door' ? 'bg-white shadow-sm text-[#7B1F26]' : 'text-slate-400'}`}
                 title="Çift Kanat Kapı"
               ><DoorOpen size={15} className="scale-x-[-1]" /></button>
               <button
                 onClick={() => { setAddOpeningMode(addOpeningMode === 'window' ? null : 'window'); setActiveTool('select'); }}
-                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'window' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400'}`}
+                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'window' ? 'bg-white shadow-sm text-[#7B1F26]' : 'text-slate-400'}`}
                 title="Pencere Ekle"
               ><AppWindow size={15} /></button>
             </div>
@@ -1252,7 +1252,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
               {selectedVertex !== null && (
                 <>
                   <div className="w-px h-4 bg-slate-200" />
-                  <div className="text-blue-600">Nokta {selectedVertex + 1} seçili</div>
+                  <div className="text-[#7B1F26]">Nokta {selectedVertex + 1} seçili</div>
                 </>
               )}
             </div>

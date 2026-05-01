@@ -7,7 +7,7 @@ import {
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
   pending: { label: 'Beklemede', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', icon: Clock },
-  confirmed: { label: 'Onaylandı', color: 'text-blue-700', bg: 'bg-blue-50 border-blue-200', icon: CheckCircle },
+  confirmed: { label: 'Onaylandı', color: 'text-[#7B1F26]', bg: 'bg-red-50 border-red-200', icon: CheckCircle },
   shipped: { label: 'Kargoda', color: 'text-violet-700', bg: 'bg-violet-50 border-violet-200', icon: Truck },
   delivered: { label: 'Teslim Edildi', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: PackageCheck },
   cancelled: { label: 'İptal Edildi', color: 'text-red-700', bg: 'bg-red-50 border-red-200', icon: XCircle },

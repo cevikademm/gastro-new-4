@@ -19,7 +19,7 @@ export default function ProjectListPage() {
   });
 
   const statusColors: Record<string, string> = {
-    drafting: 'bg-blue-100 text-primary border-primary/10',
+    drafting: 'bg-red-100 text-primary border-primary/10',
     quoted: 'bg-amber-100 text-amber-900 border-amber-200',
     complete: 'bg-emerald-100 text-emerald-900 border-emerald-200',
     inProgress: 'bg-violet-100 text-violet-900 border-violet-200',
@@ -42,7 +42,7 @@ export default function ProjectListPage() {
   return (
     <div className="max-w-7xl mx-auto w-full space-y-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight">{t('projects.title')}</h1>
+        <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight">{t('projects.title')}</h1>
         <Link to="/projects/new" className="flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-all hover:opacity-90 active:scale-95">
           <Plus size={20} /> {t('projects.newProject')}
         </Link>

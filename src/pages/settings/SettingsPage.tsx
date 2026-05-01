@@ -39,7 +39,7 @@ export default function SettingsPage() {
 
   return (
     <div className="max-w-5xl mx-auto w-full space-y-6">
-      <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight">{t('settings.title')}</h1>
+      <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight">{t('settings.title')}</h1>
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-64 flex lg:flex-col gap-2 overflow-x-auto">

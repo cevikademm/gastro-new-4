@@ -117,12 +117,18 @@ export default function CheckoutPage() {
 
   if (items.length === 0) {
     return (
-      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4">
+      <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 px-4">
         <Package className="text-slate-300" size={64} />
-        <p className="text-slate-500">{t('cart.empty', 'Sepetiniz boş')}</p>
-        <Link to="/diamond" className="px-6 h-12 inline-flex items-center rounded-xl bg-sky-500 text-white font-bold">
-          {t('cart.startShopping', 'Alışverişe Başla')}
-        </Link>
+        <p className="text-lg font-semibold text-slate-500">{t('cart.empty', 'Sepetiniz boş')}</p>
+        <p className="text-sm text-slate-400 text-center max-w-sm">{t('cart.emptyHint', 'Kataloğumuza göz atarak profesyonel mutfak ekipmanlarını keşfedin.')}</p>
+        <div className="flex flex-col sm:flex-row gap-3 mt-2">
+          <Link to="/diamond" className="px-6 h-12 inline-flex items-center justify-center rounded-xl bg-sky-500 text-white font-bold">
+            {t('cart.startShopping', 'Alışverişe Başla')}
+          </Link>
+          <Link to="/catalog" className="px-6 h-12 inline-flex items-center justify-center rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50">
+            {t('cart.browseCatalog', 'Kataloğa Git')}
+          </Link>
+        </div>
       </div>
     );
   }
@@ -140,7 +146,7 @@ export default function CheckoutPage() {
                 }`}>
                   {step > s.n ? <Check size={18} /> : s.n}
                 </div>
-                <span className={`text-xs mt-2 font-semibold ${step >= s.n ? 'text-sky-600' : 'text-slate-400'}`}>
+                <span className={`text-xs mt-2 font-semibold hidden sm:inline ${step >= s.n ? 'text-sky-600' : 'text-slate-400'}`}>
                   {s.label}
                 </span>
               </div>
@@ -164,21 +170,21 @@ export default function CheckoutPage() {
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <Field icon={Mail} label="E-posta" value={contact.email}
-                      onChange={(v) => setContact({ ...contact, email: v })} type="email" full />
+                      onChange={(v) => setContact({ ...contact, email: v })} type="email" full autoComplete="email" />
                     <Field icon={User} label="Ad" value={contact.firstName}
-                      onChange={(v) => setContact({ ...contact, firstName: v })} />
+                      onChange={(v) => setContact({ ...contact, firstName: v })} autoComplete="given-name" />
                     <Field icon={User} label="Soyad" value={contact.lastName}
-                      onChange={(v) => setContact({ ...contact, lastName: v })} />
+                      onChange={(v) => setContact({ ...contact, lastName: v })} autoComplete="family-name" />
                     <Field icon={Phone} label="Telefon" value={contact.phone}
-                      onChange={(v) => setContact({ ...contact, phone: v })} />
+                      onChange={(v) => setContact({ ...contact, phone: v })} autoComplete="tel" />
                     <Field icon={Building2} label="Firma (ops.)" value={contact.company}
-                      onChange={(v) => setContact({ ...contact, company: v })} />
+                      onChange={(v) => setContact({ ...contact, company: v })} autoComplete="organization" />
                     <Field icon={MapPin} label="Adres" value={contact.address}
-                      onChange={(v) => setContact({ ...contact, address: v })} full />
+                      onChange={(v) => setContact({ ...contact, address: v })} full autoComplete="street-address" />
                     <Field label="Şehir" value={contact.city}
-                      onChange={(v) => setContact({ ...contact, city: v })} />
+                      onChange={(v) => setContact({ ...contact, city: v })} autoComplete="address-level2" />
                     <Field label="Posta Kodu" value={contact.postal}
-                      onChange={(v) => setContact({ ...contact, postal: v })} />
+                      onChange={(v) => setContact({ ...contact, postal: v })} autoComplete="postal-code" />
                   </div>
                 </motion.div>
               )}
@@ -274,7 +280,7 @@ export default function CheckoutPage() {
               <div className="space-y-3 max-h-64 overflow-y-auto pr-2">
                 {items.map((it) => (
                   <div key={it.product.id} className="flex gap-3">
-                    <div className="w-14 h-14 bg-slate-50 rounded-lg overflow-hidden flex-shrink-0 relative">
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 bg-slate-50 rounded-lg overflow-hidden flex-shrink-0 relative">
                       {it.product.img && <img src={it.product.img} alt="" className="w-full h-full object-contain" />}
                       <span className="absolute -top-1 -right-1 w-5 h-5 bg-slate-900 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                         {it.quantity}
@@ -316,7 +322,7 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 function Field({
-  label, value, onChange, type = 'text', icon: Icon, full,
+  label, value, onChange, type = 'text', icon: Icon, full, autoComplete,
 }: {
   label: string;
   value: string;
@@ -324,16 +330,20 @@ function Field({
   type?: string;
   icon?: any;
   full?: boolean;
+  autoComplete?: string;
 }) {
+  const id = `co-${label.replace(/\s+/g, '-').toLowerCase()}`;
   return (
     <div className={full ? 'sm:col-span-2' : ''}>
-      <label className="block text-xs font-semibold text-slate-500 mb-1">{label}</label>
+      <label htmlFor={id} className="block text-xs font-semibold text-slate-500 mb-1">{label}</label>
       <div className="relative">
         {Icon && <Icon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />}
         <input
+          id={id}
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          autoComplete={autoComplete}
           className={`w-full h-11 rounded-xl border border-slate-200 bg-white text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-100 outline-none transition ${
             Icon ? 'pl-10 pr-3' : 'px-3'
           }`}

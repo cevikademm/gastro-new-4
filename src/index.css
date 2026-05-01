@@ -6,10 +6,10 @@
   --font-body: "Inter", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  --color-primary: #001f65;
-  --color-primary-container: #183585;
-  --color-primary-fixed: #dce1ff;
-  --color-primary-fixed-dim: #b6c4ff;
+  --color-primary: #7B1F26;
+  --color-primary-container: #5A1219;
+  --color-primary-fixed: #fce4e6;
+  --color-primary-fixed-dim: #e8a0a6;
   --color-surface: #f7f9fb;
   --color-surface-container-low: #f2f4f6;
   --color-surface-container-lowest: #ffffff;
@@ -19,9 +19,9 @@
   --color-on-surface: #191c1e;
   --color-on-surface-variant: #43474c;
   --color-outline-variant: #c4c6cd;
-  --color-secondary: #515f74;
+  --color-secondary: #0F2440;
   --color-secondary-container: #d5e3fc;
-  --color-on-secondary-container: #57657a;
+  --color-on-secondary-container: #0F2440;
   --color-tertiary: #1e2539;
   --color-tertiary-fixed: #dae2fd;
   --color-tertiary-fixed-dim: #bec6e0;
@@ -55,13 +55,13 @@
   --radius-full: 9999px;
 
   /* Shadow system — brand-tinted elevation */
-  --shadow-xs: 0 1px 2px 0 rgb(0 31 101 / 0.04);
-  --shadow-sm: 0 1px 3px 0 rgb(0 31 101 / 0.08), 0 1px 2px -1px rgb(0 31 101 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(0 31 101 / 0.10), 0 2px 4px -2px rgb(0 31 101 / 0.06);
-  --shadow-lg: 0 10px 15px -3px rgb(0 31 101 / 0.12), 0 4px 6px -4px rgb(0 31 101 / 0.08);
-  --shadow-xl: 0 20px 25px -5px rgb(0 31 101 / 0.14), 0 8px 10px -6px rgb(0 31 101 / 0.10);
-  --shadow-2xl: 0 25px 50px -12px rgb(0 31 101 / 0.25);
-  --shadow-inner: inset 0 2px 4px 0 rgb(0 31 101 / 0.06);
+  --shadow-xs: 0 1px 2px 0 rgb(123 31 38 / 0.04);
+  --shadow-sm: 0 1px 3px 0 rgb(123 31 38 / 0.08), 0 1px 2px -1px rgb(123 31 38 / 0.06);
+  --shadow-md: 0 4px 6px -1px rgb(123 31 38 / 0.10), 0 2px 4px -2px rgb(123 31 38 / 0.06);
+  --shadow-lg: 0 10px 15px -3px rgb(123 31 38 / 0.12), 0 4px 6px -4px rgb(123 31 38 / 0.08);
+  --shadow-xl: 0 20px 25px -5px rgb(123 31 38 / 0.14), 0 8px 10px -6px rgb(123 31 38 / 0.10);
+  --shadow-2xl: 0 25px 50px -12px rgb(123 31 38 / 0.25);
+  --shadow-inner: inset 0 2px 4px 0 rgb(123 31 38 / 0.06);
 
   /* Motion — durations & easings */
   --ease-brand: cubic-bezier(0.4, 0, 0.2, 1);
@@ -110,7 +110,52 @@
   --breakpoint-2xl: 96rem;   /* 1536px — wide */
 }
 
+@layer base {
+  html {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  body {
+    overscroll-behavior-y: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+  }
+  /* Prevent iOS input zoom */
+  @supports (-webkit-touch-callout: none) {
+    input, select, textarea {
+      font-size: 16px;
+    }
+  }
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
 @layer utilities {
+  .safe-area-pb {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .safe-area-pt {
+    padding-top: env(safe-area-inset-top);
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--color-outline-variant);
+    border-radius: 3px;
+  }
   .glass-panel {
     background: rgba(247, 249, 251, 0.8);
     backdrop-filter: blur(20px);

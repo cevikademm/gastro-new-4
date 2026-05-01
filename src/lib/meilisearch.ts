@@ -3,7 +3,7 @@
 // Uses the search-only key (safe to expose). Admin key stays server-side
 // (used by the sync edge function).
 
-import { MeiliSearch, type Hits } from "meilisearch";
+import { Meilisearch as MeiliSearch, type Hits } from "meilisearch";
 
 const MEILI_HOST = import.meta.env.VITE_MEILI_HOST as string | undefined;
 const MEILI_SEARCH_KEY = import.meta.env.VITE_MEILI_SEARCH_KEY as string | undefined;

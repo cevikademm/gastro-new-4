@@ -35,9 +35,9 @@ export default function TestimonialsSection({ segment, limit = 6, heading }: Pro
           {items.map((t) => (
             <div
               key={t.id}
-              className="bg-slate-50 border border-slate-200 rounded-2xl p-6 hover:border-sky-300 transition"
+              className="bg-slate-50 border border-slate-200 rounded-2xl p-6 hover:border-red-300 transition"
             >
-              <Quote className="text-sky-300 mb-3" size={24} />
+              <Quote className="text-red-300 mb-3" size={24} />
               <p className="text-sm text-slate-700 leading-relaxed mb-4">{t.body}</p>
               <div className="flex items-center gap-0.5 mb-3">
                 {Array.from({ length: t.rating }).map((_, i) => (

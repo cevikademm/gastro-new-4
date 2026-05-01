@@ -1,3 +1,4 @@
+import type React from 'react';
 import { Check, X, Copy, Palette, Type, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 
@@ -10,14 +11,14 @@ type Swatch = {
 };
 
 const PRIMARY_SWATCHES: Swatch[] = [
-  { name: 'Primary', token: '--color-primary', hex: '#001f65', role: 'Birincil buton, ana vurgu', textOn: 'light' },
-  { name: 'Primary Container', token: '--color-primary-container', hex: '#183585', role: 'Gradient ikinci durak', textOn: 'light' },
-  { name: 'Primary Fixed', token: '--color-primary-fixed', hex: '#dce1ff', role: 'Açık arka plan', textOn: 'dark' },
-  { name: 'Primary Fixed Dim', token: '--color-primary-fixed-dim', hex: '#b6c4ff', role: 'Hover / seçili', textOn: 'dark' },
+  { name: 'Primary', token: '--color-primary', hex: '#7B1F26', role: 'Birincil buton, ana vurgu', textOn: 'light' },
+  { name: 'Primary Container', token: '--color-primary-container', hex: '#5A1219', role: 'Gradient ikinci durak', textOn: 'light' },
+  { name: 'Primary Fixed', token: '--color-primary-fixed', hex: '#fce4e6', role: 'Açık arka plan', textOn: 'dark' },
+  { name: 'Primary Fixed Dim', token: '--color-primary-fixed-dim', hex: '#e8a0a6', role: 'Hover / seçili', textOn: 'dark' },
 ];
 
 const SECONDARY_SWATCHES: Swatch[] = [
-  { name: 'Secondary', token: '--color-secondary', hex: '#515f74', role: 'İkincil buton, subdued metin', textOn: 'light' },
+  { name: 'Secondary', token: '--color-secondary', hex: '#0F2440', role: 'İkincil renk, lacivert', textOn: 'light' },
   { name: 'Secondary Container', token: '--color-secondary-container', hex: '#d5e3fc', role: 'Bilgilendirme kartı', textOn: 'dark' },
   { name: 'Tertiary', token: '--color-tertiary', hex: '#1e2539', role: 'Koyu UI yüzeyi, footer', textOn: 'light' },
   { name: 'Tertiary Fixed', token: '--color-tertiary-fixed', hex: '#dae2fd', role: 'Açık arka plan', textOn: 'dark' },
@@ -59,7 +60,7 @@ const TYPE_SCALE = [
 ];
 
 const DOS: string[] = [
-  '2MC mavisini (#001f65) tek marka rengi olarak kullan',
+  '2MC bordosunu (#7B1F26) tek marka rengi olarak kullan',
   'Başlıkta Inter 700/800, gövdede Inter 400/500 kullan',
   'Sayısal değerlerde tabular-nums ile hizala',
   'İkonları lucide-react, 1.5-2 px stroke ile kullan',
@@ -141,16 +142,16 @@ export default function BrandPage() {
     <div className="max-w-6xl mx-auto w-full space-y-12 pb-20">
       {/* Hero */}
       <header className="rounded-2xl overflow-hidden relative">
-        <div className="brushed-metal text-white p-10 md:p-14 relative">
+        <div className="brushed-metal text-white p-6 sm:p-10 md:p-14 relative">
           <div className="dot-grid absolute inset-0 pointer-events-none" />
           <div className="relative space-y-4 max-w-3xl">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur text-xs font-medium uppercase tracking-wider">
               <Sparkles size={12} /> Versiyon 1.0 · 2026-04-11
             </div>
-            <h1 className="font-headline text-4xl md:text-5xl font-black tracking-tight">
+            <h1 className="font-headline text-2xl sm:text-4xl md:text-5xl font-black tracking-tight">
               2MC Gastro — Marka Kimliği
             </h1>
-            <p className="text-white/80 text-lg leading-relaxed">
+            <p className="text-white/80 text-sm sm:text-base md:text-lg leading-relaxed">
               Logo, renk, tipografi, görsel dil ve yazım tonunun tek doğruluk kaynağı. Tüm dijital ve basılı
               üretimler bu kılavuza uyar.
             </p>

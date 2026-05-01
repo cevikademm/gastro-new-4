@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Package, Search, Filter, CheckCircle, Clock, Truck, XCircle,
@@ -54,9 +55,9 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 w-full">
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-black font-headline text-primary tracking-tight flex items-center gap-2">
+          <h1 className="text-xl sm:text-3xl font-black font-headline text-primary tracking-tight flex items-center gap-2">
             <Package size={28} /> Yönetici — Siparişler
           </h1>
           <p className="text-on-surface-variant mt-1">Tüm siparişleri görüntüle, durum değiştir, not ekle.</p>

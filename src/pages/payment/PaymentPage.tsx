@@ -244,7 +244,7 @@ export default function PaymentPage() {
       <div className="max-w-5xl mx-auto space-y-8 w-full">
         {/* Header */}
         <div className="space-y-1">
-          <h1 className="text-3xl font-black font-headline text-primary tracking-tight">{t('payment.title')}</h1>
+          <h1 className="text-2xl sm:text-3xl font-black font-headline text-primary tracking-tight">{t('payment.title')}</h1>
           <p className="text-on-surface-variant font-medium">{t('payment.subtitle')}</p>
         </div>
 
@@ -268,7 +268,7 @@ export default function PaymentPage() {
               </div>
 
               <div className="mb-6">
-                <span className="text-4xl font-black text-primary">€{plan.price}</span>
+                <span className="text-3xl sm:text-4xl font-black text-primary">€{plan.price}</span>
                 <span className="text-slate-400 text-xs ml-1">{t('payment.oneTime')}</span>
               </div>
 

@@ -73,7 +73,7 @@ export default function DocsPage() {
 
   return (
     <div className="max-w-6xl mx-auto w-full space-y-6">
-      <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight">{t('docs.title')}</h1>
+      <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight">{t('docs.title')}</h1>
 
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="lg:w-72 flex lg:flex-col gap-2 overflow-x-auto">

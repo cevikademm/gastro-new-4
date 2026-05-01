@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -142,7 +143,7 @@ export default function SiteFooter() {
         </section>
 
         {/* ── 4-Column Info Grid ───────────────────────────── */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-8">
+        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {/* Bilgiler */}
           <div>
             <h4 className="text-xs font-black uppercase tracking-wider text-on-surface-variant mb-4">Bilgiler</h4>
@@ -196,14 +197,14 @@ export default function SiteFooter() {
               <CreditCard size={13} className="text-primary" />
               Ödeme Seçenekleri
             </h4>
-            <div className="grid grid-cols-3 gap-2 mb-6">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6">
               {PAYMENT_METHODS.map((p) => <BrandCard key={p.name} b={p} />)}
             </div>
             <h4 className="text-xs font-black uppercase tracking-wider text-on-surface-variant mb-4 flex items-center gap-2">
               <Truck size={13} className="text-primary" />
               Kargo & Teslimat
             </h4>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {SHIPPING_CARRIERS.map((c) => <BrandCard key={c.name} b={c} />)}
             </div>
           </div>

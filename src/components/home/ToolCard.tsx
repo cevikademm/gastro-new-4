@@ -1,3 +1,4 @@
+import type React from 'react';
 import { useRef, type ReactNode } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'motion/react';
 

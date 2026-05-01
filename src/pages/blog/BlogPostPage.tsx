@@ -84,16 +84,16 @@ export default function BlogPostPage() {
       />
 
       <nav className="text-xs text-slate-500 mb-4">
-        <Link to="/" className="hover:text-sky-600">Ana Sayfa</Link>
+        <Link to="/" className="hover:text-[#7B1F26]">Ana Sayfa</Link>
         {' / '}
-        <Link to="/blog" className="hover:text-sky-600">Blog</Link>
+        <Link to="/blog" className="hover:text-[#7B1F26]">Blog</Link>
         {' / '}
         <span className="text-slate-700">{post.category}</span>
       </nav>
 
       <header className="mb-8">
         <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
-          <span className="px-2 py-0.5 bg-sky-50 text-sky-700 rounded-full font-medium">
+          <span className="px-2 py-0.5 bg-red-50 text-[#7B1F26] rounded-full font-medium">
             {post.category}
           </span>
           <span>·</span>
@@ -150,9 +150,9 @@ export default function BlogPostPage() {
                 <Link
                   key={r.slug}
                   to={`/blog/${r.slug}`}
-                  className="block p-4 bg-white border border-slate-200 rounded-xl hover:border-sky-400 transition"
+                  className="block p-4 bg-white border border-slate-200 rounded-xl hover:border-[#7B1F26] transition"
                 >
-                  <div className="text-xs text-sky-600 font-medium">{r.category}</div>
+                  <div className="text-xs text-[#7B1F26] font-medium">{r.category}</div>
                   <div className="mt-1 font-semibold text-slate-900 line-clamp-2">{r.title}</div>
                 </Link>
               ))}

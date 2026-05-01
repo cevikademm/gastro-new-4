@@ -12,14 +12,25 @@ export default defineConfig({
     },
   },
   build: {
-    cssCodeSplit: false,
+    cssCodeSplit: true,
+    sourcemap: false,
+    target: 'es2020',
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        inlineDynamicImports: true,
-        manualChunks: undefined,
+        manualChunks: {
+          react: ['react', 'react-dom', 'react-router-dom'],
+          three: ['three'],
+          motion: ['motion', 'framer-motion'],
+          i18n: ['i18next', 'react-i18next'],
+          supabase: ['@supabase/supabase-js'],
+          stripe: ['@stripe/stripe-js', '@stripe/react-stripe-js'],
+          pdf: ['jspdf', 'html2canvas'],
+          icons: ['lucide-react'],
+        },
       },
     },
-    assetsInlineLimit: 100000,
+    assetsInlineLimit: 4096,
   },
   optimizeDeps: {
     entries: ['index.html', 'src/main.tsx'],
