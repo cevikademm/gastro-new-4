@@ -26,6 +26,11 @@ import './welcome-2mc.css';
 import './welcome-claude.css';
 import './welcome-hyper.css';
 import SectionSlot from '../../components/welcome/SectionSlot';
+import MagneticCursor from '../../components/immersive/MagneticCursor';
+import ScrollProgress from '../../components/immersive/ScrollProgress';
+import CinematicHeroBackground from '../../components/immersive/CinematicHeroBackground';
+import ImmersiveProductScene from '../../components/immersive/ImmersiveProductScene';
+import TiltCard from '../../components/immersive/TiltCard';
 
 // ─────────────────────────────────────────────────────────────────────────
 // MARKA AKSAN PALETİ (bordo)
@@ -462,6 +467,8 @@ export default function WelcomePage() {
 
   return (
     <div className="welcome-2mc welcome-claude min-h-screen overflow-hidden relative">
+      <ScrollProgress />
+      <MagneticCursor />
       <WelcomeScrollFX />
 
       <div className="relative z-10 flex flex-col items-center pb-10">
@@ -1254,6 +1261,48 @@ export default function WelcomePage() {
 
         </SectionSlot>
         {/* ═══════════════════════════════════════════════════════════════════
+            7.5 — IMMERSIVE CINEMATIC SCENE
+            Scroll-driven Three.js camera path with phase narration
+           ═══════════════════════════════════════════════════════════════════ */}
+        <SectionSlot id="immersive-scene">
+          <ImmersiveProductScene
+            phases={[
+              {
+                eyebrow: '01 — Vizyon',
+                title: t('welcome.immersive.p1.title', 'Endüstriyel mutfak, sinematik bir deneyim.'),
+                body: t(
+                  'welcome.immersive.p1.body',
+                  'Profesyonel ekipmanları üç boyutlu olarak keşfedin. Her detay, her materyal, her ışık — tek bir akıcı sahnede.',
+                ),
+              },
+              {
+                eyebrow: '02 — Materyal',
+                title: t('welcome.immersive.p2.title', 'Saf paslanmaz çelik. Camlaşmış cam. Mat polimer.'),
+                body: t(
+                  'welcome.immersive.p2.body',
+                  'Premium markaların gerçekçi materyallerini fiziksel tabanlı render ile masanızda görün.',
+                ),
+              },
+              {
+                eyebrow: '03 — Hassasiyet',
+                title: t('welcome.immersive.p3.title', 'Milimetrik hesap. Avrupa standardı.'),
+                body: t(
+                  'welcome.immersive.p3.body',
+                  'Her ürün, kurduğumuz dijital mutfakta birebir ölçeğiyle yaşar. Yerleşim, akış, sirkülasyon — hepsi sahne içinde.',
+                ),
+              },
+              {
+                eyebrow: '04 — Ortaklık',
+                title: t('welcome.immersive.p4.title', 'Satıştan sonra da yanınızdayız.'),
+                body: t(
+                  'welcome.immersive.p4.body',
+                  '15 ülkede kurulum, eğitim ve servis ağı. 2MC Gastro, Avrupa\'nın profesyonel mutfak partneri.',
+                ),
+              },
+            ]}
+          />
+        </SectionSlot>
+        {/* ═══════════════════════════════════════════════════════════════════
             8 — 3D SHOWCASE
             Modelleri döndürün, yakınlaştırın — korunuyor
            ═══════════════════════════════════════════════════════════════════ */}
@@ -1708,8 +1757,20 @@ export default function WelcomePage() {
             Tiefstpreisgarantie tarzı büyük başlık + CTA + sağda görsel + banner
            ═══════════════════════════════════════════════════════════════════ */}
         <SectionSlot id="hero">
-        <section className="w-full" style={{ background: 'linear-gradient(160deg, #0F2440 0%, #1a3a5c 40%, #0F2440 100%)' }}>
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8">
+        <section className="w-full relative overflow-hidden" style={{ background: 'linear-gradient(160deg, #0F2440 0%, #1a3a5c 40%, #0F2440 100%)' }}>
+          {/* Cinematic Three.js background — sits behind hero content */}
+          <CinematicHeroBackground intensity={0.85} />
+          {/* Soft scrim so existing content stays readable */}
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(180deg, rgba(15,36,64,0.45) 0%, rgba(15,36,64,0.22) 35%, rgba(15,36,64,0.55) 100%)',
+              zIndex: 1,
+            }}
+          />
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 relative" style={{ zIndex: 2 }}>
 
             {/* Hero içerik alanı */}
             <div className="grid lg:grid-cols-[1fr_1fr] gap-8 lg:gap-14 items-center pt-12 pb-10 lg:pt-16 lg:pb-14">

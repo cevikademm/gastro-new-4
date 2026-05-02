@@ -9,6 +9,7 @@ import { persist } from 'zustand/middleware';
 export const SORTABLE_SECTION_IDS = [
   'hero',
   'themenwelten',
+  'immersive-scene',
   'showcase-3d',
   'bestsellers',
   'catalog-banner',
@@ -38,6 +39,7 @@ export const SECTION_LABELS: Record<WelcomeSectionId, { tr: string; desc: string
   'payment':          { tr: 'Ödeme Yöntemleri',       desc: 'VISA · Mastercard · PayPal · SEPA · Klarna · Leasing' },
   'hero':             { tr: 'Hero (3 kart + banner)', desc: 'CE Sertifikalı / Canlı Vitrin / Akıllı Araçlar + slide banner' },
   'bestsellers':      { tr: 'Bestseller (10 ürün)',   desc: '10 random ürün, otomatik dönen vitrin (2x5 grid)' },
+  'immersive-scene':  { tr: 'Sinematik 3D Sahne',    desc: 'Scroll-driven WebGL kamera yolu (Three.js, 4 fazlı anlatım)' },
 };
 
 const DEFAULT_ORDER: WelcomeSectionId[] = [...SORTABLE_SECTION_IDS];
