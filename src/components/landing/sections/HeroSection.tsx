@@ -4,6 +4,7 @@ import { ArrowRight, Play, Package, Tag, Globe, Truck } from 'lucide-react';
 import { Reveal } from '../primitives/Reveal';
 import { AnimatedHeadline } from '../primitives/AnimatedHeadline';
 import { HeroProductCarousel } from './HeroProductCarousel';
+import CinematicHeroBackground from '../../immersive/CinematicHeroBackground';
 
 const TRUST_ITEMS = [
   { icon: Package, key: 'landing.hero.trust.products' },
@@ -23,7 +24,19 @@ export function HeroSection() {
   ].filter(Boolean);
 
   return (
-    <section className="relative overflow-hidden">
+    <section className="relative overflow-hidden" style={{ background: '#06101e' }}>
+      {/* Full-bleed cinematic Three.js background */}
+      <CinematicHeroBackground />
+      {/* Soft scrim so text reads cleanly over the WebGL */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(6,16,30,0.55) 0%, rgba(6,16,30,0.25) 35%, rgba(6,16,30,0.45) 100%)',
+          zIndex: 1,
+        }}
+      />
       {/* Decorative glow orbs */}
       <div
         className="pointer-events-none absolute -top-52 -right-40 w-[600px] h-[600px] rounded-full"
@@ -85,12 +98,12 @@ export function HeroSection() {
                 <AnimatedHeadline
                   staticBefore={t('landing.hero.headline.static')}
                   words={words}
-                  className="c-serif text-[2.6rem] sm:text-[3.6rem] lg:text-[4.6rem] leading-[1.02] tracking-[-0.035em] text-[color:var(--c-ink)] mb-6"
+                  className="c-serif text-[2.6rem] sm:text-[3.6rem] lg:text-[4.6rem] leading-[1.02] tracking-[-0.035em] text-white mb-6"
                 />
               </Reveal>
 
               <Reveal delay={0.2}>
-                <p className="text-[17px] leading-relaxed text-[color:var(--c-muted)] max-w-xl mb-8">
+                <p className="text-[17px] leading-relaxed text-white/75 max-w-xl mb-8">
                   {t('landing.hero.sub')}
                 </p>
               </Reveal>
@@ -114,7 +127,11 @@ export function HeroSection() {
                   </Link>
                   <Link
                     to="/welcome"
-                    className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full bg-white text-[color:var(--c-ink)] text-[16px] font-semibold border-[1.5px] border-[var(--c-line)] hover:border-[color:var(--c-ink)] hover:-translate-y-0.5 transition-all"
+                    className="inline-flex items-center gap-2.5 px-6 py-4 rounded-full text-white text-[16px] font-semibold border-[1.5px] backdrop-blur-md hover:-translate-y-0.5 transition-all"
+                    style={{
+                      background: 'rgba(255,255,255,0.06)',
+                      borderColor: 'rgba(255,255,255,0.18)',
+                    }}
                   >
                     <span
                       className="w-8 h-8 rounded-full inline-flex items-center justify-center -ml-1"
@@ -131,14 +148,14 @@ export function HeroSection() {
               </Reveal>
 
               <Reveal delay={0.42}>
-                <p className="text-[13px] text-[color:var(--c-muted)] mb-10 flex items-center gap-1.5">
-                  <span className="text-[color:var(--c-clay)] font-bold">✓</span>
+                <p className="text-[13px] text-white/70 mb-10 flex items-center gap-1.5">
+                  <span className="text-[color:var(--c-clay-soft)] font-bold">✓</span>
                   {t('landing.hero.microtrust', { defaultValue: 'Kayıt ücretsiz · Kredi kartı yok · 1 dakikada başla' })}
                 </p>
               </Reveal>
 
               <Reveal delay={0.5}>
-                <div className="flex flex-wrap gap-7 pt-8 border-t border-[var(--c-line)]">
+                <div className="flex flex-wrap gap-7 pt-8 border-t border-white/10">
                   {TRUST_ITEMS.map(({ icon: Icon, key }) => (
                     <div
                       key={key}
@@ -146,10 +163,10 @@ export function HeroSection() {
                     >
                       <Icon
                         size={20}
-                        className="text-[color:var(--c-clay)] transition-transform duration-300 group-hover/trust:scale-110"
+                        className="text-[color:var(--c-clay-soft)] transition-transform duration-300 group-hover/trust:scale-110"
                         strokeWidth={1.75}
                       />
-                      <span className="text-[14px] font-semibold text-[color:var(--c-ink-soft)] transition-colors duration-300 group-hover/trust:text-[color:var(--c-ink)]">
+                      <span className="text-[14px] font-semibold text-white/80 transition-colors duration-300 group-hover/trust:text-white">
                         {t(key)}
                       </span>
                     </div>

@@ -11,6 +11,9 @@ import { TestimonialsBand } from '../../components/landing/sections/Testimonials
 import { FinalCTASection } from '../../components/landing/sections/FinalCTASection';
 import { FloatingWidgets } from '../../components/landing/sections/FloatingWidgets';
 import SiteFooter from '../../components/SiteFooter';
+import ImmersiveProductScene from '../../components/immersive/ImmersiveProductScene';
+import MagneticCursor from '../../components/immersive/MagneticCursor';
+import ScrollProgress from '../../components/immersive/ScrollProgress';
 
 /**
  * 2mc Gastro landing page — e-commerce redesign.
@@ -29,6 +32,8 @@ import SiteFooter from '../../components/SiteFooter';
 export default function LandingPage() {
   return (
     <>
+      <ScrollProgress />
+      <MagneticCursor />
       <AnnouncementBar />
       <LandingNav />
       <main className="welcome-claude" id="main-content">
@@ -37,6 +42,7 @@ export default function LandingPage() {
         <FlashStrip />
         <CategoryShowcase />
         <StatsBand />
+        <ImmersiveProductScene />
         <BestSellersSection />
         <TestimonialsBand />
         <FinalCTASection />
