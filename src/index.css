@@ -1,179 +1,58 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Inter:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-headline: "Inter", system-ui, sans-serif;
-  --font-body: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Playfair Display", serif;
+  --font-mono: "ui-monospace", SFMono-Regular, monospace;
 
-  --color-primary: #7B1F26;
-  --color-primary-container: #5A1219;
-  --color-primary-fixed: #fce4e6;
-  --color-primary-fixed-dim: #e8a0a6;
-  --color-surface: #f7f9fb;
-  --color-surface-container-low: #f2f4f6;
-  --color-surface-container-lowest: #ffffff;
-  --color-surface-container: #eceef0;
-  --color-surface-container-highest: #e0e3e5;
-  --color-surface-container-high: #e6e8ea;
-  --color-on-surface: #191c1e;
-  --color-on-surface-variant: #43474c;
-  --color-outline-variant: #c4c6cd;
-  --color-secondary: #0F2440;
-  --color-secondary-container: #d5e3fc;
-  --color-on-secondary-container: #0F2440;
-  --color-tertiary: #1e2539;
-  --color-tertiary-fixed: #dae2fd;
-  --color-tertiary-fixed-dim: #bec6e0;
-  --color-on-tertiary-fixed: #131b2e;
-  --color-error-container: #ffdad6;
-  --color-error: #ba1a1a;
-
-  --color-success: #1b7f3a;
-  --color-success-container: #c8f2d4;
-  --color-on-success-container: #003918;
-
-  --color-warning: #9a6700;
-  --color-warning-container: #ffe8b0;
-  --color-on-warning-container: #3a2600;
-
-  --color-info: #1e5fbf;
-  --color-info-container: #dbe9ff;
-  --color-on-info-container: #001a4a;
-
-  /* Spacing scale — 4px grid */
-  --spacing: 0.25rem;
-
-  /* Border radius tokens */
-  --radius-xs: 0.25rem;
-  --radius-sm: 0.375rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
-  --radius-xl: 1rem;
-  --radius-2xl: 1.5rem;
-  --radius-3xl: 2rem;
-  --radius-full: 9999px;
-
-  /* Shadow system — brand-tinted elevation */
-  --shadow-xs: 0 1px 2px 0 rgb(123 31 38 / 0.04);
-  --shadow-sm: 0 1px 3px 0 rgb(123 31 38 / 0.08), 0 1px 2px -1px rgb(123 31 38 / 0.06);
-  --shadow-md: 0 4px 6px -1px rgb(123 31 38 / 0.10), 0 2px 4px -2px rgb(123 31 38 / 0.06);
-  --shadow-lg: 0 10px 15px -3px rgb(123 31 38 / 0.12), 0 4px 6px -4px rgb(123 31 38 / 0.08);
-  --shadow-xl: 0 20px 25px -5px rgb(123 31 38 / 0.14), 0 8px 10px -6px rgb(123 31 38 / 0.10);
-  --shadow-2xl: 0 25px 50px -12px rgb(123 31 38 / 0.25);
-  --shadow-inner: inset 0 2px 4px 0 rgb(123 31 38 / 0.06);
-
-  /* Motion — durations & easings */
-  --ease-brand: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-in-brand: cubic-bezier(0.4, 0, 1, 1);
-  --ease-out-brand: cubic-bezier(0, 0, 0.2, 1);
-  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  --duration-fast: 150ms;
-  --duration-base: 200ms;
-  --duration-slow: 300ms;
-  --duration-slower: 500ms;
-
-  /* Animation presets */
-  --animate-fade-in: fade-in var(--duration-base) var(--ease-out-brand);
-  --animate-slide-up: slide-up var(--duration-slow) var(--ease-out-brand);
-  --animate-slide-down: slide-down var(--duration-slow) var(--ease-out-brand);
-  --animate-scale-in: scale-in var(--duration-base) var(--ease-spring);
-  --animate-shimmer: shimmer 2s linear infinite;
-
-  @keyframes fade-in {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  @keyframes slide-up {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes slide-down {
-    from { opacity: 0; transform: translateY(-12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes scale-in {
-    from { opacity: 0; transform: scale(0.96); }
-    to { opacity: 1; transform: scale(1); }
-  }
-  @keyframes shimmer {
-    from { background-position: -200% 0; }
-    to { background-position: 200% 0; }
-  }
-
-  /* Breakpoints */
-  --breakpoint-sm: 40rem;    /* 640px  — phone landscape */
-  --breakpoint-md: 48rem;    /* 768px  — tablet */
-  --breakpoint-lg: 64rem;    /* 1024px — laptop */
-  --breakpoint-xl: 80rem;    /* 1280px — desktop */
-  --breakpoint-2xl: 96rem;   /* 1536px — wide */
+  /* Premium Brand Colors from gastro-new-4 */
+  --color-brand-red: #E85D26;
+  --color-brand-dark: #050505;
+  --color-brand-gray: #111111;
 }
 
 @layer base {
-  html {
-    -webkit-text-size-adjust: 100%;
-    -webkit-tap-highlight-color: transparent;
-    scroll-behavior: smooth;
-  }
   body {
-    overscroll-behavior-y: none;
-    text-rendering: optimizeLegibility;
-    -webkit-font-smoothing: antialiased;
+    @apply bg-brand-dark text-white font-sans antialiased;
   }
-  /* Prevent iOS input zoom */
-  @supports (-webkit-touch-callout: none) {
-    input, select, textarea {
-      font-size: 16px;
-    }
-  }
-  /* Respect reduced motion */
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
   }
 }
 
 @layer utilities {
-  .safe-area-pb {
-    padding-bottom: env(safe-area-inset-bottom);
+  .text-balance {
+    text-wrap: balance;
   }
-  .safe-area-pt {
-    padding-top: env(safe-area-inset-top);
+
+  .perspective-1000 {
+    perspective: 1000px;
   }
-  .scrollbar-thin {
-    scrollbar-width: thin;
+
+  .text-stroke {
+    -webkit-text-stroke: 1px rgba(255, 255, 255, 0.2);
+    color: transparent;
   }
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+  
+  .text-stroke-red {
+    -webkit-text-stroke: 1px rgba(232, 93, 38, 0.5);
+    color: transparent;
   }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background: var(--color-outline-variant);
-    border-radius: 3px;
+  
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
   }
-  .glass-panel {
-    background: rgba(247, 249, 251, 0.8);
-    backdrop-filter: blur(20px);
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 4px;
   }
-  .brushed-metal {
-    background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-container) 100%);
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
   }
-  .dot-grid {
-    background-image: radial-gradient(var(--color-outline-variant) 1px, transparent 1px);
-    background-size: 24px 24px;
-    opacity: 0.3;
-  }
-  .ruler-x {
-    background-image: linear-gradient(to right, var(--color-outline-variant) 1px, transparent 1px);
-    background-size: 50px 100%;
-  }
-  .ruler-y {
-    background-image: linear-gradient(to bottom, var(--color-outline-variant) 1px, transparent 1px);
-    background-size: 100% 50px;
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(232, 93, 38, 0.5);
   }
 }

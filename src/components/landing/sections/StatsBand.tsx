@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { Package, Tag, Globe, Truck } from 'lucide-react';
 import { CountUp } from '../primitives/CountUp';
 import { Reveal } from '../primitives/Reveal';
+import Ambient3DBackground from '../../immersive/Ambient3DBackground';
 
 const STATS = [
   { to: 5265, suffix: '+', labelKey: 'landing.stats.products.label',  icon: Package },
@@ -15,12 +16,14 @@ export function StatsBand() {
 
   return (
     <section className="bg-[var(--c-navy-deep)] py-20 md:py-24 relative overflow-hidden">
+      <Ambient3DBackground variant="navy" density={0.75} intensity={0.9} />
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 opacity-40"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse at 20% 0%, rgba(232,93,38,0.18), transparent 55%), radial-gradient(ellipse at 90% 100%, rgba(45,90,142,0.35), transparent 50%)',
+            'linear-gradient(180deg, rgba(6,16,30,0.55) 0%, rgba(6,16,30,0.35) 40%, rgba(6,16,30,0.6) 100%)',
+          zIndex: 1,
         }}
       />
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

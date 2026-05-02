@@ -85,37 +85,37 @@ export function FloatingWidgets() {
       {/* Live chat bubble */}
       {chatOpen && (
         <div
-          className="hidden sm:flex fixed bottom-6 left-6 z-[80] items-center gap-3 bg-white p-4 rounded-[20px] max-w-xs"
+          className="hidden sm:flex fixed bottom-6 left-6 z-[80] items-center gap-3 bg-[#0a0a0a] border border-white/10 p-4 rounded-[20px] max-w-xs"
           style={{
-            boxShadow: '0 24px 64px rgba(11,26,46,0.16)',
+            boxShadow: '0 24px 64px rgba(0,0,0,0.5)',
             animation: 'fw-slideup 0.6s cubic-bezier(.2,.8,.2,1) 2s backwards',
           }}
         >
           <button
             onClick={() => setChatOpen(false)}
             aria-label="Kapat"
-            className="absolute top-1.5 right-2 p-1 text-[color:var(--c-muted)] hover:text-[color:var(--c-ink)]"
+            className="absolute top-1.5 right-2 p-1 text-white/50 hover:text-white"
           >
             <X size={18} />
           </button>
           <div className="relative w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-[18px] shrink-0"
-            style={{ background: 'linear-gradient(135deg, var(--c-clay) 0%, var(--c-amber) 100%)' }}>
+            style={{ background: 'linear-gradient(135deg, #E85D26 0%, #FFD089 100%)' }}>
             AD
             <span
-              className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-white"
-              style={{ background: 'var(--c-success, #2e7d32)' }}
+              className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-[#0a0a0a]"
+              style={{ background: '#2e7d32' }}
             />
           </div>
           <div className="text-[13px]">
-            <strong className="block text-[color:var(--c-ink)] mb-0.5">
+            <strong className="block text-white mb-0.5">
               Adem · Gastro Danışmanı
             </strong>
-            <p className="text-[color:var(--c-muted)] leading-snug mb-1.5">
+            <p className="text-white/60 leading-snug mb-1.5">
               Merhaba! Mutfak projen için 5 dakikada ücretsiz teklif hazırlayalım.
             </p>
             <Link
               to="/support"
-              className="inline-flex items-center gap-1 text-[color:var(--c-clay)] font-bold text-[12px]"
+              className="inline-flex items-center gap-1 text-brand-red font-bold text-[12px]"
             >
               Sohbete başla <ArrowRight size={12} strokeWidth={2.5} />
             </Link>

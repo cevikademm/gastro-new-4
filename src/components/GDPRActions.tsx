@@ -148,7 +148,7 @@ export default function GDPRActions() {
       <div className="bg-white rounded-xl border border-slate-200 p-4">
         <div className="flex items-start justify-between">
           <div className="flex items-start gap-3">
-            <Download className="text-[#7B1F26] flex-shrink-0 mt-0.5" size={20} />
+            <Download className="text-[#E85D26] flex-shrink-0 mt-0.5" size={20} />
             <div>
               <h3 className="font-semibold text-slate-900">
                 {t('gdpr.exportTitle', 'Meine Daten herunterladen')}
@@ -167,12 +167,12 @@ export default function GDPRActions() {
             className={`px-4 py-2 rounded-lg font-medium transition-all whitespace-nowrap ${
               state.exporting
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                : 'bg-red-100 text-[#7B1F26] hover:bg-red-200'
+                : 'bg-red-100 text-[#E85D26] hover:bg-red-200'
             }`}
           >
             {state.exporting ? (
               <span className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-red-300 border-t-[#7B1F26] rounded-full animate-spin" />
+                <div className="w-4 h-4 border-2 border-red-300 border-t-[#E85D26] rounded-full animate-spin" />
                 {t('common.loading')}
               </span>
             ) : (

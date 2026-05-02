@@ -52,14 +52,16 @@ const BrandSeoPage = lazy(() => import('./pages/pseo/BrandPage'));
 const CompareIndexPage = lazy(() => import('./pages/compare/CompareIndexPage'));
 const CompareDetailPage = lazy(() => import('./pages/compare/CompareDetailPage'));
 const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
-const LandingPage = lazy(() => import('./pages/landing/LandingPage'));
+import LandingPage from './pages/landing/LandingPage';
 const FloorPlan3DPage = lazy(() => import('./pages/design/FloorPlan3DPage'));
 
 function RouteFallback() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[50vh] gap-3">
-      <div className="w-8 h-8 border-3 border-slate-200 border-t-sky-500 rounded-full animate-spin" />
-      <span className="text-slate-400 text-sm">Yükleniyor…</span>
+    <div className="fixed inset-0 bg-[#050505] flex flex-col items-center justify-center z-[9999]">
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-12 h-12 border-t-2 border-brand-red rounded-full animate-spin shadow-[0_0_15px_rgba(232,93,38,0.2)]" />
+        <span className="text-xl font-display font-bold tracking-tighter text-white uppercase">2MC GASTRO</span>
+      </div>
     </div>
   );
 }
@@ -77,16 +79,16 @@ export default function App() {
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           {/* Welcome & Auth routes */}
-          <Route path="/landing" element={<LandingPage />} />
-          <Route path="/welcome" element={<WelcomePage />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/welcome" element={<LandingPage />} />
+          <Route path="/old-welcome" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/pending-approval" element={<PendingApprovalPage />} />
           <Route path="/forgot-password" element={<LoginPage />} />
 
           {/* Main routes - publicly accessible */}
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Navigate to="/welcome" replace />} />
+          <Route element={<Layout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="design" element={<DesignStudio />} />
             <Route path="design/3d" element={<FloorPlan3DPage />} />

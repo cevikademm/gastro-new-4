@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
 /**
  * Lusion / Oryzo-inspired cinematic hero background.
@@ -33,7 +34,7 @@ export default function CinematicHeroBackground({
       alpha: true,
       powerPreference: 'high-performance',
     });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.0));
     renderer.setSize(w, h);
     renderer.setClearColor(0x000000, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
@@ -113,7 +114,7 @@ export default function CinematicHeroBackground({
 
         float fbm(vec2 p){
           float v = 0.0; float a = 0.5;
-          for (int i=0;i<5;i++){ v += a*snoise(p); p *= 2.02; a *= 0.5; }
+          for (int i=0;i<3;i++){ v += a*snoise(p); p *= 2.02; a *= 0.5; }
           return v;
         }
 
@@ -184,7 +185,8 @@ export default function CinematicHeroBackground({
     scene.add(accent);
 
     // ─── Floating premium objects ────────────────────────────────────────────
-    const objects: { mesh: THREE.Mesh; baseY: number; speed: number; spin: THREE.Vector3 }[] = [];
+    const objects: { mesh: THREE.Object3D; baseY: number; speed: number; spin: THREE.Vector3 }[] = [];
+    const loader = new GLTFLoader();
 
     const physical = (color: number, opts: Partial<THREE.MeshPhysicalMaterialParameters> = {}) =>
       new THREE.MeshPhysicalMaterial({
@@ -213,13 +215,13 @@ export default function CinematicHeroBackground({
         transparent: true,
       });
 
-    const add = (mesh: THREE.Mesh, x: number, y: number, z: number, scale = 1) => {
-      mesh.position.set(x, y, z);
-      mesh.scale.setScalar(scale);
-      mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
-      scene.add(mesh);
+    const addObject = (obj: THREE.Object3D, x: number, y: number, z: number, scale = 1) => {
+      obj.position.set(x, y, z);
+      obj.scale.setScalar(scale);
+      obj.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, 0);
+      scene.add(obj);
       objects.push({
-        mesh,
+        mesh: obj,
         baseY: y,
         speed: 0.5 + Math.random() * 0.6,
         spin: new THREE.Vector3(
@@ -228,21 +230,37 @@ export default function CinematicHeroBackground({
           (Math.random() - 0.5) * 0.2,
         ),
       });
-      return mesh;
+      return obj;
     };
 
-    // Hero pieces — placed off the central content area
-    add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.55, 0), physical(0xe85d26)), -4.2, 1.6, -1.0, 1.0);
-    add(new THREE.Mesh(new THREE.TorusKnotGeometry(0.45, 0.15, 96, 16), physical(0xff7a45, { roughness: 0.25 })), 4.6, 1.2, -1.5, 0.9);
-    add(new THREE.Mesh(new THREE.SphereGeometry(0.5, 48, 48), glass()), 4.0, -1.6, 0.4, 1.1);
-    add(new THREE.Mesh(new THREE.SphereGeometry(0.4, 48, 48), glass()), -3.6, -1.9, -0.5, 0.9);
-    add(new THREE.Mesh(new THREE.OctahedronGeometry(0.55, 0), physical(0x2d5a8e, { metalness: 0.95, roughness: 0.12 })), -5.0, -0.5, -2.2, 1.0);
-    add(new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.13, 24, 96), physical(0xffd089, { metalness: 0.95, roughness: 0.18 })), 5.2, -0.2, -2.0, 1.0);
-    add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.32, 0), physical(0xe85d26)), 2.6, 2.4, -3.0, 1.0);
-    add(new THREE.Mesh(new THREE.IcosahedronGeometry(0.30, 0), physical(0x6088ff, { metalness: 0.6 })), -2.4, -2.6, -2.6, 1.0);
+    // Load models for background - JUST THE LOGO for hero stability
+    const bgModels = [
+      { path: '/models/2mc-logo.glb', pos: [-4.2, 1.6, -1.0], scale: 1.2 },
+    ];
+
+    bgModels.forEach(m => {
+      loader.load(m.path, (gltf) => {
+        const model = gltf.scene;
+        model.traverse((child) => {
+          if ((child as THREE.Mesh).isMesh) {
+            const mat = (child as THREE.Mesh).material as THREE.MeshStandardMaterial;
+            mat.metalness = 0.9;
+            mat.roughness = 0.15;
+          }
+        });
+        addObject(model, m.pos[0], m.pos[1], m.pos[2], m.scale);
+      });
+    });
+
+    // Hero pieces — decorative primitives
+    addObject(new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), glass()), 4.0, -1.6, 0.4, 1.1);
+    addObject(new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 32), glass()), -3.6, -1.9, -0.5, 0.9);
+    addObject(new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.13, 16, 64), physical(0xffd089, { metalness: 0.95, roughness: 0.18 })), 5.2, -0.2, -2.0, 1.0);
+    addObject(new THREE.Mesh(new THREE.IcosahedronGeometry(0.32, 0), physical(0xe85d26)), 2.6, 2.4, -3.0, 1.0);
+    addObject(new THREE.Mesh(new THREE.IcosahedronGeometry(0.30, 0), physical(0x6088ff, { metalness: 0.6 })), -2.4, -2.6, -2.6, 1.0);
 
     // ─── Particles dust ──────────────────────────────────────────────────────
-    const PCOUNT = reduceMotion ? 240 : 600;
+    const PCOUNT = reduceMotion ? 30 : 60;
     const pPos = new Float32Array(PCOUNT * 3);
     for (let i = 0; i < PCOUNT; i++) {
       pPos[i*3+0] = (Math.random() - 0.5) * 20;
@@ -335,8 +353,14 @@ export default function CinematicHeroBackground({
       pGeo.dispose();
       pMat.dispose();
       objects.forEach(({ mesh }) => {
-        mesh.geometry.dispose();
-        (mesh.material as THREE.Material).dispose();
+        if ((mesh as THREE.Mesh).geometry) (mesh as THREE.Mesh).geometry.dispose();
+        if ((mesh as THREE.Mesh).material) {
+          if (Array.isArray((mesh as THREE.Mesh).material)) {
+            ((mesh as THREE.Mesh).material as THREE.Material[]).forEach(m => m.dispose());
+          } else {
+            ((mesh as THREE.Mesh).material as THREE.Material).dispose();
+          }
+        }
       });
       renderer.dispose();
       if (renderer.domElement.parentNode === container) {

@@ -561,7 +561,7 @@ export default function Cart() {
           </button>
           <button
             onClick={() => navigate('/checkout')}
-            className="bg-[#7B1F26] hover:bg-[#5A1219] text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
+            className="bg-[#E85D26] hover:bg-[#C44A1A] text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
           >
             <Package size={16} /> {t('cart.checkout', 'Ödemeye Git')}
           </button>
@@ -786,7 +786,7 @@ export default function Cart() {
           >
             {/* Glow */}
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-amber-500/20 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#7B1F26]/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#E85D26]/20 blur-3xl pointer-events-none" />
 
             <button
               onClick={() => setPaywallOpen(false)}

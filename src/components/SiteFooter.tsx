@@ -5,6 +5,7 @@ import {
   Mail, Phone, MapPin,
   CreditCard, Banknote, Landmark,
   Truck, Package, PackageCheck, Forklift, Container,
+  Shield,
 } from 'lucide-react';
 
 const INFO_LINKS = [
@@ -112,45 +113,73 @@ export default function SiteFooter() {
   };
 
   return (
-    <footer className="mt-16 bg-surface-container-low border-t border-outline-variant/15 text-on-surface">
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-12 space-y-12">
-        {/* ── Newsletter ───────────────────────────────────── */}
-        <section className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-10 border-b border-outline-variant/15">
-          <div>
-            <h3 className="text-2xl font-black font-headline text-on-surface">Bültene Abone Ol</h3>
-            <p className="text-sm text-on-surface-variant mt-2 max-w-xl">
-              Lütfen bana{' '}
-              <Link to="/privacy" className="underline hover:text-primary">Gizlilik Politikası</Link>
-              'na uygun olarak düzenli ve istediğim zaman vazgeçebileceğim şekilde ürün yelpazeniz hakkında e-posta gönderin.
-            </p>
+    <footer className="bg-[var(--c-bg-alt)] border-t border-[var(--c-line)] text-[var(--c-ink)] pt-20 pb-10">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
+        {/* Newsletter Section — Lush background */}
+        <section className="relative overflow-hidden rounded-[32px] p-8 md:p-12 mb-20 shadow-xl" style={{ background: 'linear-gradient(135deg, var(--c-navy-deep) 0%, var(--c-navy) 100%)' }}>
+          <div className="absolute top-[-100px] right-[-100px] w-64 h-64 bg-[var(--c-clay)]/10 rounded-full blur-3xl" />
+          <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
+            <div className="max-w-xl text-center lg:text-left">
+              <h3 className="serif text-3xl md:text-4xl text-white font-medium leading-tight">
+                Profesyonel mutfak dünyasından <br/>
+                <em className="text-[var(--c-clay-soft)] not-italic">en yeni haberleri</em> alın.
+              </h3>
+              <p className="text-white/70 mt-4 text-sm md:text-base">
+                Yeni ürünler, özel indirimler ve sektör trendleri her ay kapınızda. İstediğiniz zaman ayrılabilirsiniz.
+              </p>
+            </div>
+            <form onSubmit={handleSubscribe} className="w-full lg:w-auto flex flex-col sm:flex-row gap-3">
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="E-posta adresiniz"
+                className="w-full sm:w-80 px-6 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:bg-white/15 focus:border-[var(--c-clay)] transition-all"
+              />
+              <button
+                type="submit"
+                className="px-8 py-4 rounded-full bg-[var(--c-clay)] text-white font-bold hover:bg-[var(--c-clay-deep)] hover:-translate-y-0.5 transition-all shadow-lg whitespace-nowrap"
+              >
+                {subscribed ? 'Abone Olundu ✓' : 'Abone Ol'}
+              </button>
+            </form>
           </div>
-          <form onSubmit={handleSubscribe} className="flex gap-2 w-full md:w-auto">
-            <input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="E-posta adresiniz"
-              className="flex-1 md:w-72 px-4 py-3 rounded-lg border border-outline-variant/30 bg-surface-container-lowest text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
-            />
-            <button
-              type="submit"
-              className="px-6 py-3 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity"
-            >
-              {subscribed ? 'Abone olundu ✓' : 'Abone Ol'}
-            </button>
-          </form>
         </section>
 
-        {/* ── 4-Column Info Grid ───────────────────────────── */}
-        <section className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
-          {/* Bilgiler */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
+          {/* Brand Info */}
+          <div className="space-y-6">
+            <Link to="/" className="flex items-center gap-2 group">
+              <div className="w-8 h-8 bg-linear-to-br from-[var(--c-clay)] to-[var(--c-clay-deep)] rounded flex items-center justify-center text-white text-base font-extrabold shadow-md">
+                2
+              </div>
+              <div className="text-xl font-bold tracking-tight">
+                <span className="text-[var(--c-ink)]">mc</span>
+                <span className="serif italic text-[var(--c-clay)] ml-1">gastro</span>
+              </div>
+            </Link>
+            <p className="text-[14px] text-[var(--c-muted)] leading-relaxed">
+              Profesyonel mutfak ekipmanları, 3D tasarım ve anahtar teslim projeler için Avrupa'nın güvenilir çözüm ortağı.
+            </p>
+            <div className="flex gap-4">
+              {/* Social icons would go here */}
+              <div className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] cursor-pointer transition-all">
+                <Phone size={18} />
+              </div>
+              <div className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] cursor-pointer transition-all">
+                <Mail size={18} />
+              </div>
+            </div>
+          </div>
+
+          {/* Links Grid */}
           <div>
-            <h4 className="text-xs font-black uppercase tracking-wider text-on-surface-variant mb-4">Bilgiler</h4>
-            <ul className="space-y-2.5">
+            <h4 className="serif text-lg font-bold mb-6">Kurumsal</h4>
+            <ul className="space-y-4">
               {INFO_LINKS.map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-sm text-on-surface hover:text-primary transition-colors">
+                  <Link to={l.to} className="text-sm text-[var(--c-muted)] hover:text-[var(--c-clay)] transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -158,13 +187,12 @@ export default function SiteFooter() {
             </ul>
           </div>
 
-          {/* Yasal */}
           <div>
-            <h4 className="text-xs font-black uppercase tracking-wider text-on-surface-variant mb-4">Yasal Bilgiler</h4>
-            <ul className="space-y-2.5">
+            <h4 className="serif text-lg font-bold mb-6">Destek</h4>
+            <ul className="space-y-4">
               {LEGAL_LINKS.map((l) => (
                 <li key={l.to}>
-                  <Link to={l.to} className="text-sm text-on-surface hover:text-primary transition-colors">
+                  <Link to={l.to} className="text-sm text-[var(--c-muted)] hover:text-[var(--c-clay)] transition-colors">
                     {l.label}
                   </Link>
                 </li>
@@ -172,57 +200,37 @@ export default function SiteFooter() {
             </ul>
           </div>
 
-          {/* İletişim */}
+          {/* Trust/Payments */}
           <div>
-            <h4 className="text-xs font-black uppercase tracking-wider text-on-surface-variant mb-4">İletişim</h4>
-            <div className="space-y-3 text-sm">
-              <div className="font-black text-on-surface">2MC GASTRO</div>
-              <div className="text-on-surface-variant flex items-start gap-2">
-                <MapPin size={14} className="mt-0.5 flex-shrink-0" />
-                <span>Köln, Almanya<br />İstanbul, Türkiye</span>
+            <h4 className="serif text-lg font-bold mb-6">Ödeme & Güven</h4>
+            <div className="grid grid-cols-3 gap-2 mb-6">
+              {PAYMENT_METHODS.slice(0, 6).map((p) => <BrandCard key={p.name} b={p} />)}
+            </div>
+            <div className="flex items-center gap-3 p-4 bg-white border border-[var(--c-line)] rounded-2xl shadow-sm">
+              <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center text-green-600 shrink-0">
+                <Shield size={20} />
               </div>
-              <a href="tel:+4922112345678" className="text-on-surface-variant hover:text-primary flex items-center gap-2">
-                <Phone size={14} /> +49 (0) 221 1234 5678
-              </a>
-              <a href="mailto:info@2mcgastro.com" className="text-on-surface-variant hover:text-primary flex items-center gap-2">
-                <Mail size={14} /> info@2mcgastro.com
-              </a>
-              <div className="text-on-surface-variant text-xs pt-1">Pzt–Cum 09:00 – 18:00</div>
+              <div className="flex flex-col">
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--c-muted)] leading-none">Güvenli Ödeme</span>
+                <span className="text-[12px] font-semibold mt-1">%100 SSL Korumalı</span>
+              </div>
             </div>
           </div>
+        </div>
 
-          {/* Ödeme & Kargo */}
-          <div>
-            <h4 className="text-xs font-black uppercase tracking-wider text-on-surface-variant mb-4 flex items-center gap-2">
-              <CreditCard size={13} className="text-primary" />
-              Ödeme Seçenekleri
-            </h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-6">
-              {PAYMENT_METHODS.map((p) => <BrandCard key={p.name} b={p} />)}
-            </div>
-            <h4 className="text-xs font-black uppercase tracking-wider text-on-surface-variant mb-4 flex items-center gap-2">
-              <Truck size={13} className="text-primary" />
-              Kargo & Teslimat
-            </h4>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-              {SHIPPING_CARRIERS.map((c) => <BrandCard key={c.name} b={c} />)}
-            </div>
+        {/* Bottom Bar */}
+        <div className="pt-8 border-t border-[var(--c-line)] flex flex-col md:flex-row justify-between items-center gap-6">
+          <div className="text-[13px] text-[var(--c-muted)]">
+            © {new Date().getFullYear()} 2MC Gastro GmbH. Tüm hakları saklıdır. <span className="mx-2 opacity-30">|</span> Made with passion in Cologne & Istanbul.
           </div>
-        </section>
-
-        {/* ── Bottom Legal Notice ──────────────────────────── */}
-        <section className="pt-8 border-t border-outline-variant/15 space-y-3">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs text-on-surface-variant">
-            <div>© {new Date().getFullYear()} 2MC Gastro GmbH. Tüm hakları saklıdır.</div>
-            <div className="flex items-center gap-4">
-              <Link to="/privacy" className="hover:text-primary">Gizlilik</Link>
-              <Link to="/terms" className="hover:text-primary">Koşullar</Link>
-              <Link to="/imprint" className="hover:text-primary">Künye</Link>
-              <Link to="/cookies" className="hover:text-primary">Çerezler</Link>
-            </div>
+          <div className="flex gap-6">
+            <Link to="/privacy" className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">Gizlilik</Link>
+            <Link to="/terms" className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">Şartlar</Link>
+            <Link to="/cookies" className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">Çerezler</Link>
           </div>
-        </section>
+        </div>
       </div>
     </footer>
   );
 }
+

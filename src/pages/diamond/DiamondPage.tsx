@@ -247,7 +247,7 @@ export default function DiamondPage() {
 
       {conceptLabel && (
         <div className="flex items-center justify-between gap-3 bg-red-50 border border-red-200 rounded-xl px-4 py-2.5">
-          <div className="flex items-center gap-2 text-xs font-bold text-[#7B1F26]">
+          <div className="flex items-center gap-2 text-xs font-bold text-[#E85D26]">
             <Sparkles size={14} />
             <span>{conceptLabel}</span>
             <span className="text-[#A04654] font-normal">konseptine uygun ürünler</span>
@@ -257,7 +257,7 @@ export default function DiamondPage() {
               setFilter('search', '');
               setSearchParams({});
             }}
-            className="text-[11px] font-bold text-[#7B1F26] hover:text-[#5A1219] flex items-center gap-1"
+            className="text-[11px] font-bold text-[#E85D26] hover:text-[#C44A1A] flex items-center gap-1"
           >
             <X size={12} /> Temizle
           </button>
@@ -265,7 +265,7 @@ export default function DiamondPage() {
       )}
 
       {/* ─── Hero Header ─── */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-[#7B1F26] via-[#8B2332] to-[#5A1219] rounded-2xl p-6 md:p-8">
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#E85D26] via-[#8B2332] to-[#C44A1A] rounded-2xl p-6 md:p-8">
         <div className="absolute top-0 right-0 w-96 h-96 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
         <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/3" />
         <div className="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
@@ -299,8 +299,8 @@ export default function DiamondPage() {
 
       {/* ─── Toolbar ─── */}
       <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${showFilters || hasActiveFilters ? 'bg-red-50 text-[#7B1F26] border-red-200 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-red-200'}`}>
-          <SlidersHorizontal size={14} /> {t('common.filter')} {hasActiveFilters && <span className="bg-[#7B1F26] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">!</span>}
+        <button onClick={() => setShowFilters(!showFilters)} className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${showFilters || hasActiveFilters ? 'bg-red-50 text-[#E85D26] border-red-200 shadow-sm' : 'bg-white text-slate-600 border-slate-200 hover:border-red-200'}`}>
+          <SlidersHorizontal size={14} /> {t('common.filter')} {hasActiveFilters && <span className="bg-[#E85D26] text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">!</span>}
         </button>
         {showPromo && (
           <button onClick={() => setFilter('promoOnly', !filters.promoOnly)} className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filters.promoOnly ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-200'}`}>
@@ -310,19 +310,19 @@ export default function DiamondPage() {
         <button onClick={() => setFilter('newOnly', !filters.newOnly)} className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filters.newOnly ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'}`}>
           <Sparkles size={14} /> {t('diamond.new')}
         </button>
-        <button onClick={() => setFilter('inStockOnly', !filters.inStockOnly)} className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filters.inStockOnly ? 'bg-red-50 text-[#7B1F26] border-red-200' : 'bg-white text-slate-600 border-slate-200 hover:border-red-200'}`}>
+        <button onClick={() => setFilter('inStockOnly', !filters.inStockOnly)} className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filters.inStockOnly ? 'bg-red-50 text-[#E85D26] border-red-200' : 'bg-white text-slate-600 border-slate-200 hover:border-red-200'}`}>
           <Box size={14} /> {t('diamond.inStock')}
         </button>
 
         <div className="flex bg-white rounded-xl border border-slate-200 p-0.5 ml-auto">
           {([['grid', Grid3X3], ['list', List], ['table', Columns3]] as const).map(([mode, Icon]) => (
-            <button key={mode} onClick={() => setViewMode(mode as any)} className={`p-2 rounded-lg transition-all ${viewMode === mode ? 'bg-[#7B1F26] text-white shadow-sm' : 'text-slate-400 hover:text-[#7B1F26]'}`}><Icon size={16} /></button>
+            <button key={mode} onClick={() => setViewMode(mode as any)} className={`p-2 rounded-lg transition-all ${viewMode === mode ? 'bg-[#E85D26] text-white shadow-sm' : 'text-slate-400 hover:text-[#E85D26]'}`}><Icon size={16} /></button>
           ))}
         </div>
 
         {viewMode === 'table' && (
           <div className="relative">
-            <button onClick={() => setShowColPicker(!showColPicker)} className="px-3 py-2 rounded-xl text-xs font-bold bg-red-50 text-[#7B1F26] border border-red-200 hover:bg-red-100 transition-all">
+            <button onClick={() => setShowColPicker(!showColPicker)} className="px-3 py-2 rounded-xl text-xs font-bold bg-red-50 text-[#E85D26] border border-red-200 hover:bg-red-100 transition-all">
               {t('diamond.columns')} ({visibleCols.length}/{ALL_COLUMNS.length})
             </button>
             {showColPicker && (
@@ -330,7 +330,7 @@ export default function DiamondPage() {
                 <div className="flex justify-between items-center mb-3">
                   <span className="text-xs font-bold text-slate-700">{t('diamond.visibleColumns')}</span>
                   <div className="flex gap-2">
-                    <button onClick={() => setVisibleCols(ALL_COLUMNS.map(c => c.key))} className="text-[10px] text-[#7B1F26] font-bold hover:underline">{t('common.all')}</button>
+                    <button onClick={() => setVisibleCols(ALL_COLUMNS.map(c => c.key))} className="text-[10px] text-[#E85D26] font-bold hover:underline">{t('common.all')}</button>
                     <button onClick={() => setVisibleCols(DEFAULT_VISIBLE)} className="text-[10px] text-slate-500 font-bold hover:underline">{t('diamond.default')}</button>
                   </div>
                 </div>
@@ -339,7 +339,7 @@ export default function DiamondPage() {
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{group}</p>
                     <div className="flex flex-wrap gap-1">
                       {ALL_COLUMNS.filter(c => c.group === group).map(col => (
-                        <button key={col.key} onClick={() => toggleCol(col.key)} className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all ${visibleCols.includes(col.key) ? 'bg-red-100 text-[#7B1F26] border border-red-200' : 'bg-slate-50 text-slate-400 border border-slate-100 hover:bg-slate-100'}`}>{col.label}</button>
+                        <button key={col.key} onClick={() => toggleCol(col.key)} className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all ${visibleCols.includes(col.key) ? 'bg-red-100 text-[#E85D26] border border-red-200' : 'bg-slate-50 text-slate-400 border border-slate-100 hover:bg-slate-100'}`}>{col.label}</button>
                       ))}
                     </div>
                   </div>
@@ -373,17 +373,17 @@ export default function DiamondPage() {
 
       {/* ─── Category Pills ─── */}
       <div className="flex flex-wrap gap-1.5 items-center">
-        <button onClick={() => setFilter('family', '')} className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${!filters.family ? 'bg-[#7B1F26] text-white shadow-md shadow-red-200' : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#7B1F26]'}`}>
+        <button onClick={() => setFilter('family', '')} className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${!filters.family ? 'bg-[#E85D26] text-white shadow-md shadow-red-200' : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#E85D26]'}`}>
           {t('common.all')}
         </button>
         {visibleFamilies.map(fam => (
-          <button key={fam.name} onClick={() => setFilter('family', filters.family === fam.name ? '' : fam.name)} className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${filters.family === fam.name ? 'bg-[#7B1F26] text-white shadow-md shadow-red-200' : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#7B1F26]'}`}>
+          <button key={fam.name} onClick={() => setFilter('family', filters.family === fam.name ? '' : fam.name)} className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${filters.family === fam.name ? 'bg-[#E85D26] text-white shadow-md shadow-red-200' : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#E85D26]'}`}>
             <CategoryIcon category={fam.name} size={16} />
             {fam.name || t('common.other')} <span className="opacity-50">({fam.count})</span>
           </button>
         ))}
         {familyGroups.length > 12 && (
-          <button onClick={() => setShowAllFamilies(!showAllFamilies)} className="flex items-center gap-1 px-3 py-2 text-xs text-[#7B1F26] font-bold hover:text-[#7B1F26] transition-colors">
+          <button onClick={() => setShowAllFamilies(!showAllFamilies)} className="flex items-center gap-1 px-3 py-2 text-xs text-[#E85D26] font-bold hover:text-[#E85D26] transition-colors">
             <ChevronDown size={14} className={`transition-transform ${showAllFamilies ? 'rotate-180' : ''}`} />
             {showAllFamilies ? t('common.less') : `+${familyGroups.length - 12} ${t('common.more')}`}
           </button>
@@ -393,7 +393,7 @@ export default function DiamondPage() {
       {/* Loading */}
       {isLoading && (
         <div className="flex items-center justify-center py-12">
-          <Loader2 size={24} className="animate-spin text-[#7B1F26] mr-2" />
+          <Loader2 size={24} className="animate-spin text-[#E85D26] mr-2" />
           <span className="text-sm text-slate-500">{t('common.loading')}</span>
         </div>
       )}
@@ -438,7 +438,7 @@ export default function DiamondPage() {
                   {has3DModel(item.id) && (
                     <button
                       onClick={(e) => { e.stopPropagation(); setView3D(item); }}
-                      className="absolute bottom-1 right-1 z-10 flex items-center gap-1 px-2 py-1 rounded-md bg-[#7B1F26] text-white text-[9px] font-black uppercase tracking-wider shadow-md hover:bg-[#5A1219] transition-all"
+                      className="absolute bottom-1 right-1 z-10 flex items-center gap-1 px-2 py-1 rounded-md bg-[#E85D26] text-white text-[9px] font-black uppercase tracking-wider shadow-md hover:bg-[#C44A1A] transition-all"
                       title={t('diamond.open3D')}
                     >
                       <Box size={10} /> 3D
@@ -458,7 +458,7 @@ export default function DiamondPage() {
                           <p className="text-base font-black text-red-600 tracking-tight">{formatPrice(item.price_promo)}</p>
                         </>
                       ) : (
-                        <p className="text-base font-black text-[#7B1F26] tracking-tight">{formatPrice(item.price_catalog)}</p>
+                        <p className="text-base font-black text-[#E85D26] tracking-tight">{formatPrice(item.price_catalog)}</p>
                       )}
                     </div>
                     {Number(item.electric_power_kw) > 0 && (
@@ -598,7 +598,7 @@ export default function DiamondPage() {
           title={t('catalog.noResults')}
           description={t('catalog.tryDifferent')}
           action={(filters.search || filters.family || filters.promoOnly || filters.newOnly || filters.inStockOnly) && (
-            <button onClick={resetFilters} className="px-4 py-2 bg-[#7B1F26] text-white text-sm font-bold rounded-lg hover:bg-[#5A1219] transition-colors">
+            <button onClick={resetFilters} className="px-4 py-2 bg-[#E85D26] text-white text-sm font-bold rounded-lg hover:bg-[#C44A1A] transition-colors">
               {t('diamond.clearFilters')}
             </button>
           )}
@@ -615,7 +615,7 @@ export default function DiamondPage() {
             <button onClick={() => setPage(1)} disabled={currentPage === 1} className="px-2 py-1.5 rounded text-xs font-medium text-on-surface-variant disabled:opacity-30 hover:bg-surface-container-high transition-colors">«</button>
             <button onClick={() => setPage(Math.max(1, currentPage - 1))} disabled={currentPage === 1} className="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant disabled:opacity-30 transition-colors"><ChevronLeft size={16} /></button>
             {pageNumbers.map((page) => (
-              <button key={page} onClick={() => setPage(page)} className={`w-8 h-8 flex items-center justify-center rounded text-xs font-bold transition-colors ${page === currentPage ? 'bg-[#7B1F26] text-white shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>{page}</button>
+              <button key={page} onClick={() => setPage(page)} className={`w-8 h-8 flex items-center justify-center rounded text-xs font-bold transition-colors ${page === currentPage ? 'bg-[#E85D26] text-white shadow-sm' : 'text-on-surface-variant hover:bg-surface-container-high'}`}>{page}</button>
             ))}
             <button onClick={() => setPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-1.5 rounded hover:bg-surface-container-high text-on-surface-variant disabled:opacity-30 transition-colors"><ChevronRight size={16} /></button>
             <button onClick={() => setPage(totalPages)} disabled={currentPage === totalPages} className="px-2 py-1.5 rounded text-xs font-medium text-on-surface-variant disabled:opacity-30 hover:bg-surface-container-high transition-colors">»</button>
@@ -633,7 +633,7 @@ export default function DiamondPage() {
               {has3DModel(detailItem.id) && (
                 <button
                   onClick={() => setView3D(detailItem)}
-                  className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#7B1F26] text-white text-xs font-black uppercase tracking-wider shadow-lg hover:bg-[#5A1219] transition-all"
+                  className="absolute bottom-3 right-3 flex items-center gap-1.5 px-3 py-2 rounded-lg bg-[#E85D26] text-white text-xs font-black uppercase tracking-wider shadow-lg hover:bg-[#C44A1A] transition-all"
                 >
                   <Box size={14} /> {t('diamond.view3D')}
                 </button>
@@ -700,7 +700,7 @@ export default function DiamondPage() {
                   <div className="flex flex-wrap gap-1">
                     {detailItem.is_new && <span className="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded">{t('diamond.new')}</span>}
                     {detailItem.is_good_deal && <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-[10px] font-bold rounded">{t('diamond.deal')}</span>}
-                    {detailItem.has_accessories && <span className="px-2 py-0.5 bg-red-100 text-[#7B1F26] text-[10px] font-bold rounded">{t('diamond.hasAccessories')}</span>}
+                    {detailItem.has_accessories && <span className="px-2 py-0.5 bg-red-100 text-[#E85D26] text-[10px] font-bold rounded">{t('diamond.hasAccessories')}</span>}
                     <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] font-bold rounded">{t('diamond.type')}: {detailItem.product_type}</span>
                   </div>
                   {detailItem.replacement_product_id && <p className="text-[10px] text-on-surface-variant mt-1">{t('diamond.replacement')}: {detailItem.replacement_product_id}</p>}

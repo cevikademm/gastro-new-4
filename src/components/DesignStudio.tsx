@@ -8,7 +8,7 @@ import {
   Grid3x3, Magnet, Flame, Droplets,
   Microwave, Waves, Table, Refrigerator,
   MousePointer2, Hand, Plus, Minus, Lock, Unlock,
-  Package, ArrowLeft, Search, X, Heart, Zap,
+  Package, ArrowLeft, Search, X, Heart, Zap, ChevronRight,
   Ruler, Euro, ExternalLink, Pen, RotateCcw,
   DoorOpen, AppWindow, FileDown, StickyNote, Loader2, Box
 } from 'lucide-react';
@@ -408,6 +408,24 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
   const [newTaskText, setNewTaskText] = useState('');
   const [newTaskAssignee, setNewTaskAssignee] = useState('');
   const [pdfExporting, setPdfExporting] = useState(false);
+
+  const saveProject = () => {
+    const projectId = id || 'global';
+    debouncedSyncFloorPlan(projectId, {
+      roomWidthCm,
+      roomHeightCm,
+      roomShape,
+      roomPolygon,
+      wallLengthsCm: [],
+      placedItems,
+      wallOpenings,
+      roomProps,
+      selectedItemId: selectedId,
+      canvasState: { notes, description, pricePerM2, tasks, zoom, panOffset: { x: panOffset.x, y: panOffset.y } },
+    });
+    alert('Tasarım başarıyla kaydedildi!');
+  };
+
   const canvasWrapRef = useRef<HTMLDivElement>(null);
 
   const selectedItem = placedItems.find(i => i.id === selectedId) || null;
@@ -1089,115 +1107,171 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
   const renderSVGHeight = roomShape === 'polygon' && roomPolygon.length >= 3 ? bounds.maxY + 50 : roomHeightCm;
 
   return (
-    <div className="flex-1 flex overflow-hidden" style={{ height: 'calc(100vh - 3.5rem)' }}>
-      {/* Canvas Area */}
-      <div className="flex-1 flex flex-col bg-[#f0f3ff] min-w-0">
-        {/* Toolbar */}
-        <div className="h-11 bg-white border-b border-slate-200 flex items-center px-3 gap-1 shrink-0">
-          {isProjectMode && (
-            <>
-              <Link to={`/projects/${id}`} className="p-1.5 text-slate-400 hover:text-primary hover:bg-slate-100 rounded-md mr-1"><ArrowLeft size={16} /></Link>
-              <span className="text-xs font-bold text-primary mr-2 truncate max-w-[120px]">{project?.name}</span>
-              <div className="w-px h-5 bg-slate-200 mr-1" />
-            </>
-          )}
+    <div className="flex-1 flex flex-col overflow-hidden bg-[#f9f9ff] font-body text-[#121c2c]">
+      <style>{`
+        .blueprint-grid {
+          background-size: 20px 20px;
+          background-image: radial-gradient(circle, #c4c6cf 1px, transparent 1px);
+        }
+        .canvas-container {
+          box-shadow: inset 0 0 100px rgba(0,32,69,0.03);
+        }
+      `}</style>
 
-          <div className="flex bg-slate-100 rounded-lg p-0.5 mr-2">
-            <button onClick={() => { setActiveTool('select'); cancelDrawingRoom(); }} className={`p-1.5 rounded-md transition-all ${activeTool === 'select' ? 'bg-white shadow-sm text-primary' : 'text-slate-400'}`} title="Sec"><MousePointer2 size={15} /></button>
-            <button onClick={() => { setActiveTool('pan'); cancelDrawingRoom(); }} className={`p-1.5 rounded-md transition-all ${activeTool === 'pan' ? 'bg-white shadow-sm text-primary' : 'text-slate-400'}`} title="Kaydir"><Hand size={15} /></button>
-            <button onClick={startDrawingRoom} className={`p-1.5 rounded-md transition-all ${activeTool === 'draw' ? 'bg-white shadow-sm text-emerald-600' : 'text-slate-400'}`} title="Oda Ciz"><Pen size={15} /></button>
+      {/* TopAppBar — Updated to match demo style */}
+      <header className="w-full bg-white border-b border-[#d9e3f9] shadow-sm z-40 shrink-0">
+        <div className="flex justify-between items-center px-4 md:px-6 py-3">
+          <div className="flex items-center gap-4">
+            <Link to={id ? `/projects/${id}` : "/welcome"} className="p-2 text-[#002045] hover:bg-[#dee8ff] rounded-lg transition-colors">
+              <ArrowLeft size={20} />
+            </Link>
+            <div className="flex flex-col">
+              <span className="text-[10px] uppercase tracking-widest text-[#43474e] font-bold">Proje Durumu</span>
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-[#ffb783] shadow-[0_0_8px_#ffb783]"></span>
+                <span className="text-sm font-semibold text-[#002045] truncate max-w-[200px]">
+                  {id ? `${project?.name || 'Düzenleniyor'}` : 'Yeni Mutfak Tasarımı'}
+                </span>
+              </div>
+            </div>
           </div>
 
-          {roomPolygon.length >= 3 && !isDrawingRoom && (
-            <div className="flex bg-slate-100 rounded-lg p-0.5 mr-2">
-              <button
-                onClick={() => { setAddOpeningMode(addOpeningMode === 'door' ? null : 'door'); setActiveTool('select'); }}
-                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'door' ? 'bg-white shadow-sm text-[#7B1F26]' : 'text-slate-400'}`}
-                title="Kapı Ekle"
-              ><DoorOpen size={15} /></button>
-              <button
-                onClick={() => { setAddOpeningMode(addOpeningMode === 'double-door' ? null : 'double-door'); setActiveTool('select'); }}
-                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'double-door' ? 'bg-white shadow-sm text-[#7B1F26]' : 'text-slate-400'}`}
-                title="Çift Kanat Kapı"
-              ><DoorOpen size={15} className="scale-x-[-1]" /></button>
-              <button
-                onClick={() => { setAddOpeningMode(addOpeningMode === 'window' ? null : 'window'); setActiveTool('select'); }}
-                className={`p-1.5 rounded-md transition-all ${addOpeningMode === 'window' ? 'bg-white shadow-sm text-[#7B1F26]' : 'text-slate-400'}`}
-                title="Pencere Ekle"
-              ><AppWindow size={15} /></button>
-            </div>
-          )}
-
-          {isDrawingRoom && (
-            <div className="flex items-center gap-1 mr-2 flex-wrap">
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded hidden sm:inline">
-                {drawingPoints.length} nokta — tıklayarak çizin
-              </span>
-              <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded sm:hidden">
-                {drawingPoints.length} nokta
-              </span>
-              {drawingPoints.length >= 3 && (
-                <button onClick={finishDrawingRoom} className="px-2 py-1 text-[10px] font-bold text-white bg-emerald-500 hover:bg-emerald-600 rounded transition-colors">Tamamla</button>
-              )}
-              <button onClick={cancelDrawingRoom} className="px-2 py-1 text-[10px] font-bold text-red-500 bg-red-50 hover:bg-red-100 rounded transition-colors">İptal</button>
-            </div>
-          )}
-
-          {!isDrawingRoom && (
-            <>
-              <div className="w-px h-5 bg-slate-200 mx-1" />
-              <button onClick={undo} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md"><Undo2 size={15} /></button>
-              <button onClick={redo} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md"><Redo2 size={15} /></button>
-              <div className="w-px h-5 bg-slate-200 mx-1" />
-              <button onClick={rotateSelected} disabled={!selectedId} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md disabled:opacity-30"><RotateCw size={15} /></button>
-              <button onClick={duplicateSelected} disabled={!selectedId} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md disabled:opacity-30"><Copy size={15} /></button>
-              <button onClick={toggleLockSelected} disabled={!selectedId} className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-md disabled:opacity-30">
-                {selectedItem?.locked ? <Lock size={15} /> : <Unlock size={15} />}
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="hidden lg:flex bg-[#dee8ff] rounded-lg p-1 gap-1">
+              <button className="px-4 py-1.5 rounded-md bg-white shadow-sm text-xs font-bold text-[#002045] flex items-center gap-2 transition-all">
+                <Grid3x3 size={14} /> 2D
               </button>
-              <button onClick={deleteSelected} disabled={!selectedId} className="p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-md disabled:opacity-30"><Trash2 size={15} /></button>
-              <div className="w-px h-5 bg-slate-200 mx-1" />
-              <button onClick={() => setShowGrid(!showGrid)} className={`p-1.5 rounded-md ${showGrid ? 'text-primary bg-primary/10' : 'text-slate-400'}`}><Grid3x3 size={15} /></button>
-              <button onClick={() => setSnapToGrid(!snapToGrid)} className={`p-1.5 rounded-md ${snapToGrid ? 'text-primary bg-primary/10' : 'text-slate-400'}`}><Magnet size={15} /></button>
-            </>
-          )}
+              <button 
+                onClick={() => navigate(id ? `/projects/${id}/design/3d` : '/design/3d')}
+                className="px-4 py-1.5 rounded-md text-xs font-bold text-[#43474e] hover:bg-white/50 transition-all flex items-center gap-2"
+              >
+                <Box size={14} /> 3D
+              </button>
+            </div>
 
-          <div className="flex-1" />
-          <button onClick={zoomOut} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md"><Minus size={15} /></button>
-          <span className="text-[10px] font-mono font-bold text-slate-500 w-10 text-center">{Math.round(zoom * 100)}%</span>
-          <button onClick={zoomIn} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md"><Plus size={15} /></button>
-          <button onClick={zoomFit} className="ml-1 px-2 py-1 text-[10px] font-bold text-slate-500 hover:text-primary hover:bg-slate-100 rounded-md">FIT</button>
-          <div className="w-px h-5 bg-slate-200 mx-1" />
-          <button
-            onClick={() => navigate(id ? `/projects/${id}/design/3d` : '/design/3d')}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-white bg-violet-600 hover:bg-violet-700 rounded-md transition-all"
-            title="3D Görünüm"
-          >
-            <Box size={13} />
-            <span className="hidden sm:inline">3D</span>
-          </button>
-          <button
-            onClick={exportFloorPlanPDF}
-            disabled={pdfExporting}
-            className="flex items-center gap-1 px-2.5 py-1.5 text-[10px] font-bold text-white bg-primary hover:bg-primary/90 rounded-md disabled:opacity-60 transition-all"
-            title="PDF İndir"
-          >
-            {pdfExporting ? <Loader2 size={13} className="animate-spin" /> : <FileDown size={13} />}
-            <span className="hidden sm:inline">PDF</span>
-          </button>
-          {/* Mobile: ekipman paneli aç */}
-          <button
-            onClick={() => setShowMobilePanel(true)}
-            className="md:hidden ml-1 px-3 py-1.5 text-[10px] font-bold text-white bg-primary rounded-md flex items-center gap-1"
-          >
-            <Plus size={13} /> Ekipman
-          </button>
+            <div className="w-[1px] h-6 bg-[#d9e3f9] mx-1 hidden md:block" />
+
+            <div className="flex items-center gap-1">
+              <button onClick={undo} className="p-2 text-[#43474e] hover:bg-[#dee8ff] rounded-lg transition-colors" title="Geri Al"><Undo2 size={18} /></button>
+              <button onClick={redo} className="p-2 text-[#43474e] hover:bg-[#dee8ff] rounded-lg transition-colors" title="İleri Al"><Redo2 size={18} /></button>
+            </div>
+
+            <div className="w-[1px] h-6 bg-[#d9e3f9] mx-1 hidden md:block" />
+
+            <button
+              onClick={saveProject}
+              className="bg-[#d5e0f7] text-[#002045] px-4 md:px-6 py-2 rounded-lg text-xs font-bold hover:bg-[#002045] hover:text-white transition-all active:scale-95 uppercase tracking-wider shadow-sm"
+            >
+              {id ? 'Güncelle' : 'Kaydet'}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      {/* Main Workspace Area */}
+      <main className="flex-1 relative flex flex-col overflow-hidden blueprint-grid canvas-container">
+        
+        {/* Floating Toolbar (Left) — Updated to match demo style */}
+        <div className="absolute left-6 top-1/2 -translate-y-1/2 flex flex-col gap-3 z-30">
+          <div className="bg-[#1a365d] p-2 rounded-2xl flex flex-col gap-4 shadow-2xl border border-white/10">
+            <button 
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                activeTool === 'select' ? 'bg-[#ffb783] text-[#371800] shadow-lg' : 'text-white/70 hover:bg-white/10'
+              }`}
+              onClick={() => { setActiveTool('select'); cancelDrawingRoom(); }}
+              title="Seç / Taşı (V)"
+            >
+              <MousePointer2 size={22} />
+            </button>
+            <button 
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                activeTool === 'pan' ? 'bg-[#ffb783] text-[#371800] shadow-lg' : 'text-white/70 hover:bg-white/10'
+              }`}
+              onClick={() => { setActiveTool('pan'); cancelDrawingRoom(); }}
+              title="Kaydır (H)"
+            >
+              <Hand size={22} />
+            </button>
+            <div className="h-[1px] bg-white/10 mx-2" />
+            <button 
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                activeTool === 'draw' ? 'bg-[#ffb783] text-[#371800] shadow-lg' : 'text-white/70 hover:bg-white/10'
+              }`}
+              onClick={startDrawingRoom}
+              title="Duvar Çiz (W)"
+            >
+              <Pen size={20} />
+            </button>
+            <button 
+              className="w-11 h-11 rounded-xl text-white/70 hover:bg-white/10 flex items-center justify-center transition-colors"
+              title="Ölçüm Aracı"
+            >
+              <Ruler size={20} />
+            </button>
+            <div className="h-[1px] bg-white/10 mx-2" />
+            <button 
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                showGrid ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10'
+              }`}
+              onClick={() => setShowGrid(!showGrid)}
+              title="Izgarayı Göster"
+            >
+              <Grid3x3 size={20} />
+            </button>
+            <button 
+              className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                snapToGrid ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10'
+              }`}
+              onClick={() => setSnapToGrid(!snapToGrid)}
+              title="Mıknatıs Modu"
+            >
+              <Magnet size={20} />
+            </button>
+          </div>
         </div>
 
-        {/* Canvas */}
+        {/* Catalog Trigger & Bottom Sheet (Mobile) / Compact Tray (Desktop) */}
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[90%] md:w-[60%] lg:w-[50%] z-30 transition-all">
+          <div className="bg-white/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_50px_rgba(0,32,69,0.15)] border border-[#d9e3f9] p-4 flex flex-col gap-3">
+            <div className="flex justify-between items-center px-1">
+              <span className="text-[10px] font-bold text-[#002045] uppercase tracking-widest flex items-center gap-2">
+                <Package size={14} className="text-[#ffb783]" />
+                Aktif Ekipman Kataloğu
+              </span>
+              <div className="flex gap-2">
+                <button 
+                  onClick={() => setShowMobilePanel(!showMobilePanel)}
+                  className="text-[10px] font-bold text-[#43474e] hover:text-[#002045] flex items-center gap-1 transition-colors"
+                >
+                  Tümünü Gör <ChevronRight size={14} />
+                </button>
+              </div>
+            </div>
+            
+            <div className="flex gap-3 overflow-x-auto pb-1 scrollbar-thin">
+              {equipmentStore.allItems.slice(0, 10).map((item) => (
+                <div
+                  key={item.id}
+                  draggable
+                  onDragStart={(e) => { e.dataTransfer.setData('equipmentId', item.id); }}
+                  className="min-w-[100px] bg-[#f0f3ff] rounded-xl p-2 flex flex-col gap-1.5 cursor-grab active:cursor-grabbing hover:bg-[#dee8ff] transition-all group/card"
+                >
+                  <div className="aspect-square bg-white rounded-lg p-1.5 relative overflow-hidden flex items-center justify-center shadow-sm">
+                    <img src={item.img} alt="" className="w-full h-full object-contain group-hover/card:scale-110 transition-transform" />
+                  </div>
+                  <p className="text-[9px] font-bold text-[#002045] truncate px-0.5">{item.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Canvas Area Container */}
         <div ref={canvasWrapRef} className="flex-1 overflow-hidden relative flex flex-col">
-        <div
-          ref={canvasRef}
-          className="flex-1 overflow-hidden relative"
+          <div
+            ref={canvasRef}
+            className="flex-1 overflow-hidden relative"
+
           style={{
             cursor: isDrawingRoom ? 'crosshair' : activeTool === 'pan' || isPanning ? 'grab' : draggingVertex !== null ? 'move' : 'default',
             background: manualMode ? CAD.bgColor : '#ffffff',
@@ -1252,7 +1326,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
               {selectedVertex !== null && (
                 <>
                   <div className="w-px h-4 bg-slate-200" />
-                  <div className="text-[#7B1F26]">Nokta {selectedVertex + 1} seçili</div>
+                  <div className="text-[#E85D26]">Nokta {selectedVertex + 1} seçili</div>
                 </>
               )}
             </div>
@@ -1733,7 +1807,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
           {totalPrice > 0 && <span className="hidden md:inline shrink-0">Toplam: {formatPrice(totalPrice)}</span>}
           <span className="ml-auto shrink-0 font-bold">{Math.round(zoom * 100)}%</span>
         </div>
-      </div>
+      </main>
 
       {/* Right Panel */}
       <aside className="w-72 xl:w-80 bg-white border-l border-slate-200 flex flex-col shrink-0 hidden lg:flex" style={{ height: 'calc(100vh - 3.5rem)' }}>
@@ -2711,7 +2785,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                     <div className="p-2">
                       <p className="text-[11px] font-bold text-slate-700 leading-tight line-clamp-2">{item.name}</p>
                       <p className="text-[10px] text-slate-400 font-mono mt-0.5">{item.id}</p>
-                      {item.price > 0 && <p className="text-[10px] font-bold text-primary mt-1">{formatPrice(item.price)}</p>}
+                      {item.price > 0 && <p className="text-[10px] font-bold text-[#E85D26] mt-1">{formatPrice(item.price)}</p>}
                     </div>
                   </button>
                 ))}
@@ -2729,3 +2803,4 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
     </div>
   );
 }
+

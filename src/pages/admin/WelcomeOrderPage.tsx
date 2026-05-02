@@ -203,7 +203,7 @@ export default function WelcomeOrderPage() {
               type="button"
               onClick={handleReset}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-semibold border transition-colors"
-              style={{ borderColor: '#e8e6df', color: '#7B1F26', background: '#fff' }}
+              style={{ borderColor: '#e8e6df', color: '#E85D26', background: '#fff' }}
             >
               <RotateCcw size={13} />
               Varsayılan
@@ -214,14 +214,14 @@ export default function WelcomeOrderPage() {
 
       <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="mb-6">
-          <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2" style={{ color: '#7B1F26' }}>
+          <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2" style={{ color: '#E85D26' }}>
             // ADMIN · WELCOME ORDER
           </div>
           <h1
             className="text-3xl md:text-4xl leading-[1.1]"
-            style={{ fontFamily: 'Fraunces, Georgia, serif', fontWeight: 500, letterSpacing: '-0.025em' }}
+            style={{ fontFamily: 'Playfair Display, Georgia, serif', fontWeight: 500, letterSpacing: '-0.025em' }}
           >
-            Bölüm <em style={{ color: '#7B1F26', fontStyle: 'italic' }}>sıralaması</em>
+            Bölüm <em style={{ color: '#E85D26', fontStyle: 'italic' }}>sıralaması</em>
           </h1>
         </div>
 
@@ -230,25 +230,25 @@ export default function WelcomeOrderPage() {
           className="mb-6 p-4 rounded-2xl border"
           style={{ background: '#fff', borderColor: '#e8e6df' }}
         >
-          <div className="text-[11px] font-mono uppercase tracking-[0.2em] mb-3" style={{ color: '#7B1F26' }}>
+          <div className="text-[11px] font-mono uppercase tracking-[0.2em] mb-3" style={{ color: '#E85D26' }}>
             // 3 yöntem · sana en kolayını seç
           </div>
           <ol className="space-y-2 text-[13px]" style={{ color: '#0F2440' }}>
             <li className="flex gap-3">
               <span
                 className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black text-white"
-                style={{ background: '#7B1F26' }}
+                style={{ background: '#E85D26' }}
               >
                 1
               </span>
               <span>
-                <strong>Tıkla–tıkla taşı (en kolay):</strong> Bir satıra tıkla → bordo dolgulu olur. Sonra hedef satıra tıkla → yer değiştirirler.
+                <strong>Tıkla–tıkla taşı (en kolay):</strong> Bir satıra tıkla → clay dolgulu olur. Sonra hedef satıra tıkla → yer değiştirirler.
               </span>
             </li>
             <li className="flex gap-3">
               <span
                 className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black"
-                style={{ background: 'rgba(123,31,38,0.12)', color: '#7B1F26' }}
+                style={{ background: 'rgba(232, 93, 38,0.12)', color: '#E85D26' }}
               >
                 2
               </span>
@@ -259,7 +259,7 @@ export default function WelcomeOrderPage() {
             <li className="flex gap-3">
               <span
                 className="shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-[11px] font-black"
-                style={{ background: 'rgba(123,31,38,0.12)', color: '#7B1F26' }}
+                style={{ background: 'rgba(232, 93, 38,0.12)', color: '#E85D26' }}
               >
                 3
               </span>
@@ -271,7 +271,7 @@ export default function WelcomeOrderPage() {
           {picked && (
             <div
               className="mt-3 px-3 py-2 rounded-lg text-[12px] font-semibold flex items-center gap-2"
-              style={{ background: 'rgba(123,31,38,0.08)', color: '#7B1F26' }}
+              style={{ background: 'rgba(232, 93, 38,0.08)', color: '#E85D26' }}
             >
               <MousePointer2 size={13} />
               <span>
@@ -312,19 +312,19 @@ export default function WelcomeOrderPage() {
                 onClick={() => handleRowClick(id)}
                 className="group flex items-center gap-3 rounded-2xl p-4 border transition-[transform,box-shadow,background] cursor-pointer"
                 style={{
-                  background: isPicked ? '#7B1F26' : '#fff',
+                  background: isPicked ? '#E85D26' : '#fff',
                   borderColor: isPicked
-                    ? '#5A1219'
+                    ? '#C44A1A'
                     : isDropTarget
-                      ? '#7B1F26'
+                      ? '#E85D26'
                       : '#e8e6df',
                   color: isPicked ? '#fff' : '#0F2440',
                   boxShadow: isDragging
-                    ? '0 24px 48px -12px rgba(123,31,38,0.4)'
+                    ? '0 24px 48px -12px rgba(232, 93, 38,0.4)'
                     : isPicked
-                      ? '0 14px 32px -12px rgba(123,31,38,0.5)'
+                      ? '0 14px 32px -12px rgba(232, 93, 38,0.5)'
                       : isDropTarget
-                        ? '0 12px 28px -10px rgba(123,31,38,0.22)'
+                        ? '0 12px 28px -10px rgba(232, 93, 38,0.22)'
                         : '0 1px 2px rgba(15,36,64,0.04)',
                   transform: isDragging
                     ? `translateY(${dragY}px) scale(1.02)`
@@ -354,9 +354,9 @@ export default function WelcomeOrderPage() {
                 <div
                   className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 text-sm font-black"
                   style={{
-                    background: isPicked ? 'rgba(255,255,255,0.18)' : 'rgba(123,31,38,0.1)',
-                    color: isPicked ? '#fff' : '#7B1F26',
-                    fontFamily: 'Fraunces, Georgia, serif',
+                    background: isPicked ? 'rgba(255,255,255,0.18)' : 'rgba(232, 93, 38,0.1)',
+                    color: isPicked ? '#fff' : '#E85D26',
+                    fontFamily: 'Playfair Display, Georgia, serif',
                   }}
                 >
                   {idx + 1}
@@ -368,7 +368,7 @@ export default function WelcomeOrderPage() {
                     className="font-bold text-[14px] leading-tight"
                     style={{
                       color: isPicked ? '#fff' : '#0F2440',
-                      fontFamily: 'Fraunces, Georgia, serif',
+                      fontFamily: 'Playfair Display, Georgia, serif',
                       fontWeight: 600,
                     }}
                   >

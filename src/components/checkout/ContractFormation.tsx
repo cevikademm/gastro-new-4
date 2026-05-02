@@ -80,8 +80,8 @@ export default function ContractFormation({
       {/* Contract Formation Notice */}
       <div className="bg-red-50 rounded-2xl p-6 border border-red-200">
         <div className="flex gap-3">
-          <AlertCircle className="text-[#7B1F26] flex-shrink-0 mt-0.5" size={20} />
-          <div className="text-sm text-[#5A1219]">
+          <AlertCircle className="text-[#E85D26] flex-shrink-0 mt-0.5" size={20} />
+          <div className="text-sm text-[#C44A1A]">
             <p className="font-semibold mb-2">
               {t('checkout.contractFormation', 'Vertragsschluss')}
             </p>
@@ -103,7 +103,7 @@ export default function ContractFormation({
             type="checkbox"
             checked={agreeTerms}
             onChange={(e) => setAgreeTerms(e.target.checked)}
-            className="w-5 h-5 rounded accent-[#7B1F26] mt-0.5 flex-shrink-0"
+            className="w-5 h-5 rounded accent-[#E85D26] mt-0.5 flex-shrink-0"
           />
           <div className="flex-1">
             <p className="text-sm font-medium text-slate-900">
@@ -111,7 +111,7 @@ export default function ContractFormation({
             </p>
             <a
               href="#/terms"
-              className="text-xs text-[#7B1F26] hover:underline mt-1 inline-block"
+              className="text-xs text-[#E85D26] hover:underline mt-1 inline-block"
             >
               {t('checkout.viewTerms', 'AGB ansehen')}
             </a>
@@ -124,7 +124,7 @@ export default function ContractFormation({
             type="checkbox"
             checked={agreeCancel}
             onChange={(e) => setAgreeCancel(e.target.checked)}
-            className="w-5 h-5 rounded accent-[#7B1F26] mt-0.5 flex-shrink-0"
+            className="w-5 h-5 rounded accent-[#E85D26] mt-0.5 flex-shrink-0"
           />
           <div className="flex-1">
             <p className="text-sm font-medium text-slate-900">
@@ -135,7 +135,7 @@ export default function ContractFormation({
             </p>
             <a
               href="#/cancellation"
-              className="text-xs text-[#7B1F26] hover:underline mt-1 inline-block"
+              className="text-xs text-[#E85D26] hover:underline mt-1 inline-block"
             >
               {t('checkout.viewCancellation', 'Widerrufsbelehrung ansehen')}
             </a>
@@ -148,7 +148,7 @@ export default function ContractFormation({
             type="checkbox"
             checked={agreePrivacy}
             onChange={(e) => setAgreePrivacy(e.target.checked)}
-            className="w-5 h-5 rounded accent-[#7B1F26] mt-0.5 flex-shrink-0"
+            className="w-5 h-5 rounded accent-[#E85D26] mt-0.5 flex-shrink-0"
           />
           <div className="flex-1">
             <p className="text-sm font-medium text-slate-900">
@@ -159,7 +159,7 @@ export default function ContractFormation({
             </p>
             <a
               href="#/privacy"
-              className="text-xs text-[#7B1F26] hover:underline mt-1 inline-block"
+              className="text-xs text-[#E85D26] hover:underline mt-1 inline-block"
             >
               {t('checkout.viewPrivacy', 'Datenschutzerklärung ansehen')}
             </a>

@@ -706,7 +706,7 @@ export default function SketchPage() {
           <Save size={13} /> Kaydet
         </button>
         <button onClick={() => { setSavedList(loadSketches()); setShowLoad(true); }}
-          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-[#7B1F26] hover:bg-red-100 transition-all">
+          className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-[#E85D26] hover:bg-red-100 transition-all">
           <FolderOpen size={13} /> Aç
         </button>
 
@@ -807,7 +807,7 @@ export default function SketchPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <h2 className="text-base font-headline font-black text-on-surface flex items-center gap-2">
-                <FolderOpen size={18} className="text-[#7B1F26]" /> Kayıtlı Eskizler
+                <FolderOpen size={18} className="text-[#E85D26]" /> Kayıtlı Eskizler
               </h2>
               <button onClick={() => setShowLoad(false)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400">
                 <X size={16} />

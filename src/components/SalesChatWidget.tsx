@@ -78,7 +78,7 @@ export default function SalesChatWidget() {
           setOpen(true);
           trackEvent('sales_chat_open');
         }}
-        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 px-4 py-3 bg-[#7B1F26] text-white rounded-full shadow-lg hover:bg-[#5A1219] transition"
+        className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 px-4 py-3 bg-[#E85D26] text-white rounded-full shadow-lg hover:bg-[#C44A1A] transition"
         aria-label="Satış asistanı"
       >
         <MessageCircle size={20} />
@@ -89,7 +89,7 @@ export default function SalesChatWidget() {
 
   return (
     <div className="fixed bottom-5 right-5 z-50 w-[min(380px,calc(100vw-2.5rem))] h-[min(560px,calc(100vh-2.5rem))] bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
-      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#7B1F26] to-[#5A1219] text-white">
+      <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#E85D26] to-[#C44A1A] text-white">
         <div className="flex items-center gap-2">
           <Sparkles size={18} />
           <div>
@@ -113,7 +113,7 @@ export default function SalesChatWidget() {
             key={i}
             className={`max-w-[85%] rounded-xl px-3 py-2 text-sm whitespace-pre-wrap ${
               m.role === 'user'
-                ? 'ml-auto bg-[#7B1F26] text-white'
+                ? 'ml-auto bg-[#E85D26] text-white'
                 : 'bg-white border border-slate-200 text-slate-800'
             }`}
           >
@@ -130,12 +130,12 @@ export default function SalesChatWidget() {
             onKeyDown={(e) => e.key === 'Enter' && send()}
             placeholder="Sorunuzu yazın…"
             disabled={sending}
-            className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#7B1F26]"
+            className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#E85D26]"
           />
           <button
             onClick={send}
             disabled={sending || !input.trim()}
-            className="p-2 bg-[#7B1F26] text-white rounded-lg hover:bg-[#5A1219] disabled:opacity-50"
+            className="p-2 bg-[#E85D26] text-white rounded-lg hover:bg-[#C44A1A] disabled:opacity-50"
           >
             <Send size={16} />
           </button>

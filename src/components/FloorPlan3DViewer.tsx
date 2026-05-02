@@ -402,7 +402,7 @@ export default function FloorPlan3DViewer({
   if (loading) {
     return (
       <div className="w-full h-full flex items-center justify-center bg-slate-900">
-        <Loader2 className="w-8 h-8 text-[#7B1F26] animate-spin" />
+        <Loader2 className="w-8 h-8 text-[#E85D26] animate-spin" />
       </div>
     );
   }

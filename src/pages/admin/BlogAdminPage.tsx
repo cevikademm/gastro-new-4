@@ -130,7 +130,7 @@ export default function BlogAdminPage() {
         <h1 className="text-3xl font-bold">Blog Yönetimi</h1>
         <button
           onClick={() => setEditing({ ...empty })}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#7B1F26] text-white rounded-lg font-semibold hover:bg-[#5A1219]"
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#E85D26] text-white rounded-lg font-semibold hover:bg-[#C44A1A]"
         >
           <Plus size={18} /> Yeni Yazı
         </button>
@@ -150,7 +150,7 @@ export default function BlogAdminPage() {
             <button
               onClick={generateBrief}
               disabled={generating || !keyword.trim()}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-[#7B1F26] text-white rounded-lg font-semibold hover:bg-[#5A1219] disabled:opacity-50"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-[#E85D26] text-white rounded-lg font-semibold hover:bg-[#C44A1A] disabled:opacity-50"
             >
               <Sparkles size={16} /> {generating ? 'Üretiliyor…' : 'AI ile Üret'}
             </button>

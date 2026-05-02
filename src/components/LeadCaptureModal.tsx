@@ -75,7 +75,7 @@ export default function LeadCaptureModal({
         ) : (
           <>
             <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mb-4">
-              <Mail className="text-[#7B1F26]" size={24} />
+              <Mail className="text-[#E85D26]" size={24} />
             </div>
             <h3 className="text-xl font-bold text-slate-900">{title}</h3>
             <p className="mt-2 text-sm text-slate-600">{description}</p>
@@ -86,7 +86,7 @@ export default function LeadCaptureModal({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="email@sirketiniz.com"
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-[#7B1F26] focus:ring-2 focus:ring-red-100"
+                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-[#E85D26] focus:ring-2 focus:ring-red-100"
                 autoFocus
                 required
               />
@@ -94,7 +94,7 @@ export default function LeadCaptureModal({
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-3 w-full py-3 bg-[#7B1F26] text-white rounded-xl font-bold hover:bg-[#5A1219] disabled:opacity-50 transition"
+                className="mt-3 w-full py-3 bg-[#E85D26] text-white rounded-xl font-bold hover:bg-[#C44A1A] disabled:opacity-50 transition"
               >
                 {loading ? 'Gönderiliyor…' : cta}
               </button>

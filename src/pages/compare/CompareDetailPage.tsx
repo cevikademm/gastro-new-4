@@ -76,8 +76,8 @@ export default function CompareDetailPage() {
   }) => (
     <div className="grid grid-cols-3 gap-4 py-4 border-b border-slate-100">
       <div className="text-sm font-semibold text-slate-700">{label}</div>
-      <div className={`text-sm ${highlight === 'a' ? 'text-[#7B1F26] font-bold' : 'text-slate-700'}`}>{a}</div>
-      <div className={`text-sm ${highlight === 'b' ? 'text-[#7B1F26] font-bold' : 'text-slate-700'}`}>{b}</div>
+      <div className={`text-sm ${highlight === 'a' ? 'text-[#E85D26] font-bold' : 'text-slate-700'}`}>{a}</div>
+      <div className={`text-sm ${highlight === 'b' ? 'text-[#E85D26] font-bold' : 'text-slate-700'}`}>{b}</div>
     </div>
   );
 
@@ -103,9 +103,9 @@ export default function CompareDetailPage() {
       <section className="bg-gradient-to-br from-red-50 via-white to-rose-50 border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-4 py-16">
           <nav className="text-xs text-slate-500 mb-4">
-            <Link to="/" className="hover:text-[#7B1F26]">Ana Sayfa</Link>
+            <Link to="/" className="hover:text-[#E85D26]">Ana Sayfa</Link>
             {' / '}
-            <Link to="/compare" className="hover:text-[#7B1F26]">Karşılaştırma</Link>
+            <Link to="/compare" className="hover:text-[#E85D26]">Karşılaştırma</Link>
             {' / '}
             <span className="text-slate-700">vs {c.name}</span>
           </nav>
@@ -122,7 +122,7 @@ export default function CompareDetailPage() {
         <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 md:p-8">
           <div className="grid grid-cols-3 gap-4 pb-4 border-b-2 border-slate-200">
             <div></div>
-            <div className="text-lg font-bold text-[#7B1F26]">2MC Gastro</div>
+            <div className="text-lg font-bold text-[#E85D26]">2MC Gastro</div>
             <div className="text-lg font-bold text-slate-700">{c.name}</div>
           </div>
           <Row label="Köken" a={TWO_MC.origin} b={`${c.origin} (${c.founded})`} />
@@ -190,20 +190,20 @@ export default function CompareDetailPage() {
         </div>
       </section>
 
-      <section className="bg-gradient-to-br from-[#7B1F26] to-[#5A1219] text-white">
+      <section className="bg-gradient-to-br from-[#E85D26] to-[#C44A1A] text-white">
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
           <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4">2MC Gastro'yu deneyin — ücretsiz</h2>
           <p className="text-red-100 mb-8 max-w-2xl mx-auto">
             3D mutfak tasarımı, AI ürün önerisi ve anahtar teslim kurulum. Hiçbir kayıt gerekmez.
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link to="/design" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#7B1F26] rounded-xl font-bold hover:bg-red-50">
+            <Link to="/design" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#E85D26] rounded-xl font-bold hover:bg-red-50">
               <Sparkles size={18} /> 3D Tasarıma Başla
             </Link>
-            <Link to="/tools/kitchen-calculator" className="inline-flex items-center gap-2 px-6 py-3 bg-[#5A1219] border border-white/30 text-white rounded-xl font-bold hover:bg-[#3D0D12]">
+            <Link to="/tools/kitchen-calculator" className="inline-flex items-center gap-2 px-6 py-3 bg-[#C44A1A] border border-white/30 text-white rounded-xl font-bold hover:bg-[#3D0D12]">
               <Calculator size={18} /> ROI Hesapla
             </Link>
-            <Link to="/support" className="inline-flex items-center gap-2 px-6 py-3 bg-[#5A1219] border border-white/30 text-white rounded-xl font-bold hover:bg-[#3D0D12]">
+            <Link to="/support" className="inline-flex items-center gap-2 px-6 py-3 bg-[#C44A1A] border border-white/30 text-white rounded-xl font-bold hover:bg-[#3D0D12]">
               <MessageCircle size={18} /> Bize Yazın
             </Link>
           </div>

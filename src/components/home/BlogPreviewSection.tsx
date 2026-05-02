@@ -158,7 +158,7 @@ export default function BlogPreviewSection() {
     <section className="w-full max-w-6xl mt-10">
       <div className="flex items-end justify-between mb-6 flex-wrap gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-[#7B1F26] text-xs font-bold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-50 text-[#E85D26] text-xs font-bold mb-2">
             <BookOpen size={12} /> {t('blog.badge', 'BLOG')}
           </div>
           <h2 className="text-2xl sm:text-3xl font-black text-slate-900">
@@ -168,7 +168,7 @@ export default function BlogPreviewSection() {
             {t('blog.subtitle', 'Profesyonellerin hazırladığı içeriklerle işinizi büyütün.')}
           </p>
         </div>
-        <a href="/blog" className="text-sm font-bold text-[#7B1F26] hover:text-[#5a161b] flex items-center gap-1">
+        <a href="/blog" className="text-sm font-bold text-[#E85D26] hover:text-[#5a161b] flex items-center gap-1">
           {t('blog.viewAll', 'Tümünü Gör')} <ArrowRight size={14} />
         </a>
       </div>
@@ -211,12 +211,12 @@ export default function BlogPreviewSection() {
                     loading="lazy"
                     draggable={false}
                   />
-                  <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-bold text-[#7B1F26] rounded-full uppercase tracking-wider">
+                  <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-bold text-[#E85D26] rounded-full uppercase tracking-wider">
                     {post.category}
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="text-base font-bold text-slate-900 line-clamp-2 group-hover:text-[#7B1F26] transition">
+                  <h3 className="text-base font-bold text-slate-900 line-clamp-2 group-hover:text-[#E85D26] transition">
                     {post.title}
                   </h3>
                   <p className="text-sm text-slate-500 mt-2 line-clamp-2">{post.excerpt}</p>

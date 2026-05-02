@@ -11,8 +11,8 @@ type Swatch = {
 };
 
 const PRIMARY_SWATCHES: Swatch[] = [
-  { name: 'Primary', token: '--color-primary', hex: '#7B1F26', role: 'Birincil buton, ana vurgu', textOn: 'light' },
-  { name: 'Primary Container', token: '--color-primary-container', hex: '#5A1219', role: 'Gradient ikinci durak', textOn: 'light' },
+  { name: 'Primary', token: '--color-primary', hex: '#E85D26', role: 'Birincil buton, ana vurgu', textOn: 'light' },
+  { name: 'Primary Container', token: '--color-primary-container', hex: '#C44A1A', role: 'Gradient ikinci durak', textOn: 'light' },
   { name: 'Primary Fixed', token: '--color-primary-fixed', hex: '#fce4e6', role: 'Açık arka plan', textOn: 'dark' },
   { name: 'Primary Fixed Dim', token: '--color-primary-fixed-dim', hex: '#e8a0a6', role: 'Hover / seçili', textOn: 'dark' },
 ];
@@ -60,7 +60,7 @@ const TYPE_SCALE = [
 ];
 
 const DOS: string[] = [
-  '2MC bordosunu (#7B1F26) tek marka rengi olarak kullan',
+  '2MC claysunu (#E85D26) tek marka rengi olarak kullan',
   'Başlıkta Inter 700/800, gövdede Inter 400/500 kullan',
   'Sayısal değerlerde tabular-nums ile hizala',
   'İkonları lucide-react, 1.5-2 px stroke ile kullan',

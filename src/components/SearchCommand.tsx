@@ -133,7 +133,7 @@ export default function SearchCommand({ open, onClose }: { open: boolean; onClos
                   <div className="flex flex-wrap gap-2">
                     {POPULAR.map((p) => (
                       <button key={p} onClick={() => setQuery(p)}
-                        className="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-[#7B1F26] rounded-full font-medium">
+                        className="px-3 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-[#E85D26] rounded-full font-medium">
                         {p}
                       </button>
                     ))}
@@ -186,9 +186,9 @@ export default function SearchCommand({ open, onClose }: { open: boolean; onClos
                         <p className="text-xs text-slate-500 truncate">{r.product_family_name}</p>
                       </div>
                       <div className="text-right">
-                        <p className="text-sm font-bold text-[#7B1F26]">{price.toLocaleString('tr-TR')} €</p>
+                        <p className="text-sm font-bold text-[#E85D26]">{price.toLocaleString('tr-TR')} €</p>
                       </div>
-                      <ArrowRight size={14} className={activeIdx === i ? 'text-[#7B1F26]' : 'text-slate-300'} />
+                      <ArrowRight size={14} className={activeIdx === i ? 'text-[#E85D26]' : 'text-slate-300'} />
                     </button>
                   );
                 })}

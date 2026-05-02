@@ -27,7 +27,7 @@ export default function CategoryFiltersSidebar({ mobileOpen, onMobileClose }: Pr
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100">
         <div className="flex items-center gap-2">
-          <SlidersHorizontal size={16} className="text-[#7B1F26]" />
+          <SlidersHorizontal size={16} className="text-[#E85D26]" />
           <h3 className="font-bold text-slate-900">Filtreler</h3>
           <span className="text-xs text-slate-400">({totalCount})</span>
         </div>
@@ -131,7 +131,7 @@ export default function CategoryFiltersSidebar({ mobileOpen, onMobileClose }: Pr
               <div className="sticky bottom-0 bg-white p-4 border-t border-slate-100">
                 <button
                   onClick={onMobileClose}
-                  className="w-full h-12 rounded-xl bg-[#7B1F26] text-white font-bold"
+                  className="w-full h-12 rounded-xl bg-[#E85D26] text-white font-bold"
                 >
                   {totalCount} Ürünü Göster
                 </button>
@@ -180,7 +180,7 @@ function FamilyOption({ label, active, onClick }: { label: string; active: boole
     <button
       onClick={onClick}
       className={`w-full text-left px-2 py-1.5 text-xs rounded-md transition ${
-        active ? 'bg-red-50 text-[#7B1F26] font-semibold' : 'text-slate-600 hover:bg-slate-50'
+        active ? 'bg-red-50 text-[#E85D26] font-semibold' : 'text-slate-600 hover:bg-slate-50'
       }`}
     >
       {label}
@@ -195,7 +195,7 @@ function Check({ label, checked, onChange }: { label: string; checked: boolean; 
         type="checkbox"
         checked={checked}
         onChange={(e) => onChange(e.target.checked)}
-        className="w-4 h-4 accent-[#7B1F26] rounded"
+        className="w-4 h-4 accent-[#E85D26] rounded"
       />
       <span className="text-sm text-slate-600">{label}</span>
     </label>

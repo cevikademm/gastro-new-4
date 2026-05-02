@@ -58,7 +58,7 @@ export default function QuoteDetailPage() {
         </div>
 
         {/* Status Badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border font-bold text-sm bg-red-50 border-red-200 text-[#7B1F26]">
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border font-bold text-sm bg-red-50 border-red-200 text-[#E85D26]">
           <FileText size={16} /> {quote.status.toUpperCase()}
         </div>
       </div>

@@ -94,9 +94,17 @@ export default function Layout() {
           <button onClick={toggleMobileMenu} className="hidden md:flex lg:hidden p-2 text-on-surface hover:bg-primary/10 rounded-full">
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
-          <Link to="/welcome" className="flex items-center gap-2">
-            <img src="/logo-2mc-gastro.jpeg" alt="2MC Gastro" className="h-12 md:h-14 object-contain" />
+          {/* Logo — Updated to JSX badge for premium feel */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <div className="w-9 h-9 bg-linear-to-br from-[var(--c-clay)] to-[var(--c-clay-deep)] rounded-lg flex items-center justify-center text-white text-lg font-extrabold shadow-md transition-transform group-hover:scale-105">
+              2
+            </div>
+            <div className="hidden sm:flex items-center text-xl font-bold tracking-tight">
+              <span className="text-[var(--c-ink)]">mc</span>
+              <span className="serif italic text-[var(--c-clay)] ml-1">gastro</span>
+            </div>
           </Link>
+
           <nav className="hidden lg:flex gap-6 items-center">
             {NAV_ITEMS.map((item) => {
               const isActive = location.pathname.startsWith(item.path);
@@ -266,8 +274,8 @@ export default function Layout() {
         {/* Desktop Sidebar — lg ve üzeri */}
         <aside className="bg-surface-container-low fixed top-16 md:top-20 left-0 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] w-64 flex-col space-y-2 p-4 hidden lg:flex z-40 border-r border-outline-variant/10">
           <div className="mb-4 px-2">
-            <Link to="/welcome">
-              <img src="/logo-2mc-gastro.jpeg" alt="2MC Gastro" className="h-10 object-contain object-left" />
+            <Link to="/">
+              <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-10 w-auto object-contain object-left" />
             </Link>
             <p className="font-body text-xs text-on-surface-variant mt-1 px-2">{t('brand.phase')}</p>
           </div>

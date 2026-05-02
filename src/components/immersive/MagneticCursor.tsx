@@ -50,7 +50,6 @@ export default function MagneticCursor() {
       .magnetic-cursor-ring {
         width: 38px; height: 38px; border-radius: 50%;
         border: 1.5px solid rgba(232,93,38,0.7);
-        backdrop-filter: invert(1) hue-rotate(180deg);
         transition: width .25s ease, height .25s ease, border-color .25s ease, background .25s ease;
       }
       .magnetic-cursor-ring.is-hover {

@@ -8,7 +8,7 @@ import { useAdminStore, type AdminOrder, type AdminOrderStatus } from '../../sto
 
 const STATUS_FLOW: AdminOrderStatus[] = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
-const STATUS_META: Record<AdminOrderStatus, { label: string; icon: React.ElementType; cls: string }> = {
+const STATUS_META: Record<AdminOrderStatus, { label: string; icon: any; cls: string }> = {
   pending:   { label: 'Beklemede',   icon: Clock,       cls: 'bg-warning-container text-on-warning-container border-warning/20' },
   confirmed: { label: 'Onaylandı',   icon: CheckCircle, cls: 'bg-info-container text-on-info-container border-info/20' },
   shipped:   { label: 'Kargoda',     icon: Truck,       cls: 'bg-primary-fixed text-primary border-primary/20' },

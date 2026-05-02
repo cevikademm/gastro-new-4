@@ -99,7 +99,7 @@ export default function PaymentMethodSelector({
               onClick={() => handleMethodSelect(method.id)}
               className={`p-4 rounded-xl border-2 text-left transition-all ${
                 isSelected
-                  ? 'border-[#7B1F26] bg-red-50'
+                  ? 'border-[#E85D26] bg-red-50'
                   : 'border-slate-200 hover:border-slate-300'
               }`}
             >
@@ -107,7 +107,7 @@ export default function PaymentMethodSelector({
                 {Icon && (
                   <Icon
                     size={20}
-                    className={isSelected ? 'text-[#7B1F26]' : 'text-slate-400'}
+                    className={isSelected ? 'text-[#E85D26]' : 'text-slate-400'}
                   />
                 )}
                 <div className="flex-1">
@@ -134,7 +134,7 @@ export default function PaymentMethodSelector({
       {/* Method-Specific Fields */}
       {selectedMethodId === 'sepa' && (
         <div className="bg-red-50 rounded-xl p-4 space-y-4 border border-red-200">
-          <h4 className="font-semibold text-[#5A1219]">
+          <h4 className="font-semibold text-[#C44A1A]">
             {t('payment.sepaDetails', 'SEPA Direct Debit')}
           </h4>
 

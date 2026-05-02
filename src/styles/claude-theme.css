@@ -3,7 +3,7 @@
    Applies warm cream editorial surface + brand palette (navy #1E3A5F,
    gastro orange #E85D26) across all Layout-wrapped pages.
    Scope: `.claude-theme` class (added to Layout root).
-   Note: Fraunces font is imported at the top of index.css (welcome-claude
+   Note: Playfair Display font is imported at the top of index.css (welcome-claude
    also imports it — cached by the browser).
    ========================================================================== */
 
@@ -26,7 +26,7 @@
   --ct-deal:       #C62828;
   --ct-success:    #1b7f3a;
 
-  --ct-serif: 'Fraunces', 'Source Serif Pro', Georgia, serif;
+  --ct-serif: 'Playfair Display', 'Source Serif Pro', Georgia, serif;
   --ct-sans:  'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   /* Surface fill for the whole app body */

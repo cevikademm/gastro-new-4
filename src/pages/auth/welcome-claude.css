@@ -3,7 +3,7 @@
    Warm cream palette · serif headlines · breathable editorial layout
    ========================================================================== */
 
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=Inter:wght@300;400;500;600;700&display=swap');
 
 .welcome-claude {
   /* ── 2MC × Claude palette ─────────────────────────
@@ -45,7 +45,7 @@
   --c-shadow-clay:   0 8px 24px -8px rgba(232,93,38,0.30), 0 16px 40px -16px rgba(232,93,38,0.18);
   --c-shadow-navy:   0 8px 24px -8px rgba(30,58,95,0.28), 0 16px 40px -16px rgba(30,58,95,0.15);
 
-  --c-serif: 'Fraunces', 'Source Serif Pro', 'Georgia', serif;
+  --c-serif: 'Playfair Display', 'Source Serif Pro', 'Georgia', serif;
   --c-sans:  'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 
   background: var(--c-bg) !important;

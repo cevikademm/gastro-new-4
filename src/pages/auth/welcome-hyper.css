@@ -122,7 +122,7 @@
    <h1 className="hy-display">BLOCKCHAIN</h1>
 ----------------------------------------------------------- */
 .welcome-hyper .hy-display {
-  font-family: 'Fraunces', ui-serif, Georgia, serif;
+  font-family: 'Playfair Display', ui-serif, Georgia, serif;
   font-weight: 600;
   letter-spacing: -0.04em;
   font-size: clamp(64px, 14vw, 220px);

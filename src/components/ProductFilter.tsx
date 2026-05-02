@@ -153,7 +153,7 @@ export default function ProductFilter({
           onClick={() => setIsOpen(!isOpen)}
           className={`flex items-center gap-2 px-4 py-3 rounded-xl font-bold text-sm transition-all ${
             isOpen || hasActiveFilters
-              ? 'bg-red-100 text-[#7B1F26] border border-red-300'
+              ? 'bg-red-100 text-[#E85D26] border border-red-300'
               : 'bg-white text-slate-600 border border-slate-200 hover:border-red-200'
           }`}
         >
@@ -178,7 +178,7 @@ export default function ProductFilter({
 
       {/* Result Count */}
       <div className="text-xs font-medium text-slate-600">
-        <span className="text-[#7B1F26] font-bold">{resultCount}</span> {t('filter.productsFound')}
+        <span className="text-[#E85D26] font-bold">{resultCount}</span> {t('filter.productsFound')}
       </div>
 
       {/* Filter Panel */}
@@ -212,8 +212,8 @@ export default function ProductFilter({
                     onClick={() => handleCategoryToggle(cat)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                       filters.categories.includes(cat)
-                        ? 'bg-[#7B1F26] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#7B1F26]'
+                        ? 'bg-[#E85D26] text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#E85D26]'
                     }`}
                   >
                     {filters.categories.includes(cat) && <Check size={12} />}
@@ -237,8 +237,8 @@ export default function ProductFilter({
                     onClick={() => handleBrandToggle(brand)}
                     className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
                       filters.brands.includes(brand)
-                        ? 'bg-[#7B1F26] text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#7B1F26]'
+                        ? 'bg-[#E85D26] text-white'
+                        : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#E85D26]'
                     }`}
                   >
                     {filters.brands.includes(brand) && <Check size={12} />}
@@ -388,8 +388,8 @@ export default function ProductFilter({
                   onClick={() => onFilterChange({ ...filters, powerType: type })}
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                     filters.powerType === type
-                      ? 'bg-[#7B1F26] text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#7B1F26]'
+                      ? 'bg-[#E85D26] text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#E85D26]'
                   }`}
                 >
                   {t(`filter.powerType_${type}`)}
@@ -431,8 +431,8 @@ export default function ProductFilter({
                   onClick={() => onFilterChange({ ...filters, sortBy: sort.key as any })}
                   className={`px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     filters.sortBy === sort.key
-                      ? 'bg-[#7B1F26] text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#7B1F26]'
+                      ? 'bg-[#E85D26] text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-red-50 hover:text-[#E85D26]'
                   }`}
                 >
                   {sort.label}
@@ -455,7 +455,7 @@ export default function ProductFilter({
                   <div key={preset.id} className="flex items-center gap-2">
                     <button
                       onClick={() => handleLoadPreset(preset)}
-                      className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-red-50 hover:text-[#7B1F26] transition-all text-left truncate"
+                      className="flex-1 px-3 py-2 rounded-lg text-xs font-medium bg-slate-50 text-slate-700 hover:bg-red-50 hover:text-[#E85D26] transition-all text-left truncate"
                     >
                       {preset.name}
                     </button>
@@ -476,7 +476,7 @@ export default function ProductFilter({
           {!showSavePreset ? (
             <button
               onClick={() => setShowSavePreset(true)}
-              className="w-full px-4 py-2.5 rounded-lg text-sm font-bold bg-slate-100 text-slate-700 hover:bg-red-50 hover:text-[#7B1F26] transition-all flex items-center justify-center gap-2"
+              className="w-full px-4 py-2.5 rounded-lg text-sm font-bold bg-slate-100 text-slate-700 hover:bg-red-50 hover:text-[#E85D26] transition-all flex items-center justify-center gap-2"
             >
               <Save size={14} /> {t('filter.saveAsPreset')}
             </button>
@@ -494,7 +494,7 @@ export default function ProductFilter({
                 <button
                   onClick={handleSavePreset}
                   disabled={!presetName.trim()}
-                  className="flex-1 px-3 py-2 rounded-lg text-xs font-bold bg-[#7B1F26] text-white hover:bg-[#9B2D35] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="flex-1 px-3 py-2 rounded-lg text-xs font-bold bg-[#E85D26] text-white hover:bg-[#9B2D35] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                 >
                   {t('common.save')}
                 </button>
