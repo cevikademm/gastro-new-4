@@ -1,6 +1,6 @@
-import React, { useRef, Suspense, useState, useEffect } from 'react';
+import { useRef, Suspense, useEffect, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { PerspectiveCamera, Float, PresentationControls, Stage, useGLTF } from '@react-three/drei';
+import { PerspectiveCamera, Float, PresentationControls, ContactShadows, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 function EquipmentModel({ url }: { url: string }) {
@@ -9,89 +9,97 @@ function EquipmentModel({ url }: { url: string }) {
 
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
-    if (ref.current) {
-      ref.current.rotation.y = t * 0.2;
-    }
+    if (ref.current) ref.current.rotation.y = t * 0.2;
   });
 
-  return (
-    <primitive 
-      ref={ref}
-      object={scene} 
-      scale={1.5} 
-      position={[0, -1, 0]} 
-    />
-  );
+  return <primitive ref={ref} object={scene} scale={1.5} position={[0, 0.4, 0]} />;
 }
 
 function FallbackMachine() {
   const ref = useRef<THREE.Group>(null!);
   useFrame((state) => {
     const t = state.clock.getElapsedTime();
-    if (ref.current) {
-      ref.current.rotation.y = t * 0.4;
-    }
+    if (ref.current) ref.current.rotation.y = t * 0.4;
   });
 
   return (
     <group ref={ref}>
-      <mesh castShadow receiveShadow>
+      <mesh>
         <boxGeometry args={[2.5, 3.5, 2]} />
-        <meshStandardMaterial color="#111" metalness={0.9} roughness={0.1} />
+        <meshStandardMaterial color="#111" metalness={0.9} roughness={0.2} />
       </mesh>
       <mesh position={[0, 0, 1.01]}>
         <planeGeometry args={[2.2, 3.2]} />
-        <meshPhysicalMaterial color="#000" transmission={0.8} transparent opacity={1} roughness={0} />
+        <meshStandardMaterial color="#000" metalness={0.5} roughness={0.1} />
       </mesh>
       <mesh>
         <icosahedronGeometry args={[0.6, 1]} />
-        <meshStandardMaterial color="#E85D26" emissive="#E85D26" emissiveIntensity={2} wireframe />
+        <meshStandardMaterial color="#E85D26" emissive="#E85D26" emissiveIntensity={1.5} wireframe />
       </mesh>
     </group>
   );
 }
 
 export function Showcase3D() {
-  return (
-    <div className="w-full h-full min-h-[450px] bg-transparent rounded-3xl overflow-hidden relative">
-      <Canvas 
-        shadows 
-        dpr={[1, 1]}
-        gl={{ 
-            antialias: false, 
-            powerPreference: "high-performance"
-        }}
-      >
-        <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={35} />
-        <ambientLight intensity={0.3} />
-        <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} intensity={3} castShadow />
-        <pointLight position={[-10, -10, -5]} color="#ffffff" intensity={1} />
-        <directionalLight position={[0, 5, 5]} intensity={1.5} />
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [mount, setMount] = useState(false);
+  const [visible, setVisible] = useState(false);
 
-        <PresentationControls
-          global
-          snap
-          rotation={[0, 0.3, 0]}
-          polar={[-Math.PI / 4, Math.PI / 4]}
-          azimuth={[-Math.PI / 1.4, Math.PI / 1.4]}
+  // Mount canvas only when section first scrolls near viewport.
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        const e = entries[0];
+        if (e.isIntersecting) setMount(true);
+        setVisible(e.isIntersecting);
+      },
+      { rootMargin: '300px', threshold: 0.01 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  return (
+    <div ref={wrapRef} className="w-full h-full min-h-[450px] bg-transparent rounded-3xl overflow-hidden relative">
+      {mount && (
+        <Canvas
+          dpr={[1, 1.25]}
+          frameloop={visible ? 'always' : 'demand'}
+          gl={{
+            antialias: false,
+            powerPreference: 'high-performance',
+            alpha: true,
+            stencil: false,
+          }}
         >
-          <Float speed={2} rotationIntensity={0.2} floatIntensity={0.2}>
-            <Stage environment="studio" intensity={0.8} shadows={false}>
+          <PerspectiveCamera makeDefault position={[0, 0, 8]} fov={35} />
+          <ambientLight intensity={0.6} />
+          <spotLight position={[10, 15, 10]} angle={0.3} penumbra={1} intensity={2.5} />
+          <pointLight position={[-10, -10, -5]} color="#ffffff" intensity={0.8} />
+          <directionalLight position={[0, 5, 5]} intensity={1.2} color="#ffd9b5" />
+          <directionalLight position={[-5, 2, -5]} intensity={0.8} color="#6088ff" />
+
+          <PresentationControls
+            global
+            snap
+            rotation={[0, 0.3, 0]}
+            polar={[-Math.PI / 4, Math.PI / 4]}
+            azimuth={[-Math.PI / 1.4, Math.PI / 1.4]}
+          >
+            <Float speed={1.5} rotationIntensity={0.15} floatIntensity={0.15}>
               <Suspense fallback={<FallbackMachine />}>
                 <EquipmentModel url="/models/PSB-202MI-2V.glb" />
               </Suspense>
-            </Stage>
-          </Float>
-        </PresentationControls>
+            </Float>
+          </PresentationControls>
 
-        <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -2.5, 0]} receiveShadow>
-          <planeGeometry args={[100, 100]} />
-          <shadowMaterial transparent opacity={0.4} />
-        </mesh>
-      </Canvas>
+          <ContactShadows position={[0, -2.5, 0]} opacity={0.45} scale={12} blur={2.5} far={4} />
+        </Canvas>
+      )}
     </div>
   );
 }
 
-// Preload the main model
 useGLTF.preload('/models/PSB-202MI-2V.glb');

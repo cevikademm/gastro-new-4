@@ -112,7 +112,7 @@ export function Hero() {
            initial={{ opacity: 0, filter: "blur(20px)" }}
            animate={{ opacity: 1, filter: "blur(0px)" }}
            transition={{ duration: 1.5, ease: "easeOut", delay: 0.5 }}
-           className="relative w-full h-[60vh] min-h-[450px] sm:h-[500px] lg:h-[800px] lg:w-[800px] mx-auto mt-10 lg:mt-0"
+           className="relative w-full h-[60vh] min-h-[450px] sm:h-[500px] lg:h-[700px] mx-auto mt-10 lg:mt-0"
         >
           {/* Extremely thin, sleek ring around the 3D model */}
           <div className="absolute inset-4 rounded-full border border-white/5 shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] bg-gradient-to-br from-brand-gray/10 to-transparent backdrop-blur-[2px] hidden sm:block" />
@@ -124,7 +124,7 @@ export function Hero() {
              initial={{ opacity: 0, x: 20 }}
              animate={{ opacity: 1, x: 0 }}
              transition={{ duration: 1, delay: 1.5 }}
-             className="absolute bottom-24 right-0 z-20 bg-[#0a0a0a]/80 backdrop-blur-3xl p-6 rounded-3xl border border-white/10 shadow-2xl max-w-[240px] hidden sm:block pointer-events-none"
+             className="absolute bottom-24 right-0 z-20 bg-[#0a0a0a]/90 backdrop-blur-md p-6 rounded-3xl border border-white/10 shadow-2xl max-w-[240px] hidden sm:block pointer-events-none"
           >
             <div className="flex items-center gap-4 mb-4">
                <div className="relative flex items-center justify-center">

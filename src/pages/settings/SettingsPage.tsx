@@ -38,45 +38,49 @@ export default function SettingsPage() {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto w-full space-y-6">
-      <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight">{t('settings.title')}</h1>
+    <div className="max-w-5xl mx-auto w-full space-y-6 py-8 px-4 sm:px-6">
+      <div>
+        <h1 className="font-headline text-3xl sm:text-4xl font-black text-on-surface tracking-tight">{t('settings.title')}</h1>
+        <p className="text-on-surface-variant text-sm mt-1.5">Hesap, dil, bildirim ve görünüm ayarlarınızı buradan yönetebilirsiniz.</p>
+      </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
-        <div className="lg:w-64 flex lg:flex-col gap-2 overflow-x-auto">
+        <nav className="lg:w-64 flex lg:flex-col gap-1.5 overflow-x-auto bg-surface-container-lowest lg:bg-transparent p-2 lg:p-0 rounded-xl border lg:border-0 border-outline-variant/40">
           {tabs.map((tab) => {
             const Icon = tab.icon;
+            const active = activeTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium whitespace-nowrap transition-all ${activeTab === tab.id ? 'bg-primary-fixed-dim/20 text-primary font-bold' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+                className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium whitespace-nowrap transition-all relative ${active ? 'bg-primary text-white shadow-[0_4px_12px_-4px_rgba(30,58,95,0.4)]' : 'text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface'}`}
               >
-                <Icon size={18} /> {tab.label}
+                <Icon size={16} strokeWidth={1.75} /> {tab.label}
               </button>
             );
           })}
-        </div>
+        </nav>
 
-        <div className="flex-1 bg-surface-container-lowest rounded-xl shadow-sm p-8 border border-outline-variant/10">
+        <div className="flex-1 bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_rgba(15,36,64,0.04),0_8px_24px_-12px_rgba(15,36,64,0.06)] p-6 sm:p-8 border border-outline-variant/40">
           {activeTab === 'profile' && (
             <div className="space-y-6">
-              <h2 className="font-headline font-bold text-primary uppercase tracking-wider text-sm">{t('settings.userProfile')}</h2>
+              <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">{t('settings.userProfile')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('auth.fullName')}</label>
-                  <input defaultValue={user?.fullName} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+                  <input defaultValue={user?.fullName} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('common.email')}</label>
-                  <input defaultValue={user?.email} type="email" className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+                  <input defaultValue={user?.email} type="email" className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('common.phone')}</label>
-                  <input defaultValue={user?.phone} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+                  <input defaultValue={user?.phone} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('common.address')}</label>
-                  <input defaultValue={user?.address} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+                  <input defaultValue={user?.address} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors" />
                 </div>
               </div>
             </div>
@@ -84,15 +88,15 @@ export default function SettingsPage() {
 
           {activeTab === 'company' && (
             <div className="space-y-6">
-              <h2 className="font-headline font-bold text-primary uppercase tracking-wider text-sm">{t('settings.companyInfo')}</h2>
+              <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">{t('settings.companyInfo')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('common.company')}</label>
-                  <input defaultValue={user?.company} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+                  <input defaultValue={user?.company} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors" />
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('auth.taxId')}</label>
-                  <input defaultValue={user?.taxId} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+                  <input defaultValue={user?.taxId} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors" />
                 </div>
               </div>
             </div>
@@ -100,7 +104,7 @@ export default function SettingsPage() {
 
           {activeTab === 'notifications' && (
             <div className="space-y-6">
-              <h2 className="font-headline font-bold text-primary uppercase tracking-wider text-sm">{t('settings.notifications')}</h2>
+              <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">{t('settings.notifications')}</h2>
               {[
                 { key: 'email', label: t('settings.emailNotifications') },
                 { key: 'push', label: t('settings.pushNotifications') },
@@ -122,11 +126,11 @@ export default function SettingsPage() {
 
           {activeTab === 'language' && (
             <div className="space-y-6">
-              <h2 className="font-headline font-bold text-primary uppercase tracking-wider text-sm">{t('settings.languageRegion')}</h2>
+              <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">{t('settings.languageRegion')}</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('common.language')}</label>
-                  <select value={lang} onChange={(e) => setLang(e.target.value)} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none">
+                  <select value={lang} onChange={(e) => setLang(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors">
                     <option value="tr">🇹🇷 Türkçe</option>
                     <option value="en">🇬🇧 English</option>
                     <option value="de">🇩🇪 Deutsch</option>
@@ -148,7 +152,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('settings.region')}</label>
-                  <select value={region} onChange={(e) => setRegion(e.target.value)} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none">
+                  <select value={region} onChange={(e) => setRegion(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors">
                     <option value="EU">{t('settings.regionEU')}</option>
                     <option value="TR">{t('settings.regionTR')}</option>
                     <option value="US">{t('settings.regionUS')}</option>
@@ -156,7 +160,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('settings.currency')}</label>
-                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none">
+                  <select value={currency} onChange={(e) => setCurrency(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors">
                     <option value="EUR">EUR (€)</option>
                     <option value="TRY">TRY (₺)</option>
                     <option value="USD">USD ($)</option>
@@ -165,7 +169,7 @@ export default function SettingsPage() {
                 </div>
                 <div>
                   <label className="block text-xs font-bold text-on-surface-variant uppercase mb-2">{t('settings.dateFormat')}</label>
-                  <select value={dateFormat} onChange={(e) => setDateFormat(e.target.value)} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none">
+                  <select value={dateFormat} onChange={(e) => setDateFormat(e.target.value)} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors">
                     <option value="DD.MM.YYYY">DD.MM.YYYY</option>
                     <option value="MM/DD/YYYY">MM/DD/YYYY</option>
                     <option value="YYYY-MM-DD">YYYY-MM-DD</option>
@@ -177,7 +181,7 @@ export default function SettingsPage() {
 
           {activeTab === 'theme' && (
             <div className="space-y-6">
-              <h2 className="font-headline font-bold text-primary uppercase tracking-wider text-sm">{t('settings.themePreference')}</h2>
+              <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">{t('settings.themePreference')}</h2>
               <div className="grid grid-cols-2 gap-4">
                 <button className="p-6 rounded-xl border-2 border-primary bg-white text-center">
                   <div className="w-full h-20 bg-surface-container rounded-lg mb-3" />
@@ -195,7 +199,7 @@ export default function SettingsPage() {
 
           {activeTab === 'admin' && isAdmin && (
             <div className="space-y-6">
-              <h2 className="font-headline font-bold text-primary uppercase tracking-wider text-sm">{t('settings.adminSettings')}</h2>
+              <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">{t('settings.adminSettings')}</h2>
               <p className="text-xs text-on-surface-variant">{t('settings.adminDescription')}</p>
 
               <label className="flex items-center justify-between py-4 px-4 bg-surface-container-high/30 rounded-xl border border-outline-variant/10">
@@ -245,7 +249,7 @@ function BannerSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="font-headline font-bold text-primary uppercase tracking-wider text-sm">Banner Yönetimi</h2>
+          <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">Banner Yönetimi</h2>
           <p className="text-xs text-on-surface-variant mt-1">
             Karşılama sayfasının üst banner alanındaki slaytları düzenleyin. Değişiklikler anında kaydedilir.
           </p>

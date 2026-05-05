@@ -19,7 +19,7 @@ export default function ProjectListPage() {
   });
 
   const statusColors: Record<string, string> = {
-    drafting: 'bg-red-100 text-primary border-primary/10',
+    drafting: 'bg-[var(--c-clay-wash)] text-[var(--c-clay-deep)] border-[var(--c-clay)]/15',
     quoted: 'bg-amber-100 text-amber-900 border-amber-200',
     complete: 'bg-emerald-100 text-emerald-900 border-emerald-200',
     inProgress: 'bg-violet-100 text-violet-900 border-violet-200',
@@ -40,28 +40,31 @@ export default function ProjectListPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto w-full space-y-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight">{t('projects.title')}</h1>
-        <Link to="/projects/new" className="flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-all hover:opacity-90 active:scale-95">
-          <Plus size={20} /> {t('projects.newProject')}
+    <div className="max-w-7xl mx-auto w-full space-y-6 py-8 px-4 sm:px-6">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 reveal">
+        <div>
+          <h1 className="font-headline text-3xl sm:text-4xl font-black text-on-surface tracking-tight">{t('projects.title')}</h1>
+          <p className="text-on-surface-variant text-sm mt-1.5">Tüm projelerinizi tek panelden yönetin, durumlarını takip edin.</p>
+        </div>
+        <Link to="/projects/new" className="inline-flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-xl font-bold shadow-lg text-sm">
+          <Plus size={18} /> {t('projects.newProject')}
         </Link>
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 reveal reveal-delay-1">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" size={16} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('common.search') + '...'}
-            className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary outline-none"
+            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 pl-11 pr-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors"
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter size={16} className="text-on-surface-variant" />
-          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none">
+          <Filter size={14} className="text-on-surface-variant" />
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors">
             <option value="all">{t('common.all')}</option>
             <option value="drafting">{t('dashboard.drafting')}</option>
             <option value="quoted">{t('dashboard.quoted')}</option>
@@ -71,7 +74,7 @@ export default function ProjectListPage() {
         </div>
       </div>
 
-      <div className="bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden border border-outline-variant/10">
+      <div className="bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_rgba(15,36,64,0.04),0_8px_24px_-12px_rgba(15,36,64,0.06)] overflow-hidden border border-outline-variant/40 reveal reveal-delay-2">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse min-w-[700px]">
             <thead>

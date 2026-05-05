@@ -22,18 +22,22 @@ export function Categories() {
   return (
     <section className="py-32 bg-transparent text-white relative">
       <div className="max-w-[90rem] mx-auto px-6">
-        <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-          <div>
-             <span className="inline-block px-3 py-1 bg-[#111]/80 backdrop-blur-md rounded-full text-brand-red font-bold text-[9px] tracking-[0.3em] uppercase mb-6 border border-white/10 shadow-[0_0_15px_rgba(232,93,38,0.1)]">
-               // Kategori Dünyaları
+        <div className="flex flex-col md:flex-row justify-between md:items-end mb-16 gap-8">
+          <div className="max-w-2xl">
+             <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-5">
+               <span className="w-6 h-px bg-brand-red" />
+               KATEGORİ DÜNYALARI
              </span>
-             <h2 className="text-4xl min-[400px]:text-5xl md:text-6xl font-display font-bold uppercase tracking-tighter break-words">Ekipman <br/><span className="text-brand-red italic font-light lowercase">Keşfi</span></h2>
+             <h2 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold tracking-tighter leading-[1.02] text-white">
+               Ekipman <span className="text-brand-red italic font-light">keşfi.</span>
+             </h2>
           </div>
-          <button 
+          <button
             onClick={() => navigate('/kategori')}
-            className="text-[10px] bg-white/5 hover:bg-white border border-white/10 hover:text-brand-dark px-6 py-4 md:py-3 rounded-full font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all duration-300 w-full md:w-auto"
+            className="group inline-flex items-center gap-3 text-[10px] bg-white/5 hover:bg-white/10 border border-white/15 hover:border-white/30 px-7 py-3.5 rounded-full font-bold uppercase tracking-[0.25em] transition-all duration-300 self-start md:self-end shrink-0"
           >
-            Tüm Kategoriler <ArrowRight className="w-3 h-3" />
+            Tüm Kategoriler
+            <ArrowRight className="w-3 h-3 transition-transform duration-300 group-hover:translate-x-1" />
           </button>
         </div>
 
@@ -48,9 +52,9 @@ export function Categories() {
               onClick={() => navigate(cat.path)}
               className="group relative h-[350px] sm:h-[400px] md:h-[450px] lg:h-[500px] overflow-hidden rounded-[1.5rem] sm:rounded-[2rem] cursor-pointer shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5"
             >
-              <img src={cat.image} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-[1.5s] ease-out mix-blend-overlay opacity-50 grayscale group-hover:grayscale-0" alt={cat.name} />
-              <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/20 to-transparent opacity-90" />
-              <div className="absolute inset-0 bg-brand-red/10 group-hover:bg-brand-red/0 transition-colors duration-500" />
+              <img src={cat.image} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-[1.2s] ease-out opacity-90 group-hover:opacity-100" alt={cat.name} />
+              <div className="absolute inset-0 bg-gradient-to-t from-brand-dark via-brand-dark/60 to-brand-dark/10" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-brand-red/0 to-brand-red/0 group-hover:from-brand-red/15 group-hover:to-transparent transition-colors duration-500" />
               
               <div className="absolute inset-0 p-6 sm:p-8 flex flex-col justify-end">
                 <span className="text-[9px] font-bold tracking-[0.3em] text-white/50 uppercase mb-2 sm:mb-3 block">{cat.count}</span>
@@ -79,11 +83,15 @@ export function FeaturedProducts() {
   return (
     <section className="py-32 bg-transparent text-white">
       <div className="max-w-[90rem] mx-auto px-6">
-        <div className="text-center mb-24 flex flex-col items-center">
-           <span className="inline-block px-3 py-1 bg-[#111]/80 backdrop-blur-md rounded-full text-brand-red font-bold text-[9px] tracking-[0.3em] uppercase mb-6 border border-white/10 shadow-[0_0_15px_rgba(232,93,38,0.1)]">
-             // Bestsellers
+        <div className="text-center mb-20 flex flex-col items-center">
+           <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-5">
+             <span className="w-6 h-px bg-brand-red" />
+             BESTSELLERS
+             <span className="w-6 h-px bg-brand-red" />
            </span>
-           <h2 className="text-4xl min-[400px]:text-5xl md:text-6xl font-display font-bold uppercase tracking-tighter break-words">İmza <br className="md:hidden" /><span className="text-brand-red italic font-light lowercase">Koleksiyonu</span></h2>
+           <h2 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold tracking-tighter leading-[1.02] text-white">
+             İmza <span className="text-brand-red italic font-light">koleksiyonu.</span>
+           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
@@ -95,11 +103,12 @@ export function FeaturedProducts() {
               viewport={{ once: true }}
               transition={{ delay: idx * 0.1, duration: 0.8 }}
               onClick={() => navigate(prod.path)}
-              className="bg-[#0a0a0a]/80 backdrop-blur-xl p-4 md:p-6 rounded-[2rem] border border-white/5 hover:border-brand-red/30 hover:bg-[#111]/90 shadow-2xl transition-all duration-500 group cursor-pointer"
+              className="bg-[#0a0a0a]/80 backdrop-blur-md p-4 md:p-6 rounded-[2rem] border border-white/5 hover:border-brand-red/30 hover:bg-[#111]/90 shadow-2xl transition-all duration-500 group cursor-pointer"
             >
               <div className="relative aspect-square mb-8 overflow-hidden rounded-[1.5rem] bg-[#1a1a1a]">
-                <img src={prod.image} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-1000 opacity-60 group-hover:opacity-100 mix-blend-screen" alt={prod.name} />
-                <div className="absolute top-4 left-4 bg-white/10 backdrop-blur-md border border-white/10 text-white text-[8px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full">Bestseller</div>
+                <img src={prod.image} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out opacity-95 group-hover:opacity-100" alt={prod.name} />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
+                <div className="absolute top-4 left-4 bg-black/60 backdrop-blur-md border border-white/10 text-white text-[8px] font-bold uppercase tracking-widest px-3 py-1.5 rounded-full">Bestseller</div>
               </div>
               <div className="px-2">
                 <span className="text-[9px] font-bold text-brand-red uppercase tracking-[0.3em] block mb-3">{prod.category}</span>

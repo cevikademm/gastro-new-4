@@ -47,7 +47,7 @@ export function Navbar() {
       >
         <div className={cn(
           "max-w-[90rem] mx-auto px-6 border border-white/10 flex justify-between items-center transition-all duration-700",
-          isScrolled ? "bg-[#050505]/80 backdrop-blur-3xl rounded-3xl py-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] mx-4 sm:mx-6 lg:mx-auto" : "bg-transparent rounded-none py-2"
+          isScrolled ? "bg-[#050505]/85 backdrop-blur-md rounded-3xl py-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] mx-4 sm:mx-6 lg:mx-auto" : "bg-transparent rounded-none py-2"
         )}>
           <div className="flex items-center gap-12">
             <Link to="/" className="flex items-center gap-3 group relative z-50">

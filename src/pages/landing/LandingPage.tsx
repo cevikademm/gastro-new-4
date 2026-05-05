@@ -33,6 +33,7 @@ import { FloatingWidgets } from '../../components/landing/sections/FloatingWidge
 
 // Immersive Components
 import ImmersiveProductScene from '../../components/immersive/ImmersiveProductScene';
+import Product3DCardGrid from '../../components/immersive/Product3DCardGrid';
 
 /**
  * Lazy Section Wrapper
@@ -109,42 +110,47 @@ export function LandingPage() {
           <Hero />
 
           {/* Brands Ribbon */}
-          <section className="bg-[#0a0a0a]/80 backdrop-blur-3xl py-10 text-white overflow-hidden border-y border-white/5 relative z-20">
-            <motion.div 
-              initial={{ x: '0%' }}
-              animate={{ x: '-20%' }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              className="flex gap-24 whitespace-nowrap"
+          <section className="bg-[#0a0a0a]/90 py-10 text-white overflow-hidden border-y border-white/5 relative z-20">
+            <style>{`@keyframes brandMarquee { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }`}</style>
+            <div
+              className="flex gap-24 whitespace-nowrap will-change-transform"
+              style={{ width: 'max-content', animation: 'brandMarquee 40s linear infinite' }}
             >
-              {[...Array(10)].map((_, i) => (
-                <div key={i} className="flex items-center gap-24">
-                  {['DIAMOND', 'COMBISTEEL', 'GASTRO-LINE', 'MASTER-CHEF', 'ECO-COOL'].map(brand => (
-                    <span key={brand} className="text-[10px] font-bold tracking-[0.4em] text-white/20 hover:text-brand-red transition-colors cursor-default uppercase">{brand}</span>
+              {[...Array(2)].map((_, i) => (
+                <div key={i} className="flex items-center gap-24 pr-24">
+                  {['DIAMOND', 'COMBISTEEL', 'GASTRO-LINE', 'MASTER-CHEF', 'ECO-COOL', 'POLARIS', 'EUROFRED', 'VENIX', 'MODULAR', 'NORDIKA'].map(brand => (
+                    <span key={brand} className="text-[10px] font-bold tracking-[0.4em] text-white/30 hover:text-brand-red transition-colors cursor-default uppercase">{brand}</span>
                   ))}
                 </div>
               ))}
-            </motion.div>
+            </div>
           </section>
 
           {/* Quick Action Grid */}
           <section className="py-24 relative z-10">
             <div className="max-w-7xl mx-auto px-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {[
-                  { title: 'DİJİTAL KATALOG', icon: Box, desc: '5.000+ Ürün', path: '/diamond' },
-                  { title: 'MUTFAK STÜDYOSU', icon: PencilRuler, desc: '3D Planlama Sistemi', path: '/kitchen-planner' },
-                  { title: 'PROJE YÖNETİMİ', icon: Briefcase, desc: 'BOM & Teklif Listeleri', path: '/projects' },
-                  { title: 'TEKNİK DESTEK', icon: Wrench, desc: '7/24 Servis Ağı', path: '/support' }
+                  { title: 'DİJİTAL KATALOG', icon: Box, desc: '5.000+ Ürün', path: '/diamond', num: '01' },
+                  { title: 'MUTFAK STÜDYOSU', icon: PencilRuler, desc: '3D Planlama Sistemi', path: '/kitchen-planner', num: '02' },
+                  { title: 'PROJE YÖNETİMİ', icon: Briefcase, desc: 'BOM & Teklif Listeleri', path: '/projects', num: '03' },
+                  { title: 'TEKNİK DESTEK', icon: Wrench, desc: '7/24 Servis Ağı', path: '/support', num: '04' }
                 ].map((item, idx) => (
                   <motion.div
                     key={item.title}
-                    whileHover={{ y: -10, backgroundColor: 'rgba(232, 93, 38, 0.05)' }}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-50px' }}
+                    transition={{ delay: idx * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                    whileHover={{ y: -4 }}
                     onClick={() => navigate(item.path)}
-                    className="p-8 rounded-[2rem] bg-white/5 border border-white/5 backdrop-blur-xl cursor-pointer transition-all duration-500 group"
+                    className="relative p-7 rounded-[1.75rem] bg-white/[0.04] border border-white/10 backdrop-blur-md cursor-pointer transition-colors duration-300 hover:border-brand-red/40 hover:bg-white/[0.06] group overflow-hidden"
                   >
-                    <item.icon className="w-10 h-10 text-brand-red mb-6 group-hover:scale-110 transition-transform duration-500" />
-                    <h3 className="text-lg font-display font-bold mb-2">{item.title}</h3>
-                    <p className="text-xs text-white/40 font-bold tracking-widest uppercase">{item.desc}</p>
+                    <div className="absolute top-5 right-5 text-[10px] font-bold text-white/20 tracking-[0.2em]">{item.num}</div>
+                    <item.icon className="w-9 h-9 text-brand-red mb-7 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
+                    <h3 className="text-[15px] font-display font-bold mb-1.5 tracking-tight">{item.title}</h3>
+                    <p className="text-[10px] text-white/45 font-bold tracking-[0.18em] uppercase">{item.desc}</p>
+                    <div className="absolute bottom-0 left-0 h-px bg-brand-red w-0 group-hover:w-full transition-[width] duration-500" />
                   </motion.div>
                 ))}
               </div>
@@ -156,45 +162,64 @@ export function LandingPage() {
           
           <StatsBand />
 
-          {/* Interactive 3D Designs Showcase (Canvas 4) */}
+          {/* Interactive 3D Designs Showcase */}
           <section className="relative z-10">
-             <div className="max-w-[90rem] mx-auto px-6 pt-32 pb-12">
-               <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-6">
-                  <div>
-                    <span className="text-brand-red font-bold text-[9px] tracking-[0.3em] uppercase block mb-4">// 3D PLANLAMA</span>
-                    <h2 className="text-4xl md:text-6xl font-display font-bold text-white uppercase tracking-tighter">İncelenebilir <br /><span className="text-brand-red italic font-light lowercase">3D Tasarımlar</span></h2>
+             <div className="max-w-[90rem] mx-auto px-6 pt-32 pb-16">
+               <div className="flex flex-col md:flex-row justify-between md:items-end gap-8">
+                  <div className="max-w-2xl">
+                    <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-5">
+                      <span className="w-6 h-px bg-brand-red" />
+                      3D PLANLAMA
+                    </span>
+                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white tracking-tighter leading-[1.02]">
+                      İncelenebilir <span className="text-brand-red italic font-light">3D tasarımlar</span>
+                    </h2>
+                    <p className="text-white/55 mt-6 max-w-md text-[15px] leading-relaxed">
+                      Aşağıya kaydırın — gerçek ekipmanlarınızı sahnede görün, kamera akışıyla detayları keşfedin.
+                    </p>
                   </div>
-                  <button 
+                  <button
                     onClick={() => navigate('/kitchen-planner')}
-                    className="group flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest text-white/70 hover:text-white transition-colors bg-white/5 px-8 py-4 rounded-full border border-white/10"
+                    className="group inline-flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-white bg-brand-red hover:bg-brand-red/90 px-8 py-4 rounded-full transition-all shadow-[0_10px_30px_-10px_rgba(232,93,38,0.6)] self-start md:self-end shrink-0"
                   >
-                    PLANLAYICIYI AÇ <div className="w-10 h-10 rounded-full border border-white/10 flex items-center justify-center group-hover:bg-brand-red group-hover:border-brand-red transition-all"><ChevronRight size={16} /></div>
+                    PLANLAYICIYI AÇ
+                    <ChevronRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
                   </button>
                </div>
              </div>
-             
+
              <ImmersiveProductScene />
           </section>
 
-          <section className="py-32 bg-[#0a0a0a]/50 relative z-10 border-y border-white/5">
+          <section className="py-32 bg-[#0a0a0a]/60 relative z-10 border-y border-white/5">
             <div className="max-w-7xl mx-auto px-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-16">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5 rounded-[2rem] overflow-hidden">
                  {[
                    { icon: ShieldCheck, title: 'AVRUPA STANDARDI', desc: 'Tüm ürünlerimiz CE ve DIN normlarına uygun olarak üretilmekte ve sertifikalandırılmaktadır.' },
                    { icon: Zap, title: 'YÜKSEK VERİMLİLİK', desc: 'A+++ enerji sınıfı ekipmanlarımızla işletme maliyetlerinizi %40\'a varan oranda düşürün.' },
                    { icon: Globe, title: 'GLOBAL SERVİS', desc: '15 ülkede yerleşik teknik ekibimizle kurulum ve bakım hizmetlerini kapınıza getiriyoruz.' }
                  ].map((feat, i) => (
-                   <div key={i} className="flex flex-col items-center text-center">
-                     <div className="w-16 h-16 rounded-3xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center mb-8">
-                       <feat.icon className="w-8 h-8 text-brand-red" />
+                   <motion.div
+                     key={i}
+                     initial={{ opacity: 0, y: 20 }}
+                     whileInView={{ opacity: 1, y: 0 }}
+                     viewport={{ once: true, margin: '-50px' }}
+                     transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+                     className="bg-[#0a0a0a] p-12 flex flex-col items-start text-left group hover:bg-[#0f0f0f] transition-colors duration-500"
+                   >
+                     <div className="w-14 h-14 rounded-2xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center mb-8 group-hover:bg-brand-red/15 transition-colors duration-500">
+                       <feat.icon className="w-7 h-7 text-brand-red" strokeWidth={1.5} />
                      </div>
-                     <h3 className="text-xl font-display font-bold mb-4">{feat.title}</h3>
-                     <p className="text-sm text-white/50 leading-relaxed">{feat.desc}</p>
-                   </div>
+                     <h3 className="text-lg font-display font-bold mb-3 tracking-tight">{feat.title}</h3>
+                     <p className="text-sm text-white/55 leading-relaxed">{feat.desc}</p>
+                     <div className="mt-8 h-px w-12 bg-brand-red/40 group-hover:w-20 transition-[width] duration-500" />
+                   </motion.div>
                  ))}
               </div>
             </div>
           </section>
+
+          <Product3DCardGrid />
 
           <TestimonialsBand />
           <FeaturedProducts />

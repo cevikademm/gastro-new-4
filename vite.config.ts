@@ -18,15 +18,20 @@ export default defineConfig({
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        manualChunks: {
-          react: ['react', 'react-dom', 'react-router-dom'],
-          three: ['three'],
-          motion: ['motion', 'framer-motion'],
-          i18n: ['i18next', 'react-i18next'],
-          supabase: ['@supabase/supabase-js'],
-          stripe: ['@stripe/stripe-js', '@stripe/react-stripe-js'],
-          pdf: ['jspdf', 'html2canvas'],
-          icons: ['lucide-react'],
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react-router') || id.includes('/react/') || id.includes('/react-dom/')) return 'react';
+            if (id.includes('/three/') || id.includes('three-stdlib') || id.includes('@react-three')) return 'three';
+            if (id.includes('framer-motion') || id.match(/node_modules\/motion\//)) return 'motion';
+            if (id.includes('i18next')) return 'i18n';
+            if (id.includes('@supabase')) return 'supabase';
+            if (id.includes('@stripe')) return 'stripe';
+            if (id.includes('jspdf') || id.includes('html2canvas')) return 'pdf';
+            if (id.includes('lucide-react')) return 'icons';
+            if (id.includes('zustand')) return 'state';
+          }
+          // Heavy data file kept out of every JS chunk it might tag along with.
+          if (id.includes('/src/data/products.json')) return 'data-products';
         },
       },
     },

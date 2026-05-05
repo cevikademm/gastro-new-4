@@ -62,64 +62,64 @@ export default function OrdersPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto w-full space-y-6">
+    <div className="max-w-7xl mx-auto w-full space-y-6 py-8 px-4 sm:px-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 reveal">
         <div>
-          <h1 className="font-headline text-2xl sm:text-3xl font-black text-on-surface tracking-tight flex items-center gap-3">
-            <Package size={28} className="text-primary" /> {t('orders.myOrders')}
+          <h1 className="font-headline text-3xl sm:text-4xl font-black text-on-surface tracking-tight flex items-center gap-3">
+            <Package size={26} className="text-primary" strokeWidth={1.75} /> {t('orders.myOrders')}
           </h1>
-          <p className="text-on-surface-variant text-sm mt-1">
+          <p className="text-on-surface-variant text-sm mt-1.5">
             {user?.company && <span className="font-medium">{user.company} · </span>}
             {t('orders.orderCount', { count: orders.length })}
           </p>
         </div>
         <Link
           to="/cart"
-          className="flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-xl font-bold shadow-lg transition-all hover:opacity-90 active:scale-95"
+          className="inline-flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-xl font-bold shadow-lg text-sm"
         >
-          <ShoppingCart size={20} /> {t('orders.newOrder')}
+          <ShoppingCart size={16} /> {t('orders.newOrder')}
         </Link>
       </div>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">{t('orders.totalRevenue')}</p>
-          <p className="text-xl font-black font-mono text-primary mt-1">{formatPrice(totalRevenue)}</p>
+        <div className="reveal hover-lift bg-surface-container-lowest rounded-2xl p-5 border border-outline-variant/40 shadow-[0_1px_3px_rgba(15,36,64,0.04)]">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-surface-variant">{t('orders.totalRevenue')}</p>
+          <p className="text-2xl font-black font-mono text-primary mt-2">{formatPrice(totalRevenue)}</p>
         </div>
-        <div className="bg-warning-container rounded-xl p-4 border border-warning/30 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-on-warning-container">{t('orders.pending')}</p>
-          <p className="text-xl font-black text-on-warning-container mt-1">{pendingCount}</p>
+        <div className="reveal reveal-delay-1 hover-lift bg-warning-container rounded-2xl p-5 border border-warning/20">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-warning-container/80">{t('orders.pending')}</p>
+          <p className="text-2xl font-black text-on-warning-container mt-2">{pendingCount}</p>
         </div>
-        <div className="bg-info-container rounded-xl p-4 border border-info/30 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-on-info-container">{t('orders.confirmedShort')}</p>
-          <p className="text-xl font-black text-on-info-container mt-1">{confirmedCount}</p>
+        <div className="reveal reveal-delay-2 hover-lift bg-info-container rounded-2xl p-5 border border-info/20">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-info-container/80">{t('orders.confirmedShort')}</p>
+          <p className="text-2xl font-black text-on-info-container mt-2">{confirmedCount}</p>
         </div>
-        <div className="bg-success-container rounded-xl p-4 border border-success/30 shadow-sm">
-          <p className="text-[10px] font-bold uppercase tracking-wider text-on-success-container">{t('orders.deliveredShort')}</p>
-          <p className="text-xl font-black text-on-success-container mt-1">{deliveredCount}</p>
+        <div className="reveal reveal-delay-3 hover-lift bg-success-container rounded-2xl p-5 border border-success/20">
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-on-success-container/80">{t('orders.deliveredShort')}</p>
+          <p className="text-2xl font-black text-on-success-container mt-2">{deliveredCount}</p>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={18} />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-on-surface-variant" size={16} />
           <input
             type="text"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('orders.searchPlaceholder')}
-            className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 pl-10 pr-4 text-sm focus:ring-2 focus:ring-primary outline-none"
+            className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 pl-11 pr-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors"
           />
         </div>
         <div className="flex items-center gap-2">
-          <Filter size={16} className="text-on-surface-variant" />
+          <Filter size={14} className="text-on-surface-variant" />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none"
+            className="bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors"
           >
             <option value="all">{t('common.all')} ({orders.length})</option>
             <option value="pending">{t('orders.pending')} ({pendingCount})</option>
@@ -139,7 +139,7 @@ export default function OrdersPage() {
           const isExpanded = expandedOrder === order.id;
 
           return (
-            <div key={order.id} className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
+            <div key={order.id} className="bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_rgba(15,36,64,0.04),0_8px_24px_-12px_rgba(15,36,64,0.06)] border border-outline-variant/40 overflow-hidden hover:border-outline-variant/70 transition-colors">
               {/* Order Header Row */}
               <button
                 onClick={() => setExpandedOrder(isExpanded ? null : order.id)}

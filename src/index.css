@@ -4,21 +4,147 @@
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-display: "Playfair Display", serif;
+  --font-headline: "Playfair Display", serif;
+  --font-body: "Inter", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "ui-monospace", SFMono-Regular, monospace;
 
-  /* Premium Brand Colors from gastro-new-4 */
+  /* Premium Brand Colors — slightly lifted for a more open, less oppressive feel. */
   --color-brand-red: #E85D26;
-  --color-brand-dark: #050505;
-  --color-brand-gray: #111111;
+  --color-brand-dark: #0e0e10;
+  --color-brand-gray: #18181b;
+
+  /* Material-3 inspired surface system used by app pages.
+     Light, warm, paper-like — matches the editorial palette. */
+  --color-primary: #1E3A5F;
+  --color-primary-container: #E1ECFA;
+  --color-primary-fixed: #F0F5FB;
+  --color-primary-fixed-dim: #C9DCEF;
+
+  --color-surface: #FAF9F5;
+  --color-surface-container-lowest: #FFFFFF;
+  --color-surface-container-low: #F7F5EE;
+  --color-surface-container: #F2EFE5;
+  --color-surface-container-high: #ECE9DC;
+  --color-surface-container-highest: #E6E2D2;
+
+  --color-on-surface: #0F2440;
+  --color-on-surface-variant: #5C6675;
+
+  --color-outline: #C2C7CF;
+  --color-outline-variant: #DCE1E8;
+
+  /* Semantic */
+  --color-success: #1B7F3A;
+  --color-success-container: #DDF1E2;
+  --color-on-success-container: #0F4720;
+  --color-error: #C53030;
+  --color-error-container: #FBE3E3;
+  --color-on-error-container: #6A1818;
+  --color-warning: #C57A1B;
+  --color-warning-container: #FCEED9;
+  --color-on-warning-container: #6E3F0E;
+  --color-info: #2D5A8E;
+  --color-info-container: #E1ECFA;
+  --color-on-info-container: #173456;
 }
 
 @layer base {
+  :root {
+    /* Editorial palette — kept globally so landing strips (Flash, Announcement, Final CTA) render with brand colors. */
+    --c-bg:            #faf9f5;
+    --c-bg-alt:        #f5f3eb;
+    --c-bg-deep:       #eeebdf;
+    --c-ink:           #0F2440;
+    --c-ink-soft:      #1E3A5F;
+    --c-muted:         #546E7A;
+    --c-line:          #e8e6df;
+    --c-line-soft:     #f0eee6;
+
+    --c-clay:          #E85D26;
+    --c-clay-deep:     #C44A1A;
+    --c-clay-soft:     #FF7A45;
+    --c-clay-wash:     #fbe7dc;
+
+    --c-navy:          #1E3A5F;
+    --c-navy-deep:     #0F2440;
+    --c-navy-light:    #2D5A8E;
+  }
+
   body {
     @apply bg-brand-dark text-white font-sans antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
     @apply font-display tracking-tight;
+  }
+
+  /* Smoother scroll, no jank from snap. */
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    scrollbar-gutter: stable;
+    scroll-behavior: smooth;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  img {
+    -webkit-user-drag: none;
+  }
+
+  /* Anchor offsets — section ids land below sticky navs. */
+  :where(section[id], div[id]) {
+    scroll-margin-top: 96px;
+  }
+
+  /* Brand-tinted text selection. */
+  ::selection {
+    background: rgba(232, 93, 38, 0.35);
+    color: #fff;
+  }
+
+  /* Premium focus ring — visible only via keyboard. */
+  :focus-visible {
+    outline: 2px solid #E85D26;
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+  /* Don't double-ring inputs that already have ring utilities. */
+  input:focus-visible, select:focus-visible, textarea:focus-visible, button:focus-visible, a:focus-visible {
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .c-serif { font-family: 'Playfair Display', 'Georgia', serif; }
+
+  /* Brushed-metal CTA — premium gradient, subtle inner light, warm accent. */
+  .brushed-metal {
+    background:
+      linear-gradient(135deg, #353539 0%, #232327 30%, #16161a 60%, #232327 100%);
+    background-size: 200% 200%;
+    background-position: 0% 0%;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.08),
+      0 8px 24px -8px rgba(0, 0, 0, 0.45);
+    transition: background-position 0.5s ease, box-shadow 0.3s ease, transform 0.2s ease;
+  }
+  .brushed-metal:hover {
+    background-position: 100% 100%;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.12),
+      0 12px 32px -8px rgba(232, 93, 38, 0.35);
+  }
+
+  /* Editorial dot grid background, very low contrast. */
+  .dot-grid {
+    background-image: radial-gradient(rgba(15, 36, 64, 0.10) 1px, transparent 1px);
+    background-size: 22px 22px;
   }
 }
 
@@ -54,5 +180,143 @@
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: rgba(232, 93, 38, 0.5);
+  }
+
+  /* Reveal-on-scroll — IntersectionObserver toggles .is-visible. */
+  .reveal {
+    opacity: 0;
+    transform: translate3d(0, 24px, 0);
+    transition: opacity 0.7s cubic-bezier(.22,.61,.36,1), transform 0.8s cubic-bezier(.22,.61,.36,1);
+    will-change: opacity, transform;
+  }
+  .reveal.is-visible {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  .reveal-delay-1 { transition-delay: .08s; }
+  .reveal-delay-2 { transition-delay: .16s; }
+  .reveal-delay-3 { transition-delay: .24s; }
+  .reveal-delay-4 { transition-delay: .32s; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* Reading-progress bar — driven by ScrollProgress component. */
+  .reading-progress {
+    position: fixed; top: 0; left: 0; right: 0; height: 2px;
+    z-index: 100;
+    background: transparent;
+    pointer-events: none;
+  }
+  .reading-progress > span {
+    display: block; height: 100%;
+    background: linear-gradient(90deg, #FF7A45 0%, #E85D26 50%, #C44A1A 100%);
+    box-shadow: 0 0 12px rgba(232, 93, 38, 0.55);
+    transform-origin: left center;
+    transform: scaleX(0);
+    transition: transform .08s linear;
+  }
+
+  /* Glass card — frosted surface for premium overlay sections. */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow:
+      0 1px 0 rgba(255, 255, 255, 0.7) inset,
+      0 24px 48px -24px rgba(15, 36, 64, 0.25);
+  }
+  .glass-card-dark {
+    background: rgba(20, 20, 24, 0.55);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Hover-lift — for cards. Subtle Y + shadow. Pair with `transition`. */
+  .hover-lift {
+    transition: transform .35s cubic-bezier(.22,.61,.36,1), box-shadow .35s cubic-bezier(.22,.61,.36,1);
+  }
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -16px rgba(15, 36, 64, 0.22), 0 6px 12px -6px rgba(15, 36, 64, 0.08);
+  }
+
+  /* Grain overlay — adds subtle film texture. Place over hero/dark sections. */
+  .grain {
+    position: relative;
+    isolation: isolate;
+  }
+  .grain::after {
+    content: "";
+    position: absolute; inset: 0;
+    pointer-events: none;
+    opacity: 0.06;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    z-index: 1;
+  }
+
+  /* Editorial drop number — for numbered lists / step sections. */
+  .num-drop {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-style: italic;
+    font-weight: 900;
+    line-height: 0.9;
+    background: linear-gradient(180deg, rgba(232,93,38,0.85) 0%, rgba(196,74,26,0.85) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Editorial divider — thin line + clay dot. */
+  .rule-clay {
+    display: inline-flex; align-items: center; gap: 12px;
+  }
+  .rule-clay::before, .rule-clay::after {
+    content: ""; height: 1px; width: 28px;
+    background: rgba(232, 93, 38, 0.55);
+  }
+
+  /* Magnetic underline — for premium nav/text links on dark surfaces. */
+  .underline-magnetic {
+    position: relative;
+  }
+  .underline-magnetic::after {
+    content: "";
+    position: absolute; left: 0; right: 0; bottom: -3px;
+    height: 1px;
+    background: currentColor;
+    transform: scaleX(0);
+    transform-origin: right center;
+    transition: transform .45s cubic-bezier(.22,.61,.36,1);
+  }
+  .underline-magnetic:hover::after {
+    transform: scaleX(1);
+    transform-origin: left center;
+  }
+
+  /* Shimmering skeleton — for loading states. */
+  @keyframes shimmer-bg {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+  .shimmer {
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0.04) 0%,
+      rgba(255,255,255,0.10) 50%,
+      rgba(255,255,255,0.04) 100%);
+    background-size: 200% 100%;
+    animation: shimmer-bg 1.6s linear infinite;
+  }
+
+  /* Tilt-on-hover — gentle 3D lift for showcase cards. JS-free. */
+  .tilt-hover {
+    transition: transform .5s cubic-bezier(.22,.61,.36,1), box-shadow .5s ease;
+    transform-style: preserve-3d;
+  }
+  .tilt-hover:hover {
+    transform: perspective(900px) rotateX(2deg) rotateY(-2deg) translateY(-2px);
   }
 }

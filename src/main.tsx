@@ -9,3 +9,13 @@ createRoot(document.getElementById('root')!).render(
     <App />
   </StrictMode>,
 );
+
+// Hide pre-bundled splash once React has mounted the first paint.
+requestAnimationFrame(() => {
+  requestAnimationFrame(() => {
+    const splash = document.getElementById('app-splash');
+    if (!splash) return;
+    splash.classList.add('fade');
+    setTimeout(() => splash.remove(), 600);
+  });
+});
