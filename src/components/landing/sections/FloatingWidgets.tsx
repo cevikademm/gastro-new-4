@@ -99,7 +99,7 @@ export function FloatingWidgets() {
             <X size={18} />
           </button>
           <div className="relative w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-[18px] shrink-0"
-            style={{ background: 'linear-gradient(135deg, #E85D26 0%, #FFD089 100%)' }}>
+            style={{ background: 'linear-gradient(135deg, #DC2626 0%, #FFD089 100%)' }}>
             AD
             <span
               className="absolute bottom-0.5 right-0.5 w-3 h-3 rounded-full border-2 border-[#0a0a0a]"

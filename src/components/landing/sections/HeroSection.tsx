@@ -64,8 +64,8 @@ export function HeroSection() {
           50% { transform: translate(30px, -40px) scale(1.08); }
         }
         @keyframes hero-pulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(232,93,38,0.6); }
-          50% { box-shadow: 0 0 0 10px rgba(232,93,38,0); }
+          0%, 100% { box-shadow: 0 0 0 0 rgba(220,38,38,0.6); }
+          50% { box-shadow: 0 0 0 10px rgba(220,38,38,0); }
         }
       `}</style>
 
@@ -80,7 +80,7 @@ export function HeroSection() {
                   style={{
                     background: 'var(--c-clay-wash)',
                     color: 'var(--c-clay-deep)',
-                    borderColor: 'rgba(232,93,38,0.2)',
+                    borderColor: 'rgba(220,38,38,0.2)',
                   }}
                 >
                   <span
@@ -112,10 +112,10 @@ export function HeroSection() {
                 <div className="flex flex-wrap gap-3 mb-4">
                   <Link
                     to="/rfq"
-                    className="group/cta relative inline-flex items-center gap-2.5 px-7 py-4 rounded-full text-white text-[16px] font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(232,93,38,0.5)] overflow-hidden"
+                    className="group/cta relative inline-flex items-center gap-2.5 px-7 py-4 rounded-full text-white text-[16px] font-bold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_18px_40px_rgba(220,38,38,0.5)] overflow-hidden"
                     style={{
                       background: 'linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%)',
-                      boxShadow: '0 10px 30px rgba(232,93,38,0.35)',
+                      boxShadow: '0 10px 30px rgba(220,38,38,0.35)',
                     }}
                   >
                     <span

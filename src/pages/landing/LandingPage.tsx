@@ -57,7 +57,7 @@ function LazyWebGLSection({ children, offset = "200px" }: { children: React.Reac
 
   return (
     <div ref={ref} className="w-full h-full min-h-[1px]">
-      {isVisible ? children : <div className="w-full h-full bg-[#050505]" />}
+      {isVisible ? children : <div className="w-full h-full bg-[#FAFAFA]" />}
     </div>
   );
 }
@@ -76,7 +76,7 @@ export function LandingPage() {
   }, []);
 
   return (
-    <div className="relative text-white bg-[#050505] selection:bg-brand-red selection:text-white min-h-screen">
+    <div className="relative text-[#0F2440] bg-[#FAFAFA] selection:bg-brand-red selection:text-white min-h-screen">
       
       {/* 1. Global 3D Background - Always active but optimized */}
       <Background3D />
@@ -88,15 +88,15 @@ export function LandingPage() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0, filter: "blur(20px)" }}
             transition={{ duration: 0.4, ease: "easeInOut" }}
-            className="fixed inset-0 z-[9999] bg-[#050505] flex flex-col items-center justify-center pointer-events-none"
+            className="fixed inset-0 z-[9999] bg-white flex flex-col items-center justify-center pointer-events-none"
           >
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               className="flex flex-col items-center gap-4"
             >
-               <div className="w-12 h-12 border-t-2 border-brand-red rounded-full animate-spin shadow-[0_0_15px_rgba(232,93,38,0.2)]" />
-               <span className="text-xl font-display font-bold tracking-tighter text-white uppercase">2MC GASTRO</span>
+               <div className="w-12 h-12 border-t-2 border-brand-red rounded-full animate-spin shadow-[0_0_15px_rgba(220,38,38,0.35)]" />
+               <span className="text-xl font-display font-bold tracking-tighter text-[#0F2440] uppercase">2MC GASTRO</span>
             </motion.div>
           </motion.div>
         )}
@@ -110,7 +110,7 @@ export function LandingPage() {
           <Hero />
 
           {/* Brands Ribbon */}
-          <section className="bg-[#0a0a0a]/90 py-10 text-white overflow-hidden border-y border-white/5 relative z-20">
+          <section className="bg-white py-10 overflow-hidden border-y border-slate-200 relative z-20">
             <style>{`@keyframes brandMarquee { from { transform: translate3d(0,0,0); } to { transform: translate3d(-50%,0,0); } }`}</style>
             <div
               className="flex gap-24 whitespace-nowrap will-change-transform"
@@ -119,7 +119,7 @@ export function LandingPage() {
               {[...Array(2)].map((_, i) => (
                 <div key={i} className="flex items-center gap-24 pr-24">
                   {['DIAMOND', 'COMBISTEEL', 'GASTRO-LINE', 'MASTER-CHEF', 'ECO-COOL', 'POLARIS', 'EUROFRED', 'VENIX', 'MODULAR', 'NORDIKA'].map(brand => (
-                    <span key={brand} className="text-[10px] font-bold tracking-[0.4em] text-white/30 hover:text-brand-red transition-colors cursor-default uppercase">{brand}</span>
+                    <span key={brand} className="text-[10px] font-bold tracking-[0.4em] text-slate-400 hover:text-brand-red transition-colors cursor-default uppercase">{brand}</span>
                   ))}
                 </div>
               ))}
@@ -144,12 +144,12 @@ export function LandingPage() {
                     transition={{ delay: idx * 0.08, duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                     whileHover={{ y: -4 }}
                     onClick={() => navigate(item.path)}
-                    className="relative p-7 rounded-[1.75rem] bg-white/[0.04] border border-white/10 backdrop-blur-md cursor-pointer transition-colors duration-300 hover:border-brand-red/40 hover:bg-white/[0.06] group overflow-hidden"
+                    className="relative p-7 rounded-[1.75rem] bg-white border border-slate-200 shadow-[0_1px_2px_rgba(15,36,64,0.04)] cursor-pointer transition-all duration-300 hover:border-brand-red/40 hover:shadow-[0_18px_40px_-16px_rgba(220,38,38,0.20)] group overflow-hidden"
                   >
-                    <div className="absolute top-5 right-5 text-[10px] font-bold text-white/20 tracking-[0.2em]">{item.num}</div>
+                    <div className="absolute top-5 right-5 text-[10px] font-bold text-slate-300 tracking-[0.2em]">{item.num}</div>
                     <item.icon className="w-9 h-9 text-brand-red mb-7 transition-transform duration-300 group-hover:scale-110" strokeWidth={1.5} />
-                    <h3 className="text-[15px] font-display font-bold mb-1.5 tracking-tight">{item.title}</h3>
-                    <p className="text-[10px] text-white/45 font-bold tracking-[0.18em] uppercase">{item.desc}</p>
+                    <h3 className="text-[15px] font-display font-bold mb-1.5 tracking-tight text-[#0F2440]">{item.title}</h3>
+                    <p className="text-[10px] text-slate-500 font-bold tracking-[0.18em] uppercase">{item.desc}</p>
                     <div className="absolute bottom-0 left-0 h-px bg-brand-red w-0 group-hover:w-full transition-[width] duration-500" />
                   </motion.div>
                 ))}
@@ -171,16 +171,16 @@ export function LandingPage() {
                       <span className="w-6 h-px bg-brand-red" />
                       3D PLANLAMA
                     </span>
-                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white tracking-tighter leading-[1.02]">
+                    <h2 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-[#0F2440] tracking-tighter leading-[1.02]">
                       İncelenebilir <span className="text-brand-red italic font-light">3D tasarımlar</span>
                     </h2>
-                    <p className="text-white/55 mt-6 max-w-md text-[15px] leading-relaxed">
+                    <p className="text-slate-600 mt-6 max-w-md text-[15px] leading-relaxed">
                       Aşağıya kaydırın — gerçek ekipmanlarınızı sahnede görün, kamera akışıyla detayları keşfedin.
                     </p>
                   </div>
                   <button
                     onClick={() => navigate('/kitchen-planner')}
-                    className="group inline-flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-white bg-brand-red hover:bg-brand-red/90 px-8 py-4 rounded-full transition-all shadow-[0_10px_30px_-10px_rgba(232,93,38,0.6)] self-start md:self-end shrink-0"
+                    className="group inline-flex items-center gap-3 text-[10px] font-bold uppercase tracking-[0.25em] text-white bg-brand-red hover:bg-brand-red/90 px-8 py-4 rounded-full transition-all shadow-[0_10px_30px_-10px_rgba(220,38,38,0.6)] self-start md:self-end shrink-0"
                   >
                     PLANLAYICIYI AÇ
                     <ChevronRight size={14} className="transition-transform duration-300 group-hover:translate-x-1" />
@@ -191,9 +191,9 @@ export function LandingPage() {
              <ImmersiveProductScene />
           </section>
 
-          <section className="py-32 bg-[#0a0a0a]/60 relative z-10 border-y border-white/5">
+          <section className="py-32 bg-white relative z-10 border-y border-slate-200">
             <div className="max-w-7xl mx-auto px-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5 rounded-[2rem] overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-slate-200 rounded-[2rem] overflow-hidden">
                  {[
                    { icon: ShieldCheck, title: 'AVRUPA STANDARDI', desc: 'Tüm ürünlerimiz CE ve DIN normlarına uygun olarak üretilmekte ve sertifikalandırılmaktadır.' },
                    { icon: Zap, title: 'YÜKSEK VERİMLİLİK', desc: 'A+++ enerji sınıfı ekipmanlarımızla işletme maliyetlerinizi %40\'a varan oranda düşürün.' },
@@ -205,14 +205,14 @@ export function LandingPage() {
                      whileInView={{ opacity: 1, y: 0 }}
                      viewport={{ once: true, margin: '-50px' }}
                      transition={{ delay: i * 0.1, duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-                     className="bg-[#0a0a0a] p-12 flex flex-col items-start text-left group hover:bg-[#0f0f0f] transition-colors duration-500"
+                     className="bg-white p-12 flex flex-col items-start text-left group hover:bg-red-50/40 transition-colors duration-500"
                    >
-                     <div className="w-14 h-14 rounded-2xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center mb-8 group-hover:bg-brand-red/15 transition-colors duration-500">
+                     <div className="w-14 h-14 rounded-2xl bg-brand-red/10 border border-brand-red/20 flex items-center justify-center mb-8 group-hover:bg-brand-red/20 transition-colors duration-500">
                        <feat.icon className="w-7 h-7 text-brand-red" strokeWidth={1.5} />
                      </div>
-                     <h3 className="text-lg font-display font-bold mb-3 tracking-tight">{feat.title}</h3>
-                     <p className="text-sm text-white/55 leading-relaxed">{feat.desc}</p>
-                     <div className="mt-8 h-px w-12 bg-brand-red/40 group-hover:w-20 transition-[width] duration-500" />
+                     <h3 className="text-lg font-display font-bold mb-3 tracking-tight text-[#0F2440]">{feat.title}</h3>
+                     <p className="text-sm text-slate-600 leading-relaxed">{feat.desc}</p>
+                     <div className="mt-8 h-px w-12 bg-brand-red/60 group-hover:w-20 transition-[width] duration-500" />
                    </motion.div>
                  ))}
               </div>

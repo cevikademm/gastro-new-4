@@ -9,7 +9,7 @@
   --font-mono: "ui-monospace", SFMono-Regular, monospace;
 
   /* Premium Brand Colors — slightly lifted for a more open, less oppressive feel. */
-  --color-brand-red: #E85D26;
+  --color-brand-red: #DC2626;
   --color-brand-dark: #0e0e10;
   --color-brand-gray: #18181b;
 
@@ -60,10 +60,10 @@
     --c-line:          #e8e6df;
     --c-line-soft:     #f0eee6;
 
-    --c-clay:          #E85D26;
-    --c-clay-deep:     #C44A1A;
-    --c-clay-soft:     #FF7A45;
-    --c-clay-wash:     #fbe7dc;
+    --c-clay:          #DC2626;
+    --c-clay-deep:     #991B1B;
+    --c-clay-soft:     #EF4444;
+    --c-clay-wash:     #fee2e2;
 
     --c-navy:          #1E3A5F;
     --c-navy-deep:     #0F2440;
@@ -71,7 +71,9 @@
   }
 
   body {
-    @apply bg-brand-dark text-white font-sans antialiased;
+    background-color: #FAFAFA;
+    color: #0F2440;
+    @apply font-sans antialiased;
   }
 
   h1, h2, h3, h4, h5, h6 {
@@ -104,13 +106,13 @@
 
   /* Brand-tinted text selection. */
   ::selection {
-    background: rgba(232, 93, 38, 0.35);
+    background: rgba(220, 38, 38, 0.35);
     color: #fff;
   }
 
   /* Premium focus ring — visible only via keyboard. */
   :focus-visible {
-    outline: 2px solid #E85D26;
+    outline: 2px solid #DC2626;
     outline-offset: 3px;
     border-radius: 4px;
   }
@@ -138,7 +140,7 @@
     background-position: 100% 100%;
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 12px 32px -8px rgba(232, 93, 38, 0.35);
+      0 12px 32px -8px rgba(220, 38, 38, 0.35);
   }
 
   /* Editorial dot grid background, very low contrast. */
@@ -163,7 +165,7 @@
   }
   
   .text-stroke-red {
-    -webkit-text-stroke: 1px rgba(232, 93, 38, 0.5);
+    -webkit-text-stroke: 1px rgba(220, 38, 38, 0.5);
     color: transparent;
   }
   
@@ -179,7 +181,7 @@
     border-radius: 4px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(232, 93, 38, 0.5);
+    background: rgba(220, 38, 38, 0.5);
   }
 
   /* Reveal-on-scroll — IntersectionObserver toggles .is-visible. */
@@ -210,8 +212,8 @@
   }
   .reading-progress > span {
     display: block; height: 100%;
-    background: linear-gradient(90deg, #FF7A45 0%, #E85D26 50%, #C44A1A 100%);
-    box-shadow: 0 0 12px rgba(232, 93, 38, 0.55);
+    background: linear-gradient(90deg, #EF4444 0%, #DC2626 50%, #991B1B 100%);
+    box-shadow: 0 0 12px rgba(220, 38, 38, 0.55);
     transform-origin: left center;
     transform: scaleX(0);
     transition: transform .08s linear;
@@ -264,7 +266,7 @@
     font-style: italic;
     font-weight: 900;
     line-height: 0.9;
-    background: linear-gradient(180deg, rgba(232,93,38,0.85) 0%, rgba(196,74,26,0.85) 100%);
+    background: linear-gradient(180deg, rgba(220,38,38,0.85) 0%, rgba(153,27,27,0.85) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -276,7 +278,7 @@
   }
   .rule-clay::before, .rule-clay::after {
     content: ""; height: 1px; width: 28px;
-    background: rgba(232, 93, 38, 0.55);
+    background: rgba(220, 38, 38, 0.55);
   }
 
   /* Magnetic underline — for premium nav/text links on dark surfaces. */

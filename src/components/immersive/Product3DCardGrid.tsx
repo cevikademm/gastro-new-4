@@ -18,7 +18,7 @@ const CARDS = [
     title: 'Endüstriyel Mikser',
     description:
       'Planetary hareket, 20 lt çelik haznesi, üç hızlı kademe. Restoran ve pastane mutfakları için sınıfında en iyi.',
-    accent: '#E85D26',
+    accent: '#DC2626',
     cta: 'Mikseri İncele',
     href: '/combisteel',
   },

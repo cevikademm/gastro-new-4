@@ -18,13 +18,13 @@ const PALETTES: Record<Variant, { a: string; b: string; c: string; d: string; ob
     a: '#06101e',
     b: '#0F2440',
     c: '#1E3A5F',
-    d: '#E85D26',
-    obj: [0xe85d26, 0xff7a45, 0x2d5a8e, 0x6088ff, 0xffd089, 0xffffff],
+    d: '#DC2626',
+    obj: [0xdc2626, 0xef4444, 0x2d5a8e, 0x6088ff, 0xffd089, 0xffffff],
   },
   clay: {
     a: '#7a2c0f',
-    b: '#C44A1A',
-    c: '#E85D26',
+    b: '#991B1B',
+    c: '#DC2626',
     d: '#FFD089',
     obj: [0xffffff, 0xffd089, 0xfff5e6, 0xffb27a, 0x6088ff, 0x2d5a8e],
   },
@@ -33,7 +33,7 @@ const PALETTES: Record<Variant, { a: string; b: string; c: string; d: string; ob
     b: '#15151a',
     c: '#26262d',
     d: '#3a3a45',
-    obj: [0xffffff, 0xcccccc, 0x6088ff, 0xe85d26, 0xffd089, 0x2d5a8e],
+    obj: [0xffffff, 0xcccccc, 0x6088ff, 0xdc2626, 0xffd089, 0x2d5a8e],
   },
 };
 
@@ -175,7 +175,7 @@ export default function Ambient3DBackground({
     key.position.set(6, 5, 7); scene.add(key);
     const rim = new THREE.DirectionalLight(0x6088ff, 1.0);
     rim.position.set(-7, -3, -5); scene.add(rim);
-    const accent = new THREE.PointLight(0xe85d26, 1.4, 26);
+    const accent = new THREE.PointLight(0xdc2626, 1.4, 26);
     accent.position.set(0, 0, 5); scene.add(accent);
 
     // ── Floating objects ───────────────────────────────────────────────────

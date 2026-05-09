@@ -44,18 +44,18 @@ export default function MagneticCursor() {
       }
       .magnetic-cursor-dot {
         width: 6px; height: 6px; border-radius: 50%;
-        background: #E85D26;
+        background: #DC2626;
         mix-blend-mode: difference;
       }
       .magnetic-cursor-ring {
         width: 38px; height: 38px; border-radius: 50%;
-        border: 1.5px solid rgba(232,93,38,0.7);
+        border: 1.5px solid rgba(220,38,38,0.7);
         transition: width .25s ease, height .25s ease, border-color .25s ease, background .25s ease;
       }
       .magnetic-cursor-ring.is-hover {
         width: 70px; height: 70px;
-        background: rgba(232,93,38,0.18);
-        border-color: rgba(232,93,38,0);
+        background: rgba(220,38,38,0.18);
+        border-color: rgba(220,38,38,0);
       }
     `;
     document.head.appendChild(style);

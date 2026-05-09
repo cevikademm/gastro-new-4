@@ -348,7 +348,7 @@ export default function ImmersiveProductScene() {
     const rim = new THREE.DirectionalLight(0x6088ff, 1.6);
     rim.position.set(-6, -3, -8);
     scene.add(rim);
-    const accent = new THREE.PointLight(0xe85d26, 2.0, 30);
+    const accent = new THREE.PointLight(0xdc2626, 2.0, 30);
     accent.position.set(0, -2, 5);
     scene.add(accent);
 
@@ -433,7 +433,7 @@ export default function ImmersiveProductScene() {
     const pGeo = new THREE.BufferGeometry();
     pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
     const pMat = new THREE.PointsMaterial({
-      color: 0xff7a45,
+      color: 0xef4444,
       size: 0.07,
       transparent: true,
       opacity: 0.55,

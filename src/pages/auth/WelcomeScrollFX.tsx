@@ -1,7 +1,7 @@
 import { motion, useScroll, useSpring, useTransform, useReducedMotion } from 'motion/react';
 
 // Hyper palette — iridescent accents over near-black canvas
-const BRAND_BLUE = '#E85D26';       // clay (primary accent)
+const BRAND_BLUE = '#DC2626';       // clay (primary accent)
 const BRAND_BLUE_DEEP = '#7B8BFF';  // iridescent violet-blue (chromatic highlight)
 const BRAND_AMBER = '#D4A574';      // warm tan (secondary warm)
 

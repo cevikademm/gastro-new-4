@@ -34,7 +34,7 @@ function FallbackMachine() {
       </mesh>
       <mesh>
         <icosahedronGeometry args={[0.6, 1]} />
-        <meshStandardMaterial color="#E85D26" emissive="#E85D26" emissiveIntensity={1.5} wireframe />
+        <meshStandardMaterial color="#DC2626" emissive="#DC2626" emissiveIntensity={1.5} wireframe />
       </mesh>
     </group>
   );

@@ -42,11 +42,13 @@ function LiquidCore() {
       <mesh ref={meshRef} position={[0, 0, -20]}>
         <icosahedronGeometry args={[1, 4]} />
         <meshStandardMaterial
-          color="#0a0606"
-          emissive="#1a0a05"
-          emissiveIntensity={0.6}
+          color="#DC2626"
+          emissive="#7f1d1d"
+          emissiveIntensity={0.35}
           metalness={0.85}
-          roughness={0.35}
+          roughness={0.4}
+          transparent
+          opacity={0.18}
         />
       </mesh>
     </Float>
@@ -109,7 +111,7 @@ export function Background3D() {
   }, []);
 
   return (
-    <div className="fixed inset-0 z-0 pointer-events-none bg-[#050505]">
+    <div className="fixed inset-0 z-0 pointer-events-none bg-[#FAFAFA]">
       {active && (
         <Canvas
           camera={{ position: [0, 0, 20], fov: 45 }}
@@ -118,20 +120,21 @@ export function Background3D() {
           gl={{
             antialias: false,
             powerPreference: 'high-performance',
-            alpha: false,
+            alpha: true,
             stencil: false,
             depth: true,
           }}
         >
-          <fog attach="fog" args={['#050505', 10, 50]} />
-          <ambientLight intensity={0.55} />
-          <directionalLight position={[10, 10, 10]} intensity={1.5} color="#ffffff" />
-          <directionalLight position={[-10, -10, -10]} intensity={2.5} color="#E85D26" />
+          <fog attach="fog" args={['#FAFAFA', 10, 50]} />
+          <ambientLight intensity={0.7} />
+          <directionalLight position={[10, 10, 10]} intensity={1.4} color="#ffffff" />
+          <directionalLight position={[-10, -10, -10]} intensity={1.8} color="#DC2626" />
           <LiquidCore />
           <SceneRig />
         </Canvas>
       )}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#050505_100%)] opacity-80" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(220,38,38,0.06),transparent_60%)]" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_80%,rgba(220,38,38,0.08),transparent_55%)]" />
     </div>
   );
 }

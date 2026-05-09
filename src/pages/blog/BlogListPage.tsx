@@ -78,7 +78,7 @@ export default function BlogListPage() {
                 onClick={() => setCategory(c)}
                 className={`px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-[0.18em] transition-all ${
                   active
-                    ? 'bg-[var(--c-clay)] text-white shadow-[0_8px_20px_-8px_rgba(232,93,38,0.5)]'
+                    ? 'bg-[var(--c-clay)] text-white shadow-[0_8px_20px_-8px_rgba(220,38,38,0.5)]'
                     : 'bg-white text-[var(--c-muted)] border border-[var(--c-line)] hover:border-[var(--c-clay)]/60 hover:text-[var(--c-ink)]'
                 }`}
               >

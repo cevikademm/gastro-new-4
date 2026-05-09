@@ -89,8 +89,8 @@ export default function KitchenCalculatorPage() {
                   onClick={() => setSegment(s)}
                   className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
                     segment === s
-                      ? 'bg-[#E85D26] text-white border-[#E85D26]'
-                      : 'bg-white text-slate-700 border-slate-300 hover:border-[#E85D26]'
+                      ? 'bg-[#DC2626] text-white border-[#DC2626]'
+                      : 'bg-white text-slate-700 border-slate-300 hover:border-[#DC2626]'
                   }`}
                 >
                   {SEGMENT_FACTORS[s].label}
@@ -105,7 +105,7 @@ export default function KitchenCalculatorPage() {
           <NumberField label="Toplam Yatırım (€)" value={investment} onChange={setInvestment} min={10000} max={5000000} step={5000} />
         </div>
 
-        <div className="bg-gradient-to-br from-[#E85D26] to-[#C44A1A] text-white rounded-2xl p-6 space-y-4">
+        <div className="bg-gradient-to-br from-[#DC2626] to-[#991B1B] text-white rounded-2xl p-6 space-y-4">
           <h2 className="text-lg font-semibold opacity-90">Tahmini Sonuçlar</h2>
           <Result label="Gerekli Mutfak Alanı" value={`${result.area} m²`} />
           <Result label="Kurulu Güç Tahmini" value={`${result.power.toLocaleString('tr-TR')} W`} />
@@ -123,7 +123,7 @@ export default function KitchenCalculatorPage() {
           <div className="pt-4 border-t border-white/20">
             <a
               href="/design"
-              className="block w-full text-center py-3 bg-white text-[#E85D26] rounded-xl font-bold hover:bg-red-50 transition"
+              className="block w-full text-center py-3 bg-white text-[#DC2626] rounded-xl font-bold hover:bg-red-50 transition"
             >
               Ücretsiz 3D Mutfak Tasarlamaya Başla →
             </a>
@@ -165,7 +165,7 @@ function NumberField({
     <div>
       <label className="flex justify-between text-sm font-semibold text-slate-700 mb-2">
         <span>{label}</span>
-        <span className="text-[#E85D26]">{value.toLocaleString('tr-TR')}</span>
+        <span className="text-[#DC2626]">{value.toLocaleString('tr-TR')}</span>
       </label>
       <input
         type="range"
@@ -174,7 +174,7 @@ function NumberField({
         step={step}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="w-full accent-[#E85D26]"
+        className="w-full accent-[#DC2626]"
       />
     </div>
   );

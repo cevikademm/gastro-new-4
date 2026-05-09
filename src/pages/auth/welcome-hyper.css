@@ -16,14 +16,14 @@
   --hy-text: #ededed;
   --hy-muted: rgba(237, 237, 237, 0.62);
   --hy-faint: rgba(237, 237, 237, 0.38);
-  --hy-accent: #E85D26;       /* clay accent, aksan olarak bırakıyoruz */
+  --hy-accent: #DC2626;       /* clay accent, aksan olarak bırakıyoruz */
   --hy-accent-2: #D4A574;     /* warm tan */
-  --hy-glow: 0 0 60px rgba(232, 93, 38, 0.12);
+  --hy-glow: 0 0 60px rgba(220, 38, 38, 0.12);
 }
 
 /* --- Global canvas --- */
 .welcome-hyper {
-  background: radial-gradient(1400px 900px at 20% -10%, rgba(232,93,38,0.06), transparent 60%),
+  background: radial-gradient(1400px 900px at 20% -10%, rgba(220,38,38,0.06), transparent 60%),
               radial-gradient(1200px 800px at 100% 30%, rgba(212,165,116,0.05), transparent 60%),
               var(--hy-bg) !important;
   color: var(--hy-text);
@@ -109,8 +109,8 @@
   background: linear-gradient(180deg, #faf9f5 0%, #f3ede0 100%) !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
-  border-top: 1px solid rgba(232, 93, 38, 0.14) !important;
-  border-bottom: 1px solid rgba(232, 93, 38, 0.14) !important;
+  border-top: 1px solid rgba(220, 38, 38, 0.14) !important;
+  border-bottom: 1px solid rgba(220, 38, 38, 0.14) !important;
 }
 /* Tablo-stili row hücreler — inline style'ı ezme */
 .welcome-hyper .topcat-tile .topcat-label {
@@ -138,7 +138,7 @@
 
 /* --- Primary button: solid clay, bold upper, pill --- */
 .welcome-hyper .btn-primary,
-.welcome-hyper button[style*="#E85D26"],
+.welcome-hyper button[style*="#DC2626"],
 .welcome-hyper button[style*="rgb(232"] {
   box-shadow: var(--hy-glow);
 }
@@ -227,7 +227,7 @@
   position: absolute;
   inset: -10% -10% auto -10%;
   height: 80%;
-  background: radial-gradient(600px 360px at 50% 20%, rgba(232,93,38,0.10), transparent 70%);
+  background: radial-gradient(600px 360px at 50% 20%, rgba(220,38,38,0.10), transparent 70%);
   pointer-events: none;
   z-index: 0;
 }

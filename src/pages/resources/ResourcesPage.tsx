@@ -73,7 +73,7 @@ export default function ResourcesPage() {
             </ul>
             <button
               onClick={() => { setActive(m); setDone(false); setErr(''); }}
-              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E85D26] text-white rounded-lg font-semibold hover:bg-[#C44A1A]"
+              className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#DC2626] text-white rounded-lg font-semibold hover:bg-[#991B1B]"
             >
               <Lock size={14} /> Ücretsiz İndir
             </button>
@@ -99,14 +99,14 @@ export default function ResourcesPage() {
                 </p>
                 <Link
                   to={active.downloadUrl}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#E85D26] text-white rounded-lg font-semibold"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#DC2626] text-white rounded-lg font-semibold"
                 >
                   <FileDown size={16} /> Şimdi de indir
                 </Link>
               </div>
             ) : (
               <>
-                <div className="text-xs text-[#E85D26] font-semibold mb-1">Ücretsiz İndir</div>
+                <div className="text-xs text-[#DC2626] font-semibold mb-1">Ücretsiz İndir</div>
                 <h3 className="text-xl font-bold mb-2">{active.title}</h3>
                 <p className="text-slate-600 text-sm mb-5">
                   E-posta adresinizi girin; PDF indirme bağlantısını size hemen gönderelim.
@@ -117,13 +117,13 @@ export default function ResourcesPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && submit()}
-                  className="w-full border border-slate-200 rounded-lg px-4 py-2.5 mb-3 focus:outline-none focus:border-[#E85D26]"
+                  className="w-full border border-slate-200 rounded-lg px-4 py-2.5 mb-3 focus:outline-none focus:border-[#DC2626]"
                 />
                 {err && <div className="text-sm text-red-600 mb-3">{err}</div>}
                 <button
                   onClick={submit}
                   disabled={sending || !email.includes('@')}
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#E85D26] text-white rounded-lg font-semibold hover:bg-[#C44A1A] disabled:opacity-50"
+                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#DC2626] text-white rounded-lg font-semibold hover:bg-[#991B1B] disabled:opacity-50"
                 >
                   {sending ? 'Gönderiliyor…' : 'PDF\'i Gönder'}
                 </button>

@@ -23,7 +23,7 @@ export default function Product3DCard({
   eyebrow,
   title,
   description,
-  accent = '#E85D26',
+  accent = '#DC2626',
   cta,
   onCtaClick,
 }: Product3DCardProps) {

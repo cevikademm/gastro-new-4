@@ -116,7 +116,7 @@ export default function ReviewWidget({ productId }: Props) {
         </div>
         <button
           onClick={() => setShowForm((v) => !v)}
-          className="px-4 py-2 bg-[#E85D26] text-white rounded-lg text-sm font-bold hover:bg-[#C44A1A] transition"
+          className="px-4 py-2 bg-[#DC2626] text-white rounded-lg text-sm font-bold hover:bg-[#991B1B] transition"
         >
           {showForm ? 'İptal' : 'Yorum Yaz'}
         </button>
@@ -147,7 +147,7 @@ export default function ReviewWidget({ productId }: Props) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Başlık (opsiyonel)"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#E85D26]"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#DC2626]"
             maxLength={100}
           />
           <textarea
@@ -155,14 +155,14 @@ export default function ReviewWidget({ productId }: Props) {
             onChange={(e) => setBody(e.target.value)}
             placeholder="Deneyiminizi paylaşın…"
             rows={4}
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#E85D26] resize-none"
+            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#DC2626] resize-none"
             maxLength={1000}
           />
           {error && <p className="text-sm text-red-600">{error}</p>}
           <button
             type="submit"
             disabled={submitting}
-            className="px-5 py-2 bg-[#E85D26] text-white rounded-lg font-bold hover:bg-[#C44A1A] disabled:opacity-50 transition"
+            className="px-5 py-2 bg-[#DC2626] text-white rounded-lg font-bold hover:bg-[#991B1B] disabled:opacity-50 transition"
           >
             {submitting ? 'Gönderiliyor…' : 'Yorumu Gönder'}
           </button>

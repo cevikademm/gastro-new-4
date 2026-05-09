@@ -82,7 +82,7 @@ export function LandingNav() {
 
           <Link
             to="/login"
-            className="hidden md:inline-flex items-center gap-2 bg-linear-to-br from-[var(--c-clay)] to-[var(--c-clay-deep)] text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-[0_4px_14px_rgba(232,93,38,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(232,93,38,0.45)] transition-all"
+            className="hidden md:inline-flex items-center gap-2 bg-linear-to-br from-[var(--c-clay)] to-[var(--c-clay-deep)] text-white px-5 py-2.5 rounded-full text-sm font-bold shadow-[0_4px_14px_rgba(220,38,38,0.3)] hover:-translate-y-0.5 hover:shadow-[0_8px_22px_rgba(220,38,38,0.45)] transition-all"
           >
             {t('landing.nav.login', 'Giriş Yap')}
             <MoveRight size={14} />
