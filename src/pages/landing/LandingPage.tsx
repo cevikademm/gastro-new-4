@@ -46,8 +46,10 @@ function LazyWebGLSection({ children, offset = "200px" }: { children: React.Reac
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
-        else setIsVisible(false);
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.disconnect();
+        }
       },
       { rootMargin: offset, threshold: 0.01 }
     );
@@ -188,7 +190,9 @@ export function LandingPage() {
                </div>
              </div>
 
-             <ImmersiveProductScene />
+             <LazyWebGLSection offset="400px">
+               <ImmersiveProductScene />
+             </LazyWebGLSection>
           </section>
 
           <section className="py-32 bg-white relative z-10 border-y border-slate-200">
@@ -219,7 +223,9 @@ export function LandingPage() {
             </div>
           </section>
 
-          <Product3DCardGrid />
+          <LazyWebGLSection offset="400px">
+            <Product3DCardGrid />
+          </LazyWebGLSection>
 
           <TestimonialsBand />
           <FeaturedProducts />

@@ -88,23 +88,46 @@ export function Background3D() {
   const [active, setActive] = useState(false);
 
   useEffect(() => {
+    // Honor reduced-motion + low-memory devices — skip 3D entirely.
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const lowMem = (navigator as Navigator & { deviceMemory?: number }).deviceMemory;
+    if (reduced || (typeof lowMem === 'number' && lowMem <= 4)) return;
+
     type RIC = (cb: () => void, opts?: { timeout: number }) => number;
     const ric: RIC = (window as unknown as { requestIdleCallback?: RIC }).requestIdleCallback
       ?? ((cb) => window.setTimeout(cb, 250) as unknown as number);
+
+    let scrollPastHero = false;
+    let raf = 0;
+    const recompute = () => {
+      const past = window.scrollY > window.innerHeight * 0.9;
+      if (past !== scrollPastHero) {
+        scrollPastHero = past;
+        if (!document.hidden) setActive(!past);
+      }
+    };
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => { recompute(); raf = 0; });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+
     const idleId = ric(() => {
-      if (!document.hidden) setActive(true);
+      if (!document.hidden && !scrollPastHero) setActive(true);
     }, { timeout: 1500 });
 
-    const onVis = () => setActive(!document.hidden);
+    const onVis = () => setActive(!document.hidden && !scrollPastHero);
     const onSet = (e: Event) => {
       const detail = (e as CustomEvent<boolean>).detail;
-      if (typeof detail === 'boolean') setActive(detail && !document.hidden);
+      if (typeof detail === 'boolean') setActive(detail && !document.hidden && !scrollPastHero);
     };
     document.addEventListener('visibilitychange', onVis);
     window.addEventListener('bg3d:set', onSet as EventListener);
     return () => {
       const cic = (window as unknown as { cancelIdleCallback?: (id: number) => void }).cancelIdleCallback;
       if (cic) cic(idleId);
+      if (raf) cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
       document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('bg3d:set', onSet as EventListener);
     };

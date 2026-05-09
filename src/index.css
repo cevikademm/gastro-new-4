@@ -125,22 +125,22 @@
 @layer utilities {
   .c-serif { font-family: 'Playfair Display', 'Georgia', serif; }
 
-  /* Brushed-metal CTA — premium gradient, subtle inner light, warm accent. */
+  /* Brushed CTA — red/white brand-aligned. */
   .brushed-metal {
     background:
-      linear-gradient(135deg, #353539 0%, #232327 30%, #16161a 60%, #232327 100%);
+      linear-gradient(135deg, #DC2626 0%, #B91C1C 30%, #991B1B 60%, #B91C1C 100%);
     background-size: 200% 200%;
     background-position: 0% 0%;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.08),
-      0 8px 24px -8px rgba(0, 0, 0, 0.45);
+      inset 0 1px 0 rgba(255, 255, 255, 0.18),
+      0 8px 24px -8px rgba(220, 38, 38, 0.35);
     transition: background-position 0.5s ease, box-shadow 0.3s ease, transform 0.2s ease;
   }
   .brushed-metal:hover {
     background-position: 100% 100%;
     box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.12),
-      0 12px 32px -8px rgba(220, 38, 38, 0.35);
+      inset 0 1px 0 rgba(255, 255, 255, 0.28),
+      0 12px 32px -8px rgba(220, 38, 38, 0.55);
   }
 
   /* Editorial dot grid background, very low contrast. */
@@ -230,10 +230,10 @@
       0 24px 48px -24px rgba(15, 36, 64, 0.25);
   }
   .glass-card-dark {
-    background: rgba(20, 20, 24, 0.55);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(18px) saturate(140%);
     -webkit-backdrop-filter: blur(18px) saturate(140%);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(220, 38, 38, 0.18);
   }
 
   /* Hover-lift — for cards. Subtle Y + shadow. Pair with `transition`. */

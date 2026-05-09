@@ -26,15 +26,15 @@ function FallbackMachine() {
     <group ref={ref}>
       <mesh>
         <boxGeometry args={[2.5, 3.5, 2]} />
-        <meshStandardMaterial color="#111" metalness={0.9} roughness={0.2} />
+        <meshStandardMaterial color="#0F2440" metalness={0.85} roughness={0.25} />
       </mesh>
       <mesh position={[0, 0, 1.01]}>
         <planeGeometry args={[2.2, 3.2]} />
-        <meshStandardMaterial color="#000" metalness={0.5} roughness={0.1} />
+        <meshStandardMaterial color="#DC2626" emissive="#7f1d1d" emissiveIntensity={0.4} metalness={0.6} roughness={0.3} />
       </mesh>
       <mesh>
         <icosahedronGeometry args={[0.6, 1]} />
-        <meshStandardMaterial color="#DC2626" emissive="#DC2626" emissiveIntensity={1.5} wireframe />
+        <meshStandardMaterial color="#ffffff" emissive="#DC2626" emissiveIntensity={2} wireframe />
       </mesh>
     </group>
   );
@@ -102,4 +102,3 @@ export function Showcase3D() {
   );
 }
 
-useGLTF.preload('/models/PSB-202MI-2V.glb');

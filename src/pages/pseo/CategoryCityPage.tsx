@@ -40,16 +40,16 @@ export default function CategoryCityPage() {
         ]}
       />
 
-      <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-sky-900 text-white">
+      <section className="bg-gradient-to-br from-white via-red-50 to-white text-[#0F2440] border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 py-16">
-          <nav className="text-xs text-slate-300 mb-4">
-            <Link to="/" className="hover:text-white">Ana Sayfa</Link>
+          <nav className="text-xs text-slate-500 mb-4">
+            <Link to="/" className="hover:text-brand-red">Ana Sayfa</Link>
             {' / '}
-            <Link to={`/kategori/${category.slug}`} className="hover:text-white">
+            <Link to={`/kategori/${category.slug}`} className="hover:text-brand-red">
               {category.namePlural}
             </Link>
             {' / '}
-            <span className="text-white">{city.name}</span>
+            <span className="text-[#0F2440]">{city.name}</span>
           </nav>
 
           <div className="flex items-center gap-2 text-sm text-sky-300 font-semibold mb-3">

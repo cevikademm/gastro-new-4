@@ -322,7 +322,7 @@ export default function ImmersiveProductScene() {
     let h = host.clientHeight || window.innerHeight;
 
     const scene = new THREE.Scene();
-    scene.fog = new THREE.FogExp2(0x0e0e10, 0.04);
+    scene.fog = new THREE.FogExp2(0x0F2440, 0.035);
 
     const camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 200);
     camera.position.set(0, 0, 14);
@@ -336,7 +336,7 @@ export default function ImmersiveProductScene() {
     });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(w, h);
-    renderer.setClearColor(0x0e0e10, 1);
+    renderer.setClearColor(0x0F2440, 0);
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.05;
     host.appendChild(renderer.domElement);
@@ -548,13 +548,14 @@ export default function ImmersiveProductScene() {
   return (
     <section
       ref={wrapRef}
-      className="relative bg-[#0e0e10] w-full overflow-hidden"
-      style={{ height: '100vh' }}
+      className="relative w-full overflow-hidden"
+      style={{ height: '100vh', background: 'linear-gradient(135deg, #0F2440 0%, #1a1f3a 50%, #4a0f1a 100%)' }}
     >
       <div ref={canvasHostRef} className="absolute inset-0" />
 
-      {/* Vignette */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(0,0,0,0.55)_100%)]" />
+      {/* Vignette + brand red glow */}
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_30%_50%,rgba(220,38,38,0.18),transparent_60%)]" />
+      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,rgba(15,36,64,0.45)_100%)]" />
 
       {/* Phase content */}
       <div className="absolute inset-0 flex items-center">

@@ -760,7 +760,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
               <button
                 type="button"
                 onClick={openInDrawing}
-                className="mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-800 transition"
+                className="mt-3 w-full py-3 rounded-xl bg-brand-red text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#B91C1C] transition"
               >
                 <Pencil size={14} /> Manuel Çizime Aktar
                 <ChevronRight size={14} />

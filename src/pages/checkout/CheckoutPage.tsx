@@ -223,7 +223,7 @@ export default function CheckoutPage() {
                     <CreditCard size={20} className="text-sky-500" />
                     {t('checkout.paymentTitle', 'Ödeme')}
                   </h2>
-                  <div className="p-4 bg-gradient-to-br from-slate-900 to-slate-700 rounded-2xl text-white">
+                  <div className="p-4 bg-gradient-to-br from-[#DC2626] to-[#B91C1C] rounded-2xl text-white">
                     <p className="text-xs opacity-70">Kart Numarası</p>
                     <p className="font-mono text-lg tracking-wider mt-1">•••• •••• •••• ••••</p>
                     <div className="flex justify-between mt-4 text-xs opacity-70">
