@@ -23,6 +23,7 @@ const DesignStudio = lazy(() => import('./components/DesignStudio'));
 const BOM = lazy(() => import('./components/BOM'));
 const Cart = lazy(() => import('./components/Cart'));
 const ProjectListPage = lazy(() => import('./pages/projects/ProjectListPage'));
+const FavoritesPage = lazy(() => import('./pages/favorites/FavoritesPage'));
 const NewProjectPage = lazy(() => import('./pages/projects/NewProjectPage'));
 const ProjectDetailPage = lazy(() => import('./pages/projects/ProjectDetailPage'));
 const AddProductPage = lazy(() => import('./pages/products/AddProductPage'));
@@ -105,6 +106,7 @@ export default function App() {
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="kitchen-planner" element={<KitchenPlannerPage />} />
             <Route path="cart" element={<Cart />} />
+            <Route path="favorites" element={<FavoritesPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="orders/:id" element={<OrderDetailPage />} />
 

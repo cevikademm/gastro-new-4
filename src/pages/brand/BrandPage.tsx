@@ -232,7 +232,7 @@ export default function BrandPage() {
         <div className="space-y-8">
           <div>
             <h3 className="font-headline font-bold text-primary uppercase tracking-wider text-xs mb-3">
-              Primer — Lacivert
+              Primer — Kırmızı
             </h3>
             <Swatches items={PRIMARY_SWATCHES} />
           </div>
@@ -258,7 +258,7 @@ export default function BrandPage() {
       </Section>
 
       {/* Typography */}
-      <Section icon={Type} title="Tipografi" subtitle="Space Grotesk başlık · Inter gövde">
+      <Section icon={Type} title="Tipografi" subtitle="Inter başlık · Inter gövde">
         <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest divide-y divide-outline-variant/10">
           {TYPE_SCALE.map((t) => (
             <div key={t.name} className="p-5 flex items-baseline gap-6 flex-wrap">

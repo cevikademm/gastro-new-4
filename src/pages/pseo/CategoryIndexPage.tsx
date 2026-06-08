@@ -11,7 +11,7 @@ export default function CategoryIndexPage() {
   // /kategori (hepsi) veya /kategori/:slug (tek kategori)
   if (!catSlug) {
     return (
-      <div className="max-w-6xl mx-auto px-4 py-10">
+      <div className="max-w-7xl mx-auto px-4 py-10">
         <SEO
           title="Ekipman Kategorileri"
           description="Endüstriyel mutfak ekipmanı kategorileri: kombi fırın, fritöz, ocak, blast chiller, bulaşık makinesi ve daha fazlası. Diamond ve CombiSteel markaları."
@@ -37,13 +37,13 @@ export default function CategoryIndexPage() {
             <Link
               key={c.slug}
               to={`/kategori/${c.slug}`}
-              className="group p-6 bg-white border border-slate-200 rounded-2xl hover:border-sky-400 hover:shadow-md transition"
+              className="group p-6 bg-white border border-slate-200 rounded-2xl hover:border-brand-red hover:shadow-md transition"
             >
-              <h2 className="text-xl font-bold text-slate-900 group-hover:text-sky-600 transition">
+              <h2 className="text-xl font-bold text-slate-900 group-hover:text-brand-red transition">
                 {c.namePlural}
               </h2>
               <p className="mt-2 text-sm text-slate-600">{c.shortDesc}</p>
-              <div className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-sky-600">
+              <div className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-brand-red">
                 <TrendingUp size={14} />
                 €{c.priceFrom.toLocaleString('tr-TR')}'den başlayan
               </div>
@@ -71,31 +71,31 @@ export default function CategoryIndexPage() {
         ]}
       />
 
-      <section className="bg-gradient-to-br from-sky-50 to-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-16">
+      <section className="bg-gradient-to-br from-red-50 to-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 py-16">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
             {category.namePlural}
           </h1>
           <p className="mt-4 text-lg text-slate-600 max-w-2xl">{category.longDesc}</p>
-          <div className="mt-4 inline-flex items-center gap-2 text-sm text-sky-700 font-semibold">
+          <div className="mt-4 inline-flex items-center gap-2 text-sm text-brand-red font-semibold">
             <TrendingUp size={16} />
             Fiyat: €{category.priceFrom.toLocaleString('tr-TR')} - €{category.priceTo.toLocaleString('tr-TR')}
           </div>
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-16">
+      <section className="max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-2xl font-bold text-slate-900 mb-6">Şehir Bazında Fiyatlar</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {CITIES.map((c) => (
             <Link
               key={c.slug}
               to={`/kategori/${category.slug}/${c.slug}`}
-              className="group flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-sky-400 transition"
+              className="group flex items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-brand-red transition"
             >
-              <MapPin className="text-slate-400 group-hover:text-sky-600 transition" size={18} />
+              <MapPin className="text-slate-400 group-hover:text-brand-red transition" size={18} />
               <div>
-                <div className="font-semibold text-slate-900 group-hover:text-sky-600 transition">
+                <div className="font-semibold text-slate-900 group-hover:text-brand-red transition">
                   {c.name} {category.name}
                 </div>
                 <div className="text-xs text-slate-500">{c.country}</div>

@@ -12,14 +12,14 @@ export function TestimonialsBand() {
 
   return (
     <section className="bg-white py-24 md:py-32 relative z-10 border-t border-slate-200">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="lp-container">
         <Reveal className="text-center mb-14">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-red mb-4">
             {t('landing.testimonials.eyebrow', { defaultValue: 'Müşteri deneyimleri' })}
           </p>
           <h2 className="font-display text-[2.2rem] md:text-[3rem] leading-[1.02] tracking-[-0.03em] text-[#0F2440] max-w-3xl mx-auto font-bold">
             {t('landing.testimonials.heading', { defaultValue: 'Avrupa\'nın dört bir yanından' })}{' '}
-            <em className="text-brand-red italic font-light">
+            <em className="text-brand-red">
               {t('landing.testimonials.accent', { defaultValue: 'profesyoneller bize güveniyor.' })}
             </em>
           </h2>

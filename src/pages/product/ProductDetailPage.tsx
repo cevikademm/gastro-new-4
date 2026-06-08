@@ -95,7 +95,7 @@ export default function ProductDetailPage() {
       <div className="min-h-[60vh] flex flex-col items-center justify-center gap-4">
         <AlertCircle className="text-red-500" size={48} />
         <p className="text-slate-600">{error || t('product.notFound', 'Ürün bulunamadı')}</p>
-        <button onClick={() => navigate(-1)} className="px-4 py-2 bg-sky-500 text-white rounded-lg">
+        <button onClick={() => navigate(-1)} className="px-4 py-2 bg-brand-red text-white rounded-lg">
           {t('common.back', 'Geri')}
         </button>
       </div>
@@ -132,9 +132,9 @@ export default function ProductDetailPage() {
       />
       {/* Breadcrumb */}
       <nav className="max-w-7xl mx-auto px-4 pt-6 text-sm text-slate-500 flex items-center gap-2 flex-wrap">
-        <Link to="/" className="hover:text-sky-600">{t('nav.home', 'Anasayfa')}</Link>
+        <Link to="/" className="hover:text-brand-red">{t('nav.home', 'Anasayfa')}</Link>
         <ChevronRight size={14} />
-        <Link to="/diamond" className="hover:text-sky-600">Diamond</Link>
+        <Link to="/diamond" className="hover:text-brand-red">Diamond</Link>
         <ChevronRight size={14} />
         <span className="text-slate-700 truncate max-w-[200px]">{product.product_family_name}</span>
         <ChevronRight size={14} />
@@ -178,7 +178,7 @@ export default function ProductDetailPage() {
                     key={src}
                     onClick={() => setGalleryIdx(i)}
                     className={`aspect-square rounded-lg overflow-hidden border-2 transition ${
-                      i === galleryIdx ? 'border-sky-500' : 'border-transparent hover:border-slate-300'
+                      i === galleryIdx ? 'border-brand-red' : 'border-transparent hover:border-slate-300'
                     }`}
                   >
                     <img src={src} alt="" className="w-full h-full object-contain bg-slate-50" />
@@ -194,7 +194,7 @@ export default function ProductDetailPage() {
           <div className="bg-white rounded-2xl p-6 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-xs font-semibold text-sky-600 uppercase tracking-wider">
+                <p className="text-xs font-semibold text-brand-red uppercase tracking-wider">
                   {product.product_family_name}
                 </p>
                 <h1 className="text-2xl font-bold text-slate-900 mt-1">{product.name}</h1>
@@ -258,7 +258,7 @@ export default function ProductDetailPage() {
               )}
               {(product.length_mm || product.width_mm || product.height_mm) && (
                 <div className="flex items-center gap-2 text-sm text-slate-600">
-                  <Ruler size={14} className="text-sky-500" />
+                  <Ruler size={14} className="text-brand-red" />
                   {product.length_mm}×{product.width_mm}×{product.height_mm} mm
                 </div>
               )}
@@ -280,7 +280,7 @@ export default function ProductDetailPage() {
               <button
                 onClick={handleAdd}
                 disabled={stock.tone === 'out'}
-                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-sky-500/30 hover:shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 h-12 rounded-xl bg-gradient-to-r from-brand-red to-[#991B1B] text-white font-bold flex items-center justify-center gap-2 shadow-lg shadow-brand-red/30 hover:shadow-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ShoppingCart size={18} />
                 {cartQty > 0 ? `${t('cart.inCart', 'Sepette')} (${cartQty})` : t('cart.addToCart', 'Sepete Ekle')}
@@ -327,7 +327,7 @@ export default function ProductDetailPage() {
                 key={k}
                 onClick={() => setTab(k)}
                 className={`px-6 py-4 text-sm font-semibold whitespace-nowrap border-b-2 transition ${
-                  tab === k ? 'border-sky-500 text-sky-600' : 'border-transparent text-slate-500 hover:text-slate-700'
+                  tab === k ? 'border-brand-red text-brand-red' : 'border-transparent text-slate-500 hover:text-slate-700'
                 }`}
               >{label}</button>
             ))}
@@ -393,7 +393,7 @@ export default function ProductDetailPage() {
                   )}
                 </div>
                 <p className="text-xs font-semibold text-slate-900 line-clamp-2">{r.name}</p>
-                <p className="text-sm font-bold text-sky-600 mt-1">
+                <p className="text-sm font-bold text-brand-red mt-1">
                   {(r.price_promo ?? r.price_display ?? r.price_catalog ?? 0).toLocaleString('tr-TR')} €
                 </p>
               </Link>
@@ -417,7 +417,7 @@ export default function ProductDetailPage() {
         <button
           onClick={handleAdd}
           disabled={stock.tone === 'out'}
-          className="h-12 px-6 rounded-xl bg-gradient-to-r from-sky-500 to-sky-600 text-white font-bold flex items-center gap-2 shadow-lg disabled:opacity-50"
+          className="h-12 px-6 rounded-xl bg-gradient-to-r from-brand-red to-[#991B1B] text-white font-bold flex items-center gap-2 shadow-lg disabled:opacity-50"
         >
           <ShoppingCart size={18} />
           {cartQty > 0 ? `${cartQty}` : t('cart.addToCart', 'Sepete Ekle')}
@@ -426,7 +426,7 @@ export default function ProductDetailPage() {
 
       <button
         onClick={() => navigate(-1)}
-        className="fixed top-20 left-4 z-30 p-2 bg-white rounded-full shadow-lg hover:bg-slate-50"
+        className="hidden lg:block fixed top-24 left-4 z-30 p-2 bg-white rounded-full shadow-lg hover:bg-slate-50"
         aria-label="back"
       >
         <ArrowLeft size={20} />

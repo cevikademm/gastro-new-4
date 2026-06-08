@@ -664,6 +664,13 @@ export default function ProjectDetailPage() {
     inProgress: 'bg-violet-100 text-violet-900',
   };
 
+  const statusLabels: Record<string, string> = {
+    drafting: t('dashboard.drafting'),
+    quoted: t('dashboard.quoted'),
+    complete: t('dashboard.complete'),
+    inProgress: t('dashboard.inProgress'),
+  };
+
   const totalKW = allItems.reduce((sum, fi) => sum + (fi.kw || 0), 0);
   const totalPrice = allItems.reduce((sum, fi) => sum + (fi.price || 0), 0);
 
@@ -679,7 +686,7 @@ export default function ProjectDetailPage() {
           <h1 className="font-headline text-3xl font-black text-on-surface tracking-tight">{p.name}</h1>
           <div className="flex items-center gap-3 mt-2">
             <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full ${statusColors[p.status]}`}>
-              {p.status}
+              {statusLabels[p.status] ?? p.status}
             </span>
             <span className="text-sm text-on-surface-variant">{allItems.length} ürün</span>
             <span className="text-sm text-on-surface-variant">•</span>

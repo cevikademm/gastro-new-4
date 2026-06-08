@@ -284,11 +284,11 @@ export default function AddProductPage() {
               <input name="width" type="number" value={form.width} onChange={handleChange} placeholder="80" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Derinlik (cm)</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Yükseklik (cm)</label>
               <input name="height" type="number" value={form.height} onChange={handleChange} placeholder="70" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Yükseklik (cm)</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Derinlik (cm)</label>
               <input name="depth" type="number" value={form.depth} onChange={handleChange} placeholder="85" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
           </div>

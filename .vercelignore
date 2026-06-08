@@ -1,0 +1,20 @@
+/node_modules
+/dist
+/coverage
+/tmp
+*.log
+
+# Local verification and presentation assets that are not needed by Vercel builds.
+/video/out
+/videolar
+/remotion-videos
+/sunumlar
+/docs
+*.docx
+*.xlsx
+*.pdf
+
+# Local-only generated backups/patches.
+*.patch
+TEST_*.md
+TEST_*.txt

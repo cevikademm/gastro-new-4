@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { BadgePercent, CreditCard, Flame, PackageCheck, Truck } from 'lucide-react';
 
 /**
  * Scrolling announcement bar with urgency messages.
@@ -8,11 +9,11 @@ export function AnnouncementBar() {
   const { t } = useTranslation();
 
   const messages = [
-    { emoji: '🚚', key: 'landing.announcement.shipping', fallback: '24-48 saat hızlı teslimat · 15 ülkeye ücretsiz kargo' },
-    { emoji: '🎁', key: 'landing.announcement.discount', fallback: 'İlk siparişe özel %10 indirim — Kod: GASTRO10' },
-    { emoji: '🔥', key: 'landing.announcement.flash', fallback: 'Bu hafta Diamond serisi soğutucularda 48 saatlik flash sale' },
-    { emoji: '💳', key: 'landing.announcement.leasing', fallback: 'Leasing ile 36 aya varan taksitli ödeme imkanı' },
-    { emoji: '✅', key: 'landing.announcement.catalog', fallback: '5.265+ ürün · 15 premium marka · tek platform' },
+    { Icon: Truck, key: 'landing.announcement.shipping', fallback: '24-48h Lieferung für lagernde Bestseller' },
+    { Icon: BadgePercent, key: 'landing.announcement.discount', fallback: 'Projektpakete mit B2B-Sonderkonditionen' },
+    { Icon: Flame, key: 'landing.announcement.flash', fallback: 'Diese Woche Diamond Kühltechnik als Flash-Angebot' },
+    { Icon: CreditCard, key: 'landing.announcement.leasing', fallback: 'Leasing bis 60 Monate direkt im Angebot' },
+    { Icon: PackageCheck, key: 'landing.announcement.catalog', fallback: '5.265+ Produkte · 15 Premiummarken · ein Einkauf' },
   ];
 
   // Doubled for seamless marquee loop
@@ -20,13 +21,13 @@ export function AnnouncementBar() {
 
   return (
     <div
-      className="overflow-hidden relative z-[60]"
+      className="fixed top-0 left-0 right-0 z-[60] h-9 overflow-hidden"
       style={{
         background: 'linear-gradient(90deg, var(--c-navy-deep) 0%, var(--c-navy) 50%, var(--c-navy-deep) 100%)',
       }}
     >
       <div
-        className="flex gap-16 py-2.5 text-[13px] font-medium text-white whitespace-nowrap"
+        className="flex h-full items-center gap-16 text-[13px] font-medium text-white whitespace-nowrap"
         style={{
           width: 'max-content',
           animation: 'ab-scroll 30s linear infinite',
@@ -34,7 +35,7 @@ export function AnnouncementBar() {
       >
         {doubled.map((m, i) => (
           <span key={i} className="inline-flex items-center gap-2.5">
-            <span className="text-[color:var(--c-clay-soft)]">{m.emoji}</span>
+            <m.Icon size={14} strokeWidth={2} className="text-[color:var(--c-clay-soft)]" />
             {t(m.key, m.fallback)}
           </span>
         ))}

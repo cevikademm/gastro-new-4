@@ -22,7 +22,7 @@
 
 .welcome-2mc {
   /* WoodMart kit değişkenleri */
-  --wd-primary-color: rgb(40, 120, 191);
+  --wd-primary-color: rgb(220, 38, 38);
   --wd-alternative-color: #fbbc34;
   --wd-text-color: #777777;
   --wd-title-color: #242424;
@@ -35,7 +35,7 @@
   --btn-default-bgcolor: #f7f7f7;
   --btn-default-bgcolor-hover: #efefef;
   --btn-accented-bgcolor: rgba(13, 108, 191, 0.9);
-  --btn-accented-bgcolor-hover: rgb(1, 84, 178);
+  --btn-accented-bgcolor-hover: rgb(153, 27, 27);
   --wd-container-w: 1350px;
   --wd-brd-radius: 0px;
 

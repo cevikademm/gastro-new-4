@@ -103,7 +103,7 @@ export default function CheckoutPage() {
             </p>
           </div>
           <div className="mt-6 flex gap-3">
-            <Link to="/orders" className="flex-1 h-12 rounded-xl bg-sky-500 text-white font-bold flex items-center justify-center">
+            <Link to="/orders" className="flex-1 h-12 rounded-xl bg-brand-red text-white font-bold flex items-center justify-center">
               {t('checkout.viewOrders', 'Siparişlerim')}
             </Link>
             <Link to="/" className="flex-1 h-12 rounded-xl border border-slate-200 font-bold flex items-center justify-center">
@@ -122,10 +122,10 @@ export default function CheckoutPage() {
         <p className="text-lg font-semibold text-slate-500">{t('cart.empty', 'Sepetiniz boş')}</p>
         <p className="text-sm text-slate-400 text-center max-w-sm">{t('cart.emptyHint', 'Kataloğumuza göz atarak profesyonel mutfak ekipmanlarını keşfedin.')}</p>
         <div className="flex flex-col sm:flex-row gap-3 mt-2">
-          <Link to="/diamond" className="px-6 h-12 inline-flex items-center justify-center rounded-xl bg-sky-500 text-white font-bold">
+          <Link to="/diamond" className="px-6 h-12 inline-flex items-center justify-center rounded-xl bg-brand-red text-white font-bold">
             {t('cart.startShopping', 'Alışverişe Başla')}
           </Link>
-          <Link to="/catalog" className="px-6 h-12 inline-flex items-center justify-center rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50">
+          <Link to="/products" className="px-6 h-12 inline-flex items-center justify-center rounded-xl border border-slate-200 font-bold text-slate-600 hover:bg-slate-50">
             {t('cart.browseCatalog', 'Kataloğa Git')}
           </Link>
         </div>
@@ -142,16 +142,16 @@ export default function CheckoutPage() {
             <div key={s.n} className="flex items-center flex-1 last:flex-none">
               <div className="flex flex-col items-center">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition ${
-                  step >= s.n ? 'bg-sky-500 text-white' : 'bg-slate-200 text-slate-400'
+                  step >= s.n ? 'bg-brand-red text-white' : 'bg-slate-200 text-slate-400'
                 }`}>
                   {step > s.n ? <Check size={18} /> : s.n}
                 </div>
-                <span className={`text-xs mt-2 font-semibold hidden sm:inline ${step >= s.n ? 'text-sky-600' : 'text-slate-400'}`}>
+                <span className={`text-xs mt-2 font-semibold hidden sm:inline ${step >= s.n ? 'text-brand-red' : 'text-slate-400'}`}>
                   {s.label}
                 </span>
               </div>
               {i < steps.length - 1 && (
-                <div className={`flex-1 h-0.5 mx-2 mb-6 ${step > s.n ? 'bg-sky-500' : 'bg-slate-200'}`} />
+                <div className={`flex-1 h-0.5 mx-2 mb-6 ${step > s.n ? 'bg-brand-red' : 'bg-slate-200'}`} />
               )}
             </div>
           ))}
@@ -165,7 +165,7 @@ export default function CheckoutPage() {
                 <motion.div key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                   className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
                   <h2 className="text-lg font-bold flex items-center gap-2">
-                    <MapPin size={20} className="text-sky-500" />
+                    <MapPin size={20} className="text-brand-red" />
                     {t('checkout.contactTitle', 'İletişim ve Teslimat')}
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -193,15 +193,15 @@ export default function CheckoutPage() {
                 <motion.div key="s2" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                   className="bg-white rounded-2xl p-6 shadow-sm space-y-3">
                   <h2 className="text-lg font-bold flex items-center gap-2">
-                    <Truck size={20} className="text-sky-500" />
+                    <Truck size={20} className="text-brand-red" />
                     {t('checkout.shippingTitle', 'Kargo Yöntemi')}
                   </h2>
                   {SHIPPING_OPTIONS.map((opt) => (
                     <label key={opt.id} className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition ${
-                      shipping === opt.id ? 'border-sky-500 bg-sky-50' : 'border-slate-200 hover:border-slate-300'
+                      shipping === opt.id ? 'border-brand-red bg-red-50' : 'border-slate-200 hover:border-slate-300'
                     }`}>
                       <input type="radio" name="ship" checked={shipping === opt.id}
-                        onChange={() => setShipping(opt.id)} className="accent-sky-500" />
+                        onChange={() => setShipping(opt.id)} className="accent-brand-red" />
                       <div className="flex-1">
                         <p className="font-semibold text-slate-900">{opt.label}</p>
                         <p className="text-xs text-slate-500 flex items-center gap-1">
@@ -220,7 +220,7 @@ export default function CheckoutPage() {
                 <motion.div key="s3" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
                   className="bg-white rounded-2xl p-6 shadow-sm space-y-4">
                   <h2 className="text-lg font-bold flex items-center gap-2">
-                    <CreditCard size={20} className="text-sky-500" />
+                    <CreditCard size={20} className="text-brand-red" />
                     {t('checkout.paymentTitle', 'Ödeme')}
                   </h2>
                   <div className="p-4 bg-gradient-to-br from-[#DC2626] to-[#B91C1C] rounded-2xl text-white">
@@ -255,7 +255,7 @@ export default function CheckoutPage() {
                 <button
                   onClick={() => setStep((step + 1) as Step)}
                   disabled={step === 1 && !canNext1}
-                  className="h-12 px-8 rounded-xl bg-sky-500 text-white font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-sky-600"
+                  className="h-12 px-8 rounded-xl bg-brand-red text-white font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-red"
                 >
                   {t('checkout.next', 'Devam')} <ChevronRight size={18} />
                 </button>
@@ -288,7 +288,7 @@ export default function CheckoutPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold text-slate-900 line-clamp-2">{it.product.name}</p>
-                      <p className="text-xs text-sky-600 font-bold mt-1">
+                      <p className="text-xs text-brand-red font-bold mt-1">
                         {(it.product.price * it.quantity).toLocaleString('tr-TR')} €
                       </p>
                     </div>
@@ -344,7 +344,7 @@ function Field({
           value={value}
           onChange={(e) => onChange(e.target.value)}
           autoComplete={autoComplete}
-          className={`w-full h-11 rounded-xl border border-slate-200 bg-white text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-100 outline-none transition ${
+          className={`w-full h-11 rounded-xl border border-slate-200 bg-white text-sm focus:border-brand-red focus:ring-2 focus:ring-red-100 outline-none transition ${
             Icon ? 'pl-10 pr-3' : 'px-3'
           }`}
         />

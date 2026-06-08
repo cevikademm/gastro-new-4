@@ -17,20 +17,20 @@ export function LandingNav() {
   return (
     <header
       role="banner"
-      className={`sticky top-0 z-50 backdrop-blur-md transition-all duration-300 ${
-        scrolled 
-          ? 'bg-white/90 border-b border-[var(--c-line)] py-3 shadow-sm' 
-          : 'bg-white/80 py-4.5'
+      className={`sticky top-0 z-50 transition-[padding,box-shadow] duration-300 ${
+        scrolled
+          ? 'bg-white border-b border-[var(--c-line)] py-3 shadow-sm'
+          : 'bg-white py-4.5'
       }`}
     >
-      <nav className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+      <nav className="lp-container flex items-center justify-between">
         <div className="flex items-center gap-8">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
-            <img 
-              src="/logo-2mc-gastro.png" 
-              alt="2MC Gastro" 
-              className="h-10 md:h-12 w-auto object-contain transition-transform group-hover:scale-105" 
+            <img
+              src="/logo-2mc-gastro.png"
+              alt="2MC Gastro"
+              className="h-11 md:h-12 w-auto max-w-[184px] object-contain transition-transform duration-200 group-hover:scale-[1.03]"
             />
           </Link>
 
@@ -65,16 +65,16 @@ export function LandingNav() {
           <div className="hidden sm:block">
             <LanguageSelector />
           </div>
-          
+
           <button className="w-10 h-10 rounded-full bg-[var(--c-bg-alt)] border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:border-[var(--c-clay)] hover:text-[var(--c-clay)] transition-all cursor-pointer">
             <Search size={18} />
           </button>
-          
+
           <Link to="/favorites" className="relative w-10 h-10 rounded-full bg-[var(--c-bg-alt)] border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:border-[var(--c-clay)] hover:text-[var(--c-clay)] transition-all">
             <Heart size={18} />
             <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-[var(--c-clay)] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 border-2 border-white">3</span>
           </Link>
-          
+
           <Link to="/cart" className="relative w-10 h-10 rounded-full bg-[var(--c-bg-alt)] border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:border-[var(--c-clay)] hover:text-[var(--c-clay)] transition-all">
             <ShoppingCart size={18} />
             <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] bg-[var(--c-clay)] text-white text-[10px] font-bold rounded-full flex items-center justify-center px-1 border-2 border-white">2</span>
@@ -92,4 +92,3 @@ export function LandingNav() {
     </header>
   );
 }
-

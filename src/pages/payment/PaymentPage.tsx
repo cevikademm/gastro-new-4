@@ -456,7 +456,7 @@ export default function PaymentPage() {
         </div>
 
         {/* ═══ Free Shipping Banner ═══ */}
-        <div className="bg-primary rounded-2xl p-6 flex items-center justify-between text-white">
+        <div className="bg-primary rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-white">
           <div className="flex items-center gap-4">
             <Truck size={28} />
             <div>
@@ -464,7 +464,7 @@ export default function PaymentPage() {
               <p className="text-white/70 text-sm">{t('payment.freeShippingDesc')}</p>
             </div>
           </div>
-          <div className="text-right">
+          <div className="text-left sm:text-right">
             <span className="text-3xl font-black">€30+</span>
             <p className="text-xs text-white/60">{t('payment.freeShippingNote')}</p>
           </div>

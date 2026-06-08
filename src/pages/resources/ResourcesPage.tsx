@@ -97,12 +97,13 @@ export default function ResourcesPage() {
                 <p className="text-slate-600 text-sm mb-5">
                   İndirme bağlantısı <strong>{email}</strong> adresine iletildi. Birkaç dakika içinde gelmezse spam klasörünü kontrol edin.
                 </p>
-                <Link
-                  to={active.downloadUrl}
+                <a
+                  href={active.downloadUrl}
+                  download
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#DC2626] text-white rounded-lg font-semibold"
                 >
                   <FileDown size={16} /> Şimdi de indir
-                </Link>
+                </a>
               </div>
             ) : (
               <>
