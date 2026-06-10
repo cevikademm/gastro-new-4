@@ -82,6 +82,7 @@ interface KitchenModelViewerProps {
   interactive?: boolean;
   autoRotate?: boolean;
   transparent?: boolean;
+  fitMargin?: number;
 }
 
 function ModelCanvas({
@@ -91,6 +92,7 @@ function ModelCanvas({
   rotation,
   autoRotate = false,
   active = false,
+  fitMargin = 1.0,
 }: {
   model: ModelKey;
   onLoad: () => void;
@@ -98,6 +100,7 @@ function ModelCanvas({
   rotation?: [number, number, number];
   autoRotate?: boolean;
   active?: boolean;
+  fitMargin?: number;
 }) {
   return (
     <Canvas
@@ -124,7 +127,7 @@ function ModelCanvas({
       <directionalLight position={[-7, 5, -5]} intensity={1.15} />
       <directionalLight position={[0, -4, 6]} intensity={0.55} />
       <Suspense fallback={null}>
-        <Bounds fit clip observe margin={1.0}>
+        <Bounds fit clip observe margin={fitMargin}>
           <Model url={MODEL_URLS[model]} onLoad={onLoad} rotation={rotation} />
         </Bounds>
       </Suspense>
@@ -149,6 +152,7 @@ export function KitchenModelViewer({
   interactive = true,
   autoRotate = false,
   transparent = false,
+  fitMargin = 1.0,
 }: KitchenModelViewerProps) {
   const [loading, setLoading] = useState(true);
   const handleLoad = useCallback(() => setLoading(false), []);
@@ -176,7 +180,7 @@ export function KitchenModelViewer({
         </div>
       )}
 
-      <ModelCanvas model={model} onLoad={handleLoad} interactive={interactive} autoRotate={autoRotate} active={autoRotate && inView} />
+      <ModelCanvas model={model} onLoad={handleLoad} interactive={interactive} autoRotate={autoRotate} active={autoRotate && inView} fitMargin={fitMargin} />
     </div>
   );
 }

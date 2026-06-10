@@ -21,7 +21,7 @@ export function CategoryBubbles({ onSelectConcept }: CategoryBubblesProps) {
   return (
     <section className="relative z-20 w-full max-w-[100vw] overflow-hidden bg-white border-b border-slate-200 shadow-[0_8px_22px_-22px_rgba(15,36,64,0.45)]">
       <div className="lp-container py-3">
-        <div className="flex w-full snap-x items-center justify-start gap-3 overflow-x-auto overflow-y-visible no-scrollbar scroll-smooth py-1.5 overscroll-x-contain lg:justify-center">
+        <div className="flex w-full snap-x items-center [justify-content:safe_center] gap-[clamp(0.65rem,1.2vw,1.4rem)] overflow-x-auto overflow-y-visible no-scrollbar scroll-smooth py-1.5 overscroll-x-contain">
             {CATEGORIES.map((cat, index) => (
               <motion.button
                 key={`${cat.id}-${index}`}
@@ -29,10 +29,10 @@ export function CategoryBubbles({ onSelectConcept }: CategoryBubblesProps) {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.24, ease: "easeOut" }}
-                className="group flex w-[90px] sm:w-[100px] shrink-0 snap-start flex-col items-center gap-2 focus:outline-none"
+                className="group flex w-[clamp(5rem,5.5vw,6.75rem)] shrink-0 snap-start flex-col items-center gap-2 focus:outline-none"
                 aria-label={cat.name}
               >
-                <div className="relative flex h-[78px] w-[78px] sm:h-[86px] sm:w-[86px] items-center justify-center overflow-hidden rounded-full border-2 border-slate-200 bg-gradient-to-b from-white to-slate-100 p-2.5 shadow-[0_6px_16px_-10px_rgba(15,36,64,0.5)] ring-1 ring-white transition-all duration-300 group-hover:border-brand-red group-hover:shadow-[0_16px_30px_-14px_rgba(220,38,38,0.6)] group-hover:-translate-y-0.5">
+                <div className="relative flex h-[clamp(4.35rem,4.8vw,5.75rem)] w-[clamp(4.35rem,4.8vw,5.75rem)] items-center justify-center overflow-hidden rounded-full border-2 border-slate-200 bg-gradient-to-b from-white to-slate-100 p-[clamp(0.5rem,0.65vw,0.75rem)] shadow-[0_6px_16px_-10px_rgba(15,36,64,0.5)] ring-1 ring-white transition-all duration-300 group-hover:border-brand-red group-hover:shadow-[0_16px_30px_-14px_rgba(220,38,38,0.6)] group-hover:-translate-y-0.5">
                   <img
                     src={cat.image}
                     alt={cat.name}
@@ -45,7 +45,7 @@ export function CategoryBubbles({ onSelectConcept }: CategoryBubblesProps) {
                   </span>
                 </div>
 
-                <p className="w-full truncate text-center text-[11px] sm:text-[12px] font-black leading-tight text-[#0F2440] transition-colors group-hover:text-brand-red">
+                <p className="w-full truncate text-center text-[clamp(0.68rem,0.75vw,0.78rem)] font-black leading-tight text-[#0F2440] transition-colors group-hover:text-brand-red">
                   {cat.name}
                 </p>
               </motion.button>

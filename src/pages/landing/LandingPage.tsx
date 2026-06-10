@@ -9,6 +9,7 @@ import {
   ArrowRight,
   BadgeCheck,
   BadgePercent,
+  ChevronLeft,
   ChevronRight,
   ClipboardCheck,
   Headphones,
@@ -46,6 +47,7 @@ import { ProductReviews } from '../../components/landing/sections/ProductReviews
 import { SponsorsSection } from '../../components/landing/sections/SponsorsSection';
 import { ProcessTimeline } from '../../components/landing/sections/ProcessTimeline';
 import { PromoBanner } from '../../components/landing/sections/PromoBanner';
+import { ProjectPopoutShowcase } from '../../components/landing/sections/ProjectPopoutShowcase';
 
 const HERO_SLIDES = [
   {
@@ -387,7 +389,7 @@ export function LandingPage() {
   const [chatStep, setChatStep] = useState(2);
 
   // Layout Toggle State
-  const [kitchenLayoutMode, setKitchenLayoutMode] = useState<"2D" | "3D">("3D");
+  const [kitchenLayoutMode, setKitchenLayoutMode] = useState<"2D" | "3D">("2D");
 
   // Leasing State
   const [leasingValue, setLeasingValue] = useState(82450);
@@ -664,8 +666,14 @@ export function LandingPage() {
     }, 6000);
   };
 
-  const heroSlide = HERO_SLIDES[currentSlide];
+  const heroBanner = HERO_BANNERS[currentSlide];
   const appliance = APPLIANCE_TABS.find((tab) => tab.id === activeAppliance) ?? APPLIANCE_TABS[0];
+  const goToPreviousSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + HERO_BANNERS.length) % HERO_BANNERS.length);
+  };
+  const goToNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % HERO_BANNERS.length);
+  };
 
   return (
     <div className="landing-page relative text-[#0F2440] bg-[#FAFAFA] selection:bg-brand-red selection:text-white min-h-screen">
@@ -704,27 +712,27 @@ export function LandingPage() {
           <CategoryBubbles onSelectConcept={handleConceptFilter} />
 
           {/* Hero Banner Slider — full-bleed designed banners (1:1 with source JPEGs) */}
-          <section id="hero" className="relative w-full overflow-hidden bg-[#0F2440] border-b border-slate-200/5">
+          <section id="hero" className="relative z-30 mb-8 w-full overflow-x-clip overflow-y-visible bg-[#0F2440] border-b border-slate-200/5 sm:mb-12 lg:mb-16">
             <div
-              className="relative w-full min-h-[150px] bg-[#0F2440] bg-cover bg-center sm:min-h-0"
+              className="relative w-full min-h-[170px] overflow-visible bg-[#0F2440] bg-cover bg-center sm:min-h-0"
               style={{
                 aspectRatio: `${HERO_BANNER_RATIO.w} / ${HERO_BANNER_RATIO.h}`,
-                backgroundImage: `url(${HERO_BANNERS[currentSlide].src})`,
+                backgroundImage: `url(${heroBanner.src})`,
               }}
             >
               <AnimatePresence mode="sync">
                 <motion.a
                   key={currentSlide}
-                  href={HERO_BANNERS[currentSlide].href}
+                  href={heroBanner.href}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.6 }}
-                  className="absolute inset-0 block"
+                  className="absolute inset-0 block overflow-visible"
                 >
                   <img
-                    src={HERO_BANNERS[currentSlide].src}
-                    alt={HERO_BANNERS[currentSlide].alt}
+                    src={heroBanner.src}
+                    alt={heroBanner.alt}
                     className="w-full h-full object-cover object-center"
                     fetchPriority="high"
                     loading="eager"
@@ -733,8 +741,27 @@ export function LandingPage() {
                 </motion.a>
               </AnimatePresence>
 
+              <div className="pointer-events-none absolute inset-y-0 left-0 right-0 z-50 flex items-center justify-between px-3 sm:px-5 lg:px-8">
+                <button
+                  type="button"
+                  onClick={goToPreviousSlide}
+                  className="pointer-events-auto grid h-9 w-9 place-items-center rounded-full border border-white/65 bg-white/55 text-[#0F2440] shadow-[0_16px_34px_-24px_rgba(15,36,64,0.8)] backdrop-blur-md transition-all duration-300 hover:-translate-x-0.5 hover:border-white hover:bg-white/90 hover:text-brand-red focus-visible:bg-white sm:h-11 sm:w-11"
+                  aria-label="Vorheriger Banner"
+                >
+                  <ChevronLeft size={18} strokeWidth={2.4} />
+                </button>
+                <button
+                  type="button"
+                  onClick={goToNextSlide}
+                  className="pointer-events-auto grid h-9 w-9 place-items-center rounded-full border border-white/65 bg-white/55 text-[#0F2440] shadow-[0_16px_34px_-24px_rgba(15,36,64,0.8)] backdrop-blur-md transition-all duration-300 hover:translate-x-0.5 hover:border-white hover:bg-white/90 hover:text-brand-red focus-visible:bg-white sm:h-11 sm:w-11"
+                  aria-label="Nächster Banner"
+                >
+                  <ChevronRight size={18} strokeWidth={2.4} />
+                </button>
+              </div>
+
               {/* Navigation dots + progress */}
-              <div className="absolute bottom-3 sm:bottom-5 left-1/2 -translate-x-1/2 z-20 flex items-center gap-5">
+              <div className="absolute bottom-3 left-1/2 z-50 flex -translate-x-1/2 items-center gap-5 sm:bottom-5">
                 <div className="flex gap-2.5">
                   {HERO_BANNERS.map((banner, idx) => (
                     <button
@@ -763,7 +790,7 @@ export function LandingPage() {
 
           {/* 6. Ürün Kategori Grid (Catalog Section) */}
           <section id="catalog" className="py-8 bg-[#FAFAFA] text-[#0F2440] relative z-10">
-            <div className="max-w-[90rem] mx-auto px-6">
+            <div className="lp-container">
               <div className="flex flex-col md:flex-row justify-between md:items-end mb-4 gap-6 text-left">
                 <div>
                   <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[9px] tracking-[0.3em] uppercase mb-2">
@@ -780,10 +807,10 @@ export function LandingPage() {
                 </a>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start lg:items-stretch">
+              <div className="grid grid-cols-1 lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] gap-5 items-start lg:items-stretch">
 
                 {/* Catalog Sidebar */}
-                <aside className="lg:col-span-3 lg:h-full bg-white border border-slate-200 p-4 rounded-xl shadow-[0_1px_2px_rgba(15,36,64,0.04)] text-left lg:sticky lg:top-28">
+                <aside className="lg:h-full bg-white border border-slate-200 p-4 rounded-xl shadow-[0_1px_2px_rgba(15,36,64,0.04)] text-left lg:sticky lg:top-28">
                   <div className="relative mb-3">
                     <input
                       type="search"
@@ -836,12 +863,12 @@ export function LandingPage() {
                 </aside>
  
                 {/* 5-Column Products Grid */}
-                <div className="lg:col-span-9 lg:h-full">
-                  <div className="grid h-full grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:auto-rows-fr">
+                <div className="min-w-0">
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
                     {filteredProducts.slice(0, 8).map((prod) => {
                       const added = isInCart(prod.id);
                       return (
-                        <div key={prod.id} className="h-full bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-brand-red/40 hover:shadow-[0_10px_25px_rgba(220,38,38,0.06)] transition-all duration-300 flex flex-col group relative">
+                        <div key={prod.id} className="h-full min-h-[300px] bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-brand-red/40 hover:shadow-[0_10px_25px_rgba(220,38,38,0.06)] transition-all duration-300 flex flex-col group relative">
  
                            {/* Image area with Brand & Status Badges (Compacted height h-24) */}
                            <div className="h-36 sm:h-44 bg-white border-b border-slate-100 p-3 flex items-center justify-center overflow-hidden relative">
@@ -905,7 +932,7 @@ export function LandingPage() {
           </section>
 
           {/* 8. KI Küchenplaner Section */}
-          <section className="py-16 bg-[#FAFAFA] border-b border-slate-200 relative z-10" id="chatbotSection">
+          <section className="py-16 bg-[#FAFAFA] border-b border-slate-200 relative z-20" id="chatbotSection">
             <div className="lp-container">
               
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
@@ -932,18 +959,18 @@ export function LandingPage() {
                 </div>
 
                 {/* Right Side: Planner Cockpit (5 steps + 3D render) */}
-                <div className="lg:col-span-8 relative rounded-[1.35rem] overflow-visible border border-white/10 bg-[#0c1420] shadow-[0_30px_70px_-25px_rgba(15,36,64,0.5)] min-h-[480px] lg:min-h-[600px] flex">
+                <div className="lg:col-span-8 relative rounded-[1.35rem] overflow-hidden border border-white/10 bg-[#0c1420] shadow-[0_30px_70px_-25px_rgba(15,36,64,0.5)] min-h-[480px] lg:min-h-[600px] flex">
 
-                  {/* 3D pop-out layer — same width as panel (no side spill), extends only past the bottom edge */}
+                  {/* 3D layer stays clipped inside the cockpit panel on every viewport. */}
                   {kitchenLayoutMode === "3D" && (
-                    <div className="absolute inset-x-0 top-0 -bottom-12 z-0">
+                    <div className="absolute inset-0 z-0 pointer-events-none">
                       <React.Suspense fallback={
                         <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[#0c1420] rounded-[1.35rem]">
                           <div className="w-8 h-8 border-t-2 border-brand-red rounded-full animate-spin" />
                           <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Lädt 3D…</span>
                         </div>
                       }>
-                        <KitchenModelViewer model="kitchenDraft" autoRotate transparent className="h-full w-full" />
+                        <KitchenModelViewer model="kitchenDraft" autoRotate transparent fitMargin={1.9} className="h-full w-full" />
                       </React.Suspense>
                     </div>
                   )}
@@ -1053,7 +1080,7 @@ export function LandingPage() {
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
 
                 <div className="relative flex flex-col order-2">
-                  <div className="absolute top-3 left-3 right-3 z-30 flex flex-wrap gap-2 justify-between items-center">
+                  <div className="relative z-30 mb-3 flex flex-wrap gap-2 justify-between items-center px-1 sm:absolute sm:left-3 sm:right-3 sm:top-3 sm:mb-0 sm:px-0">
                     <div className="inline-flex rounded-2xl border border-slate-200 bg-slate-100 p-1">
                       {APPLIANCE_TABS.map((tab) => (
                         <button
@@ -1178,39 +1205,44 @@ export function LandingPage() {
                   </p>
 
                   <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
-                    <table className="w-full border-collapse">
+                    <table className="w-full table-fixed border-collapse">
+                      <colgroup>
+                        <col className="w-[31%] sm:w-[32%]" />
+                        <col className="w-[32%] sm:w-[32%]" />
+                        <col className="w-[37%] sm:w-[36%]" />
+                      </colgroup>
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-xs">
-                          <th className="px-5 py-4 text-left uppercase tracking-wider">Bauteil</th>
-                          <th className="px-5 py-4 text-left uppercase tracking-wider">Wert</th>
-                          <th className="px-5 py-4 text-left uppercase tracking-wider">Teknik Rapor</th>
+                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-[10px] sm:text-xs">
+                          <th className="px-3 py-4 text-left uppercase tracking-wider sm:px-5">Bauteil</th>
+                          <th className="px-3 py-4 text-left uppercase tracking-wider sm:px-5">Wert</th>
+                          <th className="px-3 py-4 text-left uppercase tracking-wider sm:px-5">Teknik Rapor</th>
                         </tr>
                       </thead>
-                      <tbody className="text-xs text-slate-600">
+                      <tbody className="text-[11px] text-slate-600 sm:text-xs">
                         <tr className="border-b border-slate-100">
-                          <td className="px-5 py-4 font-bold text-[#0F2440]">Edelstahlgehäuse</td>
-                          <td className="px-5 py-4">AISI 304 (V2A)</td>
-                          <td className="px-5 py-4 text-emerald-600 font-bold">100% Rostfrei</td>
+                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Edelstahlgehäuse</td>
+                          <td className="break-words px-3 py-4 sm:px-5">AISI 304 (V2A)</td>
+                          <td className="break-words px-3 py-4 font-bold text-emerald-600 sm:px-5">100% Rostfrei</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="px-5 py-4 font-bold text-[#0F2440]">Antriebswelle</td>
-                          <td className="px-5 py-4">Gehärteter Stahl</td>
-                          <td className="px-5 py-4 text-emerald-600 font-bold">Verschleißarm</td>
+                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Antriebswelle</td>
+                          <td className="break-words px-3 py-4 sm:px-5">Gehärteter Stahl</td>
+                          <td className="break-words px-3 py-4 font-bold text-emerald-600 sm:px-5">Verschleißarm</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="px-5 py-4 font-bold text-[#0F2440]">Motor</td>
-                          <td className="px-5 py-4">2,2 kW, iki Geschwindigkeiten</td>
-                          <td className="px-5 py-4 text-emerald-600 font-bold">Thermischer Schutz gegen Überlast und Überhitzung.</td>
+                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Motor</td>
+                          <td className="break-words px-3 py-4 sm:px-5">2,2 kW, iki Geschwindigkeiten</td>
+                          <td className="break-words px-3 py-4 font-bold text-emerald-600 sm:px-5">Thermischer Schutz gegen Überlast und Überhitzung.</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="px-5 py-4 font-bold text-[#0F2440]">Sicherheit</td>
-                          <td className="px-5 py-4">Schutzgitter-Endschalter</td>
-                          <td className="px-5 py-4">Schaltkreis nach CE-Anforderung verriegelt.</td>
+                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Sicherheit</td>
+                          <td className="break-words px-3 py-4 sm:px-5">Schutzgitter-Endschalter</td>
+                          <td className="break-words px-3 py-4 sm:px-5">Schaltkreis nach CE-Anforderung verriegelt.</td>
                         </tr>
                         <tr>
-                          <td className="px-5 py-4 font-bold text-[#0F2440]">Servis</td>
-                          <td className="px-5 py-4">Verschraubtes Gehäuse</td>
-                          <td className="px-5 py-4">Abnehmbare Serviceplatte für Riemen und Kette.</td>
+                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Servis</td>
+                          <td className="break-words px-3 py-4 sm:px-5">Verschraubtes Gehäuse</td>
+                          <td className="break-words px-3 py-4 sm:px-5">Abnehmbare Serviceplatte für Riemen und Kette.</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1220,6 +1252,8 @@ export function LandingPage() {
               </div>
             </div>
           </section>
+
+          <ProjectPopoutShowcase />
 
           {/* 11. Decorative Strip (NEW) */}
           <DecorativeStrip />

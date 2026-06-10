@@ -54,7 +54,7 @@ export function ProductReviews() {
   const activeReview = REVIEWS[activeIndex];
 
   return (
-    <section className="py-24 bg-[#FAFAFA] border-b border-slate-200 relative z-10">
+    <section className="py-20 md:py-24 bg-[#FAFAFA] border-b border-slate-200 relative z-10">
       <div className="lp-container">
         
         {/* Section Header */}
@@ -72,7 +72,7 @@ export function ProductReviews() {
         </div>
 
         {/* Carousel Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white border border-slate-200 p-8 lg:p-12 rounded-[2.5rem] shadow-[0_20px_50px_rgba(15,36,64,0.04)] relative overflow-hidden">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-white border border-slate-200 p-5 sm:p-8 lg:p-12 rounded-[1.75rem] sm:rounded-[2.5rem] shadow-[0_20px_50px_rgba(15,36,64,0.04)] relative overflow-hidden">
           
           {/* Decorative quote icon */}
           <div className="absolute top-8 right-8 text-slate-100 pointer-events-none z-0">
@@ -80,7 +80,7 @@ export function ProductReviews() {
           </div>
 
           {/* Left Column: Avatar & Metadata */}
-          <div className="col-span-12 lg:col-span-4 flex flex-col items-center lg:items-start text-center lg:text-left z-10">
+          <div className="col-span-1 lg:col-span-4 flex min-w-0 max-w-full flex-col items-center lg:items-start text-center lg:text-left z-10">
             <div className="relative w-24 h-24 rounded-full overflow-hidden border-2 border-brand-red mb-6 shadow-md">
               <img
                 src={activeReview.avatar}
@@ -90,7 +90,7 @@ export function ProductReviews() {
             </div>
             
             <h4 className="text-lg font-bold text-[#0F2440] leading-none mb-1">{activeReview.name}</h4>
-            <p className="text-xs text-slate-400 font-semibold mb-3">{activeReview.business}</p>
+            <p className="max-w-full text-xs text-slate-400 font-semibold mb-3 break-words">{activeReview.business}</p>
             
             {/* Star Rating */}
             <div className="flex gap-1 mb-4">
@@ -100,15 +100,15 @@ export function ProductReviews() {
             </div>
 
             {/* Product Tag */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-red-50 border border-brand-red/10 rounded-full text-brand-red text-[10px] font-bold uppercase tracking-wider">
+            <div className="inline-flex max-w-full items-center gap-1.5 px-3 py-1 bg-red-50 border border-brand-red/10 rounded-full text-brand-red text-[10px] font-bold uppercase tracking-wider">
               <MessageSquare size={10} />
-              {activeReview.product}
+              <span className="min-w-0 break-words">{activeReview.product}</span>
             </div>
           </div>
 
           {/* Right Column: Review Text & Controls */}
-          <div className="col-span-12 lg:col-span-8 flex flex-col justify-between h-full text-center lg:text-left min-h-[200px] z-10">
-            <p className="font-display text-lg sm:text-xl lg:text-2xl font-medium text-[#0F2440] leading-relaxed italic mb-8">
+          <div className="col-span-1 lg:col-span-8 flex min-w-0 max-w-full flex-col justify-between h-full text-center lg:text-left min-h-[200px] z-10">
+            <p className="max-w-full break-words font-display text-[17px] sm:text-xl lg:text-2xl font-medium text-[#0F2440] leading-relaxed italic mb-8">
               "{activeReview.text}"
             </p>
 

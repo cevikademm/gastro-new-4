@@ -1,6 +1,5 @@
-import React from 'react';
 import { useCartStore } from '../../../stores/cartStore';
-import { ChevronRight, CreditCard, Truck, ShieldCheck, BadgeCheck } from 'lucide-react';
+import { BadgeCheck, CreditCard } from 'lucide-react';
 
 const TOP_PRODUCTS = [
   {
@@ -9,6 +8,8 @@ const TOP_PRODUCTS = [
     cat: "cooking",
     sub: "Kombidämpfer",
     img: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/50418/conversions/SBET-XC-22-big.jpg",
+    cutout: "/landing/products/cutouts/icombi-xs.png",
+    imageClass: "h-[190px] -top-24",
     brand: "Rational",
     price: 9890
   },
@@ -18,6 +19,8 @@ const TOP_PRODUCTS = [
     cat: "cooling",
     sub: "Kühltische",
     img: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/57188/conversions/001DT274-R2%2B5-big.jpg",
+    cutout: "/landing/products/cutouts/refrig-counter.png",
+    imageClass: "w-[238px] -top-16",
     brand: "CombiSteel",
     price: 1890
   },
@@ -27,6 +30,8 @@ const TOP_PRODUCTS = [
     cat: "cooking",
     sub: "Fritteusen",
     img: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/75472/conversions/001-E22-F23CFSA4-AC-big.jpg",
+    cutout: "/landing/products/cutouts/fryer-double.png",
+    imageClass: "h-[188px] -top-24",
     brand: "CombiSteel",
     price: 1290
   },
@@ -36,6 +41,8 @@ const TOP_PRODUCTS = [
     cat: "pizza_pasta",
     sub: "Pizzaöfen",
     img: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/12048385/conversions/001-LFD-18L-LX-big.jpg",
+    cutout: "/landing/products/cutouts/pizza-oven.png",
+    imageClass: "w-[232px] -top-16",
     brand: "Modular",
     price: 3490
   },
@@ -45,6 +52,8 @@ const TOP_PRODUCTS = [
     cat: "dishwash",
     sub: "Spülmaschinen",
     img: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/73407/conversions/001-DCR49-6-AC-RC-big.jpg",
+    cutout: "/landing/products/cutouts/dishwasher-hood.png",
+    imageClass: "h-[192px] -top-24",
     brand: "Diamond",
     price: 2790
   },
@@ -54,6 +63,8 @@ const TOP_PRODUCTS = [
     cat: "dynamic_prep",
     sub: "Teigknetmaschinen",
     img: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/62571/conversions/001-PSB2-big.jpg",
+    cutout: "/landing/products/cutouts/mix-80.png",
+    imageClass: "h-[190px] -top-24",
     brand: "Diamond",
     price: 4290
   }
@@ -61,9 +72,10 @@ const TOP_PRODUCTS = [
 
 export function TopProductsCarousel() {
   const { addItem, removeItem, isInCart } = useCartStore();
+  const marqueeProducts = [...TOP_PRODUCTS, ...TOP_PRODUCTS, ...TOP_PRODUCTS, ...TOP_PRODUCTS];
 
   return (
-    <section className="py-24 bg-white border-b border-slate-200 relative z-10">
+    <section id="top-products-showcase" className="py-24 bg-white border-b border-slate-200 relative z-10 overflow-visible">
       <div className="lp-container">
         
         {/* Header Area */}
@@ -86,9 +98,9 @@ export function TopProductsCarousel() {
         </div>
 
         {/* Infinite auto-scrolling marquee — very slow, pauses on hover */}
-        <div className="overflow-hidden pb-8 pt-2">
-          <div className="flex w-max gap-6 will-change-transform hover:[animation-play-state:paused] animate-[brandMarquee_80s_linear_infinite]">
-          {[...TOP_PRODUCTS, ...TOP_PRODUCTS].map((prod, i) => {
+        <div className="overflow-x-clip overflow-y-visible pb-10 pt-6">
+          <div className="flex w-max min-w-full justify-center gap-6 will-change-transform hover:[animation-play-state:paused] animate-[brandMarquee_80s_linear_infinite]">
+          {marqueeProducts.map((prod, i) => {
             const added = isInCart(prod.id);
             const listPrice = Math.round(prod.price * 1.12);
             const saving = listPrice - prod.price;
@@ -96,28 +108,30 @@ export function TopProductsCarousel() {
             return (
               <div
                 key={`${prod.id}-${i}`}
-                className="w-[280px] shrink-0 bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-brand-red/40 hover:shadow-[0_15px_35px_rgba(220,38,38,0.06)] transition-all duration-300 flex flex-col group snap-start"
+                className="group relative mt-4 w-[clamp(220px,14vw,280px)] shrink-0 snap-start"
               >
-                {/* Image area with Brand & Status Badges */}
-                <div className="h-36 bg-white border-b border-slate-100 p-4 flex items-center justify-center overflow-hidden relative">
-                  <span className="absolute top-2 left-2 bg-[#0F2440]/5 border border-[#0F2440]/10 px-1.5 py-0.5 rounded text-[8px] font-bold text-[#0F2440] uppercase tracking-wider">
-                    {prod.brand}
-                  </span>
-                  
-                  <span className="absolute top-2 right-2 bg-brand-red text-white px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider shadow-[0_2px_6px_rgba(220,38,38,0.3)]">
-                    BESTSELLER
-                  </span>
-                  
-                  <img
-                    src={prod.img}
-                    alt={prod.name}
-                    className="max-h-full max-w-full object-contain group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                  />
-                </div>
+                <div className="pointer-events-none absolute inset-x-8 top-10 z-0 h-20 rounded-[50%] bg-[#0F2440]/10 blur-2xl transition-all duration-500 group-hover:bg-brand-red/12" />
 
-                {/* Body area */}
-                <div className="p-4 flex-grow flex flex-col justify-between text-left">
+                <div className="relative z-20 flex min-h-[360px] flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white text-left shadow-[0_18px_50px_-44px_rgba(15,36,64,0.65)] transition-all duration-300 hover:border-brand-red/40 hover:shadow-[0_26px_60px_-42px_rgba(220,38,38,0.28)]">
+                  <div className="relative h-[152px] shrink-0 overflow-hidden border-b border-slate-100 bg-white">
+                    <div className="pointer-events-none absolute left-8 right-8 top-[72%] z-0 h-px bg-gradient-to-r from-transparent via-[#0F2440]/18 to-transparent" />
+                    <img
+                      src={prod.cutout}
+                      alt={prod.name}
+                      className="pointer-events-none absolute inset-0 z-10 m-auto max-h-[132px] max-w-[88%] object-contain drop-shadow-[0_20px_20px_rgba(15,36,64,0.18)] transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-[1.04]"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </div>
+
+                  <div className="absolute left-3 top-3 z-40 rounded-md border border-[#0F2440]/10 bg-white/90 px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-[#0F2440] shadow-sm backdrop-blur">
+                    {prod.brand}
+                  </div>
+                  <div className="absolute right-3 top-3 z-40 rounded-md bg-brand-red px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white shadow-[0_6px_12px_-7px_rgba(220,38,38,0.9)]">
+                    BESTSELLER
+                  </div>
+
+                  <div className="relative z-30 flex flex-1 flex-col justify-between bg-white px-4 pb-4 pt-3">
                   <div>
                     <div className="flex justify-between items-center mb-1">
                       <span className="text-[8px] font-bold text-brand-red uppercase tracking-[0.2em]">{prod.sub}</span>
@@ -190,6 +204,7 @@ export function TopProductsCarousel() {
                     >
                       Projekt
                     </a>
+                  </div>
                   </div>
                 </div>
               </div>

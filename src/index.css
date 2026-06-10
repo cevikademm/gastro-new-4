@@ -217,12 +217,12 @@
     min-width: 0;
   }
 
-  /* Akışkan içerik konteyneri — slider gibi ekranla büyür, okunabilir kalır */
+  /* Akışkan içerik konteyneri — zoom, tablet, monitor ve TV genişliklerinde kendini kilitlemez. */
   .landing-page .lp-container {
     width: 100%;
     margin-inline: auto;
-    max-width: min(94vw, 120rem);
-    padding-inline: clamp(1rem, 3vw, 3rem);
+    max-width: none;
+    padding-inline: clamp(1rem, 3.5vw, 6rem);
   }
 
   /* Akışkan bölüm başlıkları */
