@@ -124,8 +124,8 @@ export default function LiveChatWidget() {
             className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-[90] group"
             aria-label="Canlı destek"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-[#E85D26] to-[#C44A1A] rounded-full blur-xl opacity-50 group-hover:opacity-75 transition" />
-            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-[#E85D26] to-[#C44A1A] shadow-2xl flex items-center justify-center text-white hover:scale-110 transition">
+            <div className="absolute inset-0 bg-gradient-to-br from-[#DC2626] to-[#991B1B] rounded-full blur-xl opacity-50 group-hover:opacity-75 transition" />
+            <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-[#DC2626] to-[#991B1B] shadow-2xl flex items-center justify-center text-white hover:scale-110 transition">
               <MessageCircle size={24} />
               {unread > 0 && (
                 <span className="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center border-2 border-white">
@@ -163,7 +163,7 @@ export default function LiveChatWidget() {
             {/* Header */}
             <div
               onClick={() => minimized && setMinimized(false)}
-              className={`flex items-center justify-between px-4 py-3 bg-gradient-to-br from-[#E85D26] via-[#6B1A22] to-[#C44A1A] text-white ${minimized ? 'cursor-pointer' : ''}`}
+              className={`flex items-center justify-between px-4 py-3 bg-gradient-to-br from-[#DC2626] via-[#6B1A22] to-[#991B1B] text-white ${minimized ? 'cursor-pointer' : ''}`}
             >
               <div className="flex items-center gap-3">
                 <div className="relative w-9 h-9 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
@@ -217,7 +217,7 @@ export default function LiveChatWidget() {
                   {messages.length === 0 && (
                     <div className="text-center py-8">
                       <div className="w-16 h-16 mx-auto bg-gradient-to-br from-red-50 to-rose-100 rounded-full flex items-center justify-center mb-3">
-                        <Bot className="text-[#E85D26]" size={28} />
+                        <Bot className="text-[#DC2626]" size={28} />
                       </div>
                       <h3 className="font-bold text-slate-900">Merhaba! 👋</h3>
                       <p className="text-xs text-slate-500 mt-1 max-w-[240px] mx-auto">
@@ -234,14 +234,14 @@ export default function LiveChatWidget() {
                       className={`flex gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       {m.role === 'assistant' && (
-                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#E85D26] to-[#C44A1A] flex-shrink-0 flex items-center justify-center text-white">
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-[#DC2626] to-[#991B1B] flex-shrink-0 flex items-center justify-center text-white">
                           <Bot size={14} />
                         </div>
                       )}
                       <div
                         className={`max-w-[75%] px-3.5 py-2 rounded-2xl text-sm whitespace-pre-wrap break-words ${
                           m.role === 'user'
-                            ? 'bg-[#E85D26] text-white rounded-br-sm'
+                            ? 'bg-[#DC2626] text-white rounded-br-sm'
                             : m.error
                             ? 'bg-red-50 text-red-700 border border-red-200 rounded-bl-sm'
                             : 'bg-white text-slate-800 border border-slate-200 rounded-bl-sm shadow-sm'
@@ -303,12 +303,12 @@ export default function LiveChatWidget() {
                       onChange={(e) => setInput(e.target.value)}
                       placeholder={streaming ? 'AI düşünüyor...' : 'Mesajınızı yazın...'}
                       disabled={streaming}
-                      className="flex-1 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:border-[#E85D26] focus:ring-2 focus:ring-red-100 outline-none transition disabled:opacity-50"
+                      className="flex-1 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:border-[#DC2626] focus:ring-2 focus:ring-red-100 outline-none transition disabled:opacity-50"
                     />
                     <button
                       type="submit"
                       disabled={!input.trim() || streaming}
-                      className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#E85D26] to-[#C44A1A] text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg transition"
+                      className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#DC2626] to-[#991B1B] text-white flex items-center justify-center disabled:opacity-40 disabled:cursor-not-allowed hover:shadow-lg transition"
                     >
                       {streaming ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                     </button>

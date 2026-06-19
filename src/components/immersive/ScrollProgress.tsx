@@ -53,8 +53,8 @@ export default function ScrollProgress() {
           transform: 'scaleX(0)',
           transformOrigin: '0 50%',
           background:
-            'linear-gradient(90deg, #1E3A5F 0%, #E85D26 50%, #FF7A45 100%)',
-          boxShadow: '0 0 14px rgba(232,93,38,0.55)',
+            'linear-gradient(90deg, #1E3A5F 0%, #DC2626 50%, #EF4444 100%)',
+          boxShadow: '0 0 14px rgba(220,38,38,0.55)',
           willChange: 'transform',
         }}
       />

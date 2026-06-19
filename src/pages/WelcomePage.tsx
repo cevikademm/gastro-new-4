@@ -9,7 +9,6 @@ import {
   ArrowRight, ArrowLeft, Sparkles,
   ShieldCheck, BadgeCheck, Languages, Play
 } from 'lucide-react';
-import ThreeBackground from '../components/ThreeBackground';
 
 const FEATURES = [
   { icon: Refrigerator, key: 'equipment' },
@@ -62,16 +61,13 @@ export default function WelcomePage() {
   };
 
   return (
-    <div className="min-h-screen bg-surface flex flex-col items-center justify-center relative overflow-hidden">
-      {/* 3D Interactive Background */}
-      <ThreeBackground />
-
-      {/* Background pattern */}
-      <div className="absolute inset-0 dot-grid pointer-events-none opacity-40 z-0" />
+    <div className="min-h-screen bg-gradient-to-br from-white via-red-50/30 to-white flex flex-col items-center justify-center relative overflow-hidden">
+      {/* Lightweight ambient — no WebGL */}
+      <div className="absolute inset-0 dot-grid pointer-events-none opacity-30 z-0" />
 
       {/* Decorative gradient blobs */}
-      <div className="absolute top-[-120px] right-[-120px] w-[400px] h-[400px] rounded-full bg-primary/5 blur-3xl pointer-events-none" />
-      <div className="absolute bottom-[-100px] left-[-100px] w-[350px] h-[350px] rounded-full bg-primary-container/10 blur-3xl pointer-events-none" />
+      <div className="absolute top-[-120px] right-[-120px] w-[400px] h-[400px] rounded-full bg-brand-red/10 blur-3xl pointer-events-none" />
+      <div className="absolute bottom-[-100px] left-[-100px] w-[350px] h-[350px] rounded-full bg-brand-red/15 blur-3xl pointer-events-none" />
 
       {/* Language switcher */}
       <button

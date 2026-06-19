@@ -1,0 +1,14 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "https://mcgastrodeneme.vercel.app",
+      "localStorage": [
+        {
+          "name": "2mc-gastro-ui",
+          "value": "{\"state\":{\"cookieConsent\":true,\"notifications\":[],\"showPromoProducts\":true},\"version\":1}"
+        }
+      ]
+    }
+  ]
+}

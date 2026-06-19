@@ -28,20 +28,22 @@ export default function RevealOnScroll() {
       { rootMargin: '0px 0px -10% 0px', threshold: 0.08 }
     );
 
-    // Initial + post-mount scan. requestAnimationFrame ensures lazy route
-    // content has mounted before we query.
     const scan = () => {
       document.querySelectorAll('.reveal:not(.is-visible)').forEach((el) => io.observe(el));
     };
     const raf1 = requestAnimationFrame(() => {
       scan();
-      // Second pass for components that mount via Suspense after first frame.
       const raf2 = requestAnimationFrame(scan);
       (window as unknown as { __revealRaf?: number }).__revealRaf = raf2;
     });
 
+    // Catch lazy-mounted nodes (e.g. IntersectionObserver-gated sections)
+    const mo = new MutationObserver(() => scan());
+    mo.observe(document.body, { childList: true, subtree: true });
+
     return () => {
       io.disconnect();
+      mo.disconnect();
       cancelAnimationFrame(raf1);
       const w = window as unknown as { __revealRaf?: number };
       if (w.__revealRaf) cancelAnimationFrame(w.__revealRaf);

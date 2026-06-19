@@ -74,7 +74,7 @@ export default function NewProjectPage() {
 
         <div className="border-t border-outline-variant/20 pt-6">
           <h3 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">{t('projects.clientInfo')}</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 gap-6">
             <div>
               <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">{t('projects.clientName')}</label>
               <input name="clientName" value={form.clientName} onChange={handleChange} className="w-full bg-surface-container-highest border-none rounded-lg py-3 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />

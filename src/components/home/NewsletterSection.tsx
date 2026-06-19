@@ -26,7 +26,7 @@ export default function NewsletterSection() {
 
   return (
     <section className="relative w-full max-w-6xl mt-10 rounded-3xl overflow-hidden">
-      <div className="absolute inset-0 bg-gradient-to-br from-[#E85D26] via-[#C44A1A] to-[#0F2440]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#DC2626] via-[#991B1B] to-[#0F2440]" />
       <div className="absolute inset-0 opacity-20" style={{
         backgroundImage: 'radial-gradient(circle at 20% 20%, white 1px, transparent 1px), radial-gradient(circle at 80% 80%, white 1px, transparent 1px)',
         backgroundSize: '40px 40px',

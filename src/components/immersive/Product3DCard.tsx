@@ -23,7 +23,7 @@ export default function Product3DCard({
   eyebrow,
   title,
   description,
-  accent = '#E85D26',
+  accent = '#DC2626',
   cta,
   onCtaClick,
 }: Product3DCardProps) {
@@ -282,22 +282,22 @@ export default function Product3DCard({
   return (
     <div
       ref={wrapRef}
-      className="group relative bg-[#1a1a1f] border border-white/10 rounded-3xl overflow-hidden hover:border-white/25 transition-colors"
-      style={{ boxShadow: '0 30px 60px -24px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset' }}
+      className="group relative bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-brand-red/40 transition-colors"
+      style={{ boxShadow: '0 30px 60px -24px rgba(15,36,64,0.18), 0 0 0 1px rgba(220,38,38,0.04) inset' }}
     >
-      <div className="relative h-72 sm:h-80 bg-gradient-to-br from-[#2a2a30] via-[#1a1a1f] to-[#0f0f12] overflow-hidden">
+      <div className="relative h-72 sm:h-80 bg-gradient-to-br from-[#0F2440] via-[#1a2849] to-[#3a0f1a] overflow-hidden">
         <div ref={hostRef} className="absolute inset-0 cursor-grab active:cursor-grabbing" />
         {/* Loading shimmer */}
         {isLoading && mounted && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
             <div
-              className="w-8 h-8 rounded-full border-2 border-white/15"
+              className="w-8 h-8 rounded-full border-2 border-slate-200"
               style={{ borderTopColor: accent, animation: 'appspin 0.9s linear infinite' }}
             />
           </div>
         )}
         {/* Drag hint */}
-        <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-[9px] tracking-[0.3em] uppercase text-white/30 font-bold pointer-events-none">
+        <div className="absolute bottom-4 left-4 flex items-center gap-1.5 text-[9px] tracking-[0.3em] uppercase text-white/50 font-bold pointer-events-none">
           <span
             className="inline-block w-1 h-1 rounded-full"
             style={{ background: accent }}
@@ -309,19 +309,19 @@ export default function Product3DCard({
           <span className="text-[9px] font-bold tracking-[0.3em] uppercase" style={{ color: accent }}>
             {eyebrow}
           </span>
-          <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/25">3D</span>
+          <span className="text-[9px] font-bold tracking-[0.3em] uppercase text-white/40">3D</span>
         </div>
       </div>
 
       <div className="p-7">
-        <h3 className="font-display font-bold text-2xl text-white tracking-tight leading-tight mb-3">
+        <h3 className="font-display font-bold text-2xl text-[#0F2440] tracking-tight leading-tight mb-3">
           {title}
         </h3>
-        <p className="text-white/55 text-sm leading-relaxed mb-5">{description}</p>
+        <p className="text-slate-600 text-sm leading-relaxed mb-5">{description}</p>
         {cta && (
           <button
             onClick={onCtaClick}
-            className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] uppercase text-white/85 hover:text-white transition-colors"
+            className="inline-flex items-center gap-2 text-xs font-bold tracking-[0.18em] uppercase text-brand-red hover:text-[#B91C1C] transition-colors"
           >
             <span className="underline-magnetic">{cta}</span>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="transition-transform group-hover:translate-x-1">

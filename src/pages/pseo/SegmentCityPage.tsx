@@ -63,7 +63,7 @@ export default function SegmentCityPage({ locale = 'tr' }: Props) {
       />
 
       <section className="bg-gradient-to-br from-sky-50 via-white to-blue-50 border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-16">
+        <div className="max-w-7xl mx-auto px-4 py-16">
           <nav className="text-xs text-slate-500 mb-4">
             <Link to="/" className="hover:text-sky-600">Ana Sayfa</Link>
             {' / '}
@@ -101,7 +101,7 @@ export default function SegmentCityPage({ locale = 'tr' }: Props) {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-16">
+      <section className="max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-slate-900 mb-4">
           {ui.features} — {city.name} {segPlural}
         </h2>
@@ -125,7 +125,7 @@ export default function SegmentCityPage({ locale = 'tr' }: Props) {
       </section>
 
       <section className="bg-slate-50 border-y border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-16">
+        <div className="max-w-7xl mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-slate-900 mb-8">
             {ui.whyUs} — {city.name}
           </h2>

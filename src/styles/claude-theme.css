@@ -1,7 +1,7 @@
 /* ==========================================================================
    2MC × Claude — Global theme skin
    Applies warm cream editorial surface + brand palette (navy #1E3A5F,
-   gastro orange #E85D26) across all Layout-wrapped pages.
+   gastro orange #DC2626) across all Layout-wrapped pages.
    Scope: `.claude-theme` class (added to Layout root).
    Note: Playfair Display font is imported at the top of index.css (welcome-claude
    also imports it — cached by the browser).
@@ -17,10 +17,10 @@
   --ct-muted:      #546E7A;
   --ct-line:       #e8e6df;
   --ct-line-soft:  #f0eee6;
-  --ct-clay:       #E85D26;
-  --ct-clay-deep:  #C44A1A;
-  --ct-clay-soft:  #FF7A45;
-  --ct-clay-wash:  #fbe7dc;
+  --ct-clay:       #DC2626;
+  --ct-clay-deep:  #991B1B;
+  --ct-clay-soft:  #EF4444;
+  --ct-clay-wash:  #fee2e2;
   --ct-navy:       #1E3A5F;
   --ct-navy-deep:  #0F2440;
   --ct-deal:       #C62828;
@@ -239,12 +239,12 @@
 .claude-theme .ct-btn-clay {
   background: var(--ct-clay);
   color: #fff;
-  box-shadow: 0 1px 3px rgba(232,93,38,0.15);
+  box-shadow: 0 1px 3px rgba(220,38,38,0.15);
 }
 .claude-theme .ct-btn-clay:hover {
   background: var(--ct-clay-deep);
   transform: translateY(-1px);
-  box-shadow: 0 8px 24px -8px rgba(232,93,38,0.30);
+  box-shadow: 0 8px 24px -8px rgba(220,38,38,0.30);
 }
 .claude-theme .ct-btn-ghost {
   background: transparent;
@@ -331,7 +331,7 @@
 .claude-theme select:focus {
   outline: none;
   border-color: var(--ct-clay) !important;
-  box-shadow: 0 0 0 3px rgba(232,93,38,0.12) !important;
+  box-shadow: 0 0 0 3px rgba(220,38,38,0.12) !important;
 }
 
 /* Animated section bridge (reusable) */

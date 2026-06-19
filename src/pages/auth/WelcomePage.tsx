@@ -59,13 +59,13 @@ export default function WelcomePage() {
                  {[...Array(10)].map((_, i) => (
                    <div key={i} className="flex items-center gap-6">
                       <span className="text-xl font-display font-medium tracking-widest text-white uppercase">500+ MÜŞTERİ</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(232,93,38,1)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(220,38,38,1)]" />
                       <span className="text-xl font-display font-medium tracking-widest text-gray-400 uppercase">15+ YIL DENEYİM</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(232,93,38,1)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(220,38,38,1)]" />
                       <span className="text-xl font-display font-medium tracking-widest text-white uppercase">KÜRESEL TESLİMAT</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(232,93,38,1)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(220,38,38,1)]" />
                       <span className="text-xl font-display font-medium tracking-widest text-gray-400 uppercase">HACCP UYUMLU</span>
-                      <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(232,93,38,1)]" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(220,38,38,1)]" />
                    </div>
                  ))}
                </motion.div>

@@ -28,7 +28,7 @@ export default function SegmentIndexPage() {
       />
 
       <section className="bg-gradient-to-br from-sky-50 to-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-16">
+        <div className="max-w-7xl mx-auto px-4 py-16">
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
             {segment.namePlural} için Endüstriyel Mutfak
           </h1>
@@ -36,7 +36,7 @@ export default function SegmentIndexPage() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-16">
+      <section className="max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-2xl font-bold text-slate-900 mb-6">
           Hizmet Verdiğimiz Şehirler
         </h2>

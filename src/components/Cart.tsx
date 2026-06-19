@@ -561,7 +561,7 @@ export default function Cart() {
           </button>
           <button
             onClick={() => navigate('/checkout')}
-            className="bg-[#E85D26] hover:bg-[#C44A1A] text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
+            className="bg-[#DC2626] hover:bg-[#991B1B] text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
           >
             <Package size={16} /> {t('cart.checkout', 'Ödemeye Git')}
           </button>
@@ -581,7 +581,7 @@ export default function Cart() {
       </div>
 
       {/* Company Info Card */}
-      <div className="bg-gradient-to-r from-[#0f1740] to-[#1e3a8a] rounded-xl p-5 text-white relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#DC2626] to-[#B91C1C] rounded-xl p-5 text-white relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <img src="/logo-icon.png" alt="" className="absolute right-4 top-1/2 -translate-y-1/2 h-24 w-24 object-contain" />
         </div>
@@ -781,25 +781,25 @@ export default function Cart() {
           onClick={() => setPaywallOpen(false)}
         >
           <div
-            className="relative w-full max-w-md bg-gradient-to-br from-[#0f1740] via-[#1e3a8a] to-[#0f1740] rounded-3xl overflow-hidden shadow-2xl border border-amber-400/20"
+            className="relative w-full max-w-md bg-gradient-to-br from-white via-red-50 to-white rounded-3xl overflow-hidden shadow-2xl border border-brand-red/20"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Glow */}
             <div className="absolute -top-20 -right-20 w-60 h-60 rounded-full bg-amber-500/20 blur-3xl pointer-events-none" />
-            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#E85D26]/20 blur-3xl pointer-events-none" />
+            <div className="absolute -bottom-20 -left-20 w-60 h-60 rounded-full bg-[#DC2626]/20 blur-3xl pointer-events-none" />
 
             <button
               onClick={() => setPaywallOpen(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white/70 hover:text-white transition-colors z-10"
+              className="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 flex items-center justify-center text-slate-500 hover:text-slate-800 transition-colors z-10"
               aria-label={t('common.close')}
             >
               <X size={16} />
             </button>
 
-            <div className="relative p-8 text-white">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/15 border border-amber-400/30 mb-4">
-                <Sparkles size={12} className="text-amber-300" />
-                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-amber-200">
+            <div className="relative p-8 text-[#0F2440]">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-brand-red/10 border border-brand-red/30 mb-4">
+                <Sparkles size={12} className="text-brand-red" />
+                <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-brand-red">
                   {t('cart.proSubscription')}
                 </span>
               </div>
@@ -807,7 +807,7 @@ export default function Cart() {
               <h3 className="text-2xl font-black mb-2 leading-tight">
                 {t('cart.paywallTitle')}
               </h3>
-              <p className="text-white/60 text-sm mb-6 leading-relaxed">
+              <p className="text-slate-600 text-sm mb-6 leading-relaxed">
                 {t('cart.paywallDesc')}
               </p>
 
@@ -818,9 +818,9 @@ export default function Cart() {
                   t('cart.proFeat3'),
                   t('cart.proFeat4'),
                 ].map((f) => (
-                  <div key={f} className="flex items-start gap-3 text-sm text-white/85">
-                    <div className="mt-0.5 w-5 h-5 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center flex-shrink-0">
-                      <Check size={12} className="text-amber-300" />
+                  <div key={f} className="flex items-start gap-3 text-sm text-slate-700">
+                    <div className="mt-0.5 w-5 h-5 rounded-full bg-brand-red/10 border border-brand-red/30 flex items-center justify-center flex-shrink-0">
+                      <Check size={12} className="text-brand-red" />
                     </div>
                     <span>{f}</span>
                   </div>
@@ -828,9 +828,9 @@ export default function Cart() {
               </div>
 
               <div className="flex items-baseline gap-2 mb-6">
-                <span className="text-4xl font-black text-white">€29</span>
-                <span className="text-white/50 text-sm">/ {t('cart.month')}</span>
-                <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-amber-300/70">
+                <span className="text-4xl font-black text-[#0F2440]">€29</span>
+                <span className="text-slate-500 text-sm">/ {t('cart.month')}</span>
+                <span className="ml-auto text-[10px] font-mono uppercase tracking-wider text-brand-red/80">
                   {t('cart.cancelAnytime')}
                 </span>
               </div>
@@ -840,14 +840,14 @@ export default function Cart() {
                   setPaywallOpen(false);
                   navigate('/settings?tab=subscription');
                 }}
-                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-[#0f1740] font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/30"
+                className="w-full py-3.5 rounded-xl bg-brand-red hover:bg-[#B91C1C] text-white font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-lg shadow-brand-red/30"
               >
                 <Sparkles size={16} />
                 {t('cart.upgradePro')}
               </button>
               <button
                 onClick={() => setPaywallOpen(false)}
-                className="w-full mt-2 py-2.5 text-white/50 hover:text-white text-xs font-medium transition-colors"
+                className="w-full mt-2 py-2.5 text-slate-500 hover:text-slate-800 text-xs font-medium transition-colors"
               >
                 {t('cart.maybeLater')}
               </button>

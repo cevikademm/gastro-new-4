@@ -18,7 +18,7 @@ function renderBody(body: string) {
     if (block.startsWith('- ')) {
       const items = block.split('\n').map((l) => l.replace(/^-\s+/, ''));
       return (
-        <ul key={i} className="list-disc pl-6 my-4 space-y-1 text-slate-700">
+        <ul key={i} className="list-disc pl-6 my-4 space-y-1 text-[var(--c-ink-soft)]">
           {items.map((it, j) => (
             <li key={j}>{it}</li>
           ))}
@@ -26,7 +26,7 @@ function renderBody(body: string) {
       );
     }
     return (
-      <p key={i} className="my-4 text-slate-700 leading-relaxed">
+      <p key={i} className="my-4 text-[var(--c-ink-soft)] leading-relaxed">
         {block}
       </p>
     );
@@ -84,16 +84,16 @@ export default function BlogPostPage() {
       />
 
       <nav className="text-xs text-slate-500 mb-4">
-        <Link to="/" className="hover:text-[#E85D26]">Ana Sayfa</Link>
+        <Link to="/" className="hover:text-[#DC2626]">Ana Sayfa</Link>
         {' / '}
-        <Link to="/blog" className="hover:text-[#E85D26]">Blog</Link>
+        <Link to="/blog" className="hover:text-[#DC2626]">Blog</Link>
         {' / '}
-        <span className="text-slate-700">{post.category}</span>
+        <span className="text-[var(--c-ink-soft)]">{post.category}</span>
       </nav>
 
       <header className="mb-8">
         <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
-          <span className="px-2 py-0.5 bg-red-50 text-[#E85D26] rounded-full font-medium">
+          <span className="px-2 py-0.5 bg-red-50 text-[#DC2626] rounded-full font-medium">
             {post.category}
           </span>
           <span>·</span>
@@ -107,7 +107,7 @@ export default function BlogPostPage() {
             })}
           </time>
         </div>
-        <h1 className="text-4xl font-bold tracking-tight text-slate-900 leading-tight">
+        <h1 className="font-headline text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-[var(--c-ink)] leading-[1.05]">
           {post.title}
         </h1>
         <p className="mt-4 text-lg text-slate-600">{post.excerpt}</p>
@@ -117,7 +117,7 @@ export default function BlogPostPage() {
         <img src={post.image} alt={post.title} className="w-full h-full object-cover" />
       </div>
 
-      <div className="prose-slate max-w-none">{renderBody(post.body)}</div>
+      <div className="max-w-none text-[15px] leading-relaxed">{renderBody(post.body)}</div>
 
       {post.faq?.length ? (
         <section className="mt-12 pt-8 border-t border-slate-200">
@@ -126,7 +126,7 @@ export default function BlogPostPage() {
             {post.faq.map((f, i) => (
               <details key={i} className="bg-slate-50 rounded-xl p-4">
                 <summary className="font-semibold text-slate-900 cursor-pointer">{f.question}</summary>
-                <p className="mt-2 text-slate-700">{f.answer}</p>
+                <p className="mt-2 text-[var(--c-ink-soft)]">{f.answer}</p>
               </details>
             ))}
           </div>
@@ -136,7 +136,7 @@ export default function BlogPostPage() {
       <footer className="mt-12 pt-8 border-t border-slate-200">
         <div className="flex flex-wrap gap-2 mb-8">
           {post.tags.map((t) => (
-            <span key={t} className="text-xs px-3 py-1 bg-slate-100 text-slate-700 rounded-full">
+            <span key={t} className="text-xs px-3 py-1 bg-slate-100 text-[var(--c-ink-soft)] rounded-full">
               #{t}
             </span>
           ))}
@@ -150,9 +150,9 @@ export default function BlogPostPage() {
                 <Link
                   key={r.slug}
                   to={`/blog/${r.slug}`}
-                  className="block p-4 bg-white border border-slate-200 rounded-xl hover:border-[#E85D26] transition"
+                  className="block p-4 bg-white border border-slate-200 rounded-xl hover:border-[#DC2626] transition"
                 >
-                  <div className="text-xs text-[#E85D26] font-medium">{r.category}</div>
+                  <div className="text-xs text-[#DC2626] font-medium">{r.category}</div>
                   <div className="mt-1 font-semibold text-slate-900 line-clamp-2">{r.title}</div>
                 </Link>
               ))}

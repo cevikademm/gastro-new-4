@@ -44,18 +44,18 @@ export default function MagneticCursor() {
       }
       .magnetic-cursor-dot {
         width: 6px; height: 6px; border-radius: 50%;
-        background: #E85D26;
+        background: #DC2626;
         mix-blend-mode: difference;
       }
       .magnetic-cursor-ring {
         width: 38px; height: 38px; border-radius: 50%;
-        border: 1.5px solid rgba(232,93,38,0.7);
+        border: 1.5px solid rgba(220,38,38,0.7);
         transition: width .25s ease, height .25s ease, border-color .25s ease, background .25s ease;
       }
       .magnetic-cursor-ring.is-hover {
         width: 70px; height: 70px;
-        background: rgba(232,93,38,0.18);
-        border-color: rgba(232,93,38,0);
+        background: rgba(220,38,38,0.18);
+        border-color: rgba(220,38,38,0);
       }
     `;
     document.head.appendChild(style);
@@ -81,17 +81,26 @@ export default function MagneticCursor() {
     window.addEventListener('mouseover', over, { passive: true });
 
     let raf = 0;
+    let lastMx = mx, lastMy = my;
     const tick = () => {
+      // Skip frame when nothing moved and ring already settled.
+      const moved = mx !== lastMx || my !== lastMy;
+      const settled = Math.abs(mx - rx) < 0.1 && Math.abs(my - ry) < 0.1 && Math.abs(scaleTarget - scale) < 0.001;
+      if (moved || !settled) {
+        dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
+        rx += (mx - rx) * 0.18;
+        ry += (my - ry) * 0.18;
+        scale += (scaleTarget - scale) * 0.2;
+        ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%) scale(${scale})`;
+        lastMx = mx; lastMy = my;
+      }
       raf = requestAnimationFrame(tick);
-      // 1:1 dot
-      dot.style.transform = `translate3d(${mx}px, ${my}px, 0) translate(-50%, -50%)`;
-      // springy ring
-      rx += (mx - rx) * 0.18;
-      ry += (my - ry) * 0.18;
-      scale += (scaleTarget - scale) * 0.2;
-      ring.style.transform = `translate3d(${rx}px, ${ry}px, 0) translate(-50%, -50%) scale(${scale})`;
     };
-    tick();
+    const startTick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    const stopTick = () => { if (raf) { cancelAnimationFrame(raf); raf = 0; } };
+    startTick();
+    const onVis = () => { document.hidden ? stopTick() : startTick(); };
+    document.addEventListener('visibilitychange', onVis);
 
     const hide = () => {
       dot.style.opacity = '0';
@@ -105,7 +114,8 @@ export default function MagneticCursor() {
     window.addEventListener('mouseenter', show);
 
     return () => {
-      cancelAnimationFrame(raf);
+      stopTick();
+      document.removeEventListener('visibilitychange', onVis);
       window.removeEventListener('mousemove', move);
       window.removeEventListener('mouseover', over);
       window.removeEventListener('mouseleave', hide);

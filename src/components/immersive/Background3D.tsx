@@ -66,8 +66,8 @@ export default function Background3D() {
         <fog attach="fog" args={['#050505', 10, 50]} />
         <ambientLight intensity={0.5} />
         <directionalLight position={[10, 10, 10]} intensity={2} color="#ffffff" />
-        <directionalLight position={[-10, -10, -10]} intensity={4} color="#E85D26" />
-        <spotLight position={[0, 20, 0]} intensity={5} color="#E85D26" penumbra={1} angle={0.5} />
+        <directionalLight position={[-10, -10, -10]} intensity={4} color="#DC2626" />
+        <spotLight position={[0, 20, 0]} intensity={5} color="#DC2626" penumbra={1} angle={0.5} />
         
         <Environment preset="city" />
         

@@ -21,7 +21,7 @@ const CATEGORIES: CategoryItem[] = [
   { key: 'prep',        icon: Scissors,         iconColor: 'var(--c-navy)',       bgColor: 'rgba(30,58,95,0.10)',   href: '/products?category=prep' },
   { key: 'pizza',       icon: Pizza,            iconColor: 'var(--c-amber)',      bgColor: 'rgba(200,154,60,0.12)', href: '/products?category=pizza' },
   { key: 'selfservice', icon: UtensilsCrossed,  iconColor: 'var(--c-navy-light)', bgColor: 'rgba(45,90,142,0.10)', href: '/products?category=selfservice' },
-  { key: 'dynamic',     icon: Zap,              iconColor: 'var(--c-clay-soft)',  bgColor: 'rgba(255,122,69,0.10)', href: '/products?category=dynamic' },
+  { key: 'dynamic',     icon: Zap,              iconColor: 'var(--c-clay-soft)',  bgColor: 'rgba(239,68,68,0.10)', href: '/products?category=dynamic' },
   { key: 'icecream',    icon: IceCream,         iconColor: 'var(--c-navy-light)', bgColor: 'rgba(45,90,142,0.08)', href: '/products?category=icecream' },
   { key: 'coffee',      icon: Coffee,           iconColor: 'var(--c-amber)',      bgColor: 'rgba(200,154,60,0.10)', href: '/products?category=coffee' },
 ];
@@ -47,7 +47,7 @@ export function CategoryShowcase() {
             <Reveal key={key} delay={index * 0.06} y={20} duration={0.7}>
               <Link
                 to={href}
-                className="group relative flex flex-col items-center justify-center gap-4 rounded-2xl p-6 md:p-8 bg-[var(--c-bg)] border border-[var(--c-line)] hover:border-[var(--c-clay)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(232,93,38,0.18)] transition-all duration-300 aspect-square sm:aspect-auto sm:h-44"
+                className="group relative flex flex-col items-center justify-center gap-4 rounded-2xl p-6 md:p-8 bg-[var(--c-bg)] border border-[var(--c-line)] hover:border-[var(--c-clay)] hover:-translate-y-1 hover:shadow-[0_20px_40px_-12px_rgba(220,38,38,0.18)] transition-all duration-300 aspect-square sm:aspect-auto sm:h-44"
                 style={{ boxShadow: 'none' }}
               >
                 <ArrowUpRight

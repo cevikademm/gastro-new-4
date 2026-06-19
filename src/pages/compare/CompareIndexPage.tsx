@@ -20,7 +20,7 @@ export default function CompareIndexPage() {
       />
 
       <header className="mb-10">
-        <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 text-[#E85D26] rounded-full text-xs font-semibold mb-4">
+        <div className="inline-flex items-center gap-2 px-3 py-1 bg-red-50 text-[#DC2626] rounded-full text-xs font-semibold mb-4">
           <TrendingUp size={14} /> Pazar Karşılaştırması
         </div>
         <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900">
@@ -36,7 +36,7 @@ export default function CompareIndexPage() {
           <Link
             key={c.slug}
             to={`/compare/${c.slug}`}
-            className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-[#E85D26] hover:shadow-md transition group"
+            className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-[#DC2626] hover:shadow-md transition group"
           >
             <div className="text-xs text-slate-500 mb-1">vs</div>
             <h2 className="text-xl sm:text-2xl font-bold text-slate-900 mb-2">{c.name}</h2>
@@ -44,7 +44,7 @@ export default function CompareIndexPage() {
               {c.origin} · {c.monthlyTraffic} aylık ziyaret
             </div>
             <p className="text-sm text-slate-600 line-clamp-3">{c.positioning}</p>
-            <div className="mt-4 inline-flex items-center gap-1 text-sm text-[#E85D26] font-semibold group-hover:gap-2 transition-all">
+            <div className="mt-4 inline-flex items-center gap-1 text-sm text-[#DC2626] font-semibold group-hover:gap-2 transition-all">
               Karşılaştırmayı gör <ArrowRight size={14} />
             </div>
           </Link>

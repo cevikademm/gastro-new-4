@@ -151,7 +151,7 @@ export function HeroProductCarousel() {
         className="hpc-badge-pulse absolute z-20 -top-3 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full text-[11px] font-bold uppercase tracking-wider text-white inline-flex items-center gap-1.5 whitespace-nowrap"
         style={{
           background: 'linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%)',
-          boxShadow: '0 10px 24px rgba(232,93,38,0.4)',
+          boxShadow: '0 10px 24px rgba(220,38,38,0.4)',
         }}
       >
         🔥 En Çok Tercih Edilen Profesyonel Ekipmanlar
@@ -165,7 +165,7 @@ export function HeroProductCarousel() {
               className="relative flex-1 flex items-center justify-center overflow-hidden"
               style={{
                 aspectRatio: '1/1',
-                background: 'radial-gradient(circle at 30% 20%, rgba(232,93,38,0.06) 0%, transparent 60%), linear-gradient(180deg, #fafaf7 0%, #f0ede4 100%)',
+                background: 'radial-gradient(circle at 30% 20%, rgba(220,38,38,0.06) 0%, transparent 60%), linear-gradient(180deg, #fafaf7 0%, #f0ede4 100%)',
               }}
             >
               {p.chip && (
@@ -194,7 +194,7 @@ export function HeroProductCarousel() {
                 className="absolute bottom-4 right-4 px-4 py-2.5 rounded-2xl text-white"
                 style={{
                   background: 'linear-gradient(135deg, var(--c-clay) 0%, var(--c-clay-deep) 100%)',
-                  boxShadow: '0 10px 24px rgba(232,93,38,0.4)',
+                  boxShadow: '0 10px 24px rgba(220,38,38,0.4)',
                 }}
               >
                 <span className="block text-[11px] line-through opacity-75 leading-none">

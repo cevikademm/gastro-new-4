@@ -240,7 +240,7 @@ export default function RFQPage() {
           {myRequests.map((request) => {
             const REQUEST_COLORS: Record<typeof request.status, string> = {
               pending: 'bg-yellow-100 text-yellow-700',
-              quoted: 'bg-red-100 text-[#E85D26]',
+              quoted: 'bg-red-100 text-[#DC2626]',
               accepted: 'bg-green-100 text-green-700',
               rejected: 'bg-red-100 text-red-700',
               expired: 'bg-gray-100 text-gray-700',

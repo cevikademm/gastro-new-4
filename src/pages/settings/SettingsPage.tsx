@@ -146,8 +146,6 @@ export default function SettingsPage() {
                     <option value="sv">🇸🇪 Svenska</option>
                     <option value="da">🇩🇰 Dansk</option>
                     <option value="hu">🇭🇺 Magyar</option>
-                    <option value="fr">Français</option>
-                    <option value="nl">Nederlands</option>
                   </select>
                 </div>
                 <div>

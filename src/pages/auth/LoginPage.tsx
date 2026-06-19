@@ -73,7 +73,7 @@ export default function LoginPage() {
             transition={{ duration: 0.6 }}
             className="flex items-center gap-4 mb-10"
           >
-            <img src="/logo-2mc-gastro.jpeg" alt="2MC Gastro" className="h-14 object-contain" />
+            <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-14 w-auto max-w-[220px] object-contain" />
           </motion.div>
 
           {/* Top meta bar */}
@@ -85,7 +85,7 @@ export default function LoginPage() {
           >
             <span>// 2MC—GASTRO / LOGIN_001</span>
             <span className="hidden md:block">EST. 2010 · ANTALYA / TR</span>
-            <span className="text-[rgb(40,120,191)]">● ONLINE</span>
+            <span className="text-[rgb(220, 38, 38)]">● ONLINE</span>
           </motion.div>
 
           <motion.div
@@ -94,15 +94,15 @@ export default function LoginPage() {
             transition={{ duration: 0.8 }}
             className="flex-1"
           >
-            <div className="flex items-center gap-3 mb-5 text-[10px] font-mono uppercase tracking-[0.3em] text-[rgb(40,120,191)]">
-              <span className="w-8 h-px bg-[rgb(40,120,191)]/50" />
+            <div className="flex items-center gap-3 mb-5 text-[10px] font-mono uppercase tracking-[0.3em] text-[rgb(220, 38, 38)]">
+              <span className="w-8 h-px bg-[rgb(220, 38, 38)]/50" />
               <span>{t('welcome.heroEyebrow', 'Manifesto · Vol. I')}</span>
             </div>
 
             <h2 className="font-black leading-[0.92] tracking-[-0.03em] text-[8vw] md:text-[5rem] lg:text-[5.5rem] break-words">
               {t('welcome.headline', 'Endüstriyel Mutfağın')}
               <br />
-              <span className="italic text-[rgb(40,120,191)]">
+              <span className="italic text-[rgb(220, 38, 38)]">
                 {t('welcome.headlineSub', 'Komuta Merkezi')}.
               </span>
             </h2>
@@ -125,10 +125,10 @@ export default function LoginPage() {
                     className="group bg-white p-5 hover:bg-[#fafafa] transition-all"
                   >
                     <div className="flex items-start gap-4">
-                      <div className="text-[10px] font-mono text-[rgb(40,120,191)] pt-1">[{num}]</div>
+                      <div className="text-[10px] font-mono text-[rgb(220, 38, 38)] pt-1">[{num}]</div>
                       <div className="flex-1">
                         <div className="flex items-center gap-3 mb-2">
-                          <Icon size={18} className="text-[rgb(40,120,191)]" />
+                          <Icon size={18} className="text-[rgb(220, 38, 38)]" />
                           <h4 className="font-bold text-sm tracking-tight">{t(f.titleKey)}</h4>
                         </div>
                         <p className="text-xs leading-relaxed">{t(f.descKey)}</p>
@@ -154,7 +154,7 @@ export default function LoginPage() {
             className="w-full max-w-md bg-white border border-black/[0.06] p-8 lg:p-10"
           >
             <div className="mb-8">
-              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-[rgb(40,120,191)] mb-3">
+              <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-[rgb(220, 38, 38)] mb-3">
                 // ACCESS_TERMINAL
               </div>
               <h2 className="text-3xl font-black tracking-tight">
@@ -190,7 +190,7 @@ export default function LoginPage() {
                   placeholder={t('auth.emailPlaceholder')}
                   autoComplete="email"
                   required
-                  className="w-full bg-[#fafafa] border border-black/[0.08] py-3.5 px-4 text-sm focus:border-[rgb(40,120,191)] focus:ring-2 focus:ring-[rgb(40,120,191)]/20 outline-none transition-all"
+                  className="w-full bg-[#fafafa] border border-black/[0.08] py-3.5 px-4 text-sm focus:border-[rgb(220, 38, 38)] focus:ring-2 focus:ring-[rgb(220, 38, 38)]/20 outline-none transition-all"
                 />
               </div>
 
@@ -207,13 +207,13 @@ export default function LoginPage() {
                     placeholder={t('auth.passwordPlaceholder')}
                     autoComplete="current-password"
                     required
-                    className="w-full bg-[#fafafa] border border-black/[0.08] py-3.5 px-4 pr-12 text-sm focus:border-[rgb(40,120,191)] focus:ring-2 focus:ring-[rgb(40,120,191)]/20 outline-none transition-all"
+                    className="w-full bg-[#fafafa] border border-black/[0.08] py-3.5 px-4 pr-12 text-sm focus:border-[rgb(220, 38, 38)] focus:ring-2 focus:ring-[rgb(220, 38, 38)]/20 outline-none transition-all"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#777] hover:text-[rgb(40,120,191)] focus:text-[rgb(40,120,191)] focus:outline-none transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[#777] hover:text-[rgb(220, 38, 38)] focus:text-[rgb(220, 38, 38)] focus:outline-none transition-colors"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -222,10 +222,10 @@ export default function LoginPage() {
 
               <div className="flex items-center justify-between">
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" className="w-4 h-4 accent-[rgb(40,120,191)]" />
+                  <input type="checkbox" className="w-4 h-4 accent-[rgb(220, 38, 38)]" />
                   <span className="text-sm">{t('auth.rememberMe')}</span>
                 </label>
-                <Link to="/forgot-password" className="text-sm text-[rgb(40,120,191)] font-semibold hover:underline">
+                <Link to="/forgot-password" className="text-sm text-[rgb(220, 38, 38)] font-semibold hover:underline">
                   {t('auth.forgotPassword')}
                 </Link>
               </div>
@@ -233,7 +233,7 @@ export default function LoginPage() {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-[rgb(40,120,191)] hover:bg-[rgb(1,84,178)] text-white py-3.5 font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm focus:ring-2 focus:ring-[rgb(40,120,191)]/50 focus:outline-none"
+                className="w-full bg-[rgb(220, 38, 38)] hover:bg-[rgb(153, 27, 27)] text-white py-3.5 font-bold uppercase tracking-[0.1em] flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:cursor-not-allowed text-sm focus:ring-2 focus:ring-[rgb(220, 38, 38)]/50 focus:outline-none"
               >
                 {isLoading ? (
                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -260,7 +260,7 @@ export default function LoginPage() {
               onClick={() => loginWithGoogle().then(() => navigate('/dashboard'))}
               disabled={isLoading}
               aria-label="Sign in with Google"
-              className="w-full flex items-center justify-center gap-3 border border-black/[0.08] bg-[#f7f7f7] hover:bg-[#efefef] text-[#333] py-3.5 font-semibold uppercase tracking-[0.1em] text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-[rgb(40,120,191)]/50 focus:outline-none"
+              className="w-full flex items-center justify-center gap-3 border border-black/[0.08] bg-[#f7f7f7] hover:bg-[#efefef] text-[#333] py-3.5 font-semibold uppercase tracking-[0.1em] text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-[rgb(220, 38, 38)]/50 focus:outline-none"
             >
               <GoogleIcon />
               {t('auth.googleLogin')}
@@ -268,7 +268,7 @@ export default function LoginPage() {
 
             <p className="text-center mt-8 text-sm">
               {t('auth.noAccount')}{' '}
-              <Link to="/register" className="text-[rgb(40,120,191)] font-bold hover:underline">
+              <Link to="/register" className="text-[rgb(220, 38, 38)] font-bold hover:underline">
                 {t('auth.register')}
               </Link>
             </p>

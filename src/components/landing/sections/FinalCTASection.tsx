@@ -10,7 +10,7 @@ export function FinalCTASection() {
   return (
     <section
       className="relative overflow-hidden c-noise py-24 md:py-32"
-      style={{ background: 'linear-gradient(135deg, #E85D26 0%, #C44A1A 100%)' }}
+      style={{ background: 'linear-gradient(135deg, #DC2626 0%, #991B1B 100%)' }}
     >
       {/* Decorative halo */}
       <motion.div

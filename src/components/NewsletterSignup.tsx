@@ -54,13 +54,13 @@ export default function NewsletterSignup({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="email@sirketiniz.com"
-          className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-[#E85D26]"
+          className="flex-1 px-4 py-2.5 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:border-[#DC2626]"
           required
         />
         <button
           type="submit"
           disabled={loading}
-          className="px-5 py-2.5 bg-[#E85D26] text-white rounded-lg text-sm font-bold hover:bg-[#C44A1A] disabled:opacity-50 transition"
+          className="px-5 py-2.5 bg-[#DC2626] text-white rounded-lg text-sm font-bold hover:bg-[#991B1B] disabled:opacity-50 transition"
         >
           {loading ? '...' : 'Abone Ol'}
         </button>
@@ -71,7 +71,7 @@ export default function NewsletterSignup({
   return (
     <div className="bg-gradient-to-br from-red-50 to-rose-50 border border-red-200 rounded-2xl p-6">
       <div className="flex items-center gap-3 mb-2">
-        <div className="w-10 h-10 bg-[#E85D26] rounded-xl flex items-center justify-center">
+        <div className="w-10 h-10 bg-[#DC2626] rounded-xl flex items-center justify-center">
           <Mail className="text-white" size={20} />
         </div>
         <h3 className="text-lg font-bold text-slate-900">{title}</h3>
@@ -84,14 +84,14 @@ export default function NewsletterSignup({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           placeholder="email@sirketiniz.com"
-          className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-[#E85D26]"
+          className="w-full px-4 py-3 bg-white border border-slate-300 rounded-xl focus:outline-none focus:border-[#DC2626]"
           required
         />
         {error && <p className="text-xs text-red-600">{error}</p>}
         <button
           type="submit"
           disabled={loading}
-          className="w-full py-3 bg-[#E85D26] text-white rounded-xl font-bold hover:bg-[#C44A1A] disabled:opacity-50 transition"
+          className="w-full py-3 bg-[#DC2626] text-white rounded-xl font-bold hover:bg-[#991B1B] disabled:opacity-50 transition"
         >
           {loading ? 'Gönderiliyor…' : 'Abone Ol'}
         </button>

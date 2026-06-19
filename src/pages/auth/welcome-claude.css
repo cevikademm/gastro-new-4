@@ -7,7 +7,7 @@
 
 .welcome-claude {
   /* ── 2MC × Claude palette ─────────────────────────
-     Brand identity (navy #1E3A5F + gastro orange #E85D26)
+     Brand identity (navy #1E3A5F + gastro orange #DC2626)
      harmonized with Claude editorial warm surfaces.      */
   --c-bg:            #faf9f5;   /* bone / ivory */
   --c-bg-alt:        #f5f3eb;   /* card warm */
@@ -19,10 +19,10 @@
   --c-line-soft:     #f0eee6;
 
   /* Accent — brand gastro orange (clay family) */
-  --c-clay:          #E85D26;   /* brand accent */
-  --c-clay-deep:     #C44A1A;   /* brand accent-dark */
-  --c-clay-soft:     #FF7A45;   /* brand accent-light */
-  --c-clay-wash:     #fbe7dc;
+  --c-clay:          #DC2626;   /* brand accent */
+  --c-clay-deep:     #991B1B;   /* brand accent-dark */
+  --c-clay-soft:     #EF4444;   /* brand accent-light */
+  --c-clay-wash:     #fee2e2;
 
   /* Supporting — navy + warm neutrals */
   --c-navy:          #1E3A5F;
@@ -42,7 +42,7 @@
   --c-shadow-sm:     0 1px 2px rgba(15,36,64,0.04), 0 1px 3px rgba(15,36,64,0.05);
   --c-shadow-md:     0 4px 8px -2px rgba(15,36,64,0.06), 0 8px 16px -4px rgba(15,36,64,0.08);
   --c-shadow-lg:     0 12px 24px -8px rgba(15,36,64,0.10), 0 24px 48px -16px rgba(15,36,64,0.12);
-  --c-shadow-clay:   0 8px 24px -8px rgba(232,93,38,0.30), 0 16px 40px -16px rgba(232,93,38,0.18);
+  --c-shadow-clay:   0 8px 24px -8px rgba(220,38,38,0.30), 0 16px 40px -16px rgba(220,38,38,0.18);
   --c-shadow-navy:   0 8px 24px -8px rgba(30,58,95,0.28), 0 16px 40px -16px rgba(30,58,95,0.15);
 
   --c-serif: 'Playfair Display', 'Source Serif Pro', 'Georgia', serif;
@@ -361,7 +361,7 @@
 /* 2 — Grain wash: animated warm wash with moving noise */
 .c-bridge-grain {
   background:
-    radial-gradient(ellipse at 30% 50%, rgba(232,93,38,0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 30% 50%, rgba(220,38,38,0.08) 0%, transparent 60%),
     radial-gradient(ellipse at 70% 50%, rgba(30,58,95,0.08) 0%, transparent 60%),
     var(--c-bg-alt);
 }
@@ -960,7 +960,7 @@
   letter-spacing: 0.2em;
   padding: 6px 48px;
   text-transform: uppercase;
-  box-shadow: 0 6px 18px rgba(232, 93, 38, 0.35);
+  box-shadow: 0 6px 18px rgba(220, 38, 38, 0.35);
   z-index: 3;
 }
 .c-featured-eyebrow {

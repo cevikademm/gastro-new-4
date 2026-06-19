@@ -61,7 +61,7 @@ function KitchenEquipments() {
         />
       </Float>
       
-      <Sparkles count={200} scale={20} size={2} speed={0.3} opacity={0.3} color="#FF7A45" />
+      <Sparkles count={200} scale={20} size={2} speed={0.3} opacity={0.3} color="#EF4444" />
     </group>
   );
 }

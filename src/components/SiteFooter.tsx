@@ -151,13 +151,7 @@ export default function SiteFooter() {
           {/* Brand Info */}
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2 group">
-              <div className="w-8 h-8 bg-linear-to-br from-[var(--c-clay)] to-[var(--c-clay-deep)] rounded flex items-center justify-center text-white text-base font-extrabold shadow-md">
-                2
-              </div>
-              <div className="text-xl font-bold tracking-tight">
-                <span className="text-[var(--c-ink)]">mc</span>
-                <span className="serif italic text-[var(--c-clay)] ml-1">gastro</span>
-              </div>
+              <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-11 w-auto max-w-[180px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
             </Link>
             <p className="text-[14px] text-[var(--c-muted)] leading-relaxed">
               Profesyonel mutfak ekipmanları, 3D tasarım ve anahtar teslim projeler için Avrupa'nın güvenilir çözüm ortağı.
@@ -233,4 +227,3 @@ export default function SiteFooter() {
     </footer>
   );
 }
-

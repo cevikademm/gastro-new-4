@@ -23,6 +23,7 @@ const DesignStudio = lazy(() => import('./components/DesignStudio'));
 const BOM = lazy(() => import('./components/BOM'));
 const Cart = lazy(() => import('./components/Cart'));
 const ProjectListPage = lazy(() => import('./pages/projects/ProjectListPage'));
+const FavoritesPage = lazy(() => import('./pages/favorites/FavoritesPage'));
 const NewProjectPage = lazy(() => import('./pages/projects/NewProjectPage'));
 const ProjectDetailPage = lazy(() => import('./pages/projects/ProjectDetailPage'));
 const AddProductPage = lazy(() => import('./pages/products/AddProductPage'));
@@ -60,10 +61,10 @@ const ThreeDDesignPage = lazy(() => import('./pages/design/ThreeDDesignPage'));
 
 function RouteFallback() {
   return (
-    <div className="fixed inset-0 bg-[#0e0e10] flex flex-col items-center justify-center z-[9999]">
+    <div className="fixed inset-0 bg-white flex flex-col items-center justify-center z-[9999]">
       <div className="flex flex-col items-center gap-4">
-        <div className="w-12 h-12 border-t-2 border-brand-red rounded-full animate-spin shadow-[0_0_15px_rgba(232,93,38,0.2)]" />
-        <span className="text-xl font-display font-bold tracking-tighter text-white uppercase">2MC GASTRO</span>
+        <div className="w-12 h-12 border-t-2 border-brand-red rounded-full animate-spin shadow-[0_0_15px_rgba(220,38,38,0.35)]" />
+        <span className="text-xl font-display font-bold tracking-tighter text-[#0F2440] uppercase">2MC GASTRO</span>
       </div>
     </div>
   );
@@ -106,6 +107,7 @@ export default function App() {
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="kitchen-planner" element={<KitchenPlannerPage />} />
             <Route path="cart" element={<Cart />} />
+            <Route path="favorites" element={<FavoritesPage />} />
             <Route path="orders" element={<OrdersPage />} />
             <Route path="orders/:id" element={<OrderDetailPage />} />
 

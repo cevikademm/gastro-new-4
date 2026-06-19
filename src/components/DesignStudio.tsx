@@ -1326,7 +1326,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
               {selectedVertex !== null && (
                 <>
                   <div className="w-px h-4 bg-slate-200" />
-                  <div className="text-[#E85D26]">Nokta {selectedVertex + 1} seçili</div>
+                  <div className="text-[#DC2626]">Nokta {selectedVertex + 1} seçili</div>
                 </>
               )}
             </div>
@@ -2785,7 +2785,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                     <div className="p-2">
                       <p className="text-[11px] font-bold text-slate-700 leading-tight line-clamp-2">{item.name}</p>
                       <p className="text-[10px] text-slate-400 font-mono mt-0.5">{item.id}</p>
-                      {item.price > 0 && <p className="text-[10px] font-bold text-[#E85D26] mt-1">{formatPrice(item.price)}</p>}
+                      {item.price > 0 && <p className="text-[10px] font-bold text-[#DC2626] mt-1">{formatPrice(item.price)}</p>}
                     </div>
                   </button>
                 ))}

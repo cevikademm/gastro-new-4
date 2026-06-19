@@ -401,15 +401,15 @@ export default function FloorPlan3DViewer({
 
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-slate-900">
-        <Loader2 className="w-8 h-8 text-[#E85D26] animate-spin" />
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white via-red-50/40 to-white">
+        <Loader2 className="w-8 h-8 text-[#DC2626] animate-spin" />
       </div>
     );
   }
 
   if (!floorPlanData) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-400">
+      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-white via-red-50/40 to-white text-slate-500">
         <div className="text-center">
           <p className="mb-2">Zemin planı verisi bulunamadı</p>
           <p className="text-xs">Lütfen önce 2D editörde bir zemin planı oluşturun</p>
@@ -419,7 +419,7 @@ export default function FloorPlan3DViewer({
   }
 
   return (
-    <div className="relative w-full h-full bg-slate-900">
+    <div className="relative w-full h-full bg-gradient-to-br from-white via-red-50/40 to-white">
       {/* 3D Canvas */}
       <div
         ref={containerRef}

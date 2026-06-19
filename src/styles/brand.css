@@ -9,11 +9,11 @@
   --brand-primary-lighter: #3D7ABE; /* Light navy — focus states */
   --brand-primary-dark: #0F2440;   /* Very dark navy — pressed states */
 
-  /* ACCENT: Warm gastro orange — energy, action, kitchen warmth */
-  --brand-accent: #E85D26;         /* Gastro orange — CTAs, highlights, fire */
-  --brand-accent-light: #FF7A45;   /* Bright orange — hover states */
-  --brand-accent-lighter: #FFA566; /* Light orange — disabled/secondary states */
-  --brand-accent-dark: #C44A1A;    /* Dark orange — pressed states */
+  /* ACCENT: Brand red — signature 2MC red, energy, action */
+  --brand-accent: #DC2626;         /* Brand red — CTAs, highlights */
+  --brand-accent-light: #EF4444;   /* Bright red — hover states */
+  --brand-accent-lighter: #FCA5A5; /* Light red — disabled/secondary states */
+  --brand-accent-dark: #991B1B;    /* Dark red — pressed states */
 
   /* NEUTRALS: Stainless steel palette — clean, hygienic, professional */
   --steel-50: #F8FAFB;             /* Almost white — light surfaces */
@@ -165,14 +165,14 @@
 .btn-accent:hover {
   background-color: var(--button-accent-bg-hover);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(232, 93, 38, 0.15);
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
 }
 
 .btn-accent:active,
 .btn-accent.active {
   background-color: var(--button-accent-bg-active);
   transform: translateY(0);
-  box-shadow: 0 2px 4px rgba(232, 93, 38, 0.1);
+  box-shadow: 0 2px 4px rgba(220, 38, 38, 0.1);
 }
 
 .btn-accent:disabled,

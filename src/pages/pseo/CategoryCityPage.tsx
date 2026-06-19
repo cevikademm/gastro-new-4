@@ -40,19 +40,19 @@ export default function CategoryCityPage() {
         ]}
       />
 
-      <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-sky-900 text-white">
-        <div className="max-w-6xl mx-auto px-4 py-16">
-          <nav className="text-xs text-slate-300 mb-4">
-            <Link to="/" className="hover:text-white">Ana Sayfa</Link>
+      <section className="bg-gradient-to-br from-white via-red-50 to-white text-[#0F2440] border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 py-16">
+          <nav className="text-xs text-slate-500 mb-4">
+            <Link to="/" className="hover:text-brand-red">Ana Sayfa</Link>
             {' / '}
-            <Link to={`/kategori/${category.slug}`} className="hover:text-white">
+            <Link to={`/kategori/${category.slug}`} className="hover:text-brand-red">
               {category.namePlural}
             </Link>
             {' / '}
-            <span className="text-white">{city.name}</span>
+            <span className="text-[#0F2440]">{city.name}</span>
           </nav>
 
-          <div className="flex items-center gap-2 text-sm text-sky-300 font-semibold mb-3">
+          <div className="flex items-center gap-2 text-sm text-brand-red font-semibold mb-3">
             <MapPin size={16} />
             <span>{city.name}, {city.country}</span>
           </div>
@@ -60,10 +60,10 @@ export default function CategoryCityPage() {
           <h1 className="text-4xl md:text-5xl font-bold tracking-tight leading-tight max-w-3xl">
             {city.name}'da {category.namePlural}
           </h1>
-          <p className="mt-4 text-lg text-slate-200 max-w-2xl">{category.longDesc}</p>
+          <p className="mt-4 text-lg text-slate-600 max-w-2xl">{category.longDesc}</p>
 
           <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-xl">
-            <TrendingUp size={16} className="text-sky-300" />
+            <TrendingUp size={16} className="text-brand-red" />
             <span className="text-sm">
               Fiyat aralığı: <strong>€{category.priceFrom.toLocaleString('tr-TR')} - €{category.priceTo.toLocaleString('tr-TR')}</strong>
             </span>
@@ -72,13 +72,13 @@ export default function CategoryCityPage() {
           <div className="mt-8 flex flex-wrap gap-3">
             <Link
               to="/diamond"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-sky-500 text-white rounded-xl font-bold hover:bg-sky-400 transition"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-brand-red text-white rounded-xl font-bold hover:bg-brand-red transition"
             >
               Kataloğu İncele
             </Link>
             <Link
               to="/design"
-              className="inline-flex items-center gap-2 px-6 py-3 bg-white/10 backdrop-blur text-white border border-white/30 rounded-xl font-bold hover:bg-white/20 transition"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[#0F2440]/5 text-[#0F2440] border border-[#0F2440]/20 rounded-xl font-bold hover:bg-[#0F2440]/10 transition"
             >
               <Sparkles size={18} />
               3D Mutfakta Kullan
@@ -87,12 +87,12 @@ export default function CategoryCityPage() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-16">
+      <section className="max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-slate-900 mb-8">Öne Çıkan Özellikler</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {category.keyFeatures.map((f) => (
             <div key={f} className="flex items-start gap-3 p-5 bg-slate-50 rounded-xl">
-              <CheckCircle2 className="text-sky-600 shrink-0 mt-0.5" size={20} />
+              <CheckCircle2 className="text-brand-red shrink-0 mt-0.5" size={20} />
               <span className="font-medium text-slate-900">{f}</span>
             </div>
           ))}
@@ -100,7 +100,7 @@ export default function CategoryCityPage() {
       </section>
 
       <section className="bg-slate-50 border-y border-slate-200">
-        <div className="max-w-6xl mx-auto px-4 py-16">
+        <div className="max-w-7xl mx-auto px-4 py-16">
           <h2 className="text-3xl font-bold text-slate-900 mb-2">
             {city.name}'da Hangi Markalar?
           </h2>
@@ -118,13 +118,13 @@ export default function CategoryCityPage() {
         </div>
       </section>
 
-      <section className="max-w-6xl mx-auto px-4 py-16">
+      <section className="max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-3xl font-bold text-slate-900 mb-8">Kullanım Alanları</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
           {category.useCases.map((u) => (
             <div
               key={u}
-              className="p-4 bg-gradient-to-br from-sky-50 to-blue-50 border border-sky-200 rounded-xl text-center font-semibold text-slate-900"
+              className="p-4 bg-gradient-to-br from-red-50 to-red-50 border border-red-200 rounded-xl text-center font-semibold text-slate-900"
             >
               {u}
             </div>

@@ -59,7 +59,7 @@ const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
   },
   cafe: {
     id: 'cafe', icon: Coffee, label: 'Kafe / Bistro', desc: 'İçecek & hafif mönü',
-    from: 'from-rose-500', to: 'to-pink-600',
+    from: 'from-rose-500', to: 'to-brand-red',
     areaPerGuest: 0.30, powerPerM2: 120,
     avgTicket: 12, daysOpen: 30, turnover: 3.0,
     foodCostPct: 0.28, laborCostPct: 0.25, overheadPct: 0.18,
@@ -67,7 +67,7 @@ const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
   },
   hotel: {
     id: 'hotel', icon: Hotel, label: 'Otel', desc: 'Büyük ölçek · Kahvaltı & akşam',
-    from: 'from-indigo-500', to: 'to-purple-700',
+    from: 'from-indigo-500', to: 'to-brand-red',
     areaPerGuest: 0.55, powerPerM2: 220,
     avgTicket: 22, daysOpen: 30, turnover: 1.8,
     foodCostPct: 0.35, laborCostPct: 0.30, overheadPct: 0.12,
@@ -83,7 +83,7 @@ const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
   },
   bakery: {
     id: 'bakery', icon: ChefHat, label: 'Pastane / Fırın', desc: 'Hamur işi · Tatlı',
-    from: 'from-fuchsia-500', to: 'to-purple-600',
+    from: 'from-fuchsia-500', to: 'to-brand-red',
     areaPerGuest: 0.20, powerPerM2: 250,
     avgTicket: 8, daysOpen: 28, turnover: 3.5,
     foodCostPct: 0.30, laborCostPct: 0.26, overheadPct: 0.14,
@@ -200,8 +200,8 @@ export default function KitchenPlannerPage() {
       ring: 'ring-emerald-200', bgFrom: 'from-emerald-50', chipBg: 'bg-emerald-100', chipText: 'text-emerald-700',
     } :
     feasibility >= 50 ? {
-      label: 'Uygun', bar: 'bg-sky-500',
-      ring: 'ring-sky-200', bgFrom: 'from-sky-50', chipBg: 'bg-sky-100', chipText: 'text-sky-700',
+      label: 'Uygun', bar: 'bg-brand-red',
+      ring: 'ring-red-200', bgFrom: 'from-red-50', chipBg: 'bg-red-100', chipText: 'text-brand-red',
     } :
     feasibility >= 30 ? {
       label: 'Riskli', bar: 'bg-amber-500',
@@ -298,16 +298,16 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
   // RENDER
   // ──────────────────────────────────────────
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-sky-50/30 to-purple-50/30 pb-12">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50/30 to-red-50/30 pb-12">
       <div className="max-w-7xl mx-auto px-4 pt-8">
 
         {/* ═══════ HERO ═══════ */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-purple-100 to-sky-100 text-purple-700 text-xs font-bold mb-3">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-red-100 to-red-100 text-brand-red text-xs font-bold mb-3">
             <Sparkles size={14} /> AI DESTEKLİ · CANLI HESAPLAMA · RAKİPLERDE YOK
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Mutfağını <span className="bg-gradient-to-r from-sky-500 via-purple-500 to-pink-500 bg-clip-text text-transparent">AI ile Planla</span>
+            Mutfağını <span className="bg-gradient-to-r from-brand-red via-[#c01d1d] to-[#991B1B] bg-clip-text text-transparent">AI ile Planla</span>
           </h1>
           <p className="text-slate-500 mt-2 max-w-2xl mx-auto">
             İşletme tipini seç — alan, güç, gelir, geri dönüş ve ekipman bütçesi <span className="font-bold text-slate-700">anlık</span> hesaplansın.
@@ -333,7 +333,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                   whileTap={{ scale: 0.96 }}
                   className={`relative overflow-hidden rounded-2xl p-4 border-2 text-left transition-all ${
                     isActive
-                      ? 'border-transparent shadow-xl ring-2 ring-offset-2 ring-sky-400'
+                      ? 'border-transparent shadow-xl ring-2 ring-offset-2 ring-brand-red'
                       : 'border-slate-200 bg-white hover:border-slate-300 shadow-sm'
                   }`}
                 >
@@ -373,7 +373,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
             {/* Parametre sliders */}
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
               <div className="flex items-center gap-2 mb-4">
-                <Calculator size={18} className="text-sky-500" />
+                <Calculator size={18} className="text-brand-red" />
                 <h3 className="font-black text-slate-900">2 · Kapasite & Finansal Parametreler</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -527,7 +527,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                       style={{ width: `${profile.laborCostPct * 100}%` }} title="İşçilik">
                       {Math.round(profile.laborCostPct * 100)}% İşçilik
                     </div>
-                    <div className="bg-sky-400/90 flex items-center justify-center text-[10px] font-bold text-slate-900"
+                    <div className="bg-brand-red/90 flex items-center justify-center text-[10px] font-bold text-slate-900"
                       style={{ width: `${profile.overheadPct * 100}%` }} title="Gider">
                       {Math.round(profile.overheadPct * 100)}% Gider
                     </div>
@@ -544,14 +544,14 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
                 <div className="flex items-center gap-2">
-                  <Bot size={18} className="text-purple-500" />
+                  <Bot size={18} className="text-brand-red" />
                   <h3 className="font-black text-slate-900">3 · AI Ekipman Önerisi</h3>
                 </div>
                 <div className="flex gap-2">
                   <button
                     type="button"
                     onClick={openInDrawing}
-                    className="h-10 px-4 rounded-xl border-2 border-slate-200 hover:border-sky-400 text-slate-700 font-bold text-sm flex items-center gap-2 transition"
+                    className="h-10 px-4 rounded-xl border-2 border-slate-200 hover:border-brand-red text-slate-700 font-bold text-sm flex items-center gap-2 transition"
                   >
                     <Pencil size={14} /> Manuel Çizime Geç
                   </button>
@@ -559,7 +559,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                     type="button"
                     onClick={generatePlan}
                     disabled={loading}
-                    className="h-10 px-5 rounded-xl bg-gradient-to-r from-sky-500 to-purple-500 text-white font-bold text-sm flex items-center gap-2 shadow-lg disabled:opacity-60 hover:shadow-xl transition"
+                    className="h-10 px-5 rounded-xl bg-gradient-to-r from-brand-red to-brand-red text-white font-bold text-sm flex items-center gap-2 shadow-lg disabled:opacity-60 hover:shadow-xl transition"
                   >
                     {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                     {loading ? 'AI düşünüyor...' : 'Ekipman Listesi Üret'}
@@ -568,8 +568,8 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
               </div>
 
               {loading && (
-                <div className="p-4 bg-gradient-to-br from-purple-50 to-sky-50 rounded-xl border border-purple-100">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-purple-700 mb-2">
+                <div className="p-4 bg-gradient-to-br from-red-50 to-red-50 rounded-xl border border-red-100">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-brand-red mb-2">
                     <Bot size={16} className="animate-pulse" /> AI ekipman listesi hazırlıyor...
                   </div>
                   <pre className="text-xs text-slate-600 whitespace-pre-wrap max-h-40 overflow-y-auto font-mono">
@@ -751,7 +751,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                 <div className="absolute top-2 left-2 bg-white/90 backdrop-blur rounded-md px-2 py-1 text-[10px] font-bold text-slate-700 shadow-sm">
                   ÖLÇEK · TAHMİN
                 </div>
-                <div className="absolute bottom-2 right-2 bg-gradient-to-r from-sky-500 to-purple-500 text-white rounded-md px-2 py-1 text-[10px] font-black shadow-sm">
+                <div className="absolute bottom-2 right-2 bg-gradient-to-r from-brand-red to-brand-red text-white rounded-md px-2 py-1 text-[10px] font-black shadow-sm">
                   ~{profile.typicalItems} EKİPMAN
                 </div>
               </div>
@@ -759,7 +759,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
               <button
                 type="button"
                 onClick={openInDrawing}
-                className="mt-3 w-full py-3 rounded-xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-800 transition"
+                className="mt-3 w-full py-3 rounded-xl bg-brand-red text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#B91C1C] transition"
               >
                 <Pencil size={14} /> Manuel Çizime Aktar
                 <ChevronRight size={14} />
@@ -769,7 +769,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
             {/* Hızlı karşılaştırma / sektör notları */}
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
               <div className="flex items-center gap-2 mb-3">
-                <Info size={14} className="text-sky-500" />
+                <Info size={14} className="text-brand-red" />
                 <h4 className="font-black text-slate-900 text-sm">Sektör Karşılaştırma</h4>
               </div>
               <div className="space-y-2.5 text-xs">
@@ -846,9 +846,9 @@ function ParamSlider({
   tone?: 'sky' | 'amber' | 'violet' | 'emerald';
 }) {
   const toneMap: Record<string, string> = {
-    sky: 'accent-sky-500 text-sky-600',
+    sky: 'accent-brand-red text-brand-red',
     amber: 'accent-amber-500 text-amber-600',
-    violet: 'accent-violet-500 text-violet-600',
+    violet: 'accent-brand-red text-brand-red',
     emerald: 'accent-emerald-500 text-emerald-600',
   };
   return (

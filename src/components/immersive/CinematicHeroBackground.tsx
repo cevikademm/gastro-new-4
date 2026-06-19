@@ -55,8 +55,8 @@ export default function CinematicHeroBackground({
       uResolution: { value: new THREE.Vector2(w, h) },
       uColorA: { value: new THREE.Color('#0F2440') }, // navy ink
       uColorB: { value: new THREE.Color('#1E3A5F') }, // navy
-      uColorC: { value: new THREE.Color('#E85D26') }, // clay
-      uColorD: { value: new THREE.Color('#FF7A45') }, // clay-soft
+      uColorC: { value: new THREE.Color('#DC2626') }, // clay
+      uColorD: { value: new THREE.Color('#EF4444') }, // clay-soft
       uIntensity: { value: intensity },
     };
 
@@ -180,7 +180,7 @@ export default function CinematicHeroBackground({
     const rim = new THREE.DirectionalLight(0x6088ff, 1.1);
     rim.position.set(-7, -3, -5);
     scene.add(rim);
-    const accent = new THREE.PointLight(0xe85d26, 1.6, 26);
+    const accent = new THREE.PointLight(0xdc2626, 1.6, 26);
     accent.position.set(0, 0, 5);
     scene.add(accent);
 
@@ -256,7 +256,7 @@ export default function CinematicHeroBackground({
     addObject(new THREE.Mesh(new THREE.SphereGeometry(0.5, 32, 32), glass()), 4.0, -1.6, 0.4, 1.1);
     addObject(new THREE.Mesh(new THREE.SphereGeometry(0.4, 32, 32), glass()), -3.6, -1.9, -0.5, 0.9);
     addObject(new THREE.Mesh(new THREE.TorusGeometry(0.4, 0.13, 16, 64), physical(0xffd089, { metalness: 0.95, roughness: 0.18 })), 5.2, -0.2, -2.0, 1.0);
-    addObject(new THREE.Mesh(new THREE.IcosahedronGeometry(0.32, 0), physical(0xe85d26)), 2.6, 2.4, -3.0, 1.0);
+    addObject(new THREE.Mesh(new THREE.IcosahedronGeometry(0.32, 0), physical(0xdc2626)), 2.6, 2.4, -3.0, 1.0);
     addObject(new THREE.Mesh(new THREE.IcosahedronGeometry(0.30, 0), physical(0x6088ff, { metalness: 0.6 })), -2.4, -2.6, -2.6, 1.0);
 
     // ─── Particles dust ──────────────────────────────────────────────────────

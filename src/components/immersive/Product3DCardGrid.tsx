@@ -18,7 +18,7 @@ const CARDS = [
     title: 'Endüstriyel Mikser',
     description:
       'Planetary hareket, 20 lt çelik haznesi, üç hızlı kademe. Restoran ve pastane mutfakları için sınıfında en iyi.',
-    accent: '#E85D26',
+    accent: '#DC2626',
     cta: 'Mikseri İncele',
     href: '/combisteel',
   },
@@ -37,7 +37,7 @@ const CARDS = [
 export default function Product3DCardGrid() {
   const navigate = useNavigate();
   return (
-    <section className="relative z-10 py-32 bg-gradient-to-b from-[#0a0a0a] via-[#101013] to-[#0a0a0a] border-y border-white/5">
+    <section className="relative z-10 py-32 bg-gradient-to-b from-white via-red-50/30 to-white border-y border-slate-200">
       <div className="max-w-[90rem] mx-auto px-6">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-8 mb-14">
           <div className="max-w-2xl reveal">
@@ -45,15 +45,15 @@ export default function Product3DCardGrid() {
               <span className="w-6 h-px bg-brand-red" />
               ÜRÜN KARTLARI · 3D
             </span>
-            <h2 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-white tracking-tighter leading-[1.02]">
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-display font-bold text-[#0F2440] tracking-tighter leading-[1.02]">
               Sürükleyin, çevirin, <span className="text-brand-red italic font-light">inceleyin.</span>
             </h2>
-            <p className="text-white/55 mt-6 text-[15px] leading-relaxed">
+            <p className="text-slate-600 mt-6 text-[15px] leading-relaxed">
               Üç ekipmanı kendi kontrolünüzde döndürerek inceleyin. Materyaller, oranlar ve hatları gerçek bir
               showroom hissiyle hissedin.
             </p>
           </div>
-          <div className="text-[10px] tracking-[0.3em] uppercase text-white/35 font-bold reveal reveal-delay-2">
+          <div className="text-[10px] tracking-[0.3em] uppercase text-slate-500 font-bold reveal reveal-delay-2">
             <span className="text-brand-red">●</span> SÜRÜKLE / DOKUN · ÇİFT TIK = SIFIRLA
           </div>
         </div>
