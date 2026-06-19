@@ -284,15 +284,14 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
     navigate('/cart');
   };
 
-  // Manuel çizime hazır parametrelerle geç
+  // 3D Design bölümüne hazır parametrelerle geç
   const openInDrawing = () => {
-    // Proje localStorage'ına başlangıç parametreleri yazabiliriz; basit navigate yapıyoruz
     try {
       localStorage.setItem('kitchen-planner:handoff', JSON.stringify({
         business, guests, area: calc.area, room: roomDim, budget, at: Date.now(),
       }));
     } catch { /* yok say */ }
-    navigate('/manual');
+    navigate('/3d-design');
   };
 
   // ──────────────────────────────────────────

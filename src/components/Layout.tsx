@@ -13,8 +13,9 @@ import SiteFooter from './SiteFooter';
 import {
   Bell, Settings, LayoutDashboard, Ruler, Refrigerator, Home, Search,
   SlidersHorizontal, HelpCircle, BookOpen, PlusCircle,
-  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Diamond, Box, Package, Palette, Shield, Users
+  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Diamond, Box, Boxes, Package, Palette, Shield, Users
 } from 'lucide-react';
+// NOTE: "Manuel çizim" (legacy DesignStudio manualMode) kaldırıldı — kat planı artık 3D Design bölümünde.
 
 const ADMIN_ITEMS = [
   { path: '/admin/orders', labelKey: 'nav.adminOrders', fallback: 'Siparişler', icon: Shield, id: 'admin-orders' },
@@ -31,7 +32,7 @@ const NAV_ITEMS = [
 const SIDE_ITEMS = [
   { path: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard, id: 'dashboard' },
   // Projeler sekmesi gizlendi — gösterge panelinde (Dashboard) zaten erişilebilir durumda.
-  { path: '/manual', labelKey: 'nav.manual', icon: Pencil, id: 'manual' },
+  { path: '/3d-design', labelKey: '3D Design', icon: Boxes, id: '3d-design', raw: true },
   { path: '/diamond', labelKey: 'Diamond', icon: Diamond, id: 'diamond', raw: true },
   { path: '/combisteel', labelKey: 'CombiSteel', icon: Box, id: 'combisteel', raw: true },
   { path: '/kitchen-planner', labelKey: 'AI Mutfak Planlayıcı', icon: Refrigerator, id: 'kitchen-planner', raw: true },
@@ -64,9 +65,9 @@ export default function Layout() {
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 
   // Design sayfaları: tam ekran canvas gerektirir
-  const isDesign = ['/design', '/manual'].some(p =>
+  const isDesign = ['/design', '/3d-design'].some(p =>
     location.pathname === p || location.pathname.endsWith(p)
-  );
+  ) || /\/projects\/[^/]+\/design$/.test(location.pathname);
 
   const handleLogout = () => {
     logout();

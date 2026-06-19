@@ -3,10 +3,10 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProjectStore, type ProductItem } from '../../stores/projectStore';
 import {
-  ArrowLeft, Ruler, ClipboardList, Calendar, Building,
+  ArrowLeft, ClipboardList, Calendar, Building,
   Plus, Trash2, Package, Flame, Droplets, Refrigerator,
   Table, Microwave, Waves, Eye, Settings2, Users, FileText, Download, Loader2,
-  Box, Sparkles, CheckCircle2, X
+  Box, Boxes, Sparkles, CheckCircle2, X
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { meshyGenerate, getProduct3DModelsByKeys, productKeyFor, type Product3DModel } from '../../lib/meshyClient';
@@ -697,7 +697,7 @@ export default function ProjectDetailPage() {
             to={`/projects/${p.id}/design`}
             className="flex items-center gap-2 brushed-metal text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg hover:opacity-90 transition-all"
           >
-            <Ruler size={18} /> Kat Planı
+            <Boxes size={18} /> 3D Tasarım
           </Link>
         </div>
       </div>
@@ -872,7 +872,7 @@ export default function ProjectDetailPage() {
                 to={`/projects/${p.id}/design`}
                 className="flex items-center gap-2 brushed-metal text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg hover:opacity-90 transition-all"
               >
-                <Ruler size={16} /> Kat Planına Git
+                <Boxes size={16} /> 3D Tasarıma Git
               </Link>
             </div>
           </div>
@@ -893,7 +893,7 @@ export default function ProjectDetailPage() {
                   to={`/projects/${p.id}/design`}
                   className="inline-flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:opacity-90 transition-all"
                 >
-                  <Ruler size={18} /> Kat Planı
+                  <Boxes size={18} /> 3D Tasarım
                 </Link>
               </div>
             </div>

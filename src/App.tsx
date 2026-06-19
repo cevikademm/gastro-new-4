@@ -56,6 +56,7 @@ const CompareDetailPage = lazy(() => import('./pages/compare/CompareDetailPage')
 const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
 import LandingPage from './pages/landing/LandingPage';
 const FloorPlan3DPage = lazy(() => import('./pages/design/FloorPlan3DPage'));
+const ThreeDDesignPage = lazy(() => import('./pages/design/ThreeDDesignPage'));
 
 function RouteFallback() {
   return (
@@ -96,7 +97,7 @@ export default function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="design" element={<DesignStudio />} />
             <Route path="design/3d" element={<FloorPlan3DPage />} />
-            <Route path="manual" element={<DesignStudio manualMode />} />
+            <Route path="3d-design" element={<ThreeDDesignPage />} />
             <Route path="bom" element={<BOM />} />
             <Route path="bom/:id" element={<BOM />} />
             <Route path="diamond" element={<DiamondPage />} />
@@ -112,7 +113,7 @@ export default function App() {
             <Route path="projects/new" element={<NewProjectPage />} />
             <Route path="projects/:id" element={<ProjectDetailPage />} />
             <Route path="projects/:projectId/products/add" element={<AddProductPage />} />
-            <Route path="projects/:id/design" element={<DesignStudio />} />
+            <Route path="projects/:id/design" element={<ThreeDDesignPage />} />
             <Route path="projects/:id/design/3d" element={<FloorPlan3DPage />} />
             <Route path="settings" element={<SettingsPage />} />
             <Route path="support" element={<SupportPage />} />
