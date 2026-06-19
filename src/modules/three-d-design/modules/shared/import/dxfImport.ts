@@ -318,7 +318,7 @@ export function importDxfFile(
   dxfText: string,
   opts: DxfImportOptions = {},
 ): DxfImportResult {
-  let result: DxfImportResult = { wallIds: [], bounds: null, layersFound: [] };
+  let result: DxfImportResult = { wallIds: [], bounds: null, layersFound: [], skippedShort: 0 };
   storeUpdate((draft) => {
     result = importDxfIntoDraft(draft, dxfText, opts);
   });
