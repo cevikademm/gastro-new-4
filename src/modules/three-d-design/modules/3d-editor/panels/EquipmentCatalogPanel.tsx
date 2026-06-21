@@ -15,16 +15,17 @@
  *   - Esc disarms.
  */
 
-import { useEffect, useMemo, useState } from 'react';
-import { Search, Star, X, ChevronRight, ChevronLeft, Box } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Search, Star, X, ChevronRight, ChevronLeft, Box, Upload, Loader2 } from 'lucide-react';
 import {
   CATEGORIES,
   useEquipmentStore,
   type EquipmentItem,
 } from '../../../../../stores/equipmentStore';
 import { parseHeightMm } from '../loaders/productMesh';
-import { EQUIPMENT_CATALOG } from '../loaders/equipmentCatalog';
+import { EQUIPMENT_CATALOG, isCustomGlb } from '../loaders/equipmentCatalog';
 import { findGlbForProductId, listSystemGlbEquipment } from '../loaders/glbManifest';
+import { importGlbFile, GLB_ACCEPT_ATTR } from '../loaders/customGlb';
 import { useMeshStore } from '../../../../../stores/meshStore';
 import {
   getProduct3DModelsByKeys,
@@ -49,6 +50,8 @@ function hasGlb(
   item: EquipmentItem,
   meshRows: Record<string, { status?: string; glb_url?: string | null }>,
 ): boolean {
+  // 0) User-uploaded GLB (session registry)
+  if (isCustomGlb(item.id)) return true;
   // 1) Hardcoded EQUIPMENT_CATALOG (auto-built from public/models/ via manifest)
   if (HARDCODED_GLB_IDS.has(item.id)) return true;
   // 2) Manifest fallback — productId or stem-normalized filename match
@@ -78,6 +81,44 @@ export default function EquipmentCatalogPanel({
   const [glbOnly, setGlbOnly] = useState(false);
   const [meshFetched, setMeshFetched] = useState(false);
 
+  // ── User-uploaded GLBs (session) ───────────────────────────────────────────
+  const [uploaded, setUploaded] = useState<EquipmentItem[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const onPickGlb = async (file: File | null): Promise<void> => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const entry = await importGlbFile(file);
+      const item: EquipmentItem = {
+        id: entry.id,
+        name: entry.name,
+        desc: 'Yüklenen 3D model',
+        cat: '',
+        sub: '',
+        fam: '',
+        img: '',
+        brand: 'Yüklenen',
+        l: entry.dimensionsMm.width,
+        w: entry.dimensionsMm.depth,
+        h: String(entry.dimensionsMm.height),
+        kw: 0,
+        price: 0,
+        line: 'Custom GLB',
+      };
+      setUploaded((prev) => [item, ...prev]);
+      onArm(item); // arm immediately — user can click the floor to place it
+    } catch (err) {
+      console.error('[customGlb] import failed', err);
+      // eslint-disable-next-line no-alert
+      alert(`GLB yüklenemedi: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = '';
+    }
+  };
+
   // ── Manifest'teki standalone GLB'ler için sentetik ekipman item'ları ──
   // (productId'si olanlar zaten products.json'da, çift göstermiyoruz.)
   const systemGlbItems = useMemo<EquipmentItem[]>(() => {
@@ -101,10 +142,10 @@ export default function EquipmentCatalogPanel({
       }));
   }, []);
 
-  // Birleşik liste — sentetik GLB item'ları en üstte
+  // Birleşik liste — yüklenenler ve sentetik GLB item'ları en üstte
   const allItems = useMemo<EquipmentItem[]>(
-    () => [...systemGlbItems, ...productItems],
-    [systemGlbItems, productItems],
+    () => [...uploaded, ...systemGlbItems, ...productItems],
+    [uploaded, systemGlbItems, productItems],
   );
 
   // ── Supabase'deki MeshAI 3D modellerini bir kez bulk fetch et ───────
@@ -163,18 +204,39 @@ export default function EquipmentCatalogPanel({
         open ? 'w-80' : 'w-9',
       ].join(' ')}
     >
-      <header className="flex items-center justify-between px-3 h-10 border-b border-slate-200">
+      <header className="flex items-center gap-1 px-3 h-10 border-b border-slate-200">
         {open && (
           <h3 className="text-sm font-bold text-slate-800">Ekipman Kataloğu</h3>
         )}
-        <button
-          type="button"
-          onClick={onToggleOpen}
-          className="ml-auto p-1 text-slate-500 hover:text-slate-800"
-          aria-label={open ? 'Daralt' : 'Genişlet'}
-        >
-          {open ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-        </button>
+        <div className="ml-auto flex items-center gap-1">
+          {open && (
+            <button
+              type="button"
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              title="Kendi 3D modelini yükle (.glb / .gltf)"
+              className="inline-flex items-center gap-1 px-2 h-7 rounded border border-blue-200 bg-blue-50 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+            >
+              {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+              GLB Yükle
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={onToggleOpen}
+            className="p-1 text-slate-500 hover:text-slate-800"
+            aria-label={open ? 'Daralt' : 'Genişlet'}
+          >
+            {open ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+          </button>
+        </div>
+        <input
+          ref={fileRef}
+          type="file"
+          accept={GLB_ACCEPT_ATTR}
+          className="hidden"
+          onChange={(e) => void onPickGlb(e.target.files?.[0] ?? null)}
+        />
       </header>
 
       {open && (

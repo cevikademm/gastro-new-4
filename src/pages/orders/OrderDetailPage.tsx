@@ -4,6 +4,7 @@ import { useOrderStore } from '../../stores/orderStore';
 import {
   Package, ArrowLeft, Clock, CheckCircle, Truck, PackageCheck, XCircle, Euro
 } from 'lucide-react';
+import { IMAGE_PROXY_URL } from '../../lib/assets';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
   pending: { label: 'Beklemede', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', icon: Clock },
@@ -12,8 +13,6 @@ const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; 
   delivered: { label: 'Teslim Edildi', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: PackageCheck },
   cancelled: { label: 'İptal Edildi', color: 'text-red-700', bg: 'bg-red-50 border-red-200', icon: XCircle },
 };
-
-const IMAGE_PROXY = 'https://ohcytmzyjvpfsqejujzs.supabase.co/functions/v1/image-proxy';
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -44,7 +43,7 @@ export default function OrderDetailPage() {
     new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   const proxyImg = (url: string) =>
-    url?.startsWith('http') ? `${IMAGE_PROXY}?url=${encodeURIComponent(url)}` : url;
+    url?.startsWith('http') ? `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}` : url;
 
   return (
     <div className="max-w-5xl mx-auto w-full space-y-6">

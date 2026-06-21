@@ -127,6 +127,10 @@ export class InteractionController {
       this.dragSelectedTo(e);
       return;
     }
+    // While ANY mouse button is held the user is orbiting/panning the camera.
+    // Skip the per-move hover raycast (it traverses every wall + GLB mesh and
+    // was the main cause of sluggish, stuttery rotation).
+    if (e.buttons !== 0) return;
     this.updateHover();
   }
 

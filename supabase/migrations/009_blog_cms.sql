@@ -31,7 +31,7 @@ create policy "public read published" on public.blog_posts
 drop policy if exists "admin all" on public.blog_posts;
 create policy "admin all" on public.blog_posts
   for all using (
-    exists (select 1 from public.user_profiles p where p.id = auth.uid() and p.role = 'admin')
+    public.is_admin()
   );
 
 create or replace function public.touch_blog_updated_at()

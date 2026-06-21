@@ -61,12 +61,43 @@ const byId = new Map<string, CatalogEntry>(
   EQUIPMENT_CATALOG.map((e) => [e.id, e]),
 );
 
+// ── Runtime registry for user-uploaded GLBs ──────────────────────────────────
+// Customers can upload their own .glb at runtime; it is registered here (keyed
+// by a generated id) and resolves through the SAME pipeline as catalog GLBs.
+// Session-scoped: the blob URL lives until reload (cloud persistence is a
+// separate follow-up).
+const customRegistry = new Map<string, CatalogEntry>();
+
+/** Register a user-uploaded GLB so {@link getCatalogEntry} can resolve it. */
+export function registerCustomGlb(entry: CatalogEntry): void {
+  customRegistry.set(entry.id, entry);
+}
+
+/** Remove an uploaded GLB from the registry (also revokes its blob URL). */
+export function unregisterCustomGlb(id: string): void {
+  const entry = customRegistry.get(id);
+  if (entry && entry.glbUrl.startsWith('blob:')) URL.revokeObjectURL(entry.glbUrl);
+  customRegistry.delete(id);
+}
+
+/** All currently-registered user-uploaded GLBs. */
+export function listCustomGlbs(): CatalogEntry[] {
+  return [...customRegistry.values()];
+}
+
+/** True if `id` is a user-uploaded GLB. */
+export function isCustomGlb(id: string): boolean {
+  return customRegistry.has(id);
+}
+
 /**
- * Looks up a CatalogEntry by id. Falls back to the GLB manifest's
- * product-id mapping (so any product whose filename matches a `public/models/`
- * file resolves to a real GLB).
+ * Looks up a CatalogEntry by id. Checks user-uploaded GLBs first, then the
+ * hardcoded catalog, then falls back to the GLB manifest's product-id mapping
+ * (so any product whose filename matches a `public/models/` file resolves).
  */
 export function getCatalogEntry(id: string): CatalogEntry | undefined {
+  const custom = customRegistry.get(id);
+  if (custom) return custom;
   const direct = byId.get(id);
   if (direct) return direct;
   const fromManifest = findGlbForProductId(id);

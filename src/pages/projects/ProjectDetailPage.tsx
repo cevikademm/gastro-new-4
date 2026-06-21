@@ -12,6 +12,7 @@ import { jsPDF } from 'jspdf';
 import { meshyGenerate, getProduct3DModelsByKeys, productKeyFor, type Product3DModel } from '../../lib/meshyClient';
 import { useMeshStore } from '../../stores/meshStore';
 import SafeModelViewer from '../../components/SafeModelViewer';
+import { IMAGE_PROXY_URL, brandAsset } from '../../lib/assets';
 
 // Kat planından placedItems okuma
 interface FloorPlanItem {
@@ -89,12 +90,10 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
     vat: 'DE123456789',
   };
 
-  const IMAGE_PROXY = 'https://ohcytmzyjvpfsqejujzs.supabase.co/functions/v1/image-proxy';
-
   async function loadImgBase64(src: string): Promise<string | null> {
     if (!src) return null;
     const url = src.startsWith('http') ? src : window.location.origin + (src.startsWith('/') ? '' : '/') + src;
-    const fetchUrl = url.startsWith(window.location.origin) ? url : `${IMAGE_PROXY}?url=${encodeURIComponent(url)}`;
+    const fetchUrl = url.startsWith(window.location.origin) ? url : `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}`;
     try {
       const res = await fetch(fetchUrl);
       if (!res.ok) throw new Error();
@@ -120,7 +119,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
       const [logoFull, logoIcon, logoHolo] = await Promise.all([
         loadImgBase64('/logo-werbung.png'),
         loadImgBase64('/logo-icon.png'),
-        loadImgBase64('https://ohcytmzyjvpfsqejujzs.supabase.co/storage/v1/object/public/2mcwerbung/logo4.png'),
+        loadImgBase64(brandAsset('logo4.png')),
       ]);
 
       // Hologram watermark
@@ -334,7 +333,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         {/* Hologram watermark — new circular logo */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
           <img
-            src="https://ohcytmzyjvpfsqejujzs.supabase.co/storage/v1/object/public/2mcwerbung/logo4.png"
+            src={brandAsset('logo4.png')}
             alt=""
             onError={(e) => { (e.target as HTMLImageElement).src = '/logo-icon.png'; }}
             className="w-80 h-80 object-contain select-none"

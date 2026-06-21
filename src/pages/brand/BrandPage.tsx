@@ -1,6 +1,7 @@
 import type React from 'react';
 import { Check, X, Copy, Palette, Type, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { useState } from 'react';
+import { brandAsset } from '../../lib/assets';
 
 type Swatch = {
   name: string;
@@ -165,7 +166,7 @@ export default function BrandPage() {
           <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest overflow-hidden">
             <div className="aspect-[16/9] flex items-center justify-center bg-surface p-8">
               <img
-                src="https://ohcytmzyjvpfsqejujzs.supabase.co/storage/v1/object/public/2mcwerbung/logo4.png"
+                src={brandAsset('logo4.png')}
                 alt="2MC Gastro ana logo"
                 className="max-h-full max-w-full object-contain"
               />
@@ -182,7 +183,7 @@ export default function BrandPage() {
           <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest overflow-hidden">
             <div className="aspect-[16/9] flex items-center justify-center bg-tertiary p-8">
               <img
-                src="https://ohcytmzyjvpfsqejujzs.supabase.co/storage/v1/object/public/2mcwerbung/logo_werbung.png"
+                src={brandAsset('logo_werbung.png')}
                 alt="2MC Gastro werbung varyantı"
                 className="max-h-full max-w-full object-contain"
               />

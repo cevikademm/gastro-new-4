@@ -140,7 +140,9 @@ export class SceneManager {
     // ── Controls (orbit) ─────────────────────────────────────────────
     this.controls = new OrbitControls(this.camera, this.renderer.domElement);
     this.controls.enableDamping = true;
-    this.controls.dampingFactor = 0.08;
+    // Higher damping factor = snappier catch-up / less floaty glide (more
+    // responsive feel without losing smoothness).
+    this.controls.dampingFactor = 0.15;
     this.controls.target.set(0, 0, 0);
     // Üstten bakış ↔ neredeyse yatay arası: tam yatay görünüme yaklaşmaya izin
     // ver ama zeminin altına sarkmasın. Top-down (90° from horizon) serbest.
@@ -148,7 +150,7 @@ export class SceneManager {
     this.controls.maxPolarAngle = Math.PI * 0.499;
     this.controls.minDistance = 0.5;
     this.controls.maxDistance = 200;
-    this.controls.rotateSpeed = 1.0;
+    this.controls.rotateSpeed = 1.35;
     this.controls.zoomSpeed = 1.2;
     this.controls.panSpeed = 1.2;
     this.controls.screenSpacePanning = true;

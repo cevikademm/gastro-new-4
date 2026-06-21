@@ -12,6 +12,7 @@ import {
 import { jsPDF } from 'jspdf';
 import { useAuthStore } from '../stores/authStore';
 import { EmptyState, EmptyCartIllustration } from './illustrations/EmptyState';
+import { IMAGE_PROXY_URL, brandAsset } from '../lib/assets';
 
 const COMPANY_INFO = {
   name: '2MC Werbung & Gastro GmbH',
@@ -23,16 +24,13 @@ const COMPANY_INFO = {
   tagline: 'Alles rund um deine Marke · Gastronomi Çözümleri',
 };
 
-// Image proxy for cross-origin images (S3 etc.)
-const IMAGE_PROXY = 'https://ohcytmzyjvpfsqejujzs.supabase.co/functions/v1/image-proxy';
-
 // Load an image URL → base64 dataURL (routes cross-origin through proxy)
 async function loadImageAsDataURL(src: string): Promise<string | null> {
   if (!src) return null;
   const url = src.startsWith('http') ? src : window.location.origin + (src.startsWith('/') ? '' : '/') + src;
 
   // For cross-origin URLs, use proxy to avoid CORS issues
-  const fetchUrl = url.startsWith(window.location.origin) ? url : `${IMAGE_PROXY}?url=${encodeURIComponent(url)}`;
+  const fetchUrl = url.startsWith(window.location.origin) ? url : `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}`;
 
   try {
     const res = await fetch(fetchUrl);
@@ -169,7 +167,7 @@ export default function Cart() {
       const [logoFull, logoIcon, logoHolo] = await Promise.all([
         loadImageAsDataURL('/logo-werbung.png'),
         loadImageAsDataURL('/logo-icon.png'),
-        loadImageAsDataURL('https://ohcytmzyjvpfsqejujzs.supabase.co/storage/v1/object/public/2mcwerbung/logo4.png'),
+        loadImageAsDataURL(brandAsset('logo4.png')),
       ]);
 
       // ── Helper: draw hologram watermark on current page ──

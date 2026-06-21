@@ -5,11 +5,34 @@
  * Usage: node scripts/combisteel-sync.mjs
  */
 
+import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
+
+// --- load .env (so creds are NOT hardcoded; target = active Supabase project) ---
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const env = {};
+try {
+  for (const line of readFileSync(join(__dirname, '..', '.env'), 'utf8').split(/\r?\n/)) {
+    const m = line.match(/^\s*([A-Z0-9_]+)\s*=\s*(.*)\s*$/i);
+    if (!m) continue;
+    let v = m[2];
+    if ((v.startsWith('"') && v.endsWith('"')) || (v.startsWith("'") && v.endsWith("'"))) v = v.slice(1, -1);
+    env[m[1]] = v;
+  }
+} catch { /* fall back to process.env */ }
+const cfg = (k) => env[k] || process.env[k] || '';
+
 const COMBISTEEL_API = 'https://pim.combisteel.com/pimcore-graphql-webservices/Combisteel';
-const COMBISTEEL_KEY = 'feed23626ace249b399514a2fc4396187b27';
-const SUPABASE_URL = 'https://ohcytmzyjvpfsqejujzs.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1ubGdic2ZhcnVicHZrbXFxdmZmIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTQ3Mjg0OSwiZXhwIjoyMDkxMDQ4ODQ5fQ.XuB_yALCqH09es_z3uVVTRplXxHvMemko95TQtQYzeQ';
+const COMBISTEEL_KEY = cfg('COMBISTEEL_KEY') || 'feed23626ace249b399514a2fc4396187b27';
+const SUPABASE_URL = (cfg('SUPABASE_URL') || cfg('VITE_SUPABASE_URL')).replace(/\/$/, '');
+const SUPABASE_KEY = cfg('SUPABASE_SERVICE_ROLE_KEY');
 const PIM_BASE = 'https://pim.combisteel.com';
+
+if (!SUPABASE_URL || !SUPABASE_KEY) {
+  console.error('Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY in .env');
+  process.exit(1);
+}
 
 // Step 1: Create table if not exists
 async function createTable() {

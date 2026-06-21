@@ -19,6 +19,7 @@ const INFO_LINKS = [
 
 const LEGAL_LINKS = [
   { to: '/help',          label: 'Yardım Merkezi' },
+  { to: '/developers/api', label: 'Geliştiriciler / API' },
   { to: '/privacy',       label: 'Gizlilik' },
   { to: '/terms',         label: 'Kullanım Koşulları' },
   { to: '/sitemap',       label: 'Site Haritası' },

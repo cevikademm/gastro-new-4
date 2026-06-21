@@ -25,7 +25,7 @@ const json = (data: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-type TemplateName = "order-confirmation" | "welcome" | "order-shipped" | "approval-granted" | "lead-followup" | "quote-ready" | "lead-magnet";
+type TemplateName = "order-confirmation" | "welcome" | "order-shipped" | "approval-granted" | "lead-followup" | "quote-ready" | "lead-magnet" | "cold-outreach";
 
 interface Payload {
   template: TemplateName;
@@ -166,6 +166,22 @@ function render(template: TemplateName, data: Record<string, unknown>): { subjec
           <a href="${downloadUrl}" style="display:inline-block;background:${brand.primary};color:#fff;padding:12px 24px;border-radius:12px;font-weight:700;text-decoration:none">PDF'i indir</a>
           <p style="margin:24px 0 0;font-size:14px;color:${brand.onSurfaceVariant}">Rehberin içeriği hakkında sorularınız için bu e-postayı yanıtlayabilirsiniz.</p>`,
           `${title} indirme bağlantınız`,
+        ),
+      };
+    }
+    case "cold-outreach": {
+      // Müşteri Bulma — soğuk satış maili. Konu + gövde frontend'den gelir
+      // ({{isim}} gibi placeholder'lar orada değiştirilmiş olur). bodyHtml HTML,
+      // yoksa düz metin (satır sonları <br/> olur) kabul edilir.
+      const subject = String(data.subject || "2MC Gastro");
+      const bodyHtml = data.bodyHtml
+        ? String(data.bodyHtml)
+        : String(data.body || "").replace(/\n/g, "<br/>");
+      return {
+        subject,
+        html: shell(
+          `<div style="font-size:15px;line-height:1.6;color:${brand.onSurface}">${bodyHtml}</div>`,
+          subject,
         ),
       };
     }

@@ -20,6 +20,7 @@ import {
 const ADMIN_ITEMS = [
   { path: '/admin/orders', labelKey: 'nav.adminOrders', fallback: 'Siparişler', icon: Shield, id: 'admin-orders' },
   { path: '/admin/users',  labelKey: 'nav.adminUsers',  fallback: 'Kullanıcılar', icon: Users, id: 'admin-users' },
+  { path: '/admin/customer-finder', labelKey: 'nav.customerFinder', fallback: 'Müşteri Bulma', icon: Search, id: 'admin-customer-finder' },
 ];
 
 const NAV_ITEMS = [

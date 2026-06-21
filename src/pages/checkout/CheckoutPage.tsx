@@ -1,13 +1,19 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
+import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import type { StripeElementsOptions } from '@stripe/stripe-js';
 import {
   Check, ChevronRight, ChevronLeft, MapPin, Truck, CreditCard,
   Package, ShieldCheck, Mail, Phone, User, Building2, Clock,
+  Loader2, AlertCircle, Lock,
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCartStore } from '../../stores/cartStore';
 import { useAuthStore } from '../../stores/authStore';
+import { useOrderStore, type OrderItem } from '../../stores/orderStore';
+import { stripePromise } from '../../lib/stripe';
+import { createPaymentIntent } from '../../lib/payment';
 
 type Step = 1 | 2 | 3;
 
@@ -36,22 +42,100 @@ const SHIPPING_OPTIONS: ShippingOption[] = [
   { id: 'pallet',   label: 'Palet Kurulum',   eta: '5-7 iş günü', price: 199 },
 ];
 
+/* ─── Stripe Payment Element form (mounted with a live clientSecret) ─── */
+function PaymentForm({ amount, onPaid }: { amount: number; onPaid: () => void }) {
+  const { t } = useTranslation();
+  const stripe = useStripe();
+  const elements = useElements();
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stripe || !elements) return;
+
+    setSubmitting(true);
+    setError('');
+
+    // redirect: 'if_required' → card/SEPA resolve inline; redirect-based
+    // methods (Klarna, iDEAL …) bounce to return_url, then the webhook
+    // finalizes the order server-side.
+    const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+      elements,
+      confirmParams: {
+        return_url: `${window.location.origin}/orders?payment=success`,
+      },
+      redirect: 'if_required',
+    });
+
+    if (stripeError) {
+      setError(stripeError.message || t('checkout.payFailed', 'Ödeme tamamlanamadı. Lütfen tekrar deneyin.'));
+      setSubmitting(false);
+      return;
+    }
+
+    if (paymentIntent && (paymentIntent.status === 'succeeded' || paymentIntent.status === 'processing')) {
+      onPaid();
+      return;
+    }
+
+    // Requires further action handled by Stripe (e.g. redirect already issued)
+    setSubmitting(false);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-5">
+      <PaymentElement options={{ layout: 'tabs' }} />
+
+      {error && (
+        <div className="flex items-start gap-2 bg-red-50 text-red-700 px-4 py-3 rounded-xl text-sm">
+          <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+          <span>{error}</span>
+        </div>
+      )}
+
+      <div className="flex items-center gap-2 text-xs text-slate-500">
+        <ShieldCheck size={16} className="text-emerald-500" />
+        {t('checkout.secureNote', 'Stripe ile 256-bit SSL şifreli, PCI-DSS uyumlu ödeme')}
+      </div>
+
+      <button
+        type="submit"
+        disabled={!stripe || submitting}
+        className="w-full h-12 rounded-xl bg-emerald-500 text-white font-bold flex items-center justify-center gap-2 disabled:opacity-60 hover:bg-emerald-600 transition"
+      >
+        {submitting
+          ? <><Loader2 size={18} className="animate-spin" /> {t('checkout.processing', 'İşleniyor...')}</>
+          : <><Lock size={16} /> {`${t('checkout.payNow', 'Güvenli Öde')} · ${amount.toLocaleString('tr-TR')} €`}</>}
+      </button>
+    </form>
+  );
+}
+
 export default function CheckoutPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const items = useCartStore((s) => s.items);
   const getTotal = useCartStore((s) => s.getTotalPrice);
+  const getTotalItems = useCartStore((s) => s.getTotalItems);
   const clearCart = useCartStore((s) => s.clearCart);
   const user = useAuthStore((s) => s.user);
+  const createOrder = useOrderStore((s) => s.createOrder);
 
   const [step, setStep] = useState<Step>(1);
   const [contact, setContact] = useState<ContactForm>({
     email: user?.email || '', firstName: '', lastName: '', phone: '',
-    company: '', address: '', city: '', postal: '', country: 'Türkiye',
+    company: user?.company || '', address: '', city: '', postal: '', country: 'Türkiye',
   });
   const [shipping, setShipping] = useState<string>('standard');
-  const [placing, setPlacing] = useState(false);
-  const [orderId, setOrderId] = useState<string | null>(null);
+
+  // Payment state
+  const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [orderNumber, setOrderNumber] = useState<string | null>(null);
+  const [preparing, setPreparing] = useState(false);
+  const [prepareError, setPrepareError] = useState('');
+  const [paid, setPaid] = useState(false);
+  const preparedRef = useRef(false);
 
   const subtotal = getTotal();
   const shippingCost = SHIPPING_OPTIONS.find((o) => o.id === shipping)?.price ?? 0;
@@ -62,13 +146,74 @@ export default function CheckoutPage() {
     contact.email && contact.firstName && contact.lastName && contact.phone &&
     contact.address && contact.city && contact.postal;
 
-  const placeOrder = async () => {
-    setPlacing(true);
-    await new Promise((r) => setTimeout(r, 1200));
-    const id = 'GO-' + Date.now().toString(36).toUpperCase();
-    setOrderId(id);
+  // Create the DB order + Stripe PaymentIntent, then mount the Payment Element.
+  const preparePayment = async () => {
+    if (!user) {
+      setPrepareError(t('checkout.loginRequired', 'Ödeme yapmak için giriş yapmalısınız.'));
+      return;
+    }
+    preparedRef.current = true;
+    setPreparing(true);
+    setPrepareError('');
+
+    try {
+      const orderItems: OrderItem[] = items.map((i) => ({
+        product_id: i.product.id,
+        name: i.product.name,
+        quantity: i.quantity,
+        price: i.product.price || 0,
+        image: i.product.img || '',
+        category: i.product.cat || '',
+        brand: i.product.brand || '',
+      }));
+
+      const shipOpt = SHIPPING_OPTIONS.find((o) => o.id === shipping);
+      const notes = [
+        `Teslimat: ${contact.firstName} ${contact.lastName}`,
+        `${contact.address}, ${contact.postal} ${contact.city}, ${contact.country}`,
+        `Tel: ${contact.phone}`,
+        contact.company ? `Firma: ${contact.company}` : '',
+        `Kargo: ${shipOpt?.label ?? shipping}`,
+      ].filter(Boolean).join(' | ');
+
+      // total_price stays the goods subtotal (app convention; VAT + shipping
+      // shown separately). The Stripe charge below uses the grand total.
+      const order = await createOrder(orderItems, subtotal, getTotalItems(), notes);
+      if (!order) {
+        setPrepareError(
+          useOrderStore.getState().error ||
+          t('checkout.orderFailed', 'Sipariş oluşturulamadı. Lütfen tekrar deneyin.'),
+        );
+        preparedRef.current = false;
+        return;
+      }
+      setOrderNumber(order.order_number);
+
+      const { client_secret } = await createPaymentIntent({
+        order_id: order.id,
+        amount: total,
+        currency: 'eur',
+      });
+      setClientSecret(client_secret);
+    } catch (err) {
+      setPrepareError((err as Error).message || t('checkout.payInitFailed', 'Ödeme başlatılamadı.'));
+      preparedRef.current = false;
+    } finally {
+      setPreparing(false);
+    }
+  };
+
+  // Prepare payment once the user reaches step 3.
+  useEffect(() => {
+    if (step === 3 && user && !clientSecret && !preparing && !preparedRef.current) {
+      preparePayment();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step]);
+
+  const handlePaid = () => {
+    setPaid(true);
     clearCart();
-    setPlacing(false);
   };
 
   const steps = [
@@ -77,7 +222,21 @@ export default function CheckoutPage() {
     { n: 3, label: t('checkout.stepPayment', 'Ödeme') },
   ];
 
-  if (orderId) {
+  const elementsOptions: StripeElementsOptions | null = clientSecret
+    ? {
+        clientSecret,
+        appearance: {
+          theme: 'stripe',
+          variables: {
+            colorPrimary: '#DC2626',
+            borderRadius: '12px',
+            fontFamily: 'inherit',
+          },
+        },
+      }
+    : null;
+
+  if (paid) {
     return (
       <div className="min-h-[70vh] flex items-center justify-center p-6">
         <motion.div
@@ -89,14 +248,14 @@ export default function CheckoutPage() {
             <Check className="text-emerald-600" size={40} />
           </div>
           <h1 className="text-2xl font-bold text-slate-900">
-            {t('checkout.successTitle', 'Siparişiniz Alındı!')}
+            {t('checkout.successTitle', 'Ödemeniz Alındı!')}
           </h1>
           <p className="text-slate-500 mt-2">
             {t('checkout.successDesc', 'Onay e-postası {{email}} adresine gönderildi.', { email: contact.email })}
           </p>
           <div className="mt-6 p-4 bg-slate-50 rounded-xl text-left">
             <p className="text-xs text-slate-500">Sipariş No</p>
-            <p className="font-mono font-bold text-slate-900">{orderId}</p>
+            <p className="font-mono font-bold text-slate-900">{orderNumber}</p>
             <p className="text-xs text-slate-500 mt-3">Tahmini Teslimat</p>
             <p className="font-semibold text-slate-900">
               {SHIPPING_OPTIONS.find((o) => o.id === shipping)?.eta}
@@ -223,22 +382,53 @@ export default function CheckoutPage() {
                     <CreditCard size={20} className="text-brand-red" />
                     {t('checkout.paymentTitle', 'Ödeme')}
                   </h2>
-                  <div className="p-4 bg-gradient-to-br from-[#DC2626] to-[#B91C1C] rounded-2xl text-white">
-                    <p className="text-xs opacity-70">Kart Numarası</p>
-                    <p className="font-mono text-lg tracking-wider mt-1">•••• •••• •••• ••••</p>
-                    <div className="flex justify-between mt-4 text-xs opacity-70">
-                      <span>KART SAHİBİ</span><span>SKT</span>
+
+                  {/* Not logged in */}
+                  {!user && (
+                    <div className="space-y-4 py-4 text-center">
+                      <Lock className="mx-auto text-slate-300" size={40} />
+                      <p className="text-sm text-slate-600">
+                        {t('checkout.loginRequired', 'Ödeme yapmak için giriş yapmalısınız.')}
+                      </p>
+                      <button
+                        onClick={() => navigate('/login')}
+                        className="h-11 px-6 rounded-xl bg-brand-red text-white font-bold inline-flex items-center gap-2"
+                      >
+                        {t('checkout.goLogin', 'Giriş Yap')}
+                      </button>
                     </div>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Field label="Kart Numarası" value="" onChange={() => {}} full />
-                    <Field label="Son Kullanma" value="" onChange={() => {}} />
-                    <Field label="CVV" value="" onChange={() => {}} />
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-slate-500 pt-2">
-                    <ShieldCheck size={16} className="text-emerald-500" />
-                    Stripe ile 256-bit SSL şifreli ödeme
-                  </div>
+                  )}
+
+                  {/* Preparing */}
+                  {user && preparing && (
+                    <div className="flex flex-col items-center gap-3 py-10 text-slate-500">
+                      <Loader2 className="animate-spin text-brand-red" size={28} />
+                      <p className="text-sm">{t('checkout.preparingPayment', 'Güvenli ödeme hazırlanıyor...')}</p>
+                    </div>
+                  )}
+
+                  {/* Prepare error */}
+                  {user && !preparing && prepareError && (
+                    <div className="space-y-4 py-4">
+                      <div className="flex items-start gap-2 bg-red-50 text-red-700 px-4 py-3 rounded-xl text-sm">
+                        <AlertCircle size={16} className="flex-shrink-0 mt-0.5" />
+                        <span>{prepareError}</span>
+                      </div>
+                      <button
+                        onClick={() => { preparedRef.current = false; setPrepareError(''); preparePayment(); }}
+                        className="h-11 px-6 rounded-xl bg-brand-red text-white font-bold inline-flex items-center gap-2"
+                      >
+                        {t('checkout.retry', 'Tekrar Dene')}
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Live Stripe Payment Element */}
+                  {user && !preparing && elementsOptions && (
+                    <Elements stripe={stripePromise} options={elementsOptions}>
+                      <PaymentForm amount={total} onPaid={handlePaid} />
+                    </Elements>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>
@@ -251,21 +441,13 @@ export default function CheckoutPage() {
               >
                 <ChevronLeft size={18} /> {step === 1 ? 'Sepete Dön' : 'Geri'}
               </button>
-              {step < 3 ? (
+              {step < 3 && (
                 <button
                   onClick={() => setStep((step + 1) as Step)}
                   disabled={step === 1 && !canNext1}
                   className="h-12 px-8 rounded-xl bg-brand-red text-white font-bold flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-brand-red"
                 >
                   {t('checkout.next', 'Devam')} <ChevronRight size={18} />
-                </button>
-              ) : (
-                <button
-                  onClick={placeOrder}
-                  disabled={placing}
-                  className="h-12 px-8 rounded-xl bg-emerald-500 text-white font-bold flex items-center gap-2 disabled:opacity-60 hover:bg-emerald-600"
-                >
-                  {placing ? 'İşleniyor...' : `Siparişi Tamamla · ${total.toLocaleString('tr-TR')} €`}
                 </button>
               )}
             </div>

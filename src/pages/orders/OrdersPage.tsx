@@ -7,6 +7,7 @@ import {
   Package, Search, Filter, ChevronRight, Clock, CheckCircle, Truck,
   PackageCheck, XCircle, ShoppingCart, Euro, User, Building2, CalendarDays, Hash, Eye
 } from 'lucide-react';
+import { IMAGE_PROXY_URL } from '../../lib/assets';
 
 const STATUS_CONFIG: Record<string, { labelKey: string; color: string; bg: string; icon: typeof Clock }> = {
   pending: { labelKey: 'orders.pending', color: 'text-on-warning-container', bg: 'bg-warning-container border-warning/30', icon: Clock },
@@ -15,8 +16,6 @@ const STATUS_CONFIG: Record<string, { labelKey: string; color: string; bg: strin
   delivered: { labelKey: 'orders.delivered', color: 'text-on-success-container', bg: 'bg-success-container border-success/30', icon: PackageCheck },
   cancelled: { labelKey: 'orders.cancelled', color: 'text-error', bg: 'bg-error-container border-error/30', icon: XCircle },
 };
-
-const IMAGE_PROXY = 'https://ohcytmzyjvpfsqejujzs.supabase.co/functions/v1/image-proxy';
 
 export default function OrdersPage() {
   const { t } = useTranslation();
@@ -45,7 +44,7 @@ export default function OrdersPage() {
     new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   const proxyImg = (url: string) =>
-    url?.startsWith('http') ? `${IMAGE_PROXY}?url=${encodeURIComponent(url)}` : url;
+    url?.startsWith('http') ? `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}` : url;
 
   // Summary stats
   const totalRevenue = orders.reduce((s, o) => s + (o.status !== 'cancelled' ? o.total_price : 0), 0);

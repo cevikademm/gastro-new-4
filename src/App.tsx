@@ -44,6 +44,7 @@ const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const BlogAdminPage = lazy(() => import('./pages/admin/BlogAdminPage'));
 const WelcomeOrderPage = lazy(() => import('./pages/admin/WelcomeOrderPage'));
+const CustomerFinderPage = lazy(() => import('./pages/admin/CustomerFinderPage'));
 const BlogListPage = lazy(() => import('./pages/blog/BlogListPage'));
 const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'));
 const KitchenCalculatorPage = lazy(() => import('./pages/tools/KitchenCalculatorPage'));
@@ -55,6 +56,8 @@ const BrandSeoPage = lazy(() => import('./pages/pseo/BrandPage'));
 const CompareIndexPage = lazy(() => import('./pages/compare/CompareIndexPage'));
 const CompareDetailPage = lazy(() => import('./pages/compare/CompareDetailPage'));
 const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
+const ApiKeysPage = lazy(() => import('./pages/account/ApiKeysPage'));
+const ApiDocsPage = lazy(() => import('./pages/developers/ApiDocsPage'));
 import LandingPage from './pages/landing/LandingPage';
 const FloorPlan3DPage = lazy(() => import('./pages/design/FloorPlan3DPage'));
 const ThreeDDesignPage = lazy(() => import('./pages/design/ThreeDDesignPage'));
@@ -142,10 +145,15 @@ export default function App() {
             <Route path="compare/:slug" element={<CompareDetailPage />} />
             <Route path="resources" element={<ResourcesPage />} />
 
+            {/* Developer API: self-service keys + interactive docs */}
+            <Route path="account/api-keys" element={<ApiKeysPage />} />
+            <Route path="developers/api" element={<ApiDocsPage />} />
+
             <Route path="admin/orders" element={<AdminGuard><AdminOrdersPage /></AdminGuard>} />
             <Route path="admin/users"  element={<AdminGuard><AdminUsersPage /></AdminGuard>} />
             <Route path="admin/blog"   element={<AdminGuard><BlogAdminPage /></AdminGuard>} />
             <Route path="admin/welcome-order" element={<AdminGuard><WelcomeOrderPage /></AdminGuard>} />
+            <Route path="admin/customer-finder" element={<AdminGuard><CustomerFinderPage /></AdminGuard>} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />
