@@ -1,9 +1,12 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Search, ShoppingCart, Menu, X } from 'lucide-react';
+import { FileText, Search, ShoppingCart, Menu, X, LogIn, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../stores/cartStore';
+import { useAuthStore } from '../stores/authStore';
+import LanguageSelector from './LanguageSelector';
 
 const NAV_ITEMS = [
   { name: 'DIAMOND', path: '/diamond' },
@@ -15,10 +18,14 @@ const NAV_ITEMS = [
 
 export function Navbar({ transparent = false }: { transparent?: boolean }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const cartCount = useCartStore((s) => s.items.reduce((sum, item) => sum + item.quantity, 0));
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const scrolledRef = useRef(false);
+  const langVariant = !isScrolled && transparent ? 'dark' : 'light';
 
   const goToQuote = () => {
     if (window.location.pathname === '/') {
@@ -130,6 +137,46 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
               )} />
             </div>
 
+            {/* 15-dil seçici — her ekranda görünür */}
+            <LanguageSelector variant={langVariant} className="shrink-0" />
+
+            {/* Giriş / Hesap — masaüstünde görünür, mobilde menüde */}
+            {isAuthenticated && user ? (
+              <Link
+                to="/dashboard"
+                className={cn(
+                  "hidden md:flex items-center gap-2 pl-1.5 pr-3 py-1.5 rounded-full border font-bold text-[10px] uppercase tracking-[0.15em] transition-all",
+                  isScrolled
+                    ? "border-slate-200 text-[#0F2440] hover:border-brand-red hover:text-brand-red"
+                    : transparent
+                      ? "border-white/25 text-white hover:bg-white/10"
+                      : "border-slate-200 text-[#0F2440] hover:border-brand-red hover:text-brand-red"
+                )}
+              >
+                <span className="grid place-items-center w-6 h-6 rounded-full bg-brand-red text-white text-[10px] font-black">
+                  {(user.fullName || user.email || '?').trim().charAt(0).toUpperCase()}
+                </span>
+                <span className="max-w-[88px] truncate normal-case tracking-normal">
+                  {user.fullName?.split(' ')[0] || t('nav.account', 'Hesabım')}
+                </span>
+              </Link>
+            ) : (
+              <Link
+                to="/login"
+                className={cn(
+                  "hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full border font-bold text-[9px] uppercase tracking-[0.2em] transition-all",
+                  isScrolled
+                    ? "border-slate-300 text-[#0F2440] hover:border-brand-red hover:text-brand-red"
+                    : transparent
+                      ? "border-white/30 text-white hover:bg-white/10"
+                      : "border-slate-300 text-[#0F2440] hover:border-brand-red hover:text-brand-red"
+                )}
+              >
+                <LogIn className="w-3.5 h-3.5" />
+                {t('landing.nav.login', 'Giriş Yap')}
+              </Link>
+            )}
+
             <button
               onClick={() => navigate('/cart')}
               className={cn(
@@ -207,6 +254,44 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                 transition={{ delay: 0.5, duration: 0.5 }}
                 className="mt-auto space-y-6 pt-10 border-t border-slate-200"
               >
+                {/* Giriş / Kayıt */}
+                {isAuthenticated && user ? (
+                  <Link
+                    to="/dashboard"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-3 w-full py-4 px-5 rounded-full bg-[#0F2440] text-white font-bold text-xs uppercase tracking-[0.15em]"
+                  >
+                    <User className="w-4 h-4" />
+                    {user.fullName || t('nav.account', 'Hesabım')}
+                  </Link>
+                ) : (
+                  <div className="flex gap-3">
+                    <Link
+                      to="/login"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full border border-slate-300 text-[#0F2440] font-bold text-[11px] uppercase tracking-[0.15em] hover:border-brand-red hover:text-brand-red transition-colors"
+                    >
+                      <LogIn className="w-4 h-4" />
+                      {t('landing.nav.login', 'Giriş Yap')}
+                    </Link>
+                    <Link
+                      to="/register"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                      className="flex-1 flex items-center justify-center py-3.5 rounded-full bg-[#0F2440] text-white font-bold text-[11px] uppercase tracking-[0.15em] hover:bg-[#1a3357] transition-colors"
+                    >
+                      {t('landing.nav.register', 'Kayıt Ol')}
+                    </Link>
+                  </div>
+                )}
+
+                {/* 15-dil seçici */}
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400">
+                    {t('settings.language', 'Dil')}
+                  </span>
+                  <LanguageSelector />
+                </div>
+
                 <div className="relative group w-full">
                   <input
                     type="text"
