@@ -231,6 +231,7 @@ export default function Editor3D() {
           pivot.rotation.x = eq.tiltX ?? 0;
           pivot.rotation.y = eq.tiltY ?? 0;
         }
+        seatOnFloor(existing, eq.position.z * MM_TO_THREE);
         continue;
       }
 
@@ -256,6 +257,7 @@ export default function Editor3D() {
           pivot.rotation.y = eq.tiltY ?? 0;
           group.userData.pivot = pivot;
           equipmentRoot.add(group);
+          seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
         })();
         continue;
@@ -275,6 +277,7 @@ export default function Editor3D() {
           if (!equipmentRootRef.current) return;
           if (!useProjectStore.getState().project.equipment[id]) return;
           equipmentRoot.add(group);
+          seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
         })();
         continue;
@@ -285,6 +288,7 @@ export default function Editor3D() {
       // above cover everything we add).
       const boxGroup = buildFallbackBox(id, eq);
       equipmentRoot.add(boxGroup);
+      seatOnFloor(boxGroup, eq.position.z * MM_TO_THREE);
       cache.set(id, boxGroup);
     }
   }, [project.equipment]);
@@ -444,6 +448,26 @@ export default function Editor3D() {
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────
+
+/**
+ * Lift `group` so its LOWEST point rests at `baseZ` meters (domain z, which maps
+ * to world Y under contentRoot's -90° X rotation).
+ *
+ * Two problems this solves:
+ *  1) Tilt pivots sit at the footprint bottom-center (z = 0), so a tilted model
+ *     swings half its body BELOW the floor. We measure the post-tilt bounding box
+ *     and push the group up so nothing dips under `baseZ`.
+ *  2) Manual height: `baseZ = eq.position.z` lets the user lift an item onto a
+ *     counter / wall — its base lands at the requested height instead of z = 0.
+ */
+function seatOnFloor(group: THREE.Object3D, baseZ: number): void {
+  group.updateWorldMatrix(true, true);
+  const box = new THREE.Box3().setFromObject(group);
+  if (box.isEmpty()) return;
+  // box.min.y is the lowest WORLD-Y (= lowest domain-z). A delta on the group's
+  // local z shifts world Y 1:1 (parent equipmentRoot is untransformed).
+  group.position.z += baseZ - box.min.y;
+}
 
 function buildFallbackBox(
   id: string,

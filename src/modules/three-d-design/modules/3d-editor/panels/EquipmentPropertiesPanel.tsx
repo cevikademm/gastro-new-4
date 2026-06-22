@@ -25,6 +25,7 @@ import {
   RefreshCw,
   Move,
   ArrowUp,
+  ArrowDown,
   Minus,
 } from 'lucide-react';
 import { useProjectStore } from '../../../store';
@@ -52,6 +53,7 @@ export default function EquipmentPropertiesPanel({
   // Local mirrors for inputs (so typing doesn't fight live store updates).
   const [xInput, setXInput] = useState('');
   const [yInput, setYInput] = useState('');
+  const [zInput, setZInput] = useState('');
   const [rotInput, setRotInput] = useState('');
   const [tiltXInput, setTiltXInput] = useState('');
   const [tiltYInput, setTiltYInput] = useState('');
@@ -59,10 +61,11 @@ export default function EquipmentPropertiesPanel({
     if (!eq) return;
     setXInput(Math.round(eq.position.x).toString());
     setYInput(Math.round(eq.position.y).toString());
+    setZInput(Math.round(eq.position.z).toString());
     setRotInput(Math.round(((eq.rotation * 180) / Math.PI + 360) % 360).toString());
     setTiltXInput(Math.round(((eq.tiltX ?? 0) * 180) / Math.PI).toString());
     setTiltYInput(Math.round(((eq.tiltY ?? 0) * 180) / Math.PI).toString());
-  }, [eq?.id, eq?.position.x, eq?.position.y, eq?.rotation, eq?.tiltX, eq?.tiltY]);
+  }, [eq?.id, eq?.position.x, eq?.position.y, eq?.position.z, eq?.rotation, eq?.tiltX, eq?.tiltY]);
 
   const otherEquipment = useMemo(() => {
     if (!eq) return [];
@@ -99,6 +102,15 @@ export default function EquipmentPropertiesPanel({
       const e = d.equipment[eq.id];
       if (!e) return;
       e.position = { x, y, z: e.position.z };
+    });
+  };
+
+  const setZ = (zMm: number) => {
+    const z = Math.max(0, Math.round(zMm));
+    update((d) => {
+      const e = d.equipment[eq.id];
+      if (!e) return;
+      e.position = { x: e.position.x, y: e.position.y, z };
     });
   };
 
@@ -145,6 +157,7 @@ export default function EquipmentPropertiesPanel({
 
   const xMm = Math.round(eq.position.x);
   const yMm = Math.round(eq.position.y);
+  const zMm = Math.round(eq.position.z);
   const rotDeg = Math.round(((eq.rotation * 180) / Math.PI + 360) % 360);
   const tiltXDeg = Math.round(((eq.tiltX ?? 0) * 180) / Math.PI);
   const tiltYDeg = Math.round(((eq.tiltY ?? 0) * 180) / Math.PI);
@@ -219,6 +232,35 @@ export default function EquipmentPropertiesPanel({
             disabled={!!eq.locked}
           />
         </Row>
+        <Row label="Z (yükseklik — zeminden)">
+          <input
+            type="range"
+            min={0}
+            max={3000}
+            step={10}
+            value={Math.min(3000, Math.max(0, zMm))}
+            onChange={(e) => setZ(Number(e.target.value))}
+            disabled={!!eq.locked}
+            className="flex-1 accent-emerald-600"
+          />
+          <NumberInput
+            value={zInput}
+            onChange={setZInput}
+            onCommit={setZ}
+            disabled={!!eq.locked}
+          />
+        </Row>
+        {zMm > 0 && (
+          <button
+            type="button"
+            onClick={() => setZ(0)}
+            disabled={!!eq.locked}
+            className="mt-1 w-full inline-flex items-center justify-center gap-1 h-6 rounded text-[10px] font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 disabled:opacity-50"
+            title="Ekipmanı zemine indir (Z = 0)"
+          >
+            <ArrowDown size={11} /> Zemine indir
+          </button>
+        )}
       </Section>
 
       <Section title="Yön">

@@ -89,7 +89,7 @@ export function TopProductsCarousel() {
               Professionelle Küchentechnik. <span className="text-brand-red">Direkt konfigurierbar</span>.
             </h2>
             <p className="mt-2 text-xs text-slate-500">
-              5.300+ Produkte führender Hersteller für Ihr Gastro-Projekt.
+              10.000+ Produkte führender Hersteller für Ihr Gastro-Projekt.
             </p>
           </div>
           <a href="#catalog" className="text-xs font-bold uppercase tracking-[0.2em] text-[#0F2440] hover:text-brand-red transition-all mt-4 md:mt-0">

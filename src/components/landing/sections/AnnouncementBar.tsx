@@ -13,7 +13,7 @@ export function AnnouncementBar() {
     { Icon: BadgePercent, key: 'landing.announcement.discount', fallback: 'Projektpakete mit B2B-Sonderkonditionen' },
     { Icon: Flame, key: 'landing.announcement.flash', fallback: 'Diese Woche Diamond Kühltechnik als Flash-Angebot' },
     { Icon: CreditCard, key: 'landing.announcement.leasing', fallback: 'Leasing bis 60 Monate direkt im Angebot' },
-    { Icon: PackageCheck, key: 'landing.announcement.catalog', fallback: '5.265+ Produkte · 15 Premiummarken · ein Einkauf' },
+    { Icon: PackageCheck, key: 'landing.announcement.catalog', fallback: '10.000+ Produkte · 15 Premiummarken · ein Einkauf' },
   ];
 
   // Doubled for seamless marquee loop

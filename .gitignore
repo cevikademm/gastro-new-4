@@ -18,3 +18,5 @@ dist-v2/
 # Editor / OS / IDE local cache
 .fuse_hidden*
 .claude/
+
+.vercel

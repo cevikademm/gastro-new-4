@@ -348,8 +348,8 @@ export class InteractionController {
 
     this.selectedRoot.position.x = xMm * MM_TO_THREE;
     this.selectedRoot.position.y = yMm * MM_TO_THREE;
-    // Keep on the floor (domain z = floor height = 0 by default).
-    this.selectedRoot.position.z = 0;
+    // Leave z untouched — Editor3D already seated the model (manual height +
+    // tilt compensation). Forcing z = 0 here made tilted items sink mid-drag.
   }
 
   private endDrag(): void {

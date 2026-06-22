@@ -1547,7 +1547,7 @@ export function LandingPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: "5.265+", label: "Produkte" },
+                  { value: "10.000+", label: "Produkte" },
                   { value: "15", label: "Marken" },
                   { value: "24h", label: "Rückmeldung" },
                   { value: "60 Mon.", label: "Leasing" },

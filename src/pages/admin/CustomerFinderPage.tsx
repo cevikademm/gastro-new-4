@@ -254,8 +254,8 @@ export default function CustomerFinderPage() {
   } = useCustomerFinderStore();
 
   // Arama formu
-  const [ulke, setUlke] = useState('Türkiye');
-  const [sehir, setSehir] = useState('');
+  const [ulke, setUlke] = useState('Almanya');
+  const [sehir, setSehir] = useState('Köln');
   const [kategori, setKategori] = useState('');
   const [limit, setLimit] = useState(20);
   const [minPuan, setMinPuan] = useState(0);
@@ -448,11 +448,11 @@ export default function CustomerFinderPage() {
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <Field label="Ülke">
-            <input value={ulke} onChange={(e) => setUlke(e.target.value)} placeholder="Türkiye"
+            <input value={ulke} onChange={(e) => setUlke(e.target.value)} placeholder="Almanya"
               className={inputCls} />
           </Field>
           <Field label="Şehir *">
-            <input value={sehir} onChange={(e) => setSehir(e.target.value)} placeholder="İstanbul"
+            <input value={sehir} onChange={(e) => setSehir(e.target.value)} placeholder="Köln"
               className={inputCls} />
           </Field>
           <Field label="Sektör / Kategori *">
