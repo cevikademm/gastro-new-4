@@ -32,6 +32,33 @@ const MAIL_META: Record<MailStatus, { label: string; cls: string }> = {
   yanit_geldi:  { label: 'Yanıt geldi', cls: 'text-primary' },
 };
 
+// İşletmeyi Google kategorisine göre basit bir türe sınıflandırır (Restoran,
+// Otel, Berber...). Eşleşme yoksa ham kategoriyi etiket olarak gösterir.
+// Renk class'ları birebir literal yazılır ki Tailwind JIT bunları üretsin.
+function classifyKategori(kategori: string | null): { label: string; cls: string } | null {
+  const k = (kategori || '').toLowerCase().trim();
+  if (!k) return null;
+  const has = (...xs: string[]) => xs.some((x) => k.includes(x));
+  if (has('otel', 'hotel', 'pension', 'hostel', 'motel', 'konaklama', 'unterkunft'))
+    return { label: 'Otel', cls: 'bg-blue-100 text-blue-700 border-blue-200' };
+  if (has('berber', 'kuaför', 'kuafor', 'friseur', 'barber', 'hairdresser', 'coiffeur', 'saç'))
+    return { label: 'Berber / Kuaför', cls: 'bg-teal-100 text-teal-700 border-teal-200' };
+  if (has('pastane', 'fırın', 'firin', 'bakery', 'bäckerei', 'baeckerei', 'konditorei', 'patisserie', 'tatlı', 'tatli', 'börek', 'borek'))
+    return { label: 'Fırın / Pastane', cls: 'bg-pink-100 text-pink-700 border-pink-200' };
+  if (has('kafe', 'café', 'cafe', 'kahve', 'coffee', 'bistro'))
+    return { label: 'Kafe', cls: 'bg-amber-100 text-amber-800 border-amber-200' };
+  if (has('restoran', 'restaurant', 'lokanta', 'imbiss', 'pizzeria', 'pizza', 'döner', 'doner', 'kebap', 'kebab', 'burger', 'steakhouse', 'sushi', 'fast food', 'gaststätte', 'gaststatte', 'trattoria', 'ristorante'))
+    return { label: 'Restoran', cls: 'bg-orange-100 text-orange-700 border-orange-200' };
+  if (has('bar', 'pub', 'kneipe', 'biergarten', 'cocktail', 'lounge', 'meyhane'))
+    return { label: 'Bar', cls: 'bg-purple-100 text-purple-700 border-purple-200' };
+  if (has('market', 'supermarkt', 'supermarket', 'bakkal', 'grocery', 'lebensmittel', 'şarküteri', 'sarkuteri', 'manav', 'kasap', 'metzgerei', 'butcher'))
+    return { label: 'Market / Gıda', cls: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+  if (has('catering', 'büfe', 'bufe', 'buffet', 'kantin', 'mensa'))
+    return { label: 'Catering / Büfe', cls: 'bg-cyan-100 text-cyan-700 border-cyan-200' };
+  // Eşleşme yok → ham kategoriyi tür olarak göster
+  return { label: kategori as string, cls: 'bg-slate-100 text-slate-600 border-slate-200' };
+}
+
 const DEFAULT_MAIL_SUBJECT = '2MC Gastro — Profesyonel mutfak ekipmanları';
 const DEFAULT_MAIL_BODY =
   `Merhaba {{isim}},\n\n` +
@@ -229,6 +256,25 @@ function fillVars(tpl: string, l: CustomerLead): string {
 function waLink(phone: string | null, message: string): string {
   const digits = (phone || '').replace(/\D/g, '');
   return `https://wa.me/${digits}?text=${encodeURIComponent(message)}`;
+}
+
+/**
+ * Heuristic: does this number likely USE WhatsApp?
+ *
+ * There is no public API to verify WhatsApp registration, so we infer it from
+ * the line type — a personal WhatsApp account needs a MOBILE number; landlines
+ * (area-code numbers) don't have one. Tuned for German (+49) leads, where mobile
+ * prefixes are 15x / 16x / 17x. Non-mobile / unclassifiable numbers fall back to
+ * "no WhatsApp" → the UI shows a call icon instead (a tel: link always works).
+ */
+function phoneIsWhatsapp(phone: string | null): boolean {
+  if (!phone) return false;
+  let d = phone.replace(/[^\d+]/g, '');
+  if (d.startsWith('+49')) d = '0' + d.slice(3);
+  else if (d.startsWith('0049')) d = '0' + d.slice(4);
+  else if (d.startsWith('49') && d.length >= 12) d = '0' + d.slice(2);
+  // German mobile: 015x / 016x / 017x.
+  return /^01[567]/.test(d);
 }
 
 function exportRows(leads: CustomerLead[]) {
@@ -643,7 +689,9 @@ export default function CustomerFinderPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-outline-variant/10">
-                {filtered.map((l) => (
+                {filtered.map((l) => {
+                  const tur = classifyKategori(l.kategori);
+                  return (
                   <tr key={l.id} className="hover:bg-surface-container-low transition-colors">
                     <td className="px-3 py-3">
                       <button onClick={() => toggleSelect(l.id)} className="align-middle">
@@ -652,8 +700,15 @@ export default function CustomerFinderPage() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="font-bold text-on-surface">{l.isim || '—'}</div>
-                      <div className="text-xs text-on-surface-variant flex items-center gap-1">
-                        {l.kategori && <span>{l.kategori}</span>}
+                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-on-surface-variant">
+                        {tur && (
+                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${tur.cls}`} title={l.kategori || undefined}>
+                            {tur.label}
+                          </span>
+                        )}
+                        {l.kategori && (!tur || tur.label.toLowerCase() !== l.kategori.toLowerCase()) && (
+                          <span className="text-on-surface-variant/70">{l.kategori}</span>
+                        )}
                         {l.adres && <span className="inline-flex items-center gap-0.5"><MapPin size={11} /> {l.adres}</span>}
                       </div>
                     </td>
@@ -693,15 +748,22 @@ export default function CustomerFinderPage() {
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       {l.telefon && (
-                        <a href={waLink(l.telefon, fillVars(WA_TEMPLATES[0].text.de, l))} target="_blank" rel="noreferrer"
-                          onClick={() => markWhatsapp(l.id)} title="WhatsApp mesajı gönder"
-                          className={`inline-flex rounded-lg p-1.5 mr-1 align-middle ${
-                            l.whatsapp_durumu === 'gonderildi'
-                              ? 'text-success'
-                              : 'text-on-surface-variant hover:bg-success/10 hover:text-success'
-                          }`}>
-                          <MessageCircle size={14} />
-                        </a>
+                        phoneIsWhatsapp(l.telefon) ? (
+                          <a href={waLink(l.telefon, fillVars(WA_TEMPLATES[0].text.de, l))} target="_blank" rel="noreferrer"
+                            onClick={() => markWhatsapp(l.id)} title="WhatsApp mesajı gönder"
+                            className={`inline-flex rounded-lg p-1.5 mr-1 align-middle ${
+                              l.whatsapp_durumu === 'gonderildi'
+                                ? 'text-success'
+                                : 'text-on-surface-variant hover:bg-success/10 hover:text-success'
+                            }`}>
+                            <MessageCircle size={14} />
+                          </a>
+                        ) : (
+                          <a href={`tel:${l.telefon}`} title="Ara (sabit hat — WhatsApp yok)"
+                            className="inline-flex rounded-lg p-1.5 mr-1 align-middle text-on-surface-variant hover:bg-primary/10 hover:text-primary">
+                            <Phone size={14} />
+                          </a>
+                        )
                       )}
                       {l.email && (
                         <button onClick={() => setMailIds([l.id])} title="Hızlı mail gönder"
@@ -712,7 +774,8 @@ export default function CustomerFinderPage() {
                       <button onClick={() => setDetail(l)} className="text-primary font-bold text-xs hover:underline">Aç</button>
                     </td>
                   </tr>
-                ))}
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -834,7 +897,15 @@ function LeadDrawer({
         <div className="sticky top-0 bg-surface-container-lowest border-b border-outline-variant/10 p-5 flex items-start justify-between">
           <div>
             <div className="font-black text-on-surface">{lead.isim || '—'}</div>
-            <div className="text-xs text-on-surface-variant mt-0.5">{lead.kategori}</div>
+            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-on-surface-variant">
+              {(() => {
+                const tur = classifyKategori(lead.kategori);
+                return (<>
+                  {tur && <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${tur.cls}`}>{tur.label}</span>}
+                  {lead.kategori && (!tur || tur.label.toLowerCase() !== lead.kategori.toLowerCase()) && <span className="text-on-surface-variant/70">{lead.kategori}</span>}
+                </>);
+              })()}
+            </div>
           </div>
           <button onClick={onClose} className="p-1.5 rounded-full hover:bg-surface-container-low"><X size={18} /></button>
         </div>
