@@ -1,5 +1,9 @@
-import { useMemo, useRef, useState } from 'react';
-import { Boxes, Undo2, Redo2, Upload, Loader2, X, Layers, AlertTriangle } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import {
+  Boxes, Undo2, Redo2, Upload, Loader2, X, Layers, AlertTriangle,
+  Save, Download, FileUp, Check, CloudOff,
+} from 'lucide-react';
 import {
   Editor2D,
   Editor3D,
@@ -12,7 +16,18 @@ import {
   type EditorMode,
   type CadAnalysis,
   type CadImportResult,
+  type ProjectDocument,
 } from '../../modules/three-d-design';
+import {
+  saveDesignLocal,
+  syncDesignProject,
+  flushDesignProject,
+  loadBestDesign,
+  isEmptyDocument,
+  STANDALONE_KEY,
+} from '../../lib/gastroDesignSync';
+
+type SaveStatus = 'idle' | 'saving' | 'saved' | 'local' | 'error';
 
 const FIT_PADDING = 0.1;
 
@@ -42,11 +57,116 @@ export default function ThreeDDesignPage() {
   const canRedo = useProjectStore((s) => s.canRedo());
   const update = useProjectStore((s) => s.update);
   const projectName = useProjectStore((s) => s.project.name);
+  const loadProject = useProjectStore((s) => s.loadProject);
+  // `project` referansı yalnızca belge mutasyonlarında değişir → otomatik
+  // kaydetmeyi buna bağlamak gerçek değişiklikleri yakalar (seçim/görünüm değil).
+  const project = useProjectStore((s) => s.project);
+
+  // Proje-bağlı anahtar: /projects/:id/design → URL id'si (her proje kendi
+  // tasarımını saklar); /3d-design (bağımsız) → 'standalone'.
+  const params = useParams<{ id?: string }>();
+  const projectKey = params.id ?? STANDALONE_KEY;
 
   const [tab, setTab] = useState<EditorMode>(mode);
   const switchTab = (next: EditorMode) => {
     setTab(next);
     setMode(next);
+  };
+
+  // ── Kalıcı saklama (persistence) ───────────────────────────────────────────
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
+  const hydratedRef = useRef(false);
+  const remoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const jsonInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Açılışta: bu projeye ait yerel + Supabase belgesini yükle. Kullanıcı yükleme
+  // bitmeden çizmeye başladıysa ONUN çalışmasını ASLA ezmeyiz. projectKey
+  // değişince (başka projeye geçince) yeniden yüklenir.
+  useEffect(() => {
+    let cancelled = false;
+    hydratedRef.current = false;
+    loadBestDesign(projectKey)
+      .then((res) => {
+        if (cancelled) return;
+        const current = useProjectStore.getState().project;
+        if (isEmptyDocument(current)) {
+          if (res) loadProject(res.doc);
+        } else {
+          // Yükleme bitmeden çizilmeye başlanmış — mevcut çalışmayı koru + kaydet.
+          saveDesignLocal(current, projectKey);
+          void syncDesignProject(current, projectKey);
+        }
+      })
+      .catch(() => { /* yükleme başarısız — boş projeyle devam */ })
+      .finally(() => { if (!cancelled) hydratedRef.current = true; });
+    return () => { cancelled = true; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectKey]);
+
+  // Otomatik kaydetme: belge her değiştiğinde localStorage'a ANINDA, Supabase'e
+  // debounced (2s). Boş belge ya da henüz yükleme bitmemişse atlanır.
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    if (isEmptyDocument(project)) return;
+    setSaveStatus('saving');
+    saveDesignLocal(project, projectKey); // anlık yerel yedek (yenilemeye dayanır)
+    if (remoteTimerRef.current) clearTimeout(remoteTimerRef.current);
+    remoteTimerRef.current = setTimeout(async () => {
+      const ok = await syncDesignProject(project, projectKey);
+      setSaveStatus(ok ? 'saved' : 'local');
+    }, 2000);
+    return () => {
+      if (remoteTimerRef.current) clearTimeout(remoteTimerRef.current);
+    };
+  }, [project, projectKey]);
+
+  // Sayfadan ayrılırken bekleyen Supabase kaydını gönder (localStorage zaten güncel).
+  useEffect(() => {
+    return () => {
+      const current = useProjectStore.getState().project;
+      if (!isEmptyDocument(current)) void flushDesignProject(current, projectKey);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectKey]);
+
+  const onManualSave = async () => {
+    const current = useProjectStore.getState().project;
+    if (isEmptyDocument(current)) return;
+    setSaveStatus('saving');
+    const ok = await flushDesignProject(current, projectKey);
+    setSaveStatus(ok ? 'saved' : 'local');
+  };
+
+  // Ekstra güvenlik ağı: çizimi .json dosyası olarak indir / dosyadan geri yükle.
+  const onExportJson = () => {
+    const doc = useProjectStore.getState().project;
+    const blob = new Blob([JSON.stringify(doc, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    const safeName = (doc.name || '3d-tasarim').replace(/[^\w.-]+/g, '_');
+    a.download = `${safeName}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const onImportJson = async (file: File | null) => {
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const doc = JSON.parse(text) as ProjectDocument;
+      if (!doc || typeof doc !== 'object' || !('order' in doc)) {
+        throw new Error('Geçersiz 3D tasarım dosyası');
+      }
+      loadProject(doc);
+      saveDesignLocal(doc, projectKey);
+      void syncDesignProject(doc, projectKey);
+    } catch (err) {
+      // eslint-disable-next-line no-alert
+      alert(`JSON içe aktarılamadı: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      if (jsonInputRef.current) jsonInputRef.current.value = '';
+    }
   };
 
   const editorAreaRef = useRef<HTMLDivElement | null>(null);
@@ -106,9 +226,28 @@ export default function ThreeDDesignPage() {
               {importStatus || 'İçe aktarılıyor…'}
             </span>
           )}
+          <SaveStatusBadge status={saveStatus} />
         </div>
 
         <div className="flex items-center gap-1">
+          <ToolbarButton onClick={() => void onManualSave()} title="Supabase'e kaydet">
+            <Save size={14} />
+            <span className="text-[11px]">Kaydet</span>
+          </ToolbarButton>
+          <ToolbarButton onClick={onExportJson} title="Çizimi .json olarak indir (yedek)">
+            <Download size={14} />
+          </ToolbarButton>
+          <ToolbarButton onClick={() => jsonInputRef.current?.click()} title="Yedek .json dosyasından geri yükle">
+            <FileUp size={14} />
+          </ToolbarButton>
+          <input
+            ref={jsonInputRef}
+            type="file"
+            accept="application/json,.json"
+            className="hidden"
+            onChange={(e) => void onImportJson(e.target.files?.[0] ?? null)}
+          />
+          <div className="w-px h-5 bg-slate-200 mx-1" />
           <ToolbarButton onClick={undo} disabled={!canUndo} title="Geri al (Ctrl+Z)">
             <Undo2 size={14} />
           </ToolbarButton>
@@ -167,6 +306,40 @@ export default function ThreeDDesignPage() {
         />
       )}
     </div>
+  );
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Kaydetme durumu rozeti
+// ────────────────────────────────────────────────────────────────────────────
+
+function SaveStatusBadge({ status }: { status: SaveStatus }) {
+  if (status === 'idle') return null;
+  if (status === 'saving') {
+    return (
+      <span className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+        <Loader2 size={12} className="animate-spin" />
+        Kaydediliyor…
+      </span>
+    );
+  }
+  if (status === 'saved') {
+    return (
+      <span className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium">
+        <Check size={12} />
+        Kaydedildi
+      </span>
+    );
+  }
+  // 'local' | 'error' — Supabase'e ulaşılamadı ama yerel yedek alındı.
+  return (
+    <span
+      className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-amber-600 font-medium"
+      title="Buluta kaydedilemedi — değişiklik bu cihazda (localStorage) güvende. Bağlantı gelince tekrar deneyin."
+    >
+      <CloudOff size={12} />
+      Yalnızca bu cihazda
+    </span>
   );
 }
 
