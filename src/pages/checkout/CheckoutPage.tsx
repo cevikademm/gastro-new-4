@@ -85,7 +85,11 @@ function PaymentForm({ amount, onPaid }: { amount: number; onPaid: () => void })
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <PaymentElement options={{ layout: 'tabs' }} />
+      <PaymentElement
+        options={{
+          layout: { type: 'accordion', defaultCollapsed: false, radios: true, spacedAccordionItems: true },
+        }}
+      />
 
       {error && (
         <div className="flex items-start gap-2 bg-red-50 text-red-700 px-4 py-3 rounded-xl text-sm">

@@ -210,6 +210,22 @@ const APPLIANCE_TABS: Array<{
 // Expanded 10 B2B Products Database conforming to EquipmentItem shape
 const LANDING_PRODUCTS: EquipmentItem[] = [
   {
+    id: "promo-1euro",
+    name: "1 € Aktionsprodukt",
+    desc: "Sadece 1 Euro! Sipariş ve ödeme akışını denemek için özel kampanya ürünü. Sepete ekleyip hızlıca satın alabilirsiniz.",
+    cat: "cooking",
+    sub: "Kampanya",
+    fam: "Promo",
+    img: "https://placehold.co/600x400/dc2626/ffffff?text=1+%E2%82%AC",
+    brand: "2MC Gastro",
+    l: 0,
+    w: 0,
+    h: "0",
+    kw: 0,
+    price: 1,
+    line: "Kampanya"
+  },
+  {
     id: "icombi-xs",
     name: "Rational iCombi Pro XS Kombidämpfer",
     desc: "Yoğun mutfaklarda buharda pişirme, kızartma ve fırınlama işlerini tek bir cihazda birleştiren, otomatik temizlikli premium akıllı fırın.",
