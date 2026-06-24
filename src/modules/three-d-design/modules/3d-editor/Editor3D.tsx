@@ -32,6 +32,7 @@ import {
   ArrowDown,
   ArrowRight,
   Eye,
+  Rotate3d,
 } from 'lucide-react';
 
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
@@ -41,7 +42,7 @@ import { MM_TO_THREE, projectToScene, THREE_TO_MM } from '../../core/to3d';
 import { SceneManager } from './scene/SceneManager';
 import { buildStaticScene } from './builders/sceneBuilders';
 import { InteractionController } from './interaction/InteractionController';
-import { resolveCollision, snapToEdges } from './interaction/collision';
+import { othersAtHeight, resolveCollision, snapToEdges } from './interaction/collision';
 import {
   containFloorItem,
   defaultMountFor,
@@ -90,6 +91,10 @@ export default function Editor3D() {
   const project = useProjectStore((s) => s.project);
   const [showGrid, setShowGrid] = useState(true);
   const [shadows, setShadows] = useState(true);
+  // 3B döndürme halkaları (gizmo) varsayılan KAPALI — ürüne tıklamak sadece
+  // seçer, döndürme halkaları açılmaz. Kullanıcı toolbar'dan veya sağ panelden
+  // açar.
+  const [gizmoEnabled, setGizmoEnabled] = useState(false);
   const [paletteOpen, setPaletteOpen] = useState(true);
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
 
@@ -166,6 +171,23 @@ export default function Editor3D() {
         e.rotation = yaw;
         e.tiltX = tiltX;
         e.tiltY = tiltY;
+        // Döndürme OBB'yi kaydırır — gizmo da sürükleme/panel ile aynı çakışma
+        // kuralını uygulasın ki ürün komşusunun içine dönmesin. Yalnızca aynı
+        // yükseklik bandındaki ürünler engeller.
+        const others = othersAtHeight(
+          e.position.z,
+          e.heightMm,
+          Object.values(d.equipment).filter((o) => o.id !== eqId),
+        );
+        const resolved = resolveCollision(
+          { x: e.position.x, y: e.position.y },
+          yaw,
+          e.footprint.width,
+          e.footprint.depth,
+          others,
+          eqId,
+        );
+        e.position = { x: resolved.x, y: resolved.y, z: e.position.z };
       });
       // Kanonik re-seat (yaw dış + tilt iç pivot + seatOnFloor) + tekrar bake →
       // gizmo oturumu kesintisiz sürsün, halka eksenleri hizalı kalsın.
@@ -213,7 +235,9 @@ export default function Editor3D() {
       const zMm = defaultZForMount(mount);
 
       const project = useProjectStore.getState().project;
-      const others = Object.values(project.equipment);
+      // Yeni ürün yalnızca kendi yükseklik bandındaki ürünlerle çakışsın
+      // (tezgah üstüne mikrodalga / range üstüne davlumbaz serbest kalsın).
+      const others = othersAtHeight(zMm, heightMm, Object.values(project.equipment));
 
       if (mount === 'wall') {
         // Davlumbaz vb.: en yakın duvara, odaya bakar şekilde yapıştır.
@@ -447,7 +471,7 @@ export default function Editor3D() {
       if (prevObj && prevEq) reseatCanonical(prevObj, prevEq);
     }
 
-    if (id && obj && !selectedLocked) {
+    if (id && obj && !selectedLocked && gizmoEnabled) {
       gizmoAttachedIdRef.current = id;
       bakeTiltIntoOuter(obj);
       gizmo.attach(obj);
@@ -455,7 +479,7 @@ export default function Editor3D() {
       gizmoAttachedIdRef.current = null;
       gizmo.detach();
     }
-  }, [selectedEquipmentId, selectedLocked]);
+  }, [selectedEquipmentId, selectedLocked, gizmoEnabled]);
 
   // ── Toggles + cursor ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -550,6 +574,14 @@ export default function Editor3D() {
         <ToolBtn active={fogOn} onClick={() => setFogOn((v) => !v)} title="Atmosferik sis (kapalı = net)">
           <Eye size={14} />
         </ToolBtn>
+        <Sep />
+        <ToolBtn
+          active={gizmoEnabled}
+          onClick={() => setGizmoEnabled((v) => !v)}
+          title="3B döndürme halkaları (seçili ürünü gizmo ile döndür)"
+        >
+          <Rotate3d size={14} />
+        </ToolBtn>
       </div>
 
       {/* ── Armed banner ───────────────────────────────────────────── */}
@@ -574,7 +606,7 @@ export default function Editor3D() {
         <Box size={11} /> {wallCount} duvar · {roomCount} oda · {equipmentCount} ekipman
         {selectedEquipmentId && (
           <span className="ml-2 text-blue-600">
-            seçili · gövdeyi sürükle (snap + çakışma) · halkalarla 3B döndür (Shift = 15° snap) · F / çift tık = odaklan · R 90° · Del sil
+            seçili · gövdeyi sürükle (snap + çakışma) · 3B döndürme için ↻ butonu (toolbar / sağ panel) · F / çift tık = odaklan · R 90° · Del sil
           </span>
         )}
       </div>
@@ -599,6 +631,8 @@ export default function Editor3D() {
       <EquipmentPropertiesPanel
         equipmentId={selectedEquipmentId}
         onClose={() => setSelectedEquipmentId(null)}
+        gizmoEnabled={gizmoEnabled}
+        onToggleGizmo={() => setGizmoEnabled((v) => !v)}
       />
 
       {wallCount === 0 && (

@@ -23,7 +23,7 @@ import * as THREE from 'three';
 import { MM_TO_THREE, THREE_TO_MM } from '../../../core/to3d';
 import type { SceneManager } from '../scene/SceneManager';
 import { useProjectStore } from '../../../store';
-import { resolveCollision, snapToEdges } from './collision';
+import { othersAtHeight, resolveCollision, snapToEdges } from './collision';
 import { containFloorItem, mountToWall, obbCenterFromMinCorner } from './placement';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -370,7 +370,14 @@ export class InteractionController {
     }
 
     let rotation = eq.rotation;
-    const others = Object.values(project.equipment);
+    // Only items sharing this item's height band block it — a wall cabinet
+    // above a counter must not be pushed away, but same-level items can't
+    // interpenetrate.
+    const others = othersAtHeight(
+      eq.position.z,
+      eq.heightMm,
+      Object.values(project.equipment),
+    );
 
     if (eq.mount === 'wall') {
       // Wall items slide ALONG the nearest wall. We project the cursor (cursor

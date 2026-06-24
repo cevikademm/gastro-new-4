@@ -361,6 +361,36 @@ export function resolveAgainstObstacles(
   return p;
 }
 
+/**
+ * Subset of `others` whose VERTICAL extent [z, z+height] overlaps the target's.
+ *
+ * Collision is resolved on the 2D footprint (top-down OBB). Without this filter
+ * a wall cabinet at z≈1450 would be shoved away from a base counter at z=0
+ * sitting directly beneath it — even though in 3D they never touch. By
+ * pre-filtering to items that actually share a height band we get correct 3D
+ * non-penetration: items at the SAME level can't interpenetrate, while
+ * legitimately stacked items (microwave on a counter, hood above a range) stay
+ * free to overlap in plan view.
+ *
+ * Conservative: if either height is missing / non-positive we KEEP the item
+ * (treat it as colliding), so a bad height can never silently switch collision
+ * off for an item.
+ */
+export function othersAtHeight(
+  z: number,
+  height: number,
+  others: Equipment[],
+): Equipment[] {
+  if (!(height > 0)) return others;
+  return others.filter((o) => {
+    const oh = o.heightMm;
+    const oz = o.position.z;
+    if (!(oh > 0)) return true;
+    const overlap = Math.min(z + height, oz + oh) - Math.max(z, oz);
+    return overlap > TOUCH_EPSILON_MM;
+  });
+}
+
 /** True if any other equipment overlaps the proposed placement. */
 export function isOverlapping(
   pos: Vec2,

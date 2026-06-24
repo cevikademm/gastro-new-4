@@ -23,6 +23,7 @@ import {
   RotateCw,
   RotateCcw,
   RefreshCw,
+  Rotate3d,
   Move,
   ArrowUp,
   ArrowDown,
@@ -32,7 +33,7 @@ import {
 } from 'lucide-react';
 import { useProjectStore } from '../../../store';
 import type { Equipment, EquipmentId } from '../../../core/types';
-import { resolveCollision, snapToEdges } from '../interaction/collision';
+import { othersAtHeight, resolveCollision, snapToEdges } from '../interaction/collision';
 import {
   containFloorItem,
   DEFAULT_WALL_MOUNT_Z,
@@ -42,6 +43,10 @@ import {
 interface EquipmentPropertiesPanelProps {
   equipmentId: string | null;
   onClose: () => void;
+  /** 3B döndürme halkaları (gizmo) açık mı? */
+  gizmoEnabled?: boolean;
+  /** Halkaları aç/kapat — tıklayınca otomatik açılmaz, kullanıcı buradan açar. */
+  onToggleGizmo?: () => void;
 }
 
 const ROT_STEPS = [0, 90, 180, 270] as const;
@@ -50,6 +55,8 @@ const EDGE_SNAP_TOL_MM = 50;
 export default function EquipmentPropertiesPanel({
   equipmentId,
   onClose,
+  gizmoEnabled = false,
+  onToggleGizmo,
 }: EquipmentPropertiesPanelProps) {
   const project = useProjectStore((s) => s.project);
   const update = useProjectStore((s) => s.update);
@@ -85,12 +92,14 @@ export default function EquipmentPropertiesPanel({
     let x = xMm;
     let y = yMm;
     if (applySnap) {
+      // Only neighbours sharing this item's height band constrain it.
+      const blockers = othersAtHeight(eq.position.z, eq.heightMm, otherEquipment);
       const snapped = snapToEdges(
         { x, y },
         eq.rotation,
         eq.footprint.width,
         eq.footprint.depth,
-        otherEquipment,
+        blockers,
         eq.id,
         EDGE_SNAP_TOL_MM,
       );
@@ -99,7 +108,7 @@ export default function EquipmentPropertiesPanel({
         eq.rotation,
         eq.footprint.width,
         eq.footprint.depth,
-        otherEquipment,
+        blockers,
         eq.id,
       );
       x = resolved.x;
@@ -191,7 +200,7 @@ export default function EquipmentPropertiesPanel({
       rad,
       eq.footprint.width,
       eq.footprint.depth,
-      otherEquipment,
+      othersAtHeight(eq.position.z, eq.heightMm, otherEquipment),
       eq.id,
     );
     update((d) => {
@@ -394,6 +403,24 @@ export default function EquipmentPropertiesPanel({
       </Section>
 
       <Section title="Yön">
+        {onToggleGizmo && (
+          <button
+            type="button"
+            onClick={onToggleGizmo}
+            disabled={!!eq.locked}
+            className={[
+              'w-full mb-2 inline-flex items-center justify-center gap-1.5 h-7 rounded text-[10px] font-bold border transition-colors',
+              gizmoEnabled
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+              eq.locked ? 'opacity-50 cursor-not-allowed' : '',
+            ].join(' ')}
+            title="3B döndürme halkalarını aç/kapat (gizmo)"
+          >
+            <Rotate3d size={12} />
+            {gizmoEnabled ? '3B döndürme açık — kapat' : '3B döndürme halkaları'}
+          </button>
+        )}
         <Row label="Açı">
           <input
             type="range"
