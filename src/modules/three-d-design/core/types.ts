@@ -127,6 +127,13 @@ export interface Equipment {
   footprint: { width: number; depth: number };
   heightMm: number;
   roomId?: RoomId;
+  /**
+   * Where the item is anchored. 'floor' (default / undefined for backward
+   * compatibility with older saved docs) sits at z=0 on the ground; 'wall'
+   * mounts flush against the nearest wall at `position.z` (mounting height),
+   * facing into the room — e.g. davlumbaz / asma dolap.
+   */
+  mount?: 'floor' | 'wall';
   locked?: boolean;
 }
 

@@ -218,6 +218,149 @@ export function snapToEdges(
   };
 }
 
+// ── Containment (keep an OBB inside a polygon) ───────────────────────────────
+
+/** True if point p is inside polygon poly (ray casting). mm. */
+export function pointInPolygon(p: Vec2, poly: ReadonlyArray<Vec2>): boolean {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i];
+    const b = poly[j];
+    const intersects =
+      a.y > p.y !== b.y > p.y &&
+      p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+/** Closest point on segment AB to point P. */
+export function closestPointOnSegment(p: Vec2, a: Vec2, b: Vec2): Vec2 {
+  const abx = b.x - a.x;
+  const aby = b.y - a.y;
+  const ab2 = abx * abx + aby * aby;
+  if (ab2 < 1e-9) return { x: a.x, y: a.y };
+  let t = ((p.x - a.x) * abx + (p.y - a.y) * aby) / ab2;
+  t = Math.max(0, Math.min(1, t));
+  return { x: a.x + abx * t, y: a.y + aby * t };
+}
+
+/**
+ * Push `pos` so all four corners of the resulting OBB lie inside `polygon`.
+ * Iterates because correcting one corner can poke another out. For each
+ * violating corner we move `pos` by the vector from the corner to its closest
+ * point on the polygon boundary (the cheapest escape into the room).
+ *
+ * `polygon` must be the INNER (inset) room polygon so items rest on the wall's
+ * inner face. No-op when the polygon is degenerate (<3 pts).
+ */
+export function clampOBBInsidePolygon(
+  pos: Vec2,
+  rotation: number,
+  width: number,
+  depth: number,
+  polygon: ReadonlyArray<Vec2>,
+  iterations: number = 8,
+): Vec2 {
+  if (polygon.length < 3) return { x: pos.x, y: pos.y };
+  const out = { x: pos.x, y: pos.y };
+  for (let it = 0; it < iterations; it++) {
+    const obb = obbFor(out, rotation, width, depth);
+    const corners = obbCorners(obb);
+    // Find the most-outside corner and the push needed to bring it in.
+    let worstPush: Vec2 | null = null;
+    let worstDist = 0;
+    for (const c of corners) {
+      if (pointInPolygon(c, polygon)) continue;
+      // Nearest boundary point across all edges.
+      let nx = c.x;
+      let ny = c.y;
+      let nd = Infinity;
+      for (let i = 0; i < polygon.length; i++) {
+        const cp = closestPointOnSegment(c, polygon[i], polygon[(i + 1) % polygon.length]);
+        const dx = cp.x - c.x;
+        const dy = cp.y - c.y;
+        const d = dx * dx + dy * dy;
+        if (d < nd) {
+          nd = d;
+          nx = cp.x;
+          ny = cp.y;
+        }
+      }
+      const dist = Math.hypot(nx - c.x, ny - c.y);
+      if (dist > worstDist) {
+        worstDist = dist;
+        worstPush = { x: nx - c.x, y: ny - c.y };
+      }
+    }
+    if (!worstPush || worstDist <= TOUCH_EPSILON_MM) break;
+    out.x += worstPush.x;
+    out.y += worstPush.y;
+  }
+  return out;
+}
+
+// ── Wall obstacles (keep equipment from crossing ANY wall) ───────────────────
+
+/**
+ * OBB for a wall segment: width axis runs ALONG the centerline (a→b), depth
+ * axis is the wall thickness. Lets us run the same SAT push-out used for
+ * item-item collision against walls — so a product's head/middle/tail can
+ * never penetrate a wall, including interior/partition walls drawn later.
+ */
+export function wallToOBB(
+  ax: number,
+  ay: number,
+  bx: number,
+  by: number,
+  thickness: number,
+): OBB {
+  const dx = bx - ax;
+  const dy = by - ay;
+  const len = Math.hypot(dx, dy) || 1;
+  return {
+    cx: (ax + bx) / 2,
+    cy: (ay + by) / 2,
+    hw: len / 2,
+    hd: Math.max(1, thickness) / 2,
+    cos: dx / len,
+    sin: dy / len,
+  };
+}
+
+/**
+ * Push `pos` until the resulting OBB no longer overlaps any obstacle OBB
+ * (typically walls). Same iterative escape as {@link resolveCollision} but
+ * against pre-built OBBs instead of Equipment instances. A flush (0-gap)
+ * contact is NOT an overlap (TOUCH_EPSILON), so a counter can sit against a
+ * wall without being shoved away.
+ */
+export function resolveAgainstObstacles(
+  pos: Vec2,
+  rotation: number,
+  width: number,
+  depth: number,
+  obstacles: ReadonlyArray<OBB>,
+  iterations: number = 8,
+): Vec2 {
+  const p = { x: pos.x, y: pos.y };
+  for (let i = 0; i < iterations; i++) {
+    const t = obbFor(p, rotation, width, depth);
+    let pushed = false;
+    for (const o of obstacles) {
+      const r = obbOverlap(t, o);
+      if (r.overlap) {
+        p.x += r.axis.x * (r.pen + TOUCH_EPSILON_MM);
+        p.y += r.axis.y * (r.pen + TOUCH_EPSILON_MM);
+        pushed = true;
+        break;
+      }
+    }
+    if (!pushed) return p;
+  }
+  return p;
+}
+
 /** True if any other equipment overlaps the proposed placement. */
 export function isOverlapping(
   pos: Vec2,

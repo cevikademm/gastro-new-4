@@ -27,10 +27,17 @@ import {
   ArrowUp,
   ArrowDown,
   Minus,
+  Square as FloorIcon,
+  PanelLeft as WallIcon,
 } from 'lucide-react';
 import { useProjectStore } from '../../../store';
 import type { Equipment, EquipmentId } from '../../../core/types';
 import { resolveCollision, snapToEdges } from '../interaction/collision';
+import {
+  containFloorItem,
+  DEFAULT_WALL_MOUNT_Z,
+  mountToWall,
+} from '../interaction/placement';
 
 interface EquipmentPropertiesPanelProps {
   equipmentId: string | null;
@@ -97,6 +104,18 @@ export default function EquipmentPropertiesPanel({
       );
       x = resolved.x;
       y = resolved.y;
+      // Zemin ürünü oda duvarlarının dışına çıkamaz.
+      if ((eq.mount ?? 'floor') === 'floor') {
+        const contained = containFloorItem(
+          project,
+          { x, y },
+          eq.rotation,
+          eq.footprint.width,
+          eq.footprint.depth,
+        );
+        x = contained.x;
+        y = contained.y;
+      }
     }
     update((d) => {
       const e = d.equipment[eq.id];
@@ -107,6 +126,56 @@ export default function EquipmentPropertiesPanel({
 
   const setZ = (zMm: number) => {
     const z = Math.max(0, Math.round(zMm));
+    update((d) => {
+      const e = d.equipment[eq.id];
+      if (!e) return;
+      e.position = { x: e.position.x, y: e.position.y, z };
+    });
+  };
+
+  const mount = eq.mount ?? 'floor';
+
+  const setMount = (next: 'floor' | 'wall') => {
+    if (next === mount) return;
+    if (next === 'wall') {
+      // En yakın duvara yapıştır, odaya baksın, montaj yüksekliğine al.
+      const center = {
+        x: eq.position.x + (eq.footprint.width / 2),
+        y: eq.position.y + (eq.footprint.depth / 2),
+      };
+      const mounted = mountToWall(project, center, eq.footprint.width, eq.footprint.depth);
+      const z = eq.position.z > 0 ? eq.position.z : DEFAULT_WALL_MOUNT_Z;
+      update((d) => {
+        const e = d.equipment[eq.id];
+        if (!e) return;
+        e.mount = 'wall';
+        if (mounted) {
+          e.position = { x: mounted.pos.x, y: mounted.pos.y, z };
+          e.rotation = mounted.rotation;
+        } else {
+          e.position = { x: e.position.x, y: e.position.y, z };
+        }
+      });
+    } else {
+      // Zemine indir, x/y koru ama oda içine clamp et.
+      const contained = containFloorItem(
+        project,
+        { x: eq.position.x, y: eq.position.y },
+        eq.rotation,
+        eq.footprint.width,
+        eq.footprint.depth,
+      );
+      update((d) => {
+        const e = d.equipment[eq.id];
+        if (!e) return;
+        e.mount = 'floor';
+        e.position = { x: contained.x, y: contained.y, z: 0 };
+      });
+    }
+  };
+
+  const setWallHeight = (zMm: number) => {
+    const z = Math.max(0, Math.min(2400, Math.round(zMm)));
     update((d) => {
       const e = d.equipment[eq.id];
       if (!e) return;
@@ -193,6 +262,67 @@ export default function EquipmentPropertiesPanel({
           <Stat label="D" value={eq.footprint.depth} unit="mm" />
           <Stat label="Y" value={eq.heightMm} unit="mm" />
         </div>
+      </Section>
+
+      <Section title="Montaj">
+        <div className="grid grid-cols-2 gap-1">
+          <button
+            type="button"
+            onClick={() => setMount('floor')}
+            disabled={!!eq.locked}
+            className={[
+              'inline-flex items-center justify-center gap-1 h-7 rounded text-[10px] font-bold border transition-colors',
+              mount === 'floor'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+              eq.locked ? 'opacity-50 cursor-not-allowed' : '',
+            ].join(' ')}
+            title="Zemine otur (z = 0)"
+          >
+            <FloorIcon size={11} /> Zemin
+          </button>
+          <button
+            type="button"
+            onClick={() => setMount('wall')}
+            disabled={!!eq.locked}
+            className={[
+              'inline-flex items-center justify-center gap-1 h-7 rounded text-[10px] font-bold border transition-colors',
+              mount === 'wall'
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+              eq.locked ? 'opacity-50 cursor-not-allowed' : '',
+            ].join(' ')}
+            title="En yakın duvara yapıştır (asma dolap / davlumbaz)"
+          >
+            <WallIcon size={11} /> Duvar
+          </button>
+        </div>
+
+        {mount === 'wall' && (
+          <Row label="Yükseklik (zeminden)">
+            <input
+              type="range"
+              min={0}
+              max={2400}
+              step={10}
+              value={Math.min(2400, Math.max(0, zMm))}
+              onChange={(e) => setWallHeight(Number(e.target.value))}
+              disabled={!!eq.locked}
+              className="flex-1 accent-emerald-600"
+            />
+            <NumberInput
+              value={zInput}
+              onChange={setZInput}
+              onCommit={setWallHeight}
+              disabled={!!eq.locked}
+            />
+          </Row>
+        )}
+        <p className="mt-1 text-[9px] text-slate-400 leading-snug">
+          {mount === 'wall'
+            ? 'Duvar ürünü en yakın duvara yapışır, odaya bakar; sürüklerken duvar boyunca kayar.'
+            : 'Zemin ürünü yere oturur ve oda duvarlarının dışına çıkamaz.'}
+        </p>
       </Section>
 
       <Section title="Konum">

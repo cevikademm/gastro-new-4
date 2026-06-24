@@ -16,7 +16,16 @@ import type {
   Wall,
   WallId,
 } from './types';
-import { distance2, mm2ToM2, mmToM, polygonArea, polygonPerimeter } from './math';
+import {
+  closestPointOnSegment,
+  distance2,
+  mm2ToM2,
+  mmToM,
+  polygonArea,
+  polygonPerimeter,
+  polygonSignedArea,
+} from './math';
+import { offsetPolygon } from './polygon';
 
 // ── Vertex / wall dereference ───────────────────────────────────────────────
 
@@ -118,4 +127,167 @@ export function projectBounds(
   }
 
   return touched ? { min: { x: minX, y: minY }, max: { x: maxX, y: maxY } } : null;
+}
+
+// ── Containment (keep equipment inside walls) ────────────────────────────────
+
+/** Average wall thickness of a room's loop (mm). Falls back to 100 mm. */
+export function roomWallThickness(project: ProjectDocument, room: Room): number {
+  let sum = 0;
+  let n = 0;
+  for (const wid of room.wallLoop) {
+    const w = project.walls[wid];
+    if (!w) continue;
+    sum += w.thickness;
+    n += 1;
+  }
+  return n > 0 ? sum / n : 100;
+}
+
+/**
+ * Inner containment polygon for a room: the room outline (wall CENTER line)
+ * inset by half the wall thickness so equipment rests against the wall's INNER
+ * face instead of its center line. Returns CCW points (matching roomPolygon's
+ * orientation). Returns null when the room has fewer than 3 corners.
+ *
+ * `offsetPolygon` shifts each edge along its LEFT-hand normal. For a CCW loop
+ * the left normal points OUTWARD, so a negative distance insets. We detect the
+ * loop orientation from the signed area so the inset is correct either way.
+ */
+export function roomContainmentPolygon(
+  project: ProjectDocument,
+  room: Room,
+  insetMm?: number,
+): Vec2[] | null {
+  const poly = roomPolygon(project, room);
+  if (poly.length < 3) return null;
+  const inset = insetMm ?? roomWallThickness(project, room) / 2;
+  if (inset <= 0) return poly;
+  // signedArea > 0 is CCW under polygonSignedArea's convention; for a CCW loop
+  // the offset's left-normal points outward → negative distance insets.
+  const ccw = polygonSignedArea(poly) > 0;
+  const distance = ccw ? -inset : inset;
+  const out = offsetPolygon(poly, distance);
+  // Guard against the polygon collapsing/inverting for tiny rooms.
+  if (polygonArea(out) < polygonArea(poly) * 0.05) return poly;
+  return out;
+}
+
+/** True if point p is inside polygon poly (ray casting, mm). */
+export function pointInPolygon(p: Vec2, poly: ReadonlyArray<Vec2>): boolean {
+  let inside = false;
+  for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+    const a = poly[i];
+    const b = poly[j];
+    const intersects =
+      a.y > p.y !== b.y > p.y &&
+      p.x < ((b.x - a.x) * (p.y - a.y)) / (b.y - a.y) + a.x;
+    if (intersects) inside = !inside;
+  }
+  return inside;
+}
+
+/**
+ * The room whose polygon contains `point`, else the room whose polygon is
+ * NEAREST to it (closest edge). Returns null when there are no closed rooms.
+ */
+export function roomForPoint(
+  project: ProjectDocument,
+  point: Vec2,
+): Room | null {
+  const rooms = (Object.values(project.rooms) as Room[]).filter(
+    (r) => roomPolygon(project, r).length >= 3,
+  );
+  if (rooms.length === 0) return null;
+  for (const room of rooms) {
+    if (pointInPolygon(point, roomPolygon(project, room))) return room;
+  }
+  // Not inside any room — pick the closest one by edge distance.
+  let best: Room | null = null;
+  let bestDist = Infinity;
+  for (const room of rooms) {
+    const poly = roomPolygon(project, room);
+    for (let i = 0; i < poly.length; i++) {
+      const c = closestPointOnSegment(point, poly[i], poly[(i + 1) % poly.length]);
+      const d = distance2(point, c);
+      if (d < bestDist) {
+        bestDist = d;
+        best = room;
+      }
+    }
+  }
+  return best;
+}
+
+export interface NearestWall {
+  wallId: WallId;
+  a: Vec2;
+  b: Vec2;
+  /** Unit direction a→b. */
+  dir: Vec2;
+  /** Unit inward normal (points into the room). */
+  normal: Vec2;
+  /** Closest point on the wall center line to the query point. */
+  closest: Vec2;
+  /** Distance from query point to the wall center line (mm). */
+  distance: number;
+  thickness: number;
+}
+
+/**
+ * Nearest wall of a room to `point`, with an INWARD normal (pointing into the
+ * room interior). Used by wall-mounting to orient & slide an item along a wall.
+ */
+export function nearestRoomWall(
+  project: ProjectDocument,
+  room: Room,
+  point: Vec2,
+): NearestWall | null {
+  const center = polygonCentroid(roomPolygon(project, room));
+  let best: NearestWall | null = null;
+  for (const wid of room.wallLoop) {
+    const w = project.walls[wid];
+    if (!w) continue;
+    const a = project.vertices[w.a];
+    const b = project.vertices[w.b];
+    if (!a || !b) continue;
+    const av: Vec2 = { x: a.x, y: a.y };
+    const bv: Vec2 = { x: b.x, y: b.y };
+    const len = distance2(av, bv);
+    if (len < 1) continue;
+    const dir: Vec2 = { x: (bv.x - av.x) / len, y: (bv.y - av.y) / len };
+    // Two normal candidates; pick the one pointing toward the room centroid.
+    let normal: Vec2 = { x: -dir.y, y: dir.x };
+    const mid: Vec2 = { x: (av.x + bv.x) / 2, y: (av.y + bv.y) / 2 };
+    if ((center.x - mid.x) * normal.x + (center.y - mid.y) * normal.y < 0) {
+      normal = { x: -normal.x, y: -normal.y };
+    }
+    const closest = closestPointOnSegment(point, av, bv);
+    const d = distance2(point, closest);
+    if (!best || d < best.distance) {
+      best = {
+        wallId: w.id,
+        a: av,
+        b: bv,
+        dir,
+        normal,
+        closest,
+        distance: d,
+        thickness: w.thickness,
+      };
+    }
+  }
+  return best;
+}
+
+/** Centroid (average of vertices) of a polygon. */
+export function polygonCentroid(poly: ReadonlyArray<Vec2>): Vec2 {
+  if (poly.length === 0) return { x: 0, y: 0 };
+  let sx = 0;
+  let sy = 0;
+  for (const p of poly) {
+    sx += p.x;
+    sy += p.y;
+  }
+  return { x: sx / poly.length, y: sy / poly.length };
 }

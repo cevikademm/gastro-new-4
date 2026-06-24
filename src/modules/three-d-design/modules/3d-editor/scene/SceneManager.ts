@@ -60,6 +60,16 @@ export class SceneManager {
   private tickFns: Set<FrameTickFn> = new Set();
   private disposed = false;
 
+  /** Active camera-focus tween (controls.target + optional dolly). */
+  private focusTween: {
+    fromTarget: THREE.Vector3;
+    toTarget: THREE.Vector3;
+    fromPos: THREE.Vector3;
+    toPos: THREE.Vector3;
+    elapsed: number;
+    duration: number;
+  } | null = null;
+
   // Lights — kept as fields so callers can tune them.
   readonly ambient: THREE.AmbientLight;
   readonly sun: THREE.DirectionalLight;
@@ -97,7 +107,8 @@ export class SceneManager {
     }
 
     // ── Camera ────────────────────────────────────────────────────────
-    this.camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+    // FOV 50 → 3ds Max benzeri daha doğal/derin perspektif.
+    this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
     this.camera.position.set(cameraStart.x, cameraStart.y, cameraStart.z);
     this.camera.lookAt(0, 0, 0);
     // Three uses Y-up by default — our internal model uses Z-up.
@@ -128,6 +139,8 @@ export class SceneManager {
     this.grid = new THREE.GridHelper(100, 100, 0xcbd5e1, 0xe2e8f0);
     (this.grid.material as THREE.Material).transparent = true;
     (this.grid.material as THREE.Material).opacity = 0.6;
+    // Çift taraflı: kamera zeminin ALTINA indiğinde (özgür orbit) grid kaybolmasın.
+    (this.grid.material as THREE.Material).side = THREE.DoubleSide;
     this.scene.add(this.grid);
 
     // ── Content root: rotate -90° about X so +Y in domain → +Y on floor
@@ -144,10 +157,10 @@ export class SceneManager {
     // responsive feel without losing smoothness).
     this.controls.dampingFactor = 0.15;
     this.controls.target.set(0, 0, 0);
-    // Üstten bakış ↔ neredeyse yatay arası: tam yatay görünüme yaklaşmaya izin
-    // ver ama zeminin altına sarkmasın. Top-down (90° from horizon) serbest.
-    this.controls.minPolarAngle = 0;
-    this.controls.maxPolarAngle = Math.PI * 0.499;
+    // Tam küresel orbit (3ds Max hissi): tepeden zeminin ALTINA kadar serbest
+    // dön. Kutuplarda gimbal-flip yaşanmasın diye küçük epsilon bırakıyoruz.
+    this.controls.minPolarAngle = 0.02;
+    this.controls.maxPolarAngle = Math.PI - 0.05;
     this.controls.minDistance = 0.5;
     this.controls.maxDistance = 200;
     this.controls.rotateSpeed = 1.35;
@@ -168,8 +181,63 @@ export class SceneManager {
     this.controls.update();
   }
 
+  /**
+   * Smoothly re-center the orbit on a world point so the camera ends up
+   * orbiting AROUND that point ("uzayda yüzen ürün" hissi). Optionally dolly
+   * the camera closer so the focused object fills more of the frame.
+   *
+   * @param worldPoint  Target in WORLD space (use object.getWorldPosition).
+   * @param opts.distance  Desired camera→target distance (m). If omitted the
+   *                       current distance is kept (sadece target kayar).
+   * @param opts.duration  Tween süresi (s). Default 0.3.
+   */
+  focusOn(
+    worldPoint: THREE.Vector3,
+    opts: { distance?: number; duration?: number } = {},
+  ): void {
+    const { distance, duration = 0.3 } = opts;
+    const fromTarget = this.controls.target.clone();
+    const toTarget = worldPoint.clone();
+    const fromPos = this.camera.position.clone();
+
+    // Keep the current viewing direction; only slide the eye so the new target
+    // sits at the requested (or current) distance along the same ray.
+    const dir = fromPos.clone().sub(fromTarget);
+    const curDist = dir.length() || 1;
+    dir.normalize();
+    const dist = THREE.MathUtils.clamp(
+      distance ?? curDist,
+      this.controls.minDistance,
+      this.controls.maxDistance,
+    );
+    const toPos = toTarget.clone().add(dir.multiplyScalar(dist));
+
+    if (duration <= 0) {
+      this.controls.target.copy(toTarget);
+      this.camera.position.copy(toPos);
+      this.controls.update();
+      this.focusTween = null;
+      return;
+    }
+    this.focusTween = { fromTarget, toTarget, fromPos, toPos, elapsed: 0, duration };
+  }
+
+  /** Advance the focus tween (called from the RAF loop, before controls.update). */
+  private stepFocusTween(dt: number): void {
+    const tw = this.focusTween;
+    if (!tw) return;
+    tw.elapsed += dt;
+    const raw = Math.min(1, tw.elapsed / tw.duration);
+    // easeInOutCubic — yumuşak giriş/çıkış.
+    const e = raw < 0.5 ? 4 * raw * raw * raw : 1 - Math.pow(-2 * raw + 2, 3) / 2;
+    this.controls.target.lerpVectors(tw.fromTarget, tw.toTarget, e);
+    this.camera.position.lerpVectors(tw.fromPos, tw.toPos, e);
+    if (raw >= 1) this.focusTween = null;
+  }
+
   /** Reset camera to a named view preset, framing the given content box. */
   setViewPreset(preset: 'top' | 'front' | 'side' | 'iso', box?: THREE.Box3): void {
+    this.focusTween = null; // kullanıcı görünümü değiştirdi → odak tween'ini bırak
     const target = new THREE.Vector3();
     const size = new THREE.Vector3(8, 4, 8);
     if (box && !box.isEmpty()) {
@@ -246,6 +314,7 @@ export class SceneManager {
       const dt = (t - this.lastTime) / 1000;
       this.lastTime = t;
       for (const fn of this.tickFns) fn(dt, t);
+      this.stepFocusTween(dt);
       this.controls.update();
       this.renderer.render(this.scene, this.camera);
     };
@@ -295,6 +364,7 @@ export class SceneManager {
   // ── Camera framing ────────────────────────────────────────────────────
   fitCameraToBox(box: THREE.Box3, padding = 1.4): void {
     if (box.isEmpty()) return;
+    this.focusTween = null; // sığdırma odak tween'ini ezmesin
     const size = new THREE.Vector3();
     const center = new THREE.Vector3();
     box.getSize(size);

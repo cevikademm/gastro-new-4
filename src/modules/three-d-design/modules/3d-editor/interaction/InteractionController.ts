@@ -24,6 +24,7 @@ import { MM_TO_THREE, THREE_TO_MM } from '../../../core/to3d';
 import type { SceneManager } from '../scene/SceneManager';
 import { useProjectStore } from '../../../store';
 import { resolveCollision, snapToEdges } from './collision';
+import { containFloorItem, mountToWall, obbCenterFromMinCorner } from './placement';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -47,6 +48,12 @@ function findEquipmentRoot(obj: THREE.Object3D): THREE.Object3D | null {
 export interface InteractionEvents {
   onSelect?: (equipmentId: string | null) => void;
   onHover?: (equipmentId: string | null) => void;
+  /**
+   * Returns true while the rotate-gizmo (TransformControls) is being dragged.
+   * When active, body-drag / selection / deselect are suppressed so clicking a
+   * gizmo ring never moves or deselects the product.
+   */
+  isGizmoActive?: () => boolean;
 }
 
 export class InteractionController {
@@ -85,6 +92,7 @@ export class InteractionController {
     const onPointerMove = this.onPointerMove.bind(this);
     const onPointerDown = this.onPointerDown.bind(this);
     const onPointerUp = this.onPointerUp.bind(this);
+    const onDblClick = this.onDblClick.bind(this);
     const onKeyDown = this.onKeyDown.bind(this);
     const onKeyUp = this.onKeyUp.bind(this);
     const onContextMenu = (e: Event) => e.preventDefault();
@@ -92,6 +100,7 @@ export class InteractionController {
     dom.addEventListener('pointermove', onPointerMove);
     dom.addEventListener('pointerdown', onPointerDown);
     dom.addEventListener('pointerup', onPointerUp);
+    dom.addEventListener('dblclick', onDblClick);
     dom.addEventListener('contextmenu', onContextMenu);
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
@@ -100,6 +109,7 @@ export class InteractionController {
       () => dom.removeEventListener('pointermove', onPointerMove),
       () => dom.removeEventListener('pointerdown', onPointerDown),
       () => dom.removeEventListener('pointerup', onPointerUp),
+      () => dom.removeEventListener('dblclick', onDblClick),
       () => dom.removeEventListener('contextmenu', onContextMenu),
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
@@ -136,6 +146,9 @@ export class InteractionController {
 
   private onPointerDown(e: PointerEvent): void {
     if (e.button !== 0) return; // left click only
+    // Gizmo halkasına basılıyken seçim/taşıma/deselect TETİKLENMESİN — döndürme
+    // TransformControls'a aittir.
+    if (this.events.isGizmoActive?.()) return;
     this.updatePointerNDC(e);
 
     const hit = this.raycastEquipment();
@@ -161,6 +174,31 @@ export class InteractionController {
     }
   }
 
+  /** Double-click an equipment → smoothly orbit the camera around it. */
+  private onDblClick(e: MouseEvent): void {
+    this.updatePointerNDC(e as unknown as PointerEvent);
+    const hit = this.raycastEquipment();
+    if (!hit) return;
+    this.focusCameraOn(hit.root);
+  }
+
+  /** Center + orbit the camera on the given equipment root's world center. */
+  private focusCameraOn(root: THREE.Object3D): void {
+    root.updateWorldMatrix(true, true);
+    const box = new THREE.Box3().setFromObject(root);
+    if (box.isEmpty()) return;
+    const center = new THREE.Vector3();
+    box.getCenter(center);
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    // Ürünü kareye sığacak kadar yakınlaş ama mevcut mesafenin altına inme.
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = (this.manager.camera.fov * Math.PI) / 180;
+    const fitDist = (maxDim * 1.8) / (2 * Math.tan(fov / 2));
+    const curDist = this.manager.camera.position.distanceTo(this.manager.controls.target);
+    this.manager.focusOn(center, { distance: Math.min(curDist, Math.max(fitDist, 1.2)) });
+  }
+
   private onKeyDown(e: KeyboardEvent): void {
     if (e.key === 'Shift') this.shiftHeld = true;
     const target = e.target as HTMLElement | null;
@@ -176,6 +214,11 @@ export class InteractionController {
     const equipmentId: string | undefined = this.selectedRoot.userData.equipmentId;
     if (!equipmentId) return;
 
+    if (e.key.toLowerCase() === 'f') {
+      // Seçili ürüne odaklan (kamera onu merkez alıp etrafında döner).
+      this.focusCameraOn(this.selectedRoot);
+      e.preventDefault();
+    }
     if (e.key.toLowerCase() === 'r') {
       this.rotateSelected(e.shiftKey ? -90 : 90);
       e.preventDefault();
@@ -320,30 +363,80 @@ export class InteractionController {
     const eqId = this.selectedRoot.userData?.equipmentId as string | undefined;
     const project = useProjectStore.getState().project;
     const eq = eqId ? project.equipment[eqId] : undefined;
+    if (!eq) {
+      this.selectedRoot.position.x = xMm * MM_TO_THREE;
+      this.selectedRoot.position.y = yMm * MM_TO_THREE;
+      return;
+    }
 
-    if (eq && this.collisionEnabled && !this.shiftHeld) {
-      const others = Object.values(project.equipment);
-      // 2) Edge-snap to neighbours so kabin sıraları 0 mm gap'le otursun.
-      const snapped = snapToEdges(
-        { x: xMm, y: yMm },
+    let rotation = eq.rotation;
+    const others = Object.values(project.equipment);
+
+    if (eq.mount === 'wall') {
+      // Wall items slide ALONG the nearest wall. We project the cursor (cursor
+      // = OBB center for intuitive sliding) onto the wall, re-derive rotation
+      // so the back face stays flush, then resolve item-item overlap so wall
+      // cabinets line up side by side.
+      const cursorCenter = obbCenterFromMinCorner(
+        xMm,
+        yMm,
         eq.rotation,
         eq.footprint.width,
         eq.footprint.depth,
-        others,
-        eq.id,
-        this.edgeSnapTolMm,
       );
-      // 3) Resolve any remaining overlap (push out along smallest axis).
-      const resolved = resolveCollision(
-        snapped,
-        eq.rotation,
+      const mounted = mountToWall(
+        project,
+        cursorCenter,
         eq.footprint.width,
         eq.footprint.depth,
-        others,
-        eq.id,
       );
-      xMm = resolved.x;
-      yMm = resolved.y;
+      if (mounted) {
+        xMm = mounted.pos.x;
+        yMm = mounted.pos.y;
+        rotation = mounted.rotation;
+        if (this.collisionEnabled && !this.shiftHeld) {
+          const resolved = resolveCollision(
+            { x: xMm, y: yMm },
+            rotation,
+            eq.footprint.width,
+            eq.footprint.depth,
+            others,
+            eq.id,
+          );
+          xMm = resolved.x;
+          yMm = resolved.y;
+        }
+        // Reflect the live rotation while dragging.
+        this.selectedRoot.rotation.z = rotation;
+      }
+    } else {
+      if (this.collisionEnabled && !this.shiftHeld) {
+        // 2) Edge-snap to neighbours so kabin sıraları 0 mm gap'le otursun.
+        const snapped = snapToEdges(
+          { x: xMm, y: yMm },
+          rotation,
+          eq.footprint.width,
+          eq.footprint.depth,
+          others,
+          eq.id,
+          this.edgeSnapTolMm,
+        );
+        // 3) Resolve any remaining overlap (push out along smallest axis).
+        const resolved = resolveCollision(
+          snapped,
+          rotation,
+          eq.footprint.width,
+          eq.footprint.depth,
+          others,
+          eq.id,
+        );
+        xMm = resolved.x;
+        yMm = resolved.y;
+      }
+      // 4) Keep the whole footprint inside the room walls (no-op if no rooms).
+      const contained = containFloorItem(project, { x: xMm, y: yMm }, rotation, eq.footprint.width, eq.footprint.depth);
+      xMm = contained.x;
+      yMm = contained.y;
     }
 
     this.selectedRoot.position.x = xMm * MM_TO_THREE;
@@ -360,10 +453,15 @@ export class InteractionController {
     // contentRoot LOCAL (x, y) are domain (x, y) in METERS. Convert to mm.
     const xMm = this.selectedRoot.position.x * THREE_TO_MM;
     const yMm = this.selectedRoot.position.y * THREE_TO_MM;
+    // Wall mounting re-derives rotation during the drag; persist it too.
+    // Read yaw via ZXY euler so a gizmo-tilted item (tilt baked into the outer
+    // group) still reports its true yaw instead of a coupled euler.z.
+    const rotZ = new THREE.Euler().setFromQuaternion(this.selectedRoot.quaternion, 'ZXY').z;
     useProjectStore.getState().update((d) => {
       const eq = d.equipment[equipmentId];
       if (!eq) return;
       eq.position = { x: xMm, y: yMm, z: eq.position.z };
+      eq.rotation = rotZ;
     });
   }
 

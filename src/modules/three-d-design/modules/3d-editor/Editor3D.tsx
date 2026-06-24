@@ -34,12 +34,20 @@ import {
   Eye,
 } from 'lucide-react';
 
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
+
 import { useProjectStore } from '../../store';
 import { MM_TO_THREE, projectToScene, THREE_TO_MM } from '../../core/to3d';
 import { SceneManager } from './scene/SceneManager';
 import { buildStaticScene } from './builders/sceneBuilders';
 import { InteractionController } from './interaction/InteractionController';
 import { resolveCollision, snapToEdges } from './interaction/collision';
+import {
+  containFloorItem,
+  defaultMountFor,
+  defaultZForMount,
+  mountToWall,
+} from './interaction/placement';
 import { loadEquipment } from './loaders/GLBLoader';
 import { getCatalogEntry } from './loaders/equipmentCatalog';
 import {
@@ -65,6 +73,19 @@ export default function Editor3D() {
   const equipmentRootRef = useRef<THREE.Group | null>(null);
   /** Cache: equipmentId → loaded Object3D in equipmentRoot. */
   const equipmentCacheRef = useRef<Map<string, THREE.Object3D>>(new Map());
+  /** Wall/vertex content signature last processed by re-containment. */
+  const lastWallSigRef = useRef<string>('');
+
+  /** Rotate gizmo (TransformControls) + state. */
+  const gizmoRef = useRef<TransformControls | null>(null);
+  /**
+   * equipmentId the gizmo is ATTACHED to. While attached, that item's tilt is
+   * baked into its outer group (pivot identity), so the equipment-sync effect
+   * must NOT re-seat it (would un-bake mid-session). Cleared on detach.
+   */
+  const gizmoAttachedIdRef = useRef<string | null>(null);
+  /** True while a gizmo ring is being dragged (suppresses body-drag/select). */
+  const gizmoActiveRef = useRef<boolean>(false);
 
   const project = useProjectStore((s) => s.project);
   const [showGrid, setShowGrid] = useState(true);
@@ -99,9 +120,68 @@ export default function Editor3D() {
 
     const c = new InteractionController(m, {
       onSelect: (id) => setSelectedEquipmentId(id),
+      // Active while a ring is being dragged (gizmoActiveRef) OR while the
+      // pointer is merely HOVERING a ring (`gizmo.axis` is set on hover, before
+      // pointerdown). The hover check is what makes the very first click on a
+      // ring NOT fall through to body-drag/deselect — InteractionController's
+      // pointerdown runs before TransformControls flips `dragging`.
+      isGizmoActive: () =>
+        gizmoActiveRef.current ||
+        (gizmoRef.current as unknown as { axis: string | null } | null)?.axis != null,
     });
     controllerRef.current = c;
     c.attach();
+
+    // ── Rotate gizmo (3ds Max 'Rotate' benzeri) ──────────────────────────
+    // Seçili & kilitsiz ürünün DIŞ group'una attach edilir (ayrı effect).
+    // Halka çevrildikçe ürün CANLI döner; bırakınca değer store'a yazılıp
+    // kanonik şekilde (yaw dış + tilt iç pivot + seatOnFloor) yeniden oturur.
+    const gizmo = new TransformControls(m.camera, m.renderer.domElement);
+    gizmo.setMode('rotate');
+    gizmo.setSpace('local'); // halkalar ürünün yerel eksenlerine hizalı (yaw=Z)
+    gizmo.setSize(0.85);
+    gizmoRef.current = gizmo;
+    m.scene.add(gizmo.getHelper());
+
+    gizmo.addEventListener('dragging-changed', (event) => {
+      const dragging = (event as unknown as { value: boolean }).value;
+      // OrbitControls ile çakışmasın: gizmo sürüklenirken orbit kapalı.
+      m.controls.enabled = !dragging;
+      gizmoActiveRef.current = dragging;
+      // Bırakma anında (dragging=false) yönelimi store'a yaz. Sürükleme boyunca
+      // equipment-sync zaten bu ürünü atlar (gizmoAttachedIdRef), o yüzden ayrı
+      // bir "drag" bayrağı gerekmez.
+      if (dragging) return;
+      const obj = gizmo.object as THREE.Object3D | undefined;
+      const eqId = obj?.userData?.equipmentId as string | undefined;
+      if (!obj || !eqId) return;
+
+      // Son yönelimi ZXY euler olarak çöz, store'a TEK update yaz (undo/redo
+      // tek adım). Sahnedeki nesne zaten doğru yönde; store ↔ görsel tutarlı
+      // kalsın diye kanonik re-seat'i hemen elle uygularız.
+      const { yaw, tiltX, tiltY } = readZXY(obj);
+      useProjectStore.getState().update((d) => {
+        const e = d.equipment[eqId];
+        if (!e) return;
+        e.rotation = yaw;
+        e.tiltX = tiltX;
+        e.tiltY = tiltY;
+      });
+      // Kanonik re-seat (yaw dış + tilt iç pivot + seatOnFloor) + tekrar bake →
+      // gizmo oturumu kesintisiz sürsün, halka eksenleri hizalı kalsın.
+      const eq = useProjectStore.getState().project.equipment[eqId];
+      if (eq) reseatAndRebake(obj, eq);
+    });
+
+    // Shift basılıyken 15° snap (3ds Max angle-snap hissi).
+    const onGizmoKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') gizmo.setRotationSnap((15 * Math.PI) / 180);
+    };
+    const onGizmoKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') gizmo.setRotationSnap(null);
+    };
+    window.addEventListener('keydown', onGizmoKeyDown);
+    window.addEventListener('keyup', onGizmoKeyUp);
 
     const dom = m.renderer.domElement;
     const onPlaceClick = (e: PointerEvent) => {
@@ -125,31 +205,44 @@ export default function Editor3D() {
       // Center the footprint on the click point. Domain anchor convention:
       // position is the footprint MIN-CORNER.
       const heightMm = parseHeightMm(item.h);
+      const category = mapEquipmentCategory(item.cat);
+      const mount = defaultMountFor(category);
       let xMm = local.x * THREE_TO_MM - item.l / 2;
       let yMm = local.y * THREE_TO_MM - item.w / 2;
+      let rotation = 0;
+      const zMm = defaultZForMount(mount);
 
-      // Edge-snap to neighbours, then push out of any overlap. New items
-      // never spawn inside existing ones — kesin kural.
-      const others = Object.values(useProjectStore.getState().project.equipment);
-      const snapped = snapToEdges(
-        { x: xMm, y: yMm },
-        0,
-        item.l,
-        item.w,
-        others,
-        null,
-        50,
-      );
-      const safe = resolveCollision(snapped, 0, item.l, item.w, others, null);
-      xMm = safe.x;
-      yMm = safe.y;
+      const project = useProjectStore.getState().project;
+      const others = Object.values(project.equipment);
+
+      if (mount === 'wall') {
+        // Davlumbaz vb.: en yakın duvara, odaya bakar şekilde yapıştır.
+        const clickCenter = { x: local.x * THREE_TO_MM, y: local.y * THREE_TO_MM };
+        const mounted = mountToWall(project, clickCenter, item.l, item.w);
+        if (mounted) {
+          rotation = mounted.rotation;
+          const safe = resolveCollision(mounted.pos, rotation, item.l, item.w, others, null);
+          xMm = safe.x;
+          yMm = safe.y;
+        }
+      } else {
+        // Edge-snap to neighbours, then push out of any overlap. New items
+        // never spawn inside existing ones — kesin kural.
+        const snapped = snapToEdges({ x: xMm, y: yMm }, 0, item.l, item.w, others, null, 50);
+        const safe = resolveCollision(snapped, 0, item.l, item.w, others, null);
+        // Oda duvarlarının dışına taşmasın.
+        const contained = containFloorItem(project, safe, 0, item.l, item.w);
+        xMm = contained.x;
+        yMm = contained.y;
+      }
 
       useProjectStore.getState().addEquipment({
         catalogId: item.id,
         name: item.name,
-        category: mapEquipmentCategory(item.cat),
-        position: { x: xMm, y: yMm, z: 0 },
-        rotation: 0,
+        category,
+        position: { x: xMm, y: yMm, z: zMm },
+        rotation,
+        mount,
         footprint: { width: item.l, depth: item.w },
         heightMm,
       });
@@ -170,6 +263,12 @@ export default function Editor3D() {
       equipmentRootRef.current = null;
       equipmentCacheRef.current.clear();
       dom.removeEventListener('pointerdown', onPlaceClick, { capture: true });
+      window.removeEventListener('keydown', onGizmoKeyDown);
+      window.removeEventListener('keyup', onGizmoKeyUp);
+      gizmo.detach();
+      m.scene.remove(gizmo.getHelper());
+      gizmo.dispose();
+      gizmoRef.current = null;
       c.detach();
       m.dispose();
     };
@@ -197,6 +296,48 @@ export default function Editor3D() {
     }
   }, [project.walls, project.rooms, project.openings, project.vertices]);
 
+  // ── Re-contain floor items when walls change ─────────────────────────────
+  // If a wall is drawn (or moved) THROUGH an existing product, push the product
+  // back out so nothing ever ends up inside a wall. Only writes when an item
+  // actually has to move (>1 mm), so ordinary wall edits add no history noise.
+  // Depends on walls/vertices only → updating equipment never re-triggers it.
+  useEffect(() => {
+    const proj = useProjectStore.getState().project;
+    if (Object.keys(proj.walls).length === 0) return;
+    // Guard: our own equipment write makes update() hand back NEW walls/vertices
+    // references (same content). Re-run only when wall geometry truly changed,
+    // so we can't loop on our own write or oscillate on a stuck item.
+    let sig = '';
+    for (const w of Object.values(proj.walls)) sig += `${w.a},${w.b},${w.thickness};`;
+    for (const v of Object.values(proj.vertices)) sig += `${v.id}:${v.x},${v.y};`;
+    if (sig === lastWallSigRef.current) return;
+    lastWallSigRef.current = sig;
+
+    const moves: Array<{ id: string; x: number; y: number }> = [];
+    for (const eq of Object.values(proj.equipment)) {
+      if ((eq.mount ?? 'floor') !== 'floor') continue;
+      if (eq.locked) continue;
+      const c = containFloorItem(
+        proj,
+        { x: eq.position.x, y: eq.position.y },
+        eq.rotation,
+        eq.footprint.width,
+        eq.footprint.depth,
+      );
+      if (Math.abs(c.x - eq.position.x) > 1 || Math.abs(c.y - eq.position.y) > 1) {
+        moves.push({ id: eq.id, x: c.x, y: c.y });
+      }
+    }
+    if (moves.length > 0) {
+      useProjectStore.getState().update((d) => {
+        for (const mv of moves) {
+          const e = d.equipment[mv.id];
+          if (e) e.position = { ...e.position, x: mv.x, y: mv.y };
+        }
+      });
+    }
+  }, [project.walls, project.vertices]);
+
   // ── Equipment sync (diffed against cache) ────────────────────────────────
   useEffect(() => {
     const equipmentRoot = equipmentRootRef.current;
@@ -219,19 +360,11 @@ export default function Editor3D() {
       const eq = project.equipment[id];
       const existing = cache.get(id);
       if (existing) {
-        existing.position.set(
-          eq.position.x * MM_TO_THREE,
-          eq.position.y * MM_TO_THREE,
-          eq.position.z * MM_TO_THREE,
-        );
-        existing.rotation.z = eq.rotation;
-        // Tilts live on the inner pivot group so yaw and tilt don't fight.
-        const pivot = existing.userData?.pivot as THREE.Object3D | undefined;
-        if (pivot) {
-          pivot.rotation.x = eq.tiltX ?? 0;
-          pivot.rotation.y = eq.tiltY ?? 0;
-        }
-        seatOnFloor(existing, eq.position.z * MM_TO_THREE);
+        // Gizmo bu ürüne bağlıyken tilt'i DIŞ group'a yedirilmiş (pivot identity)
+        // durumda; kanonik re-seat onu un-bake eder, o yüzden ATLA. Gizmo bırakınca
+        // (reseatAndRebake) zaten elle kanonik konuma getiriyoruz.
+        if (gizmoAttachedIdRef.current === id) continue;
+        reseatCanonical(existing, eq);
         continue;
       }
 
@@ -292,6 +425,37 @@ export default function Editor3D() {
       cache.set(id, boxGroup);
     }
   }, [project.equipment]);
+
+  // ── Rotate gizmo attach/detach ───────────────────────────────────────────
+  // Attach to the selected & UNLOCKED item's outer group; detach otherwise.
+  // On attach the item's tilt is baked into the outer group (single rotation
+  // source for the gizmo); on detach it's re-seated to the canonical structure.
+  const selectedLocked = selectedEquipmentId
+    ? !!project.equipment[selectedEquipmentId]?.locked
+    : false;
+  useEffect(() => {
+    const gizmo = gizmoRef.current;
+    if (!gizmo) return;
+    const id = selectedEquipmentId;
+    const obj = id ? equipmentCacheRef.current.get(id) : undefined;
+
+    // Detach previous attachment → re-seat it canonically from the store.
+    const prevId = gizmoAttachedIdRef.current;
+    if (prevId && prevId !== id) {
+      const prevObj = equipmentCacheRef.current.get(prevId);
+      const prevEq = useProjectStore.getState().project.equipment[prevId];
+      if (prevObj && prevEq) reseatCanonical(prevObj, prevEq);
+    }
+
+    if (id && obj && !selectedLocked) {
+      gizmoAttachedIdRef.current = id;
+      bakeTiltIntoOuter(obj);
+      gizmo.attach(obj);
+    } else {
+      gizmoAttachedIdRef.current = null;
+      gizmo.detach();
+    }
+  }, [selectedEquipmentId, selectedLocked]);
 
   // ── Toggles + cursor ─────────────────────────────────────────────────────
   useEffect(() => {
@@ -410,7 +574,7 @@ export default function Editor3D() {
         <Box size={11} /> {wallCount} duvar · {roomCount} oda · {equipmentCount} ekipman
         {selectedEquipmentId && (
           <span className="ml-2 text-blue-600">
-            seçili · sürükle (otomatik snap + çakışma) · sağ panelden hassas ayar · R döndür · Del sil · Shift = snap kapat
+            seçili · gövdeyi sürükle (snap + çakışma) · halkalarla 3B döndür (Shift = 15° snap) · F / çift tık = odaklan · R 90° · Del sil
           </span>
         )}
       </div>
@@ -420,6 +584,7 @@ export default function Editor3D() {
         <span><b className="text-slate-700">Sol</b> döndür</span>
         <span><b className="text-slate-700">Sağ</b> taşı</span>
         <span><b className="text-slate-700">Tekerlek</b> yakınlaş</span>
+        <span><b className="text-slate-700">Çift tık</b> ürüne odaklan</span>
       </div>
 
       {/* ── Equipment catalog panel (rich, search + categories) ─────── */}
@@ -467,6 +632,37 @@ function seatOnFloor(group: THREE.Object3D, baseZ: number): void {
   // box.min.y is the lowest WORLD-Y (= lowest domain-z). A delta on the group's
   // local z shifts world Y 1:1 (parent equipmentRoot is untransformed).
   group.position.z += baseZ - box.min.y;
+}
+
+/**
+ * Re-seat an outer group into the CANONICAL structure from store values:
+ * position from eq.position, yaw on the outer group (Z), tilt on the inner
+ * pivot (X/Y), then seatOnFloor. Single source of truth = store. Used by the
+ * equipment-sync effect and after a gizmo session ends.
+ */
+function reseatCanonical(group: THREE.Object3D, eq: import('../../core/types').Equipment): void {
+  group.position.set(
+    eq.position.x * MM_TO_THREE,
+    eq.position.y * MM_TO_THREE,
+    eq.position.z * MM_TO_THREE,
+  );
+  group.rotation.set(0, 0, eq.rotation); // yaw only on the outer group
+  const pivot = group.userData?.pivot as THREE.Object3D | undefined;
+  if (pivot) {
+    pivot.rotation.x = eq.tiltX ?? 0;
+    pivot.rotation.y = eq.tiltY ?? 0;
+  }
+  seatOnFloor(group, eq.position.z * MM_TO_THREE);
+}
+
+/**
+ * After a gizmo release: re-seat canonically (so seatOnFloor handles vertical
+ * sink + tilt returns to the inner pivot), then re-bake the tilt into the outer
+ * group so the gizmo session can continue with axes still aligned to the item.
+ */
+function reseatAndRebake(group: THREE.Object3D, eq: import('../../core/types').Equipment): void {
+  reseatCanonical(group, eq);
+  bakeTiltIntoOuter(group);
 }
 
 function buildFallbackBox(
@@ -535,6 +731,59 @@ function wrapWithPivot(
   }
   group.add(pivot);
   return pivot;
+}
+
+/**
+ * Drag-başı tilt yedirme.
+ *
+ * Sürükleme süresince TEK bir döndürme kaynağı olsun diye, iç pivot'taki tilt'i
+ * (Rt) DIŞ group'un kendi transformuna katarız ve iç pivot rotasyonunu sıfırlarız.
+ * İçeriği yerinde tutmak için konjugasyon kullanılır:
+ *   G_new = G_old · T(p0) · Rt · T(p0)⁻¹
+ * Böylece pivot rotasyonu identity olsa da tüm mesh'ler aynı dünya pozunda kalır.
+ * Bırakıldığında store'dan kanonik re-seat yapıldığı için bu geçici durum kalıcı
+ * değildir (position store'dan yeniden hesaplanır).
+ */
+function bakeTiltIntoOuter(group: THREE.Object3D): void {
+  const pivot = group.userData?.pivot as THREE.Object3D | undefined;
+  if (!pivot) return;
+  if (pivot.rotation.x === 0 && pivot.rotation.y === 0) return; // tilt yok
+
+  group.updateMatrix();
+  const Gold = group.matrix.clone();
+
+  const Tp0 = new THREE.Matrix4().makeTranslation(
+    pivot.position.x,
+    pivot.position.y,
+    pivot.position.z,
+  );
+  const Tp0Inv = new THREE.Matrix4().copy(Tp0).invert();
+  const Rt = new THREE.Matrix4().makeRotationFromEuler(pivot.rotation);
+
+  const Gnew = new THREE.Matrix4()
+    .multiply(Gold)
+    .multiply(Tp0)
+    .multiply(Rt)
+    .multiply(Tp0Inv);
+
+  const pos = new THREE.Vector3();
+  const quat = new THREE.Quaternion();
+  const scl = new THREE.Vector3();
+  Gnew.decompose(pos, quat, scl);
+  group.position.copy(pos);
+  group.quaternion.copy(quat);
+  group.updateMatrix();
+
+  pivot.rotation.set(0, 0, 0);
+}
+
+/**
+ * DIŞ group'un quaternion'ını 'ZXY' sırasında euler'e çöz → yaw=z, tiltX=x,
+ * tiltY=y. Seating modeliyle tutarlı: dış group yaw'ı (Z) ana eksen, X/Y tilt.
+ */
+function readZXY(group: THREE.Object3D): { yaw: number; tiltX: number; tiltY: number } {
+  const e = new THREE.Euler().setFromQuaternion(group.quaternion, 'ZXY');
+  return { yaw: e.z, tiltX: e.x, tiltY: e.y };
 }
 
 function disposeObject(obj: THREE.Object3D): void {

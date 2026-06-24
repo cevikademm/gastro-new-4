@@ -20,6 +20,12 @@ import {
   getCatalogEntry,
 } from './equipmentCatalog';
 import { loadEquipment, snapRotationDeg } from './GLBLoader';
+import {
+  containFloorItem,
+  defaultMountFor,
+  defaultZForMount,
+  mountToWall,
+} from '../interaction/placement';
 
 export interface PlacementResult {
   /** New Equipment id in the store. */
@@ -52,29 +58,45 @@ export async function placeEquipment(
 
   const { group } = await loadEquipment(entry);
 
+  // ── Smart mount + containment ────────────────────────────────────────
+  // ventilation → duvar (z≈1450), diğerleri → zemin (z=0). Footprint odanın
+  // dışına taşmasın; duvar ürünleri en yakın duvara yapışsın.
+  const project = useProjectStore.getState().project;
+  const mount = defaultMountFor(entry.category);
+  const w = entry.dimensionsMm.width;
+  const d = entry.dimensionsMm.depth;
+  let posX = positionMm.x ?? 0;
+  let posY = positionMm.y ?? 0;
+  let rotRad = (snapRotationDeg(rotationDeg) * Math.PI) / 180;
+  const posZ = positionMm.z ?? defaultZForMount(mount);
+
+  if (mount === 'wall') {
+    const center = { x: posX + w / 2, y: posY + d / 2 };
+    const mounted = mountToWall(project, center, w, d);
+    if (mounted) {
+      posX = mounted.pos.x;
+      posY = mounted.pos.y;
+      rotRad = mounted.rotation;
+    }
+  } else {
+    const contained = containFloorItem(project, { x: posX, y: posY }, rotRad, w, d);
+    posX = contained.x;
+    posY = contained.y;
+  }
+
   // ── Position in scene units ──────────────────────────────────────────
   // Anchor convention: domain x/y is footprint MIN corner, z is floor.
-  group.position.set(
-    (positionMm.x ?? 0) * MM_TO_THREE,
-    (positionMm.y ?? 0) * MM_TO_THREE,
-    (positionMm.z ?? 0) * MM_TO_THREE,
-  );
-
-  // Snap rotation to 90° increments.
-  const rotDeg = snapRotationDeg(rotationDeg);
-  group.rotation.z = (rotDeg * Math.PI) / 180;
+  group.position.set(posX * MM_TO_THREE, posY * MM_TO_THREE, posZ * MM_TO_THREE);
+  group.rotation.z = rotRad;
 
   // ── Persist into store so undo/redo + 2D footprint work ──────────────
   const equipmentId = useProjectStore.getState().addEquipment({
     catalogId: entry.id,
     name: entry.name,
     category: entry.category,
-    position: {
-      x: positionMm.x ?? 0,
-      y: positionMm.y ?? 0,
-      z: positionMm.z ?? 0,
-    },
-    rotation: (rotDeg * Math.PI) / 180,
+    position: { x: posX, y: posY, z: posZ },
+    rotation: rotRad,
+    mount,
     footprint: {
       width: entry.dimensionsMm.width,
       depth: entry.dimensionsMm.depth,
