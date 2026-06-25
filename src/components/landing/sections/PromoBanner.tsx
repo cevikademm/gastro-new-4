@@ -15,11 +15,11 @@ const BENEFITS = [
 
 export function PromoBanner() {
   return (
-    <section className="py-16 bg-white relative z-10 overflow-hidden">
+    <section className="py-10 sm:py-16 bg-white relative z-10 overflow-hidden">
       <div className="lp-container">
         <div className="relative overflow-hidden rounded-2xl border border-slate-200 bg-[#0F2440] text-white shadow-[0_24px_60px_-34px_rgba(15,36,64,0.65)]">
           <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_430px]">
-            <div className="p-8 md:p-10 lg:p-12 text-left">
+            <div className="p-6 sm:p-8 md:p-10 lg:p-12 text-left">
               <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/[0.06] px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-white/85">
                 <BadgePercent size={14} className="text-brand-red" />
                 PROJEKTBONUS
@@ -32,9 +32,9 @@ export function PromoBanner() {
                 Für komplette Küchenlisten prüfen wir Einkaufskonditionen, Lieferstatus und Leasingrate zusammen. So entsteht ein Angebot, das im Projekt wirklich funktioniert.
               </p>
 
-              <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div className="mt-6 sm:mt-8 flex md:grid overflow-x-auto md:overflow-visible snap-x md:snap-none md:grid-cols-3 gap-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1 md:mx-0 md:px-0 pb-2 md:pb-0">
                 {BONUS_ITEMS.map((item) => (
-                  <div key={item} className="flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-4">
+                  <div key={item} className="min-w-[220px] shrink-0 snap-start md:min-w-0 md:shrink flex items-start gap-3 rounded-xl border border-white/10 bg-white/[0.06] p-4">
                     <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-brand-red" />
                     <span className="text-[11px] font-bold leading-relaxed text-white/80">{item}</span>
                   </div>
@@ -42,7 +42,7 @@ export function PromoBanner() {
               </div>
             </div>
 
-            <div className="border-t border-white/10 bg-white/[0.06] p-8 md:p-10 lg:border-l lg:border-t-0">
+            <div className="border-t border-white/10 bg-white/[0.06] p-6 sm:p-8 md:p-10 lg:border-l lg:border-t-0">
               <div className="rounded-2xl border border-white/10 bg-[#0a111c]/70 p-6 text-left">
                 <p className="text-[10px] font-black uppercase tracking-[0.22em] text-white/45">Aktueller Vorteil</p>
                 <div className="mt-3 flex items-end gap-3">

@@ -11,9 +11,9 @@ export function TestimonialsBand() {
   if (items.length === 0) return null;
 
   return (
-    <section className="bg-white py-24 md:py-32 relative z-10 border-t border-slate-200">
+    <section className="bg-white py-14 md:py-32 relative z-10 border-t border-slate-200">
       <div className="lp-container">
-        <Reveal className="text-center mb-14">
+        <Reveal className="text-center mb-8 sm:mb-14">
           <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-brand-red mb-4">
             {t('landing.testimonials.eyebrow', { defaultValue: 'Müşteri deneyimleri' })}
           </p>
@@ -34,9 +34,9 @@ export function TestimonialsBand() {
           </div>
         </Reveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory md:snap-none gap-4 md:gap-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1 md:mx-0 md:px-0 pb-2 md:pb-0">
           {items.map((tm, idx) => (
-            <Reveal key={tm.id} delay={idx * 0.1} y={20} duration={0.7}>
+            <Reveal key={tm.id} delay={idx * 0.1} y={20} duration={0.7} className="w-[86vw] max-w-[24rem] min-w-0 shrink-0 snap-center md:w-auto md:max-w-none md:shrink">
               <article className="group relative h-full bg-white border border-slate-200 rounded-2xl p-7 md:p-8 transition-all duration-300 hover:border-brand-red/50 hover:-translate-y-1 shadow-[0_4px_16px_rgba(15,36,64,0.05)] hover:shadow-[0_24px_48px_-16px_rgba(220,38,38,0.18)]">
                 <Quote
                   size={32}

@@ -38,6 +38,9 @@ interface EquipmentCatalogPanelProps {
   onArm: (item: EquipmentItem | null) => void;
   open: boolean;
   onToggleOpen: () => void;
+  /** Which edge to dock to. Defaults to 'right' (3D editor). 2D uses 'left'
+   *  so it never overlaps the right-side properties panel. */
+  side?: 'left' | 'right';
 }
 
 const RESULT_LIMIT = 50;
@@ -68,6 +71,7 @@ export default function EquipmentCatalogPanel({
   onArm,
   open,
   onToggleOpen,
+  side = 'right',
 }: EquipmentCatalogPanelProps) {
   const productItems = useEquipmentStore((s) => s.allItems);
   const favorites = useEquipmentStore((s) => s.favorites);
@@ -200,8 +204,9 @@ export default function EquipmentCatalogPanel({
   return (
     <aside
       className={[
-        'absolute top-16 right-3 bottom-3 bg-white/95 backdrop-blur border border-slate-200 rounded-lg shadow-sm transition-all flex flex-col overflow-hidden',
-        open ? 'w-80' : 'w-9',
+        'absolute top-16 bottom-3 bg-white/95 backdrop-blur border border-slate-200 rounded-lg shadow-sm transition-all flex flex-col overflow-hidden z-20',
+        side === 'left' ? 'left-3' : 'right-3',
+        open ? 'w-[74vw] max-w-[17rem] sm:w-80 sm:max-w-none' : 'w-9',
       ].join(' ')}
     >
       <header className="flex items-center gap-1 px-3 h-10 border-b border-slate-200">

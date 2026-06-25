@@ -103,6 +103,7 @@ export interface ProjectSlice {
   // ── Equipment actions ────────────────────────────────────────────────
   addEquipment: (input: Omit<Equipment, 'id' | 'type'>) => string;
   removeEquipment: (id: string) => void;
+  updateEquipment: (id: string, patch: Partial<Omit<Equipment, 'id' | 'type'>>) => void;
 
   // ── Selection (NOT tracked) ──────────────────────────────────────────
   select: (ids: EntityId[]) => void;
@@ -311,6 +312,14 @@ export const useProjectStore = create<ProjectStore>(
               delete d.equipment[id];
               const ord = d.order.indexOf(id);
               if (ord !== -1) d.order.splice(ord, 1);
+            }),
+          });
+        },
+        updateEquipment: (id, patch) => {
+          set({
+            project: apply((d) => {
+              const eq = d.equipment[id];
+              if (eq) Object.assign(eq, patch);
             }),
           });
         },

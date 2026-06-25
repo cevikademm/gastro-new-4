@@ -7,12 +7,14 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import LanguageSelector from './LanguageSelector';
+import { CartDrawer } from './CartDrawer';
 
 const NAV_ITEMS = [
-  { name: 'DIAMOND', path: '/diamond' },
-  { name: 'COMBISTEEL', path: '/combisteel' },
-  { name: 'MUTFAK PLANLAMA', path: '/kitchen-planner' },
+  { name: 'PLANLAMA', path: '/kitchen-planner' },
+  { name: 'ÜRÜNLER', path: '/kategori' },
   { name: 'PROJELER', path: '/projects' },
+  { name: 'İLETİŞİM', path: '/support' },
+  { name: 'HAKKIMIZDA', path: '/brand' },
   { name: 'BLOG', path: '/blog' }
 ];
 
@@ -24,6 +26,10 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
   const user = useAuthStore((s) => s.user);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const scrolledRef = useRef(false);
   const langVariant = !isScrolled && transparent ? 'dark' : 'light';
 
@@ -34,6 +40,17 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
     }
     window.location.href = '/#quote';
   };
+
+  const submitSearch = () => {
+    const q = searchQuery.trim();
+    if (!q) return;
+    setIsSearchOpen(false);
+    navigate(`/kategori?q=${encodeURIComponent(q)}`);
+  };
+
+  useEffect(() => {
+    if (isSearchOpen) searchInputRef.current?.focus();
+  }, [isSearchOpen]);
 
   useEffect(() => {
     let ticking = false;
@@ -92,13 +109,13 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
               <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-9 sm:h-10 md:h-11 w-auto max-w-[148px] sm:max-w-[176px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
             </Link>
 
-            <nav className="hidden lg:flex items-center gap-7 xl:gap-8">
+            <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.name}
                   to={item.path}
                   className={cn(
-                    "text-xs font-bold uppercase tracking-[0.2em] transition-colors relative group",
+                    "text-xs font-bold uppercase tracking-[0.12em] whitespace-nowrap transition-colors relative group",
                     isScrolled
                       ? "text-slate-600 hover:text-brand-red"
                       : transparent
@@ -114,27 +131,47 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
           </div>
 
           <div className="flex items-center gap-3 sm:gap-5 relative z-50">
-            <div className="hidden xl:flex relative group">
-              <input
-                type="text"
-                placeholder="SEARCH..."
-                className={cn(
-                  "bg-transparent border-b pl-0 pr-8 py-2 text-xs w-48 focus:w-64 outline-none transition-all uppercase tracking-[0.2em]",
-                  isScrolled
-                    ? "border-slate-300 text-[#0F2440] focus:border-brand-red placeholder:text-slate-400"
-                    : transparent
-                      ? "border-white/20 text-white focus:border-white placeholder:text-white/40"
-                      : "border-slate-300 text-[#0F2440] focus:border-brand-red placeholder:text-slate-400"
+            <div className="hidden md:flex items-center">
+              <AnimatePresence initial={false}>
+                {isSearchOpen && (
+                  <motion.input
+                    ref={searchInputRef}
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: '12rem', opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === 'Enter') submitSearch(); if (e.key === 'Escape') setIsSearchOpen(false); }}
+                    onBlur={() => { if (!searchQuery.trim()) setIsSearchOpen(false); }}
+                    placeholder="ARA..."
+                    className={cn(
+                      "bg-transparent border-b pl-0 pr-2 py-1.5 text-xs outline-none uppercase tracking-[0.15em] min-w-0",
+                      isScrolled
+                        ? "border-slate-300 text-[#0F2440] focus:border-brand-red placeholder:text-slate-400"
+                        : transparent
+                          ? "border-white/30 text-white focus:border-white placeholder:text-white/40"
+                          : "border-slate-300 text-[#0F2440] focus:border-brand-red placeholder:text-slate-400"
+                    )}
+                  />
                 )}
-              />
-              <Search className={cn(
-                "absolute right-0 top-1/2 -translate-y-1/2 w-3.5 h-3.5 transition-colors",
-                isScrolled
-                  ? "text-slate-500 group-hover:text-brand-red"
-                  : transparent
-                    ? "text-white/60 group-hover:text-white"
-                    : "text-slate-500 group-hover:text-brand-red"
-              )} />
+              </AnimatePresence>
+              <button
+                type="button"
+                aria-label="Ara"
+                onClick={() => { if (isSearchOpen) submitSearch(); else setIsSearchOpen(true); }}
+                className={cn(
+                  "p-1.5 transition-colors cursor-pointer hover:text-brand-red",
+                  isScrolled
+                    ? "text-[#0F2440]"
+                    : transparent
+                      ? "text-white hover:text-white/80"
+                      : "text-[#0F2440]"
+                )}
+              >
+                <Search className="w-4 h-4 sm:w-[18px] sm:h-[18px]" />
+              </button>
             </div>
 
             {/* 15-dil seçici — her ekranda görünür */}
@@ -164,7 +201,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
               <Link
                 to="/login"
                 className={cn(
-                  "hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full border font-bold text-[9px] uppercase tracking-[0.2em] transition-all",
+                  "hidden md:flex items-center gap-2 px-5 py-2.5 rounded-full border font-bold text-[9px] uppercase tracking-[0.18em] whitespace-nowrap transition-all",
                   isScrolled
                     ? "border-slate-300 text-[#0F2440] hover:border-brand-red hover:text-brand-red"
                     : transparent
@@ -172,13 +209,14 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                       : "border-slate-300 text-[#0F2440] hover:border-brand-red hover:text-brand-red"
                 )}
               >
-                <LogIn className="w-3.5 h-3.5" />
+                <LogIn className="w-3.5 h-3.5 shrink-0" />
                 {t('landing.nav.login', 'Giriş Yap')}
               </Link>
             )}
 
             <button
-              onClick={() => navigate('/cart')}
+              onClick={() => setIsCartOpen(true)}
+              aria-label="Sepet"
               className={cn(
                 "relative hover:text-brand-red transition-colors cursor-pointer",
                 isScrolled
@@ -208,9 +246,9 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
 
             <button
               onClick={goToQuote}
-              className="hidden md:flex items-center gap-2 px-6 py-3 bg-brand-red hover:bg-[#B91C1C] text-white rounded-full transition-all font-bold text-[9px] uppercase tracking-[0.2em] shadow-[0_10px_24px_-8px_rgba(220,38,38,0.5)] cursor-pointer"
+              className="hidden md:flex items-center gap-2 px-6 py-3 bg-brand-red hover:bg-[#B91C1C] text-white rounded-full transition-all font-bold text-[9px] uppercase tracking-[0.18em] whitespace-nowrap shadow-[0_10px_24px_-8px_rgba(220,38,38,0.5)] cursor-pointer"
             >
-              <FileText className="w-3.5 h-3.5" /> TEKLİF AL
+              <FileText className="w-3.5 h-3.5 shrink-0" /> TEKLİF AL
             </button>
           </div>
         </div>
@@ -315,6 +353,8 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <CartDrawer open={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </>
   );
 }

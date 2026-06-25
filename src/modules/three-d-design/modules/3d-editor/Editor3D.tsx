@@ -39,6 +39,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 
 import { useProjectStore } from '../../store';
 import { MM_TO_THREE, projectToScene, THREE_TO_MM } from '../../core/to3d';
+import { useEditor2DState } from '../2d-editor/state/editorState';
 import { SceneManager } from './scene/SceneManager';
 import { buildStaticScene } from './builders/sceneBuilders';
 import { InteractionController } from './interaction/InteractionController';
@@ -95,7 +96,9 @@ export default function Editor3D() {
   // seçer, döndürme halkaları açılmaz. Kullanıcı toolbar'dan veya sağ panelden
   // açar.
   const [gizmoEnabled, setGizmoEnabled] = useState(false);
-  const [paletteOpen, setPaletteOpen] = useState(true);
+  const [paletteOpen, setPaletteOpen] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches,
+  );
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
 
   // Click-to-place arming — holds the EquipmentItem (catalog product) the
@@ -280,7 +283,28 @@ export default function Editor3D() {
     };
     dom.addEventListener('pointerdown', onPlaceClick, { capture: true });
 
+    // 2D'den gelen paylaşılan odağa bak (açı/mesafe korunur). Hata olursa
+    // görünümü etkilemeden geç → mevcut çalışma mantığı bozulmaz.
+    try {
+      const f = useEditor2DState.getState().focusWorld;
+      if (f) {
+        const wp = m.contentRoot.localToWorld(
+          new THREE.Vector3(f.x * MM_TO_THREE, f.y * MM_TO_THREE, 0),
+        );
+        m.focusOn(wp, { duration: 0 });
+        firstFitDoneRef.current = true; // odak korunsun, otomatik sığdırma ezmesin
+      }
+    } catch { /* odak senkronu opsiyonel */ }
+
     return () => {
+      // 3D'den ayrılırken kamera hedefini paylaş → 2D aynı noktaya pan'lar.
+      try {
+        const local = m.contentRoot.worldToLocal(m.controls.target.clone());
+        useEditor2DState.getState().setFocusWorld({
+          x: local.x * THREE_TO_MM,
+          y: local.y * THREE_TO_MM,
+        });
+      } catch { /* yoksay */ }
       controllerRef.current = null;
       managerRef.current = null;
       staticRootRef.current = null;

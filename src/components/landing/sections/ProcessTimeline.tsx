@@ -36,11 +36,11 @@ const STEPS = [
 
 export function ProcessTimeline() {
   return (
-    <section className="py-24 bg-white border-b border-slate-200 relative z-10" id="workflow">
+    <section className="py-14 sm:py-24 bg-white border-b border-slate-200 relative z-10" id="workflow">
       <div className="lp-container">
-        
+
         {/* Header Area */}
-        <div className="max-w-2xl mb-20 text-left">
+        <div className="max-w-2xl mb-10 sm:mb-20 text-left">
           <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
             <span className="w-6 h-px bg-brand-red" />
             UNSER ABLAUF
@@ -53,23 +53,23 @@ export function ProcessTimeline() {
           </p>
         </div>
 
-        {/* Timeline Grid (6 Columns on large screens, responsive) */}
-        <div className="relative mb-20">
-          
+        {/* Timeline (mobil: yatay kayan · md+: grid) */}
+        <div className="relative mb-10 sm:mb-20">
+
           {/* Connecting Line (hidden on mobile) */}
           <div className="hidden lg:block absolute top-7 left-[8%] right-[8%] h-0.5 border-t-2 border-dashed border-slate-200 z-0" />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 relative z-10">
+          <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x md:snap-none md:grid-cols-2 lg:grid-cols-6 gap-5 md:gap-8 relative z-10 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1 md:mx-0 md:px-0 pb-2 md:pb-0">
             {STEPS.map((step) => (
-              <div key={step.num} className="flex flex-col items-center lg:items-start text-center lg:text-left group">
-                
+              <div key={step.num} className="min-w-[150px] shrink-0 snap-start md:min-w-0 md:shrink flex flex-col items-center lg:items-start text-center lg:text-left group">
+
                 {/* Number Circle */}
-                <div className="w-14 h-14 rounded-full bg-slate-50 border-2 border-slate-200 group-hover:border-brand-red group-hover:bg-brand-red group-hover:text-white flex items-center justify-center text-lg font-display font-black text-[#0F2440] mb-6 shadow-sm transition-all duration-300">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-slate-50 border-2 border-slate-200 group-hover:border-brand-red group-hover:bg-brand-red group-hover:text-white flex items-center justify-center text-base sm:text-lg font-display font-black text-[#0F2440] mb-3 sm:mb-6 shadow-sm transition-all duration-300">
                   {step.num}
                 </div>
 
                 {/* Content */}
-                <h4 className="text-xs font-black text-[#0F2440] tracking-wider mb-2 uppercase group-hover:text-brand-red transition-colors">
+                <h4 className="text-[11px] sm:text-xs font-black text-[#0F2440] tracking-wider mb-1.5 sm:mb-2 uppercase group-hover:text-brand-red transition-colors">
                   {step.title}
                 </h4>
                 <p className="text-[11px] leading-relaxed text-slate-500 font-medium max-w-[180px]">

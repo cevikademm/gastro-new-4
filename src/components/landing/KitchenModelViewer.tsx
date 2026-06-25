@@ -83,6 +83,8 @@ interface KitchenModelViewerProps {
   autoRotate?: boolean;
   transparent?: boolean;
   fitMargin?: number;
+  /** Keep rendering/rotating even when scrolled off-screen (ignores in-view gating). */
+  alwaysActive?: boolean;
 }
 
 function ModelCanvas({
@@ -153,6 +155,7 @@ export function KitchenModelViewer({
   autoRotate = false,
   transparent = false,
   fitMargin = 1.0,
+  alwaysActive = false,
 }: KitchenModelViewerProps) {
   const [loading, setLoading] = useState(true);
   const handleLoad = useCallback(() => setLoading(false), []);
@@ -180,7 +183,7 @@ export function KitchenModelViewer({
         </div>
       )}
 
-      <ModelCanvas model={model} onLoad={handleLoad} interactive={interactive} autoRotate={autoRotate} active={autoRotate && inView} fitMargin={fitMargin} />
+      <ModelCanvas model={model} onLoad={handleLoad} interactive={interactive} autoRotate={autoRotate} active={autoRotate && (alwaysActive || inView)} fitMargin={fitMargin} />
     </div>
   );
 }

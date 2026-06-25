@@ -92,14 +92,14 @@ const HERO_SLIDES = [
 ];
 
 // Full-bleed banner slides — exact designed JPEGs, shown 1:1 (no reconstruction)
-const HERO_BANNER_RATIO = { w: 3840, h: 1370 };
+const HERO_BANNER_RATIO = { w: 1600, h: 656 };
 
 const HERO_BANNERS = [
-  { src: "/landing/img5_hero_banner.jpeg", alt: "Professionelle Technik. Höchste Qualität.", href: "#catalog", w: 3840, h: 1366 },
-  { src: "/landing/img4_professionelle_qualitat.jpeg", alt: "Professionelle Qualität – %10 Rabatt", href: "#catalog", w: 3840, h: 1370 },
-  { src: "/landing/img1_alles_aus_einer_hand_slider.jpeg", alt: "Alles aus einer Hand.", href: "#chatbotSection", w: 3840, h: 1370 },
-  { src: "/landing/img3_qualitat.jpeg", alt: "Qualität, die den Unterschied macht.", href: "#catalog", w: 3840, h: 1368 },
-  { src: "/landing/hero-zukunft-new.jpeg", alt: "Die Zukunft professioneller Großküchen.", href: "#chatbotSection", w: 3840, h: 1370 },
+  { src: "/landing/slider-1.jpg", alt: "Professionelle Technik. Minimalistisches Design.", href: "#catalog", w: 1600, h: 656 },
+  { src: "/landing/slider-2.jpg", alt: "Professionelle Ausstattung für höchste Ansprüche.", href: "#catalog", w: 1600, h: 656 },
+  { src: "/landing/slider-3.jpg", alt: "Höchstleistung in jedem Schritt.", href: "#catalog", w: 1600, h: 656 },
+  { src: "/landing/slider-4.jpg", alt: "Die Zukunft professioneller Großküchen.", href: "#chatbotSection", w: 1600, h: 656 },
+  { src: "/landing/slider-5.jpg", alt: "Alles aus einer Hand.", href: "#quote", w: 1600, h: 656 },
 ];
 
 const HERO_VALUE_PROPS = [
@@ -404,9 +404,6 @@ export function LandingPage() {
   ]);
   const [chatStep, setChatStep] = useState(2);
 
-  // Layout Toggle State
-  const [kitchenLayoutMode, setKitchenLayoutMode] = useState<"2D" | "3D">("2D");
-
   // Leasing State
   const [leasingValue, setLeasingValue] = useState(82450);
   const [leasingMonths, setLeasingMonths] = useState(60);
@@ -599,6 +596,36 @@ export function LandingPage() {
       prod.desc.toLowerCase().includes(query);
     return catMatch && queryMatch;
   }), [searchQuery, selectedCategory]);
+
+  // Mobil kategori şeridi — görünür olunca bir kez yana kayma ipucu ver
+  // (kullanıcıya "kaydırılabilir" olduğunu gösterir). Masaüstünde dikey liste.
+  const catScrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const el = catScrollRef.current;
+    if (!el || window.matchMedia('(min-width: 1024px)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    let done = false;
+    const io = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting || done) return;
+      done = true;
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 8) return;
+      const hint = Math.min(96, max);
+      const t0 = performance.now();
+      const dur = 1100;
+      const ease = (t: number) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+      const step = (now: number) => {
+        const p = Math.min(1, (now - t0) / dur);
+        // 0 → hint → 0 (gidiş-dönüş)
+        const tri = p < 0.5 ? ease(p / 0.5) : ease((1 - p) / 0.5);
+        el.scrollLeft = hint * tri;
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }, { threshold: 0.6 });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   // Slider slideTo handler
   const handleSliderMove = (clientX: number) => {
@@ -842,19 +869,22 @@ export function LandingPage() {
                     <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[9px]">{filteredProducts.length} Geräte</span>
                   </div>
 
-                  <div className="flex flex-col gap-1">
+                  <div
+                    ref={catScrollRef}
+                    className="flex lg:flex-col gap-1.5 lg:gap-1 overflow-x-auto lg:overflow-visible snap-x lg:snap-none [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1 lg:mx-0 lg:px-0 pb-1 lg:pb-0"
+                  >
                     {CATALOG_CATEGORIES.map((cat) => (
                       <button
                         key={cat.id}
                         onClick={() => setSelectedCategory(cat.id)}
-                        className={`text-left text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer ${selectedCategory === cat.id ? "bg-brand-red/10 border border-brand-red/25 text-brand-red" : "border border-transparent text-slate-600 hover:bg-slate-50"}`}
+                        className={`shrink-0 lg:shrink lg:w-full snap-start whitespace-nowrap text-left text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer ${selectedCategory === cat.id ? "bg-brand-red/10 border border-brand-red/25 text-brand-red" : "border border-slate-200 lg:border-transparent text-slate-600 hover:bg-slate-50"}`}
                       >
                         {cat.name}
                       </button>
                     ))}
                   </div>
 
-                  <div className="border-t border-slate-100 pt-3 mt-3">
+                  <div className="hidden lg:block border-t border-slate-100 pt-3 mt-3">
                     <h4 className="text-[10px] font-bold text-[#0F2440] mb-2 uppercase tracking-wider">Techniker-Notizen</h4>
                     <ul className="space-y-1.5 text-[10px] text-slate-500">
                       {["B2B Spezifikationen original", "Direkte Kompatibilität geprüft", "Ein-Klick-Projekt hinzufügen"].map((item) => (
@@ -866,7 +896,7 @@ export function LandingPage() {
                     </ul>
                   </div>
 
-                  <div className="mt-3 rounded-xl bg-[#0F2440] p-3 text-white overflow-hidden relative border border-white/10">
+                  <div className="hidden lg:block mt-3 rounded-xl bg-[#0F2440] p-3 text-white overflow-hidden relative border border-white/10">
                     <div className="absolute inset-x-0 top-0 h-1 bg-brand-red" />
                     <Headphones size={14} className="text-brand-red mb-1" />
                     <h4 className="font-display text-[13px] font-black leading-tight">Nicht sicher, ne lazım?</h4>
@@ -951,10 +981,10 @@ export function LandingPage() {
           <section className="py-16 bg-[#FAFAFA] border-b border-slate-200 relative z-20" id="chatbotSection">
             <div className="lp-container">
               
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-                
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center max-w-[1400px] mx-auto w-full">
+
                 {/* Left Side: Text and Statistics */}
-                <div className="lg:col-span-4 text-left flex flex-col justify-center">
+                <div className="lg:col-span-5 xl:col-span-4 text-left flex flex-col justify-center">
                   <span className="inline-flex items-center gap-2 text-brand-red font-black text-[11px] tracking-[0.3em] uppercase mb-4">
                     KI KÜCHENPLANER
                     <Sparkles size={14} className="text-brand-red" />
@@ -974,113 +1004,16 @@ export function LandingPage() {
                   </div>
                 </div>
 
-                {/* Right Side: Planner Cockpit (5 steps + 3D render) */}
-                <div className="lg:col-span-8 relative rounded-[1.35rem] overflow-hidden border border-white/10 bg-[#0c1420] shadow-[0_30px_70px_-25px_rgba(15,36,64,0.5)] min-h-[480px] lg:min-h-[600px] flex">
-
-                  {/* 3D layer stays clipped inside the cockpit panel on every viewport. */}
-                  {kitchenLayoutMode === "3D" && (
-                    <div className="absolute inset-0 z-0 pointer-events-none">
-                      <React.Suspense fallback={
-                        <div className="flex h-full w-full flex-col items-center justify-center gap-3 bg-[#0c1420] rounded-[1.35rem]">
-                          <div className="w-8 h-8 border-t-2 border-brand-red rounded-full animate-spin" />
-                          <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">Lädt 3D…</span>
-                        </div>
-                      }>
-                        <KitchenModelViewer model="kitchenDraft" autoRotate transparent fitMargin={1.9} className="h-full w-full" />
-                      </React.Suspense>
+                {/* Right Side: only the auto-rotating 3D model — transparent, blends into the section */}
+                <div className="lg:col-span-7 xl:col-span-8 relative h-[440px] lg:h-[520px] xl:h-[560px] flex items-center justify-center">
+                  <React.Suspense fallback={
+                    <div className="flex h-full w-full items-center justify-center">
+                      <div className="w-8 h-8 border-t-2 border-brand-red rounded-full animate-spin" />
                     </div>
-                  )}
-
-                  {/* 2D image layer (clipped to rounded panel) */}
-                  {kitchenLayoutMode === "2D" && (
-                    <div className="absolute inset-0 z-0 rounded-[1.35rem] overflow-hidden">
-                      <img
-                        src="/landing/planner/kitchen-3d-isometric.png"
-                        alt="3D Küchenplanung Vorschau"
-                        className="h-full w-full object-cover"
-                        loading="lazy"
-                      />
-                    </div>
-                  )}
-
-                  {/* Left gradient — sits above model for step-text contrast, clipped to rounded panel */}
-                  <div className="absolute inset-0 z-[5] rounded-[1.35rem] bg-gradient-to-r from-[#0a111c]/80 via-[#0a111c]/15 to-transparent pointer-events-none" />
-
-                  {/* 2D / 3D toggle */}
-	                  <div className="absolute top-4 right-4 z-30">
-	                    <div className="bg-[#0a111c]/90 p-1 rounded-lg border border-white/15 flex gap-1">
-                      {(["2D", "3D"] as const).map((mode) => (
-                        <button
-                          key={mode}
-                          onClick={() => setKitchenLayoutMode(mode)}
-	                          className={`text-[10px] font-black px-3.5 py-1.5 rounded-md transition-all cursor-pointer ${kitchenLayoutMode === mode ? "bg-brand-red text-white shadow-md" : "text-white/60 hover:text-white"}`}
-                        >
-                          {mode}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-
-	                  <span className="absolute top-[23%] right-16 z-20 text-[11px] font-bold text-white/90 bg-[#0a111c]/60 px-2 py-0.5 rounded">12,50 m</span>
-	                  <span className="absolute bottom-32 right-16 z-20 text-[11px] font-bold text-white/90 bg-[#0a111c]/60 px-2 py-0.5 rounded">8,60 m</span>
-
-                  {/* Steps column */}
-	                  <div className="relative z-20 w-[62%] sm:w-[42%] max-w-[300px] p-5 pb-28 flex flex-col">
-	                    <ol className="space-y-3">
-                      {[
-                        { n: 1, title: "Projektinformationen", desc: "Art, Größe und Details" },
-                        { n: 2, title: "Grundriss hochladen", desc: "PDF, JPG, PNG oder DWG" },
-                        { n: 3, title: "KI Analyse", desc: "Raum wird analysiert" },
-                        { n: 4, title: "3D Planung", desc: "Deine Küche entsteht" },
-                        { n: 5, title: "Produkte & Angebot", desc: "Anpassen & berechnen" },
-                      ].map((step) => (
-                        <li key={step.n} className="flex items-start gap-3">
-	                          <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-black ${step.n === 1 ? "bg-brand-red text-white shadow-[0_0_14px_rgba(220,38,38,0.5)]" : "bg-white/10 text-white/70 border border-white/15"}`}>
-                            {step.n}
-                          </span>
-                          <div className="pt-0.5">
-	                            <p className="text-[12px] font-bold text-white leading-tight">{step.title}</p>
-                            <p className="text-[10px] text-white/50 mt-0.5">{step.desc}</p>
-                          </div>
-                        </li>
-                      ))}
-                    </ol>
-
-                    {/* Help box */}
-	                    <div className="mt-auto pt-4">
-	                      <div className="rounded-xl border border-white/10 bg-white/[0.08] p-3.5">
-                        <p className="text-[12px] font-bold text-white">Benötigst du Hilfe?</p>
-                        <p className="mt-1 text-[10px] leading-relaxed text-white/55">Unser Team unterstützt dich gerne bei der Planung.</p>
-	                        <a href="#quote" className="mt-3 inline-flex items-center gap-2 rounded-lg bg-white px-3.5 py-2 text-[9px] font-black uppercase tracking-[0.14em] text-[#0F2440] transition-all hover:bg-brand-red hover:text-white">
-                          JETZT BERATEN LASSEN
-                          <ArrowRight size={11} />
-                        </a>
-		                    </div>
-		                  </div>
-		                </div>
-
-		                  <div className="absolute inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#0a111c] px-5 py-4 rounded-b-[1.35rem]">
-	                    <div className="grid grid-cols-2 gap-4 md:grid-cols-[repeat(4,minmax(0,1fr))_auto] md:items-center">
-	                      {[
-	                        { label: "Fläche", value: "107,50 m²" },
-	                        { label: "Geräte", value: "24" },
-	                        { label: "Gesamtpreis", value: "€ 82.450,00" },
-	                        { label: "Leasing ab", value: "€ 1.249 / Monat" },
-	                      ].map((item) => (
-	                        <div key={item.label} className="min-w-0 text-left">
-	                          <p className="text-[9px] font-bold uppercase tracking-wider text-white/45">{item.label}</p>
-	                          <p className={`mt-0.5 text-sm font-black leading-tight ${item.label === "Gesamtpreis" ? "text-brand-red" : "text-white"}`}>{item.value}</p>
-	                        </div>
-	                      ))}
-
-	                      <a href="#quote" className="col-span-2 inline-flex items-center justify-center gap-2 rounded-lg bg-brand-red px-6 py-3 text-[10px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[#B91C1C] md:col-span-1 md:ml-2">
-	                        ANGEBOT ANFORDERN
-	                        <ArrowRight size={13} />
-	                      </a>
-		                    </div>
-		                  </div>
-	                </div>
+                  }>
+                    <KitchenModelViewer model="kitchenDraft" autoRotate alwaysActive transparent fitMargin={1.3} className="h-full w-full" />
+                  </React.Suspense>
+                </div>
 
               </div>
 
@@ -1229,36 +1162,36 @@ export function LandingPage() {
                       </colgroup>
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-[10px] sm:text-xs">
-                          <th className="px-3 py-4 text-left uppercase tracking-wider sm:px-5">Bauteil</th>
-                          <th className="px-3 py-4 text-left uppercase tracking-wider sm:px-5">Wert</th>
-                          <th className="px-3 py-4 text-left uppercase tracking-wider sm:px-5">Teknik Rapor</th>
+                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">Bauteil</th>
+                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">Wert</th>
+                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">Teknik Rapor</th>
                         </tr>
                       </thead>
-                      <tbody className="text-[11px] text-slate-600 sm:text-xs">
+                      <tbody className="text-[10px] leading-snug text-slate-600 sm:text-xs sm:leading-normal">
                         <tr className="border-b border-slate-100">
-                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Edelstahlgehäuse</td>
-                          <td className="break-words px-3 py-4 sm:px-5">AISI 304 (V2A)</td>
-                          <td className="break-words px-3 py-4 font-bold text-emerald-600 sm:px-5">100% Rostfrei</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Edelstahlgehäuse</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">AISI 304 (V2A)</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">100% Rostfrei</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Antriebswelle</td>
-                          <td className="break-words px-3 py-4 sm:px-5">Gehärteter Stahl</td>
-                          <td className="break-words px-3 py-4 font-bold text-emerald-600 sm:px-5">Verschleißarm</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Antriebswelle</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Gehärteter Stahl</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">Verschleißarm</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Motor</td>
-                          <td className="break-words px-3 py-4 sm:px-5">2,2 kW, iki Geschwindigkeiten</td>
-                          <td className="break-words px-3 py-4 font-bold text-emerald-600 sm:px-5">Thermischer Schutz gegen Überlast und Überhitzung.</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Motor</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">2,2 kW, iki Geschwindigkeiten</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">Thermischer Schutz gegen Überlast und Überhitzung.</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Sicherheit</td>
-                          <td className="break-words px-3 py-4 sm:px-5">Schutzgitter-Endschalter</td>
-                          <td className="break-words px-3 py-4 sm:px-5">Schaltkreis nach CE-Anforderung verriegelt.</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Sicherheit</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Schutzgitter-Endschalter</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Schaltkreis nach CE-Anforderung verriegelt.</td>
                         </tr>
                         <tr>
-                          <td className="break-words px-3 py-4 font-bold text-[#0F2440] sm:px-5">Servis</td>
-                          <td className="break-words px-3 py-4 sm:px-5">Verschraubtes Gehäuse</td>
-                          <td className="break-words px-3 py-4 sm:px-5">Abnehmbare Serviceplatte für Riemen und Kette.</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Servis</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Verschraubtes Gehäuse</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Abnehmbare Serviceplatte für Riemen und Kette.</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1343,7 +1276,7 @@ export function LandingPage() {
                 </div>
 
                 {/* B2B Benefits grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start text-left">
+                <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x md:snap-none grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start text-left [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1 md:mx-0 md:px-0 pb-2 md:pb-0">
                   {[
                     { icon: Zap, title: "Alles aus einer Hand", desc: "Von Planung und Geräteauswahl bis Leasing, Lieferung und Montage führen wir den Prozess zentral." },
                     { icon: Truck, title: "Europaweite Lieferung", desc: "Sichere Logistik ab Köln für Deutschland und europäische Projektstandorte." },
@@ -1352,7 +1285,7 @@ export function LandingPage() {
                     { icon: Palette, title: "Planung inklusive", desc: "Bei Projektkauf verrechnen wir die 3D-Planung mit dem Auftragswert." },
                     { icon: BadgeCheck, title: "Top Marken zu Top Preisen", desc: "Direkte B2B-Konditionen für Diamond, CombiSteel und ausgewählte Premiumpartner." }
                   ].map(({ icon: Icon, title, desc }) => (
-                    <div key={title} className="flex gap-4">
+                    <div key={title} className="flex gap-4 min-w-[250px] shrink-0 snap-start md:min-w-0 md:shrink">
                       <div className="w-11 h-11 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-brand-red">
                         <Icon size={20} strokeWidth={1.8} />
                       </div>
@@ -1583,7 +1516,7 @@ export function LandingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20 text-left">
                 <div>
                   <div className="flex items-center gap-2 mb-8">
-                    <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-16 md:h-20 w-auto max-w-[280px] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.35)]" loading="lazy" decoding="async" />
+                    <img src="/logo-2mc-gastro-red.png" alt="2MC Gastro" className="h-16 md:h-20 w-auto max-w-[280px] object-contain" loading="lazy" decoding="async" />
                   </div>
                   <p className="text-white/65 text-sm leading-relaxed mb-8">
                     Planung, Vertrieb und Montage erstklassiger Großküchenausstattung nach europäischen B2B standards. Diamond und Premiumpartner.

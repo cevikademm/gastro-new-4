@@ -31,11 +31,11 @@ export function TrustBar() {
 
   return (
     <div className="w-full max-w-[100vw] overflow-hidden bg-white border-b border-slate-200 relative z-20 py-4 sm:py-6">
-      <div className="lp-container grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-0 lg:divide-x divide-slate-100">
+      <div className="lp-container flex sm:grid overflow-x-auto sm:overflow-visible snap-x snap-mandatory sm:snap-none grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 lg:gap-0 lg:divide-x divide-slate-100 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
         {items.map((item, index) => (
           <div
             key={item.title}
-            className={`min-w-0 flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-3 text-left shadow-[0_8px_20px_-18px_rgba(15,36,64,0.5)] transition-transform duration-300 hover:translate-y-[-2px] lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none ${index > 0 ? 'lg:pl-6 xl:pl-8' : ''}`}
+            className={`min-w-[200px] shrink-0 snap-start sm:min-w-0 sm:shrink flex items-center gap-3 rounded-xl border border-slate-100 bg-white p-3 text-left shadow-[0_8px_20px_-18px_rgba(15,36,64,0.5)] transition-transform duration-300 hover:translate-y-[-2px] lg:rounded-none lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none ${index > 0 ? 'lg:pl-6 xl:pl-8' : ''}`}
           >
             <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shadow-sm shrink-0">
               {item.icon}

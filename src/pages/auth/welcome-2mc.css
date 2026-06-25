@@ -160,3 +160,76 @@
 .welcome-2mc .group:hover .group-hover\:text-sky-300 {
   color: var(--wd-primary-color) !important;
 }
+
+/* ============================================================
+   Login — tüm sayfa bordo arka plan (site kırmızısı/bordosu)
+   ============================================================ */
+.welcome-2mc.login-bordo-page {
+  background:
+    radial-gradient(110% 80% at 0% 0%, rgba(255,255,255,0.12) 0%, transparent 45%),
+    radial-gradient(100% 90% at 100% 100%, rgba(0,0,0,0.30) 0%, transparent 55%),
+    linear-gradient(140deg, #e11d1d 0%, #9b1c1c 50%, #5e1414 100%) !important;
+}
+/* Sol editorial panel — kendi bg'si yok, sayfa bordosu görünür */
+.welcome-2mc .login-bordo-left {
+  background: transparent !important;
+}
+/* Panel içindeki tüm metin beyaz */
+.welcome-2mc .login-bordo-left,
+.welcome-2mc .login-bordo-left * {
+  color: #ffffff !important;
+}
+/* Ayraç/borderlar beyaza */
+.welcome-2mc .login-bordo-left [class*="border-black/"] {
+  border-color: rgba(255,255,255,0.18) !important;
+}
+
+/* --- Sağ form: beyaz kart yerine cam panel (arka planla aynı bordo) --- */
+.welcome-2mc .login-bordo-form {
+  background: rgba(255,255,255,0.07) !important;
+  border-color: rgba(255,255,255,0.16) !important;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+.welcome-2mc .login-bordo-form,
+.welcome-2mc .login-bordo-form * {
+  color: #ffffff !important;
+}
+.welcome-2mc .login-bordo-form [class*="border-black/"] {
+  border-color: rgba(255,255,255,0.16) !important;
+}
+/* Inputlar */
+.welcome-2mc .login-bordo-form input[type="email"],
+.welcome-2mc .login-bordo-form input[type="password"],
+.welcome-2mc .login-bordo-form input[type="text"] {
+  background: rgba(255,255,255,0.10) !important;
+  border-color: rgba(255,255,255,0.22) !important;
+  color: #ffffff !important;
+}
+.welcome-2mc .login-bordo-form input::placeholder {
+  color: rgba(255,255,255,0.55) !important;
+}
+/* OR ayraç maskesi şeffaf */
+.welcome-2mc .login-bordo-form .bg-white {
+  background: transparent !important;
+}
+/* Google butonu → cam */
+.welcome-2mc .login-bordo-form button[aria-label="Sign in with Google"] {
+  background: rgba(255,255,255,0.10) !important;
+  border-color: rgba(255,255,255,0.22) !important;
+}
+.welcome-2mc .login-bordo-form button[aria-label="Sign in with Google"]:hover {
+  background: rgba(255,255,255,0.16) !important;
+}
+/* Hata kutusu → koyu cam, beyaz yazı */
+.welcome-2mc .login-bordo-form [role="alert"] {
+  background: rgba(0,0,0,0.28) !important;
+  border-color: rgba(255,255,255,0.25) !important;
+}
+/* Kırmızı submit butonu olduğu gibi kalsın */
+.welcome-2mc .login-bordo-form button[type="submit"] {
+  background: rgb(220,38,38) !important;
+}
+.welcome-2mc .login-bordo-form button[type="submit"]:hover {
+  background: rgb(153,27,27) !important;
+}

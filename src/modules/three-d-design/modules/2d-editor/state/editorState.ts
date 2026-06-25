@@ -44,8 +44,13 @@ export interface Editor2DState {
   // Snap state for HUD
   snapHit: { type: 'vertex' | 'grid' | 'edge'; point: Vec2 } | null;
 
+  /** Shared focus point (world mm) — keeps 2D pan ↔ 3D camera target aligned
+   *  when switching editors. Null until a view is established. */
+  focusWorld: Vec2 | null;
+
   // Actions
   setTool: (tool: Tool) => void;
+  setFocusWorld: (p: Vec2 | null) => void;
   setViewport: (scale: number, offsetX: number, offsetY: number) => void;
   setScale: (scale: number) => void;
   setOffset: (x: number, y: number) => void;
@@ -81,8 +86,10 @@ export const useEditor2DState = create<Editor2DState>((set) => ({
   selectedWallId: null,
 
   snapHit: null,
+  focusWorld: null,
 
   setTool: (tool) => set({ tool, draftPoints: [], draftCursor: null }),
+  setFocusWorld: (focusWorld) => set({ focusWorld }),
   setViewport: (scale, offsetX, offsetY) => set({ scale, offsetX, offsetY }),
   setScale: (scale) => set({ scale }),
   setOffset: (offsetX, offsetY) => set({ offsetX, offsetY }),

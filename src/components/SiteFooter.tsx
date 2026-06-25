@@ -38,24 +38,23 @@ type Brand = {
   Icon: React.ComponentType<{ size?: number; className?: string; strokeWidth?: number }>;
 };
 
-// Tekdüze koyu-gri kart + gri tonlarda logo (biggastro tarzı).
-const PM_BG = 'bg-[#2a2f38]';
-const PM_TEXT = 'text-white/70';
-const PM_LOGO = 'D1D5DB'; // neutral-300
+// Beyaz kart + gerçek marka renkli logolar (simpleicons official colors).
+const PM_BG = 'bg-white border border-slate-200';
+const PM_TEXT = 'text-slate-600';
 
 const PAYMENT_METHODS: Brand[] = [
-  { name: 'Vorkasse',          logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'PayPal',            slug: 'paypal',          logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'SOFORT',            slug: 'klarna',          logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'Klarna',            slug: 'klarna',          logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'Maestro',           slug: 'mastercard',      logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'Mastercard',        slug: 'mastercard',      logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'VISA',              slug: 'visa',            logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'American Express',  slug: 'americanexpress', logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'Mondu',                                      logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'Leasing',                                    logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Banknote },
-  { name: 'Apple Pay',         slug: 'applepay',        logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
-  { name: 'Google Pay',        slug: 'googlepay',       logoColor: PM_LOGO, bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'Vorkasse',          logoColor: '475569',     bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'PayPal',            slug: 'paypal',          logoColor: '003087', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'Klarna',            slug: 'klarna',          logoColor: 'FFA8CD', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'Mastercard',        slug: 'mastercard',      logoColor: 'EB001B', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'VISA',              slug: 'visa',            logoColor: '1A1F71', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'American Express',  slug: 'americanexpress', logoColor: '2E77BC', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'Maestro',           slug: 'maestro',         logoColor: '6C6BBD', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'Apple Pay',         slug: 'applepay',        logoColor: '000000', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'Google Pay',        slug: 'googlepay',       logoColor: '5F6368', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'SOFORT',            slug: 'sofort',          logoColor: 'EF809F', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'Mondu',                                      logoColor: '475569', bg: PM_BG, text: PM_TEXT, Icon: Landmark },
+  { name: 'Leasing',                                    logoColor: '475569', bg: PM_BG, text: PM_TEXT, Icon: Banknote },
 ];
 
 const SHIPPING_CARRIERS: Brand[] = [

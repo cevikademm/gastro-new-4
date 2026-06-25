@@ -56,8 +56,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="welcome-2mc min-h-screen relative overflow-hidden">
-      <GradientDots className="z-0 pointer-events-none opacity-30" backgroundColor="#ffffff" />
+    <div className="welcome-2mc login-bordo-page min-h-screen relative overflow-hidden">
+      <GradientDots className="z-0 pointer-events-none opacity-20" backgroundColor="transparent" />
 
       {/* Language switcher */}
       <div className="absolute top-5 right-5 z-30">
@@ -66,14 +66,16 @@ export default function LoginPage() {
 
       <div className="relative z-10 min-h-screen flex flex-col lg:flex-row items-stretch">
         {/* ── LEFT: Editorial brand panel ── */}
-        <div className="lg:w-[55%] flex flex-col justify-between px-6 sm:px-10 lg:px-16 pt-10 pb-8 border-b lg:border-b-0 lg:border-r border-black/[0.06]">
+        <div className="login-bordo-left relative overflow-hidden lg:w-[55%] flex flex-col justify-between px-6 sm:px-10 lg:px-16 pt-10 pb-8 border-b lg:border-b-0 lg:border-r border-black/[0.06]">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
             className="flex items-center gap-4 mb-10"
           >
-            <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-14 w-auto max-w-[220px] object-contain" />
+            <Link to="/" aria-label="Ana sayfa" className="cursor-pointer">
+              <img src="/logo-2mc-gastro-white.png" alt="2MC Gastro" className="h-14 w-auto max-w-[220px] object-contain transition-opacity hover:opacity-80" />
+            </Link>
           </motion.div>
 
           {/* Top meta bar */}
@@ -95,7 +97,7 @@ export default function LoginPage() {
             className="flex-1"
           >
             <div className="flex items-center gap-3 mb-5 text-[10px] font-mono uppercase tracking-[0.3em] text-[rgb(220,38,38)]">
-              <span className="w-8 h-px bg-[rgb(220,38,38)]/50" />
+              <span className="w-8 h-px bg-white/60" />
               <span>{t('welcome.heroEyebrow', 'Manifesto · Vol. I')}</span>
             </div>
 
@@ -112,7 +114,7 @@ export default function LoginPage() {
             </p>
 
             {/* Features grid */}
-            <div className="hidden lg:grid grid-cols-2 gap-px bg-black/[0.06] mt-12 max-w-2xl">
+            <div className="hidden lg:grid grid-cols-2 gap-px bg-[rgba(255,255,255,0.18)] mt-12 max-w-2xl">
               {FEATURES_KEYS.map((f, i) => {
                 const Icon = f.icon;
                 const num = String(i + 1).padStart(2, '0');
@@ -122,7 +124,7 @@ export default function LoginPage() {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.4 + i * 0.08 }}
-                    className="group bg-white p-5 hover:bg-[#fafafa] transition-all"
+                    className="group bg-[rgba(255,255,255,0.08)] p-5 hover:bg-[rgba(255,255,255,0.15)] transition-all"
                   >
                     <div className="flex items-start gap-4">
                       <div className="text-[10px] font-mono text-[rgb(220,38,38)] pt-1">[{num}]</div>
@@ -151,7 +153,7 @@ export default function LoginPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="w-full max-w-md bg-white border border-black/[0.06] p-8 lg:p-10"
+            className="w-full max-w-md login-bordo-form border border-black/[0.06] border-t-[3px] border-t-[rgb(220,38,38)] p-8 lg:p-10 shadow-[0_30px_80px_-24px_rgba(0,0,0,0.55)]"
           >
             <div className="mb-8">
               <div className="text-[10px] font-mono uppercase tracking-[0.3em] text-[rgb(220,38,38)] mb-3">

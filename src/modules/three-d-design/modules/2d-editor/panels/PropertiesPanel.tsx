@@ -67,7 +67,7 @@ export default function PropertiesPanel() {
   };
 
   return (
-    <aside className="absolute top-0 right-0 h-full w-72 bg-white/95 backdrop-blur border-l border-slate-200 shadow-sm overflow-y-auto pointer-events-auto flex flex-col">
+    <aside className="absolute top-0 right-0 h-full w-[60vw] max-w-[15rem] sm:w-72 sm:max-w-none bg-white/95 backdrop-blur border-l border-slate-200 shadow-sm overflow-y-auto pointer-events-auto flex flex-col">
       <header className="px-4 h-10 flex items-center border-b border-slate-200">
         <h2 className="text-sm font-bold text-slate-800">Özellikler</h2>
       </header>

@@ -61,7 +61,7 @@ export function FloatingWidgets() {
 
       {/* WhatsApp */}
       <a
-        href="https://wa.me/905555555555"
+        href="https://wa.me/4917670295844"
         aria-label="WhatsApp ile iletişime geç"
         className="fixed bottom-28 right-5 z-[90] h-14 w-14 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform sm:bottom-24 sm:right-6 sm:h-16 sm:w-16 md:bottom-6"
         style={{

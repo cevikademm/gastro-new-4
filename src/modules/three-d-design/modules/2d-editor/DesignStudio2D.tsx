@@ -32,6 +32,7 @@ import {
   Maximize2,
   Trash2,
   Slash,
+  Package,
 } from 'lucide-react';
 
 import {
@@ -63,6 +64,11 @@ import OpeningsLayer from './render/OpeningsLayer';
 import LooseWallsLayer from './render/LooseWallsLayer';
 import { CompassRose, TitleBlock, ScaleBar } from './render/PlotOverlays';
 import PropertiesPanel, { OPENING_DEFAULTS } from './panels/PropertiesPanel';
+import EquipmentLayer2D from './render/EquipmentLayer2D';
+import EquipmentCatalogPanel from '../3d-editor/panels/EquipmentCatalogPanel';
+import { parseHeightMm, mapEquipmentCategory } from '../3d-editor/loaders/productMesh';
+import { defaultMountFor, defaultZForMount, containFloorItem } from '../3d-editor/interaction/placement';
+import type { EquipmentItem } from '../../../../stores/equipmentStore';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const VERTEX_MERGE_PX = 15;
@@ -98,6 +104,9 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   const addOpening = useProjectStore((s) => s.addOpening);
   const ensureVertex = useProjectStore((s) => s.ensureVertex);
   const addWall = useProjectStore((s) => s.addWall);
+  const addEquipment = useProjectStore((s) => s.addEquipment);
+  const updateEquipment = useProjectStore((s) => s.updateEquipment);
+  const removeEquipment = useProjectStore((s) => s.removeEquipment);
   const undo = useProjectStore((s) => s.undo);
   const redo = useProjectStore((s) => s.redo);
   const canUndo = useProjectStore((s) => s.canUndo());
@@ -133,6 +142,38 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   const stageRef = useRef<Konva.Stage | null>(null);
   const isPanningRef = useRef(false);
   const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
+
+  // ── Equipment placement (shared store with 3D editor) ────────────────────
+  const [armedProduct, setArmedProduct] = useState<EquipmentItem | null>(null);
+  // Masaüstünde açık (keşif), mobilde kapalı (tuval görünsün; Paket butonu açar).
+  const [catalogOpen, setCatalogOpen] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches,
+  );
+  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
+  const equipmentList = useMemo(() => Object.values(project.equipment), [project.equipment]);
+
+  // ── 2D ↔ 3D kamera/odak senkronu ─────────────────────────────────────────
+  // 2D'ye girerken paylaşılan odağı merkeze al; çıkarken görünüm merkezini
+  // sakla → 3D aynı noktaya bakar. (Sadece pan; zoom korunur.)
+  const sizeRef = useRef({ w: width, h: height });
+  sizeRef.current = { w: width, h: height };
+  useEffect(() => {
+    const st = useEditor2DState.getState();
+    const f = st.focusWorld;
+    const { w, h } = sizeRef.current;
+    if (f && w > 0 && h > 0) {
+      st.setOffset(w / 2 - f.x * st.scale, h / 2 - f.y * st.scale);
+    }
+    return () => {
+      const s = useEditor2DState.getState();
+      const { w: cw, h: ch } = sizeRef.current;
+      if (cw <= 0 || ch <= 0 || !s.scale) return;
+      const cx = (cw / 2 - s.offsetX) / s.scale;
+      const cy = (ch / 2 - s.offsetY) / s.scale;
+      if (Number.isFinite(cx) && Number.isFinite(cy)) s.setFocusWorld({ x: cx, y: cy });
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Derived: active room as an editable view ─────────────────────────────
   const activeRoom = useMemo<EditableRoom | null>(() => {
@@ -232,6 +273,37 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
 
     const clickedOnEmpty = e.target === e.target.getStage();
 
+    // Ürün yerleştirme — katalogdan seçili (armed) ürünü tıklanan noktaya bırak.
+    // 3D editörle AYNI store'a yazar → 3D'de de anında görünür.
+    if (armedProduct && native.button === 0) {
+      const l = armedProduct.l;
+      const w = armedProduct.w;
+      const category = mapEquipmentCategory(armedProduct.cat);
+      const mount = defaultMountFor(category);
+      const z = defaultZForMount(mount);
+      // position = footprint MIN-CORNER (domain convention); tıklama merkezde.
+      const minCorner = containFloorItem(
+        project,
+        { x: rawWorld.x - l / 2, y: rawWorld.y - w / 2 },
+        0,
+        l,
+        w,
+      );
+      const newId = addEquipment({
+        catalogId: armedProduct.id,
+        name: armedProduct.name,
+        category,
+        position: { x: minCorner.x, y: minCorner.y, z },
+        rotation: 0,
+        mount,
+        footprint: { width: l, depth: w },
+        heightMm: parseHeightMm(armedProduct.h),
+      });
+      setSelectedEquipmentId(newId);
+      if (!native.shiftKey) setArmedProduct(null);
+      return;
+    }
+
     if (tool === 'draw-room' && native.button === 0) {
       if (draftPoints.length === 0) {
         beginDraft(world);
@@ -302,6 +374,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
       selectEdge(null);
       selectOpening(null);
       selectWall(null);
+      setSelectedEquipmentId(null);
     }
   };
 
@@ -508,6 +581,14 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         setEditingEdge(null);
         setEditingWallLen(null);
         if (selectedWallId) selectWall(null);
+        if (armedProduct) setArmedProduct(null);
+        if (selectedEquipmentId) setSelectedEquipmentId(null);
+        return;
+      }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEquipmentId) {
+        removeEquipment(selectedEquipmentId);
+        setSelectedEquipmentId(null);
+        e.preventDefault();
         return;
       }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedWallId) {
@@ -547,6 +628,9 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
     setTool,
     tool,
     undo,
+    armedProduct,
+    selectedEquipmentId,
+    removeEquipment,
   ]);
 
   // ── Fit to content ───────────────────────────────────────────────────────
@@ -580,7 +664,11 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   const cursor =
     tool === 'pan'
       ? 'grab'
-      : tool === 'draw-room' || tool === 'draw-wall' || tool === 'place-door' || tool === 'place-window'
+      : armedProduct ||
+        tool === 'draw-room' ||
+        tool === 'draw-wall' ||
+        tool === 'place-door' ||
+        tool === 'place-window'
       ? 'crosshair'
       : 'default';
 
@@ -648,6 +736,38 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
           />
         </Layer>
 
+        {/* Equipment — shared with 3D editor (same project.equipment) */}
+        <Layer>
+          <EquipmentLayer2D
+            equipment={equipmentList}
+            scale={scale}
+            selectedId={selectedEquipmentId}
+            draggable={tool === 'select'}
+            onSelect={(id) => {
+              setSelectedEquipmentId(id);
+              selectVertex(null);
+              selectEdge(null);
+              selectOpening(null);
+              selectWall(null);
+            }}
+            onDragEnd={(id, center) => {
+              const eq = project.equipment[id];
+              if (!eq) return;
+              // Duvar dışına taşma — oda sınırlarına geri çek.
+              const contained = containFloorItem(
+                project,
+                { x: center.x - eq.footprint.width / 2, y: center.y - eq.footprint.depth / 2 },
+                eq.rotation,
+                eq.footprint.width,
+                eq.footprint.depth,
+              );
+              updateEquipment(id, {
+                position: { x: contained.x, y: contained.y, z: eq.position.z },
+              });
+            }}
+          />
+        </Layer>
+
         <Layer>
           {activeRoom && livePoints.length > 0 && (
             <VertexHandlesLayer
@@ -694,6 +814,25 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
       {/* ── Right-side properties panel ─────────────────────────────── */}
       <PropertiesPanel />
 
+      {/* ── Equipment catalog (shared with 3D) — arm a product, click to drop ── */}
+      <EquipmentCatalogPanel
+        side="left"
+        armedProductId={armedProduct?.id ?? null}
+        onArm={(item) => {
+          setArmedProduct(item);
+          if (item) setSelectedEquipmentId(null);
+        }}
+        open={catalogOpen}
+        onToggleOpen={() => setCatalogOpen((v) => !v)}
+      />
+
+      {/* Armed-product hint */}
+      {armedProduct && (
+        <div className="absolute top-14 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-brand-red text-white rounded-full text-[11px] font-bold shadow-lg pointer-events-none">
+          {armedProduct.name} · plana tıkla (Shift = çoklu · Esc = iptal)
+        </div>
+      )}
+
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-1.5 py-1 bg-white/95 backdrop-blur border border-slate-200 rounded-lg shadow-sm">
         <ToolBtn active={tool === 'select'} onClick={() => setTool('select')} title="Select (V)">
@@ -707,6 +846,14 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         </ToolBtn>
         <ToolBtn active={tool === 'pan'} onClick={() => setTool('pan')} title="Pan (H veya Space)">
           <Hand size={14} />
+        </ToolBtn>
+        <Sep />
+        <ToolBtn
+          active={catalogOpen || !!armedProduct}
+          onClick={() => setCatalogOpen((v) => !v)}
+          title="Ürün ekle — kataloğu aç, ürüne tıkla, plana bırak"
+        >
+          <Package size={14} />
         </ToolBtn>
         <Sep />
         <ToolBtn onClick={() => setScale(Math.min(MAX_SCALE, scale * WHEEL_ZOOM_FACTOR))} title="Zoom in">

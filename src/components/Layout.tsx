@@ -10,6 +10,7 @@ import LanguageSelector from './LanguageSelector';
 import SearchCommand from './SearchCommand';
 import LiveChatWidget from './LiveChatWidget';
 import SiteFooter from './SiteFooter';
+import { CartDrawer } from './CartDrawer';
 import {
   Bell, Settings, LayoutDashboard, Ruler, Refrigerator, Home, Search,
   SlidersHorizontal, HelpCircle, BookOpen, PlusCircle,
@@ -76,6 +77,7 @@ export default function Layout() {
   };
 
   const [searchOpen, setSearchOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
@@ -92,8 +94,8 @@ export default function Layout() {
       {/* TopNavBar */}
       <header className="bg-surface-container-lowest border-b border-outline-variant/10 flex justify-between items-center w-full px-4 md:px-6 py-3 h-16 md:h-20 fixed top-0 z-50">
         <div className="flex items-center gap-3 md:gap-8">
-          {/* Hamburger sadece tablet'te (md) göster, mobilde alt nav var */}
-          <button onClick={toggleMobileMenu} className="hidden md:flex lg:hidden p-2 text-on-surface hover:bg-primary/10 rounded-full">
+          {/* Hamburger — mobil + tablet (lg'de sol sidebar var) */}
+          <button onClick={toggleMobileMenu} aria-label="Menü" className="flex lg:hidden p-2 -ml-1 text-on-surface hover:bg-primary/10 rounded-full shrink-0">
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <Link to="/" className="flex items-center gap-2 group">
@@ -142,16 +144,20 @@ export default function Layout() {
           >
             <Search size={18} />
           </button>
-          <Link to="/cart" className="relative p-1.5 md:p-2 text-on-surface hover:bg-primary/10 rounded-full transition-colors">
+          <button
+            onClick={() => setIsCartOpen(true)}
+            aria-label={t('nav.cart', 'Sepet')}
+            className="relative p-1.5 md:p-2 text-on-surface hover:bg-primary/10 rounded-full transition-colors cursor-pointer"
+          >
             <ShoppingCart size={18} />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] px-1 bg-emerald-500 text-white text-[9px] font-bold rounded-full flex items-center justify-center">
                 {cartCount > 99 ? '99+' : cartCount}
               </span>
             )}
-          </Link>
+          </button>
           <LanguageSelector />
-          <div className="relative">
+          <div className="relative hidden sm:block">
             <button onClick={toggleNotificationPanel} className="p-1.5 md:p-2 text-on-surface hover:bg-primary/10 rounded-full transition-colors relative">
               <Bell size={18} />
               {unreadCount() > 0 && (
@@ -162,7 +168,7 @@ export default function Layout() {
             </button>
             <NotificationPanel />
           </div>
-          <Link to="/settings" className="p-1.5 md:p-2 text-on-surface hover:bg-primary/10 rounded-full transition-colors">
+          <Link to="/settings" className="hidden sm:flex p-1.5 md:p-2 text-on-surface hover:bg-primary/10 rounded-full transition-colors">
             <Settings size={18} />
           </Link>
           {isAuthenticated && user ? (
@@ -201,9 +207,9 @@ export default function Layout() {
         </div>
       </header>
 
-      {/* Tablet/Desktop Sidebar Overlay (md only) */}
+      {/* Mobil + Tablet menü çekmecesi (lg'de sol sidebar) */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-40 hidden md:flex lg:hidden">
+        <div className="fixed inset-0 z-40 flex lg:hidden">
           <div className="absolute inset-0 bg-black/30" onClick={toggleMobileMenu} />
           <div className="absolute top-16 md:top-20 left-0 w-64 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] bg-surface-container-low p-4 shadow-xl overflow-y-auto">
             <nav className="space-y-1">
@@ -386,13 +392,30 @@ export default function Layout() {
           {BOTTOM_NAV.map((item) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
+            const cls = `flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
+              isActive ? 'text-primary' : 'text-slate-500'
+            }`;
+            // Sepet → yandan drawer aç (sayfaya gitme)
+            if (item.path === '/cart') {
+              return (
+                <button key={item.path} type="button" onClick={() => setIsCartOpen(true)} className={`${cls} relative cursor-pointer`}>
+                  <span className="relative">
+                    <Icon size={20} strokeWidth={1.5} />
+                    {cartCount > 0 && (
+                      <span className="absolute -top-1.5 -right-2 min-w-[16px] h-[16px] px-1 bg-emerald-500 text-white text-[8px] font-bold rounded-full flex items-center justify-center">
+                        {cartCount > 99 ? '99+' : cartCount}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-[9px] font-bold">{t(item.labelKey)}</span>
+                </button>
+              );
+            }
             return (
               <Link
                 key={item.path}
                 to={item.path}
-                className={`flex-1 flex flex-col items-center justify-center py-2 gap-0.5 transition-colors ${
-                  isActive ? 'text-primary' : 'text-slate-500'
-                }`}
+                className={cls}
               >
                 <Icon size={20} strokeWidth={isActive ? 2.5 : 1.5} />
                 <span className="text-[9px] font-bold">{t(item.labelKey)}</span>
@@ -410,6 +433,9 @@ export default function Layout() {
 
       {/* Global AI Live Chat */}
       <LiveChatWidget />
+
+      {/* Global Cart Drawer */}
+      <CartDrawer open={isCartOpen} onClose={() => setIsCartOpen(false)} />
     </div>
   );
 }
