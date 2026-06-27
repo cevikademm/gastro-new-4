@@ -118,10 +118,9 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
       const dateStr = new Date().toLocaleDateString('tr-TR');
 
       // Load logos
-      const [logoFull, logoIcon, logoHolo] = await Promise.all([
+      const [logoFull, logoHolo] = await Promise.all([
         loadImgBase64('/logo-2mc-gastro-white.png'),
-        loadImgBase64('/logo-icon-white.png'),
-        loadImgBase64('/logo-icon.png'),
+        loadImgBase64('/logo-2mc-gastro-red.png'),
       ]);
 
       // Hologram watermark
@@ -133,9 +132,11 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
             const c = document.createElement('canvas');
             c.width = 794; c.height = 1123;
             const ctx = c.getContext('2d')!;
-            const sz = Math.min(c.width, c.height) * 0.92;
-            ctx.globalAlpha = 0.12;
-            ctx.drawImage(img, (c.width - sz) / 2, (c.height - sz) / 2, sz, sz);
+            // Yeni 2MC Gastro logosu — en-boy oranı korunarak soluk filigran (hologram).
+            const w = c.width * 0.78;
+            const h = w * (img.naturalHeight / (img.naturalWidth || 1));
+            ctx.globalAlpha = 0.05;
+            ctx.drawImage(img, (c.width - w) / 2, (c.height - h) / 2, w, h);
             resolve(c.toDataURL('image/png'));
           };
           img.onerror = () => resolve(null);
@@ -161,9 +162,14 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         doc.rect(0, 38, PW, 2, 'F');
         if (logoFull) doc.addImage(logoFull, 'PNG', 10, 8, 76, 18.1);
         else { doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.setFont(FONT, 'bold'); doc.text('2MC GASTRO', 14, 20); }
-        if (logoIcon) doc.addImage(logoIcon, 'PNG', PW - 38, 4, 28, 28);
-        doc.setTextColor(245, 210, 210); doc.setFontSize(7); doc.setFont(FONT, 'normal');
-        doc.text(COMPANY.address, PW - 10, 34, { align: 'right' });
+        // Firma bilgileri (sağ) — eski yuvarlak logo yerine adres + iletişim.
+        doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont(FONT, 'bold');
+        doc.text(COMPANY.name, PW - 10, 11, { align: 'right' });
+        doc.setTextColor(245, 210, 210); doc.setFontSize(6.8); doc.setFont(FONT, 'normal');
+        doc.text(COMPANY.address, PW - 10, 16, { align: 'right' });
+        doc.text(`Tel: ${COMPANY.phone}`, PW - 10, 20, { align: 'right' });
+        doc.text(`E-Mail: ${COMPANY.email}`, PW - 10, 24, { align: 'right' });
+        doc.text(`${COMPANY.website}  ·  USt: ${COMPANY.vat}`, PW - 10, 28, { align: 'right' });
       };
 
       // Page 1
