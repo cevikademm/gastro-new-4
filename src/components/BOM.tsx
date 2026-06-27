@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { jsPDF } from 'jspdf';
 import { drawPdfHologram } from '../lib/pdfWatermark';
+import { ensurePdfFont } from '../lib/pdfFont';
 
 function ProductImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const [error, setError] = useState(false);
@@ -67,6 +68,7 @@ export default function BOM() {
 
   const exportPDF = async () => {
     const doc = new jsPDF();
+    const FONT = await ensurePdfFont(doc); // Unicode font so Turkish/German render correctly
     const pageCount = { current: 1 };
 
     // Draw hologram on first page
@@ -79,7 +81,7 @@ export default function BOM() {
     doc.setFontSize(8);
 
     let y = 40;
-    doc.setFont('helvetica', 'bold');
+    doc.setFont(FONT, 'bold');
     doc.text(t('bom.quantity'), 14, y);
     doc.text(t('bom.articleCode'), 35, y);
     doc.text(t('bom.designation'), 80, y);
@@ -88,7 +90,7 @@ export default function BOM() {
     doc.line(14, y, 196, y);
     y += 6;
 
-    doc.setFont('helvetica', 'normal');
+    doc.setFont(FONT, 'normal');
     for (const item of filtered) {
       if (y > 270) {
         doc.addPage();

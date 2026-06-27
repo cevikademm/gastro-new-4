@@ -853,7 +853,7 @@ export function LandingPage() {
               <div className="grid grid-cols-1 lg:grid-cols-[minmax(16rem,22rem)_minmax(0,1fr)] gap-5 items-start lg:items-stretch">
 
                 {/* Catalog Sidebar */}
-                <aside className="lg:h-full bg-white border border-slate-200 p-4 rounded-xl shadow-[0_1px_2px_rgba(15,36,64,0.04)] text-left lg:sticky lg:top-28">
+                <aside className="lg:h-full lg:flex lg:flex-col bg-white border border-slate-200 p-4 rounded-xl shadow-[0_1px_2px_rgba(15,36,64,0.04)] text-left lg:sticky lg:top-28">
                   <div className="relative mb-3">
                     <input
                       type="search"
@@ -896,7 +896,7 @@ export function LandingPage() {
                     </ul>
                   </div>
 
-                  <div className="hidden lg:block mt-3 rounded-xl bg-[#0F2440] p-3 text-white overflow-hidden relative border border-white/10">
+                  <div className="mt-3 lg:mt-auto rounded-xl bg-[#0F2440] p-3 text-white overflow-hidden relative border border-white/10">
                     <div className="absolute inset-x-0 top-0 h-1 bg-brand-red" />
                     <Headphones size={14} className="text-brand-red mb-1" />
                     <h4 className="font-display text-[13px] font-black leading-tight">Nicht sicher, ne lazım?</h4>
@@ -910,7 +910,7 @@ export function LandingPage() {
  
                 {/* 5-Column Products Grid */}
                 <div className="min-w-0">
-                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8">
+                  <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
                     {filteredProducts.slice(0, 8).map((prod) => {
                       const added = isInCart(prod.id);
                       return (
@@ -1516,7 +1516,7 @@ export function LandingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-20 text-left">
                 <div>
                   <div className="flex items-center gap-2 mb-8">
-                    <img src="/logo-2mc-gastro-red.png" alt="2MC Gastro" className="h-16 md:h-20 w-auto max-w-[280px] object-contain" loading="lazy" decoding="async" />
+                    <img src="/logo-2mc-gastro-white.png" alt="2MC Gastro" className="h-16 md:h-20 w-auto max-w-[280px] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.35)]" loading="lazy" decoding="async" />
                   </div>
                   <p className="text-white/65 text-sm leading-relaxed mb-8">
                     Planung, Vertrieb und Montage erstklassiger Großküchenausstattung nach europäischen B2B standards. Diamond und Premiumpartner.

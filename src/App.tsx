@@ -27,6 +27,7 @@ const FavoritesPage = lazy(() => import('./pages/favorites/FavoritesPage'));
 const NewProjectPage = lazy(() => import('./pages/projects/NewProjectPage'));
 const ProjectDetailPage = lazy(() => import('./pages/projects/ProjectDetailPage'));
 const AddProductPage = lazy(() => import('./pages/products/AddProductPage'));
+const SelectProductPage = lazy(() => import('./pages/products/SelectProductPage'));
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'));
 const SupportPage = lazy(() => import('./pages/support/SupportPage'));
 const DocsPage = lazy(() => import('./pages/docs/DocsPage'));
@@ -117,7 +118,8 @@ export default function App() {
             <Route path="projects" element={<ProjectListPage />} />
             <Route path="projects/new" element={<NewProjectPage />} />
             <Route path="projects/:id" element={<ProjectDetailPage />} />
-            <Route path="projects/:projectId/products/add" element={<AddProductPage />} />
+            <Route path="projects/:projectId/products/add" element={<SelectProductPage />} />
+            <Route path="projects/:projectId/products/new" element={<AddProductPage />} />
             <Route path="projects/:id/design" element={<ThreeDDesignPage />} />
             <Route path="projects/:id/design/3d" element={<FloorPlan3DPage />} />
             <Route path="settings" element={<SettingsPage />} />

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
-  <rect width="64" height="64" rx="12" fill="#001f65"/>
+  <rect width="64" height="64" rx="12" fill="#931315"/>
   <text x="8" y="28" font-family="Arial Black, sans-serif" font-size="16" font-weight="900" fill="white">2MC</text>
-  <text x="6" y="48" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#b6c4ff">Gastro</text>
+  <text x="6" y="48" font-family="Arial, sans-serif" font-size="13" font-weight="600" fill="#f3c9cb">Gastro</text>
 </svg>

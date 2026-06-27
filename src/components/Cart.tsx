@@ -12,7 +12,8 @@ import {
 import { jsPDF } from 'jspdf';
 import { useAuthStore } from '../stores/authStore';
 import { EmptyState, EmptyCartIllustration } from './illustrations/EmptyState';
-import { IMAGE_PROXY_URL, brandAsset } from '../lib/assets';
+import { IMAGE_PROXY_URL } from '../lib/assets';
+import { ensurePdfFont } from '../lib/pdfFont';
 
 const COMPANY_INFO = {
   name: '2MC Werbung & Gastro GmbH',
@@ -21,7 +22,7 @@ const COMPANY_INFO = {
   email: 'info@2mc-gastro.de',
   website: 'www.2mc-gastro.de',
   vat: 'DE123456789',
-  tagline: 'Alles rund um deine Marke · Gastronomi Çözümleri',
+  tagline: 'Alles aus einer Hand. Für deine Küche.',
 };
 
 // Load an image URL → base64 dataURL (routes cross-origin through proxy)
@@ -158,16 +159,16 @@ export default function Cart() {
     setPdfLoading(true);
     try {
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const FONT = await ensurePdfFont(doc); // Unicode font so Turkish/German render correctly
       const PW = 210; // page width mm
       const PH = 297; // page height mm
       const quoteNo = `2MC-${Date.now().toString().slice(-6)}`;
       const dateStr = new Date().toLocaleDateString('tr-TR');
 
       // ── Load logos ──
-      const [logoFull, logoIcon, logoHolo] = await Promise.all([
-        loadImageAsDataURL('/logo-werbung.png'),
-        loadImageAsDataURL('/logo-icon.png'),
-        loadImageAsDataURL(brandAsset('logo4.png')),
+      const [logoFull, logoHolo] = await Promise.all([
+        loadImageAsDataURL('/logo-2mc-gastro-white.png'),
+        loadImageAsDataURL('/logo-2mc-gastro-red.png'),
       ]);
 
       // ── Helper: draw hologram watermark on current page ──
@@ -181,11 +182,14 @@ export default function Cart() {
             canvas.width = 794;
             canvas.height = 1123;
             const ctx = canvas.getContext('2d')!;
-            const size = Math.min(canvas.width, canvas.height) * 0.92;
-            const x = (canvas.width - size) / 2;
-            const y = (canvas.height - size) / 2;
-            ctx.globalAlpha = 0.055;
-            ctx.drawImage(img, x, y, size, size);
+            // Yeni 2MC Gastro logosu — en-boy oranı korunarak sayfanın ortasına
+            // soluk filigran (hologram) olarak yerleştirilir.
+            const w = canvas.width * 0.78;
+            const h = w * (img.naturalHeight / (img.naturalWidth || 1));
+            const x = (canvas.width - w) / 2;
+            const y = (canvas.height - h) / 2;
+            ctx.globalAlpha = 0.05;
+            ctx.drawImage(img, x, y, w, h);
             resolve(canvas.toDataURL('image/png'));
           };
           img.onerror = () => resolve(null);
@@ -199,7 +203,7 @@ export default function Cart() {
 
       // ── Helper: decorative diagonal stripe ──
       const drawStripe = () => {
-        doc.setFillColor(37, 99, 235);
+        doc.setFillColor(190, 36, 40);
         doc.setGState(doc.GState({ opacity: 0.06 }));
         // Draw 3 thin diagonal bands across page
         for (let i = 0; i < 3; i++) {
@@ -216,38 +220,41 @@ export default function Cart() {
 
       // ── Page 1 header ──
       const drawPageHeader = (pageNum: number, totalPages?: number) => {
-        // Dark gradient header band
-        doc.setFillColor(15, 23, 60);
+        // Red header band
+        doc.setFillColor(147, 19, 21);
         doc.rect(0, 0, PW, 38, 'F');
 
-        // Blue accent stripe
-        doc.setFillColor(37, 99, 235);
+        // Red accent stripe
+        doc.setFillColor(190, 36, 40);
         doc.rect(0, 38, PW, 2, 'F');
 
-        // Logo full (white version via CSS filter won't work in PDF, just place as-is)
+        // Logo full (white 2MC Gastro lockup on the red header band)
         if (logoFull) {
-          doc.addImage(logoFull, 'PNG', 10, 5, 72, 20);
+          doc.addImage(logoFull, 'PNG', 10, 8, 76, 18.1);
         } else {
           doc.setTextColor(255, 255, 255);
           doc.setFontSize(18);
-          doc.setFont('helvetica', 'bold');
-          doc.text('2MC WERBUNG', 14, 20);
+          doc.setFont(FONT, 'bold');
+          doc.text('2MC GASTRO', 14, 20);
         }
 
-        // Logo icon on right
-        if (logoIcon) {
-          doc.addImage(logoIcon, 'PNG', PW - 38, 4, 28, 28);
-        }
+        // Firma bilgileri (sağ) — eski yuvarlak logo yerine adres + iletişim.
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(8);
+        doc.setFont(FONT, 'bold');
+        doc.text(COMPANY_INFO.name, PW - 10, 11, { align: 'right' });
 
-        // Company details in header
-        doc.setTextColor(180, 200, 255);
-        doc.setFontSize(7);
-        doc.setFont('helvetica', 'normal');
-        doc.text(COMPANY_INFO.address, PW - 10, 34, { align: 'right' });
+        doc.setTextColor(245, 210, 210);
+        doc.setFontSize(6.8);
+        doc.setFont(FONT, 'normal');
+        doc.text(COMPANY_INFO.address, PW - 10, 16, { align: 'right' });
+        doc.text(`Tel: ${COMPANY_INFO.phone}`, PW - 10, 20, { align: 'right' });
+        doc.text(`E-Mail: ${COMPANY_INFO.email}`, PW - 10, 24, { align: 'right' });
+        doc.text(`${COMPANY_INFO.website}  ·  USt: ${COMPANY_INFO.vat}`, PW - 10, 28, { align: 'right' });
 
         // Page number
         if (totalPages) {
-          doc.setTextColor(150, 170, 220);
+          doc.setTextColor(235, 190, 190);
           doc.setFontSize(7);
           doc.text(`Sayfa ${pageNum}`, PW - 10, 36, { align: 'right' });
         }
@@ -259,32 +266,32 @@ export default function Cart() {
       drawPageHeader(1);
 
       // Quote title block
-      doc.setFillColor(245, 247, 255);
+      doc.setFillColor(250, 244, 244);
       doc.roundedRect(10, 46, PW - 20, 28, 3, 3, 'F');
-      doc.setFillColor(37, 99, 235);
+      doc.setFillColor(190, 36, 40);
       doc.roundedRect(10, 46, 4, 28, 2, 2, 'F');
 
-      doc.setTextColor(15, 23, 60);
+      doc.setTextColor(147, 19, 21);
       doc.setFontSize(16);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont(FONT, 'bold');
       doc.text('TEKLİF  /  ANGEBOT', 20, 57);
 
       doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont(FONT, 'normal');
       doc.setTextColor(80, 90, 120);
       doc.text(`Teklif No: ${quoteNo}`, 20, 65);
       doc.text(`Tarih: ${dateStr}`, 80, 65);
       doc.text(`Toplam Kalem: ${categoryKeys.length}  |  Toplam Adet: ${totalItems}`, 130, 65);
 
       // Contact row
-      doc.setFillColor(15, 23, 60);
+      doc.setFillColor(147, 19, 21);
       doc.rect(10, 78, PW - 20, 10, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(7.5);
       const contactY = 85;
-      doc.text(`✆  ${COMPANY_INFO.phone}`, 14, contactY);
-      doc.text(`✉  ${COMPANY_INFO.email}`, 68, contactY);
-      doc.text(`⌂  ${COMPANY_INFO.website}`, 128, contactY);
+      doc.text(`Tel: ${COMPANY_INFO.phone}`, 14, contactY);
+      doc.text(`E-Mail: ${COMPANY_INFO.email}`, 68, contactY);
+      doc.text(`Web: ${COMPANY_INFO.website}`, 128, contactY);
       doc.text(`USt: ${COMPANY_INFO.vat}`, 175, contactY);
 
       let y = 96;
@@ -323,13 +330,13 @@ export default function Cart() {
         }
 
         // Category header
-        doc.setFillColor(15, 23, 60);
+        doc.setFillColor(147, 19, 21);
         doc.roundedRect(10, y, PW - 20, 8, 1.5, 1.5, 'F');
-        doc.setFillColor(37, 99, 235);
+        doc.setFillColor(190, 36, 40);
         doc.roundedRect(10, y, 3, 8, 1, 1, 'F');
         doc.setTextColor(255, 255, 255);
         doc.setFontSize(8);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont(FONT, 'bold');
         doc.text(getCategoryName(cat).toUpperCase(), 16, y + 5.5);
         const catTotal = catItems.reduce((s, i) => s + i.quantity * (i.product.price || 0), 0);
         if (catTotal > 0) {
@@ -339,7 +346,7 @@ export default function Cart() {
 
         // Column headers
         doc.setFontSize(7);
-        doc.setFont('helvetica', 'bold');
+        doc.setFont(FONT, 'bold');
         doc.setTextColor(100, 110, 140);
         doc.text('GÖRSEL', 12, y);
         doc.text('ADET', 32, y);
@@ -348,7 +355,7 @@ export default function Cart() {
         doc.text('BİRİM FİYAT', 158, y, { align: 'right' });
         doc.text('TOPLAM', PW - 12, y, { align: 'right' });
         y += 2;
-        doc.setDrawColor(200, 210, 230);
+        doc.setDrawColor(228, 208, 208);
         doc.line(10, y, PW - 10, y);
         y += 3;
 
@@ -367,7 +374,7 @@ export default function Cart() {
 
           // Alternating row background
           if (rowAlt) {
-            doc.setFillColor(245, 247, 255);
+            doc.setFillColor(250, 244, 244);
             doc.rect(10, y - 1, PW - 20, rowH, 'F');
           }
           rowAlt = !rowAlt;
@@ -385,36 +392,36 @@ export default function Cart() {
           }
 
           // Quantity badge
-          doc.setFillColor(37, 99, 235);
+          doc.setFillColor(190, 36, 40);
           doc.roundedRect(30, y + 3, 9, 7, 1.5, 1.5, 'F');
           doc.setTextColor(255, 255, 255);
           doc.setFontSize(8);
-          doc.setFont('helvetica', 'bold');
+          doc.setFont(FONT, 'bold');
           doc.text(String(quantity), 34.5, y + 8.5, { align: 'center' });
 
           // Product code
-          doc.setTextColor(37, 99, 235);
+          doc.setTextColor(190, 36, 40);
           doc.setFontSize(6.5);
-          doc.setFont('helvetica', 'bold');
+          doc.setFont(FONT, 'bold');
           doc.text(product.id.substring(0, 22), 42, y + 5);
 
           // Brand
           if (product.brand) {
             doc.setTextColor(140, 150, 170);
             doc.setFontSize(6);
-            doc.setFont('helvetica', 'normal');
+            doc.setFont(FONT, 'normal');
             doc.text(product.brand, 42, y + 11);
           }
 
           // Product name
-          doc.setTextColor(15, 23, 60);
+          doc.setTextColor(147, 19, 21);
           doc.setFontSize(7.5);
-          doc.setFont('helvetica', 'bold');
+          doc.setFont(FONT, 'bold');
           const name = product.name.length > 42 ? product.name.substring(0, 42) + '…' : product.name;
           doc.text(name, 78, y + 5);
 
           // Dims & kW
-          doc.setFont('helvetica', 'normal');
+          doc.setFont(FONT, 'normal');
           doc.setFontSize(6);
           doc.setTextColor(120, 130, 155);
           const dims = `${product.l}×${product.w}×${product.h} mm${product.kw > 0 ? `  |  ${product.kw} kW` : ''}`;
@@ -423,17 +430,17 @@ export default function Cart() {
           // Unit price
           doc.setTextColor(80, 90, 120);
           doc.setFontSize(7.5);
-          doc.setFont('helvetica', 'normal');
+          doc.setFont(FONT, 'normal');
           doc.text(product.price > 0 ? formatPrice(product.price) : '—', 158, y + 7, { align: 'right' });
 
           // Line total
           const lineTotal = quantity * (product.price || 0);
-          doc.setFont('helvetica', 'bold');
-          doc.setTextColor(15, 23, 60);
+          doc.setFont(FONT, 'bold');
+          doc.setTextColor(147, 19, 21);
           doc.text(lineTotal > 0 ? formatPrice(lineTotal) : '—', PW - 12, y + 7, { align: 'right' });
 
           // Separator line
-          doc.setDrawColor(220, 225, 240);
+          doc.setDrawColor(232, 216, 216);
           doc.line(10, y + rowH - 1, PW - 10, y + rowH - 1);
 
           y += rowH;
@@ -453,11 +460,11 @@ export default function Cart() {
       }
 
       y += 4;
-      doc.setFillColor(245, 247, 255);
+      doc.setFillColor(250, 244, 244);
       doc.roundedRect(PW / 2, y, PW / 2 - 10, 40, 3, 3, 'F');
 
       doc.setFontSize(8);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont(FONT, 'normal');
       doc.setTextColor(80, 90, 120);
       doc.text('Ara Toplam:', PW / 2 + 5, y + 9);
       doc.text(formatPrice(totalPrice), PW - 12, y + 9, { align: 'right' });
@@ -465,14 +472,14 @@ export default function Cart() {
       doc.text('KDV (%19):', PW / 2 + 5, y + 17);
       doc.text(formatPrice(totalPrice * 0.19), PW - 12, y + 17, { align: 'right' });
 
-      doc.setDrawColor(37, 99, 235);
+      doc.setDrawColor(190, 36, 40);
       doc.line(PW / 2 + 3, y + 21, PW - 10, y + 21);
 
-      doc.setFillColor(15, 23, 60);
+      doc.setFillColor(147, 19, 21);
       doc.roundedRect(PW / 2, y + 23, PW / 2 - 10, 13, 2, 2, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(9);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont(FONT, 'bold');
       doc.text('GENEL TOPLAM:', PW / 2 + 5, y + 31);
       doc.text(formatPrice(totalPrice * 1.19), PW - 12, y + 31, { align: 'right' });
 
@@ -480,19 +487,19 @@ export default function Cart() {
       const totalPagesCount = doc.getNumberOfPages();
       for (let p = 1; p <= totalPagesCount; p++) {
         doc.setPage(p);
-        doc.setFillColor(15, 23, 60);
+        doc.setFillColor(147, 19, 21);
         doc.rect(0, PH - 12, PW, 12, 'F');
-        doc.setFillColor(37, 99, 235);
+        doc.setFillColor(190, 36, 40);
         doc.rect(0, PH - 12, PW, 1.5, 'F');
-        doc.setTextColor(180, 200, 255);
+        doc.setTextColor(245, 210, 210);
         doc.setFontSize(6.5);
-        doc.setFont('helvetica', 'normal');
+        doc.setFont(FONT, 'normal');
         doc.text(
           `${COMPANY_INFO.name}  ·  ${COMPANY_INFO.address}  ·  ${COMPANY_INFO.phone}  ·  ${COMPANY_INFO.email}`,
           PW / 2, PH - 6,
           { align: 'center' }
         );
-        doc.setTextColor(100, 130, 200);
+        doc.setTextColor(230, 180, 180);
         doc.text(`${p} / ${totalPagesCount}`, PW - 12, PH - 6, { align: 'right' });
       }
 
@@ -585,7 +592,7 @@ export default function Cart() {
         </div>
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center relative z-10">
           <div className="flex-1">
-            <img src="/logo-werbung.png" alt="2MC Werbung" className="h-8 object-contain mb-2" style={{ filter: 'brightness(0) invert(1)' }} />
+            <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-8 object-contain mb-2" style={{ filter: 'brightness(0) invert(1)' }} />
             <p className="text-xs text-red-200">{COMPANY_INFO.tagline}</p>
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-red-100">

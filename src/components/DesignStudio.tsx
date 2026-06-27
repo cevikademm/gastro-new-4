@@ -1039,17 +1039,19 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
       });
       const imgData = canvas.toDataURL('image/png');
       const doc = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      const { ensurePdfFont } = await import('../lib/pdfFont');
+      const FONT = await ensurePdfFont(doc); // Unicode font so Turkish/German render correctly
       const pageW = doc.internal.pageSize.getWidth();
       const pageH = doc.internal.pageSize.getHeight();
       // Hologram watermark
       const { drawPdfHologram } = await import('../lib/pdfWatermark');
       await drawPdfHologram(doc, pageW, pageH);
       // Header
-      doc.setFillColor(30, 64, 175);
+      doc.setFillColor(147, 19, 21);
       doc.rect(0, 0, pageW, 12, 'F');
       doc.setTextColor(255, 255, 255);
       doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
+      doc.setFont(FONT, 'bold');
       doc.text(`2MC Gastro — Kat Planı${project ? ': ' + project.name : ''}`, 8, 8);
       doc.text(new Date().toLocaleDateString('tr-TR'), pageW - 8, 8, { align: 'right' });
       // Canvas image
@@ -1062,7 +1064,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
       doc.rect(0, footerY - 5, pageW, 13, 'F');
       doc.setTextColor(100, 116, 139);
       doc.setFontSize(7);
-      doc.setFont('helvetica', 'normal');
+      doc.setFont(FONT, 'normal');
       doc.text(`Alan: ${roomAreaM2}m²  |  Çevre: ${roomPerimeterM}m  |  Ekipman: ${totalItems}  |  Güç: ${totalKW.toFixed(1)}kW${totalPrice > 0 ? '  |  Toplam: €' + totalPrice.toLocaleString('de-DE', { minimumFractionDigits: 2 }) : ''}`, 8, footerY);
       if (notes) {
         const noteText = notes.length > 120 ? notes.substring(0, 120) + '...' : notes;

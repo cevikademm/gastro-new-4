@@ -6,8 +6,8 @@
   "scope": "/",
   "display": "standalone",
   "orientation": "any",
-  "background_color": "#020817",
-  "theme_color": "#020817",
+  "background_color": "#ffffff",
+  "theme_color": "#931315",
   "lang": "tr-TR",
   "dir": "ltr",
   "categories": ["business", "productivity", "shopping"],
@@ -20,9 +20,15 @@
     },
     {
       "src": "/logo-icon.png",
+      "sizes": "967x967",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo-maskable.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ]
 }

@@ -1,7 +1,6 @@
 import type { jsPDF } from 'jspdf';
-import { brandAsset } from './assets';
 
-const LOGO_URL = brandAsset('logo4.png');
+const LOGO_URL = '/logo-icon.png';
 
 let cachedLogoDataURL: string | null = null;
 
@@ -58,7 +57,6 @@ export async function drawPdfHologram(
   const x = (pxW - size) / 2;
   const y = (pxH - size) / 2;
   ctx.globalAlpha = 0.055;
-  ctx.filter = 'hue-rotate(200deg) saturate(3)';
   ctx.drawImage(img, x, y, size, size);
 
   const holoData = canvas.toDataURL('image/png');

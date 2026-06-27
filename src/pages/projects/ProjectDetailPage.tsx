@@ -12,7 +12,8 @@ import { jsPDF } from 'jspdf';
 import { meshyGenerate, getProduct3DModelsByKeys, productKeyFor, type Product3DModel } from '../../lib/meshyClient';
 import { useMeshStore } from '../../stores/meshStore';
 import SafeModelViewer from '../../components/SafeModelViewer';
-import { IMAGE_PROXY_URL, brandAsset } from '../../lib/assets';
+import { IMAGE_PROXY_URL } from '../../lib/assets';
+import { ensurePdfFont } from '../../lib/pdfFont';
 
 // Kat planından placedItems okuma
 interface FloorPlanItem {
@@ -111,15 +112,16 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
     setExporting(true);
     try {
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const FONT = await ensurePdfFont(doc); // Unicode font so Turkish/German render correctly
       const PW = 210;
       const PH = 297;
       const dateStr = new Date().toLocaleDateString('tr-TR');
 
       // Load logos
       const [logoFull, logoIcon, logoHolo] = await Promise.all([
-        loadImgBase64('/logo-werbung.png'),
+        loadImgBase64('/logo-2mc-gastro-white.png'),
+        loadImgBase64('/logo-icon-white.png'),
         loadImgBase64('/logo-icon.png'),
-        loadImgBase64(brandAsset('logo4.png')),
       ]);
 
       // Hologram watermark
@@ -132,7 +134,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
             c.width = 794; c.height = 1123;
             const ctx = c.getContext('2d')!;
             const sz = Math.min(c.width, c.height) * 0.92;
-            ctx.globalAlpha = 0.055;
+            ctx.globalAlpha = 0.12;
             ctx.drawImage(img, (c.width - sz) / 2, (c.height - sz) / 2, sz, sz);
             resolve(c.toDataURL('image/png'));
           };
@@ -143,7 +145,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
       const drawHologram = () => { if (holoPageData) doc.addImage(holoPageData, 'PNG', 0, 0, PW, PH); };
 
       const drawStripe = () => {
-        doc.setFillColor(37, 99, 235);
+        doc.setFillColor(190, 36, 40);
         doc.setGState(doc.GState({ opacity: 0.06 }));
         for (let i = 0; i < 3; i++) {
           const off = 60 + i * 25;
@@ -153,14 +155,14 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
       };
 
       const drawPageHeader = (pg: number) => {
-        doc.setFillColor(15, 23, 60);
+        doc.setFillColor(147, 19, 21);
         doc.rect(0, 0, PW, 38, 'F');
-        doc.setFillColor(37, 99, 235);
+        doc.setFillColor(190, 36, 40);
         doc.rect(0, 38, PW, 2, 'F');
-        if (logoFull) doc.addImage(logoFull, 'PNG', 10, 5, 72, 20);
-        else { doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.setFont('helvetica', 'bold'); doc.text('2MC WERBUNG', 14, 20); }
+        if (logoFull) doc.addImage(logoFull, 'PNG', 10, 8, 76, 18.1);
+        else { doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.setFont(FONT, 'bold'); doc.text('2MC GASTRO', 14, 20); }
         if (logoIcon) doc.addImage(logoIcon, 'PNG', PW - 38, 4, 28, 28);
-        doc.setTextColor(180, 200, 255); doc.setFontSize(7); doc.setFont('helvetica', 'normal');
+        doc.setTextColor(245, 210, 210); doc.setFontSize(7); doc.setFont(FONT, 'normal');
         doc.text(COMPANY.address, PW - 10, 34, { align: 'right' });
       };
 
@@ -168,24 +170,24 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
       drawHologram(); drawStripe(); drawPageHeader(1);
 
       // Title block
-      doc.setFillColor(245, 247, 255);
+      doc.setFillColor(250, 244, 244);
       doc.roundedRect(10, 46, PW - 20, 28, 3, 3, 'F');
-      doc.setFillColor(37, 99, 235);
+      doc.setFillColor(190, 36, 40);
       doc.roundedRect(10, 46, 4, 28, 2, 2, 'F');
-      doc.setTextColor(15, 23, 60); doc.setFontSize(16); doc.setFont('helvetica', 'bold');
+      doc.setTextColor(147, 19, 21); doc.setFontSize(16); doc.setFont(FONT, 'bold');
       doc.text('TEKLİF  /  ANGEBOT', 20, 57);
-      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(80, 90, 120);
+      doc.setFontSize(8); doc.setFont(FONT, 'normal'); doc.setTextColor(80, 90, 120);
       doc.text(`Teklif No: ${quoteNo}`, 20, 65);
       doc.text(`Tarih: ${dateStr}`, 80, 65);
       doc.text(`Müşteri: ${clientName || '—'}`, 120, 65);
 
       // Client info bar
-      doc.setFillColor(15, 23, 60);
+      doc.setFillColor(147, 19, 21);
       doc.rect(10, 78, PW - 20, 10, 'F');
       doc.setTextColor(255, 255, 255); doc.setFontSize(7.5);
       doc.text(`Proje: ${name}`, 14, 85);
-      doc.text(`✆ ${COMPANY.phone}`, 80, 85);
-      doc.text(`✉ ${COMPANY.email}`, 130, 85);
+      doc.text(`Tel: ${COMPANY.phone}`, 80, 85);
+      doc.text(`E-Mail: ${COMPANY.email}`, 130, 85);
       doc.text(`USt: ${COMPANY.vat}`, 175, 85);
 
       let y = 96;
@@ -203,7 +205,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
 
       // Column headers
       const drawColumnHeaders = () => {
-        doc.setFontSize(7); doc.setFont('helvetica', 'bold'); doc.setTextColor(100, 110, 140);
+        doc.setFontSize(7); doc.setFont(FONT, 'bold'); doc.setTextColor(100, 110, 140);
         doc.text('GÖRSEL', 12, y);
         doc.text('ADET', 32, y);
         doc.text('ÜRÜN KODU', 42, y);
@@ -211,7 +213,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         doc.text('BİRİM FİYAT', 158, y, { align: 'right' });
         doc.text('TOPLAM', PW - 12, y, { align: 'right' });
         y += 2;
-        doc.setDrawColor(200, 210, 230); doc.line(10, y, PW - 10, y);
+        doc.setDrawColor(228, 208, 208); doc.line(10, y, PW - 10, y);
         y += 3;
       };
       drawColumnHeaders();
@@ -226,7 +228,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
           y = 48; drawColumnHeaders();
         }
 
-        if (rowAlt) { doc.setFillColor(245, 247, 255); doc.rect(10, y - 1, PW - 20, rowH, 'F'); }
+        if (rowAlt) { doc.setFillColor(250, 244, 244); doc.rect(10, y - 1, PW - 20, rowH, 'F'); }
         rowAlt = !rowAlt;
 
         // Image
@@ -239,35 +241,35 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         }
 
         // Quantity badge
-        doc.setFillColor(37, 99, 235); doc.roundedRect(30, y + 3, 9, 7, 1.5, 1.5, 'F');
-        doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont('helvetica', 'bold');
+        doc.setFillColor(190, 36, 40); doc.roundedRect(30, y + 3, 9, 7, 1.5, 1.5, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont(FONT, 'bold');
         doc.text('1', 34.5, y + 8.5, { align: 'center' });
 
         // Code
-        doc.setTextColor(37, 99, 235); doc.setFontSize(6.5); doc.setFont('helvetica', 'bold');
+        doc.setTextColor(190, 36, 40); doc.setFontSize(6.5); doc.setFont(FONT, 'bold');
         doc.text(product.code.substring(0, 22), 42, y + 5);
         if (product.brand) {
-          doc.setTextColor(140, 150, 170); doc.setFontSize(6); doc.setFont('helvetica', 'normal');
+          doc.setTextColor(140, 150, 170); doc.setFontSize(6); doc.setFont(FONT, 'normal');
           doc.text(product.brand, 42, y + 11);
         }
 
         // Name
-        doc.setTextColor(15, 23, 60); doc.setFontSize(7.5); doc.setFont('helvetica', 'bold');
+        doc.setTextColor(147, 19, 21); doc.setFontSize(7.5); doc.setFont(FONT, 'bold');
         const pName = product.name.length > 42 ? product.name.substring(0, 42) + '…' : product.name;
         doc.text(pName, 78, y + 5);
 
         // Dims & kW
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(6); doc.setTextColor(120, 130, 155);
+        doc.setFont(FONT, 'normal'); doc.setFontSize(6); doc.setTextColor(120, 130, 155);
         const dims = `${product.dimensions.width}×${product.dimensions.height}cm${product.kw > 0 ? `  |  ${product.kw} kW` : ''}`;
         doc.text(dims, 78, y + 11);
 
         // Price
-        doc.setTextColor(80, 90, 120); doc.setFontSize(7.5); doc.setFont('helvetica', 'normal');
+        doc.setTextColor(80, 90, 120); doc.setFontSize(7.5); doc.setFont(FONT, 'normal');
         doc.text(product.price > 0 ? fmt(product.price) : '—', 158, y + 7, { align: 'right' });
-        doc.setFont('helvetica', 'bold'); doc.setTextColor(15, 23, 60);
+        doc.setFont(FONT, 'bold'); doc.setTextColor(147, 19, 21);
         doc.text(product.price > 0 ? fmt(product.price) : '—', PW - 12, y + 7, { align: 'right' });
 
-        doc.setDrawColor(220, 225, 240); doc.line(10, y + rowH - 1, PW - 10, y + rowH - 1);
+        doc.setDrawColor(232, 216, 216); doc.line(10, y + rowH - 1, PW - 10, y + rowH - 1);
         y += rowH;
       }
 
@@ -278,15 +280,15 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         y = 48;
       }
       y += 4;
-      doc.setFillColor(245, 247, 255); doc.roundedRect(PW / 2, y, PW / 2 - 10, 40, 3, 3, 'F');
-      doc.setFontSize(8); doc.setFont('helvetica', 'normal'); doc.setTextColor(80, 90, 120);
+      doc.setFillColor(250, 244, 244); doc.roundedRect(PW / 2, y, PW / 2 - 10, 40, 3, 3, 'F');
+      doc.setFontSize(8); doc.setFont(FONT, 'normal'); doc.setTextColor(80, 90, 120);
       doc.text('Ara Toplam:', PW / 2 + 5, y + 9);
       doc.text(fmt(subtotal), PW - 12, y + 9, { align: 'right' });
       doc.text('KDV (%19):', PW / 2 + 5, y + 17);
       doc.text(fmt(vat), PW - 12, y + 17, { align: 'right' });
-      doc.setDrawColor(37, 99, 235); doc.line(PW / 2 + 3, y + 21, PW - 10, y + 21);
-      doc.setFillColor(15, 23, 60); doc.roundedRect(PW / 2, y + 23, PW / 2 - 10, 13, 2, 2, 'F');
-      doc.setTextColor(255, 255, 255); doc.setFontSize(9); doc.setFont('helvetica', 'bold');
+      doc.setDrawColor(190, 36, 40); doc.line(PW / 2 + 3, y + 21, PW - 10, y + 21);
+      doc.setFillColor(147, 19, 21); doc.roundedRect(PW / 2, y + 23, PW / 2 - 10, 13, 2, 2, 'F');
+      doc.setTextColor(255, 255, 255); doc.setFontSize(9); doc.setFont(FONT, 'bold');
       doc.text('GENEL TOPLAM:', PW / 2 + 5, y + 31);
       doc.text(fmt(total), PW - 12, y + 31, { align: 'right' });
 
@@ -294,11 +296,11 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
       const totalPg = doc.getNumberOfPages();
       for (let pg = 1; pg <= totalPg; pg++) {
         doc.setPage(pg);
-        doc.setFillColor(15, 23, 60); doc.rect(0, PH - 12, PW, 12, 'F');
-        doc.setFillColor(37, 99, 235); doc.rect(0, PH - 12, PW, 1.5, 'F');
-        doc.setTextColor(180, 200, 255); doc.setFontSize(6.5); doc.setFont('helvetica', 'normal');
+        doc.setFillColor(147, 19, 21); doc.rect(0, PH - 12, PW, 12, 'F');
+        doc.setFillColor(190, 36, 40); doc.rect(0, PH - 12, PW, 1.5, 'F');
+        doc.setTextColor(245, 210, 210); doc.setFontSize(6.5); doc.setFont(FONT, 'normal');
         doc.text(`${COMPANY.name}  ·  ${COMPANY.address}  ·  ${COMPANY.phone}  ·  ${COMPANY.email}`, PW / 2, PH - 6, { align: 'center' });
-        doc.setTextColor(100, 130, 200);
+        doc.setTextColor(230, 180, 180);
         doc.text(`${pg} / ${totalPg}`, PW - 12, PH - 6, { align: 'right' });
       }
 
@@ -333,11 +335,10 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         {/* Hologram watermark — new circular logo */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
           <img
-            src={brandAsset('logo4.png')}
+            src="/logo-icon.png"
             alt=""
-            onError={(e) => { (e.target as HTMLImageElement).src = '/logo-icon.png'; }}
             className="w-80 h-80 object-contain select-none"
-            style={{ opacity: 0.06, filter: 'saturate(0.3) hue-rotate(200deg)' }}
+            style={{ opacity: 0.1 }}
           />
         </div>
 
@@ -346,7 +347,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
           <div className="flex items-center gap-4">
             <img src="/logo-icon.png" alt="2MC" className="h-12 w-12 object-contain bg-white rounded-full p-1.5 shadow" />
             <div>
-              <img src="/logo-werbung.png" alt="2MC Werbung" className="h-7 object-contain brightness-0 invert" />
+              <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-7 object-contain brightness-0 invert" />
               <p className="text-white/70 text-[10px] mt-0.5">Professionelle Großküchentechnik</p>
             </div>
           </div>
@@ -540,7 +541,10 @@ export default function ProjectDetailPage() {
 
   const startMeshGeneration = async () => {
     if (selected3D.size === 0) return;
-    const items = floorItems.filter(fi => selected3D.has(fi.id));
+    // Seçim ürünler sekmesindeki TÜM ürünler (kat planı + "Ürün Ekle" ile eklenen
+    // store ürünleri = allItems) üzerinden yapılır. Sadece floorItems filtrelersek
+    // store ürünleri eşleşmez, istek hiç gitmez ve modal boş açılırdı.
+    const items = allItems.filter(fi => selected3D.has(fi.id));
     const keys = items.map(fi => productKeyFor(fi.imageData, fi.equipmentId || fi.id)).filter(Boolean);
     setMeshActiveKeys(keys);
     setMeshModalOpen(true);
