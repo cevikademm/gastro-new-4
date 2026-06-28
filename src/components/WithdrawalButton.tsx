@@ -44,7 +44,7 @@ Empfänger / Recipient:
 2MC Werbung & Gastro GmbH
 Musterstraße 12
 10115 Berlin, Deutschland
-info@2mc-gastro.de
+info@2mcgastro.de
 +49 30 1234 5678
 
 Bestellung / Order: ${order.order_number}
@@ -165,7 +165,7 @@ Notes on right of withdrawal:
               <p className="font-bold text-on-surface">{t('withdrawal.instructions', 'Anleitung zum Widerrufen:')}</p>
               <ol className="list-decimal list-inside space-y-2 text-on-surface-variant text-xs">
                 <li>{t('withdrawal.step1', 'Füllen Sie das Widerrufsformular aus und unterschreiben Sie es')}</li>
-                <li>{t('withdrawal.step2', 'Senden Sie es per E-Mail an info@2mc-gastro.de oder per Post')}</li>
+                <li>{t('withdrawal.step2', 'Senden Sie es per E-Mail an info@2mcgastro.de oder per Post')}</li>
                 <li>{t('withdrawal.step3', 'Packen Sie die Produkte sicher ein und senden Sie sie zurück')}</li>
                 <li>{t('withdrawal.step4', 'Nach Erhalt erhalten Sie Ihr Geld zurück (bis 30 Tage)')}</li>
               </ol>
@@ -206,7 +206,7 @@ Notes on right of withdrawal:
               <p className="font-bold mb-2">{t('withdrawal.contactInfo', 'Kontakt für Widerruf:')}</p>
               <p>2MC Werbung & Gastro GmbH</p>
               <p>Musterstraße 12, 10115 Berlin</p>
-              <p>E-Mail: info@2mc-gastro.de</p>
+              <p>E-Mail: info@2mcgastro.de</p>
               <p>Telefon: +49 30 1234 5678</p>
             </div>
           </div>

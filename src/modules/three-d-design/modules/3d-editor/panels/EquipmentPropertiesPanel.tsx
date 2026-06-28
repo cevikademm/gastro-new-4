@@ -38,6 +38,7 @@ import {
   containFloorItem,
   DEFAULT_WALL_MOUNT_Z,
   mountToWall,
+  snapFloorItemToWalls,
 } from '../interaction/placement';
 
 interface EquipmentPropertiesPanelProps {
@@ -113,11 +114,18 @@ export default function EquipmentPropertiesPanel({
       );
       x = resolved.x;
       y = resolved.y;
-      // Zemin ürünü oda duvarlarının dışına çıkamaz.
+      // Zemin ürünü: yakın duvara yapışsın (yanaşma) ve oda dışına çıkamasın.
       if ((eq.mount ?? 'floor') === 'floor') {
-        const contained = containFloorItem(
+        const snappedWall = snapFloorItemToWalls(
           project,
           { x, y },
+          eq.rotation,
+          eq.footprint.width,
+          eq.footprint.depth,
+        );
+        const contained = containFloorItem(
+          project,
+          snappedWall,
           eq.rotation,
           eq.footprint.width,
           eq.footprint.depth,
@@ -203,11 +211,25 @@ export default function EquipmentPropertiesPanel({
       othersAtHeight(eq.position.z, eq.heightMm, otherEquipment),
       eq.id,
     );
+    let rx = resolved.x;
+    let ry = resolved.y;
+    // Döndürme köşeleri duvara sokabilir — zemin ürününü oda/duvar içinde tut.
+    if ((eq.mount ?? 'floor') === 'floor') {
+      const contained = containFloorItem(
+        project,
+        { x: rx, y: ry },
+        rad,
+        eq.footprint.width,
+        eq.footprint.depth,
+      );
+      rx = contained.x;
+      ry = contained.y;
+    }
     update((d) => {
       const e = d.equipment[eq.id];
       if (!e) return;
       e.rotation = rad;
-      e.position = { x: resolved.x, y: resolved.y, z: e.position.z };
+      e.position = { x: rx, y: ry, z: e.position.z };
     });
   };
 

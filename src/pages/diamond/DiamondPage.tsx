@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import CartQuantityButton from '../../components/CartQuantityButton';
 import Model3DViewer, { has3DModel } from '../../components/Model3DViewer';
+import CategoryFilterPanel from '../../components/CategoryFilterPanel';
+import { useProductDetailStore } from '../../stores/productDetailStore';
 import { CategoryIcon } from '../../components/icons/CategoryIcon';
 import { EmptyState, EmptySearchIllustration } from '../../components/illustrations/EmptyState';
 
@@ -120,6 +122,7 @@ function formatCellValue(key: string, val: any): string {
 export default function DiamondPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const openDetail = useProductDetailStore((s) => s.open);
   const store = useDiamondStore();
   const { addItem: addToCart, isInCart } = useCartStore();
   const showPromo = useUIStore(s => s.showPromoProducts);
@@ -371,23 +374,13 @@ export default function DiamondPage() {
         </div>
       )}
 
-      {/* ─── Category Pills ─── */}
+      {/* ─── Kategori filtresi (açılır ikon-grid panel) ─── */}
       <div className="flex flex-wrap gap-1.5 items-center">
-        <button onClick={() => setFilter('family', '')} className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${!filters.family ? 'bg-[#DC2626] text-white shadow-md shadow-red-200' : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#DC2626]'}`}>
-          {t('common.all')}
-        </button>
-        {visibleFamilies.map(fam => (
-          <button key={fam.name} onClick={() => setFilter('family', filters.family === fam.name ? '' : fam.name)} className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${filters.family === fam.name ? 'bg-[#DC2626] text-white shadow-md shadow-red-200' : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#DC2626]'}`}>
-            <CategoryIcon category={fam.name} size={16} />
-            {fam.name || t('common.other')} <span className="opacity-50">({fam.count})</span>
-          </button>
-        ))}
-        {familyGroups.length > 12 && (
-          <button onClick={() => setShowAllFamilies(!showAllFamilies)} className="flex items-center gap-1 px-3 py-2 text-xs text-[#DC2626] font-bold hover:text-[#DC2626] transition-colors">
-            <ChevronDown size={14} className={`transition-transform ${showAllFamilies ? 'rotate-180' : ''}`} />
-            {showAllFamilies ? t('common.less') : `+${familyGroups.length - 12} ${t('common.more')}`}
-          </button>
-        )}
+        <CategoryFilterPanel
+          categories={familyGroups}
+          selected={filters.family}
+          onSelect={(name) => setFilter('family', name)}
+        />
       </div>
 
       {/* Loading */}
@@ -406,6 +399,19 @@ export default function DiamondPage() {
         </div>
       )}
 
+      {/* Boş durum — yükleme yok, hata yok ama ürün de yok (asla takılı spinner) */}
+      {!isLoading && !error && products.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Box size={40} className="text-slate-300 mb-3" />
+          <p className="text-sm font-bold text-slate-600">
+            {t('common.noResults', { defaultValue: 'Ürün bulunamadı' })}
+          </p>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm">
+            Filtreleri değiştirin ya da katalog verisi henüz yüklenmemiş olabilir.
+          </p>
+        </div>
+      )}
+
       {/* ═══════ GRID VIEW ═══════ */}
       {!isLoading && !error && viewMode === 'grid' && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
@@ -415,7 +421,7 @@ export default function DiamondPage() {
             return (
               <div
                 key={item.id}
-                onClick={() => navigate(`/product/${item.id}`)}
+                onClick={() => openDetail('diamond', item.id)}
                 className={`bg-white rounded-2xl border overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group relative ${inCompare ? 'border-violet-300 ring-2 ring-violet-100' : 'border-slate-200/80'}`}
               >
                 {/* Badges */}
@@ -500,7 +506,7 @@ export default function DiamondPage() {
             </thead>
             <tbody className="divide-y divide-outline-variant/5">
               {products.map((item) => (
-                <tr key={item.id} onClick={() => navigate(`/product/${item.id}`)} className="hover:bg-surface-container-high/50 cursor-pointer transition-colors group">
+                <tr key={item.id} onClick={() => openDetail('diamond', item.id)} className="hover:bg-surface-container-high/50 cursor-pointer transition-colors group">
                   <td className="py-3 px-4">
                     <div className="flex items-center gap-3">
                       <ProductImage src={item.image_thumb || item.image_big} alt={item.name} className="w-10 h-10 rounded-md flex-shrink-0" />
@@ -552,7 +558,7 @@ export default function DiamondPage() {
             </thead>
             <tbody className="divide-y divide-outline-variant/5">
               {products.map((item) => (
-                <tr key={item.id} onClick={() => navigate(`/product/${item.id}`)} className="hover:bg-surface-container-high/50 cursor-pointer transition-colors">
+                <tr key={item.id} onClick={() => openDetail('diamond', item.id)} className="hover:bg-surface-container-high/50 cursor-pointer transition-colors">
                   <td className="py-2 px-3 sticky left-0 bg-white z-10">
                     <div className="flex items-center gap-0.5">
                       <CartQuantityButton product={toCartItem(item) as any} size="sm" />

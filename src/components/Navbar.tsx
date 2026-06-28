@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { FileText, Search, ShoppingCart, Menu, X, LogIn, User } from 'lucide-react';
+import { FileText, Search, ShoppingCart, Menu, X, LogIn, User, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,10 +8,12 @@ import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import LanguageSelector from './LanguageSelector';
 import { CartDrawer } from './CartDrawer';
+import { ProductsMegaMenu } from './ProductsMegaMenu';
+import { CATEGORIES } from '../stores/equipmentStore';
 
 const NAV_ITEMS = [
   { name: 'PLANLAMA', path: '/kitchen-planner' },
-  { name: 'ÜRÜNLER', path: '/kategori' },
+  { name: 'ÜRÜNLER', path: '/magaza' },
   { name: 'PROJELER', path: '/projects' },
   { name: 'İLETİŞİM', path: '/support' },
   { name: 'HAKKIMIZDA', path: '/brand' },
@@ -26,6 +28,8 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
   const user = useAuthStore((s) => s.user);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProductsOpen, setIsProductsOpen] = useState(false);
+  const [isMobileProductsOpen, setIsMobileProductsOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
@@ -45,12 +49,20 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
     const q = searchQuery.trim();
     if (!q) return;
     setIsSearchOpen(false);
-    navigate(`/kategori?q=${encodeURIComponent(q)}`);
+    navigate(`/magaza?q=${encodeURIComponent(q)}`);
   };
 
   useEffect(() => {
     if (isSearchOpen) searchInputRef.current?.focus();
   }, [isSearchOpen]);
+
+  // ÜRÜNLER mega-menüsünü Escape ile kapat
+  useEffect(() => {
+    if (!isProductsOpen) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setIsProductsOpen(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isProductsOpen]);
 
   useEffect(() => {
     let ticking = false;
@@ -110,23 +122,60 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
             </Link>
 
             <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
-              {NAV_ITEMS.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.path}
-                  className={cn(
-                    "text-xs font-bold uppercase tracking-[0.12em] whitespace-nowrap transition-colors relative group",
-                    isScrolled
-                      ? "text-slate-600 hover:text-brand-red"
-                      : transparent
-                        ? "text-white/80 hover:text-white"
-                        : "text-slate-600 hover:text-brand-red"
-                  )}
-                >
-                  {item.name}
-                  <span className="absolute -bottom-3 left-1/2 w-1 h-1 bg-brand-red rounded-full opacity-0 group-hover:opacity-100 -translate-x-1/2 transition-all duration-300 shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
-                </Link>
-              ))}
+              {NAV_ITEMS.map((item) => {
+                const linkColor = isScrolled
+                  ? "text-slate-600 hover:text-brand-red"
+                  : transparent
+                    ? "text-white/80 hover:text-white"
+                    : "text-slate-600 hover:text-brand-red";
+
+                // ÜRÜNLER → Diamond tarzı kategori mega-menüsü
+                if (item.path === '/magaza') {
+                  return (
+                    <div
+                      key={item.name}
+                      className="relative"
+                      onMouseEnter={() => setIsProductsOpen(true)}
+                      onMouseLeave={() => setIsProductsOpen(false)}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => setIsProductsOpen((v) => !v)}
+                        aria-expanded={isProductsOpen}
+                        aria-haspopup="menu"
+                        className={cn(
+                          "inline-flex items-center gap-1 text-xs font-bold uppercase tracking-[0.12em] whitespace-nowrap transition-colors cursor-pointer",
+                          isProductsOpen ? "text-brand-red" : linkColor
+                        )}
+                      >
+                        {item.name}
+                        <ChevronDown className={cn("w-3 h-3 transition-transform duration-300", isProductsOpen && "rotate-180")} />
+                      </button>
+                      <AnimatePresence>
+                        {isProductsOpen && (
+                          <div className="absolute left-0 top-full z-50 pt-4">
+                            <ProductsMegaMenu onClose={() => setIsProductsOpen(false)} />
+                          </div>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  );
+                }
+
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.path}
+                    className={cn(
+                      "text-xs font-bold uppercase tracking-[0.12em] whitespace-nowrap transition-colors relative group",
+                      linkColor
+                    )}
+                  >
+                    {item.name}
+                    <span className="absolute -bottom-3 left-1/2 w-1 h-1 bg-brand-red rounded-full opacity-0 group-hover:opacity-100 -translate-x-1/2 transition-all duration-300 shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
+                  </Link>
+                );
+              })}
             </nav>
           </div>
 
@@ -274,14 +323,63 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                     exit={{ opacity: 0, x: -16 }}
                     transition={{ delay: i * 0.04, duration: 0.24, ease: "easeOut" }}
                   >
-                    <Link
-                      to={item.path}
-                      className="text-3xl font-display font-bold uppercase tracking-tighter text-[#0F2440] hover:text-brand-red flex items-center gap-4 transition-colors"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <span className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_10px_rgba(220,38,38,0.45)]" />
-                      {item.name}
-                    </Link>
+                    {item.path === '/magaza' ? (
+                      <div>
+                        <button
+                          type="button"
+                          onClick={() => setIsMobileProductsOpen((v) => !v)}
+                          aria-expanded={isMobileProductsOpen}
+                          className="w-full text-3xl font-display font-bold uppercase tracking-tighter text-[#0F2440] hover:text-brand-red flex items-center gap-4 transition-colors"
+                        >
+                          <span className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_10px_rgba(220,38,38,0.45)]" />
+                          {item.name}
+                          <ChevronDown className={cn("w-6 h-6 ml-auto transition-transform duration-300", isMobileProductsOpen && "rotate-180")} />
+                        </button>
+                        <AnimatePresence initial={false}>
+                          {isMobileProductsOpen && (
+                            <motion.ul
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              transition={{ duration: 0.25, ease: "easeOut" }}
+                              className="overflow-hidden mt-3 ml-5 border-l border-slate-200 pl-4 flex flex-col"
+                            >
+                              <li>
+                                <Link
+                                  to="/magaza"
+                                  onClick={() => setIsMobileMenuOpen(false)}
+                                  className="flex items-center justify-between py-2 text-sm font-bold uppercase tracking-wide text-brand-red"
+                                >
+                                  Tüm Ürünler
+                                  <ChevronRight className="w-4 h-4" />
+                                </Link>
+                              </li>
+                              {CATEGORIES.map((cat) => (
+                                <li key={cat.id}>
+                                  <Link
+                                    to={`/magaza?cat=${cat.id}`}
+                                    onClick={() => setIsMobileMenuOpen(false)}
+                                    className="flex items-center justify-between py-2 text-sm font-semibold text-slate-600 hover:text-brand-red transition-colors"
+                                  >
+                                    <span className="truncate">{cat.name}</span>
+                                    <ChevronRight className="w-4 h-4 shrink-0 text-slate-300" />
+                                  </Link>
+                                </li>
+                              ))}
+                            </motion.ul>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    ) : (
+                      <Link
+                        to={item.path}
+                        className="text-3xl font-display font-bold uppercase tracking-tighter text-[#0F2440] hover:text-brand-red flex items-center gap-4 transition-colors"
+                        onClick={() => setIsMobileMenuOpen(false)}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_10px_rgba(220,38,38,0.45)]" />
+                        {item.name}
+                      </Link>
+                    )}
                   </motion.div>
                 ))}
               </nav>

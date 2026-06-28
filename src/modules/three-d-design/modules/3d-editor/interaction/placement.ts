@@ -21,6 +21,7 @@ import {
 import {
   clampOBBInsidePolygon,
   obbFor,
+  projectOBB,
   resolveAgainstObstacles,
   wallToOBB,
   type OBB,
@@ -36,6 +37,119 @@ export function projectWallOBBs(project: ProjectDocument): OBB[] {
     out.push(wallToOBB(a.x, a.y, b.x, b.y, w.thickness));
   }
   return out;
+}
+
+/**
+ * "Yanaşma": pull a FLOOR item flush against a nearby wall.
+ *
+ * When the item's footprint sits within `tolMm` of a wall surface (and actually
+ * overlaps that wall along its length, so we never grab a perpendicular wall off
+ * to the side), shift it along the wall normal so its back face touches the
+ * wall's inner surface — closing the gap the user complained about
+ * ("duvara tam yanaşmıyor"). Picks the closest qualifying wall. No-op when the
+ * item is already touching/overlapping (containment handles that) or too far.
+ *
+ * Runs BEFORE containFloorItem so any tiny resulting overlap is cleaned up.
+ */
+export function snapFloorItemToWalls(
+  project: ProjectDocument,
+  pos: Vec2,
+  rotation: number,
+  width: number,
+  depth: number,
+  tolMm = 120,
+): Vec2 {
+  const walls = projectWallOBBs(project);
+  if (walls.length === 0) return pos;
+  const item = obbFor(pos, rotation, width, depth);
+
+  let bestShift: Vec2 | null = null;
+  let bestGap = tolMm + 1;
+
+  for (const wall of walls) {
+    // Wall thickness-direction (normal) and length-direction axes.
+    const normal: Vec2 = { x: -wall.sin, y: wall.cos };
+    const along: Vec2 = { x: wall.cos, y: wall.sin };
+
+    // Must overlap along the wall length — only snap to a wall we sit in front
+    // of, not a far perpendicular one whose normal happens to line up.
+    const il = projectOBB(item, along);
+    const wl = projectOBB(wall, along);
+    if (Math.min(il.max, wl.max) - Math.max(il.min, wl.min) <= 0) continue;
+
+    // Perpendicular gap between item and wall (positive = separated).
+    const ip = projectOBB(item, normal);
+    const wp = projectOBB(wall, normal);
+    const gap = Math.max(wp.min - ip.max, ip.min - wp.max);
+    if (gap <= 0 || gap > tolMm) continue; // overlapping (containment) or too far
+
+    if (gap < bestGap) {
+      bestGap = gap;
+      // Move toward the wall so the touching faces become flush.
+      const dir = ip.center < wp.center ? 1 : -1;
+      bestShift = { x: normal.x * gap * dir, y: normal.y * gap * dir };
+    }
+  }
+
+  return bestShift ? { x: pos.x + bestShift.x, y: pos.y + bestShift.y } : pos;
+}
+
+/**
+ * Anti-tünel: bir ürünün MERKEZİNİN herhangi bir duvar çizgisini geçmesini
+ * engelle (sürükleme sırasında).
+ *
+ * Sorun: çarpışma her frame'de cursor konumundan hesaplanır. Cursor bir duvarı
+ * hızla geçtiğinde ürün karşı tarafa "ışınlanır"; o frame'de duvarla örtüşme
+ * olmadığı için resolveAgainstObstacles itemez. Çevre duvarlarını oda-poligonu
+ * clamp'i kurtarır ama İÇ (partition) duvarların böyle bir yedeği yoktur — bu
+ * yüzden ürünler iç duvarlardan geçer.
+ *
+ * Çözüm: merkezin `prev`→`desired` segmenti bir duvar çizgisini (duvar uzunluğu
+ * span'i içinde) kesiyorsa, ürünü `prev`'in olduğu tarafa, çizginin 1 mm berisine
+ * geri çek. Sonrasında containFloorItem (resolveAgainstObstacles) gövdeyi
+ * duvardan tamamen dışarı iter. Kapı boşlukları dahil duvar segmenti sürekli
+ * olduğundan ürün duvarı geçemez; duvarın UCUNDAN (span dışından) dolaşabilir.
+ */
+export function blockWallCrossing(
+  project: ProjectDocument,
+  prevCenter: Vec2,
+  desiredCenter: Vec2,
+): Vec2 {
+  const p = { x: desiredCenter.x, y: desiredCenter.y };
+  for (const w of Object.values(project.walls)) {
+    const a = project.vertices[w.a];
+    const b = project.vertices[w.b];
+    if (!a || !b) continue;
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len = Math.hypot(dx, dy);
+    if (len < 1) continue;
+    const dirx = dx / len;
+    const diry = dy / len;
+    const nx = -diry; // unit normal
+    const ny = dirx;
+
+    const dPrev = (prevCenter.x - a.x) * nx + (prevCenter.y - a.y) * ny;
+    const dCur = (p.x - a.x) * nx + (p.y - a.y) * ny;
+    if (dPrev === 0) continue; // başlangıçta çizgi üstündeyse atla
+    if (dPrev > 0 === dCur > 0) continue; // aynı taraf → geçiş yok
+    if (dCur === 0) continue;
+
+    // Çizgiyi kestiği nokta segmentin span'i içinde mi?
+    const t = dPrev / (dPrev - dCur);
+    const cx = prevCenter.x + (p.x - prevCenter.x) * t;
+    const cy = prevCenter.y + (p.y - prevCenter.y) * t;
+    const s = (cx - a.x) * dirx + (cy - a.y) * diry;
+    const half = w.thickness / 2;
+    if (s < -half || s > len + half) continue; // duvar ucundan dolaşıyor → serbest
+
+    // prev tarafına, çizginin 1 mm berisine çek.
+    const target = (dPrev > 0 ? 1 : -1) * 1;
+    const shift = target - dCur;
+    p.x += nx * shift;
+    p.y += ny * shift;
+  }
+  return p;
 }
 
 /** Default mounting height for wall items (mm from floor). */

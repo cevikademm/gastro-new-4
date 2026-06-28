@@ -15,6 +15,14 @@
  *   models drop in at correct real-world scale. Domain → scene callers use
  *   `MM_TO_THREE` from core/to3d.ts.
  *
+ * Camera navigation
+ *   Uses `camera-controls` (yomotsu) — a 3ds Max-style free orbit that is
+ *   gimbal-lock safe (full top↔under-floor polar range, the floor never
+ *   rolls/flips) and never "freezes". Orbit is paused via a REFERENCE-COUNTED
+ *   interaction lock (push/pop) while an equipment body or the rotate gizmo is
+ *   being dragged, so two drag sources can never clobber each other's enabled
+ *   flag — the classic cause of the camera locking up.
+ *
  * Lifecycle
  *   const m = new SceneManager();
  *   m.attach(containerEl);
@@ -25,7 +33,16 @@
  */
 
 import * as THREE from 'three';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import CameraControls from 'camera-controls';
+
+// camera-controls needs a one-time install with the THREE namespace before any
+// instance is created. Guard so HMR / multiple SceneManagers don't re-install.
+let cameraControlsInstalled = false;
+function ensureCameraControlsInstalled(): void {
+  if (cameraControlsInstalled) return;
+  CameraControls.install({ THREE });
+  cameraControlsInstalled = true;
+}
 
 export interface SceneManagerOptions {
   /** Background color (hex). Default light room. */
@@ -46,7 +63,7 @@ export class SceneManager {
   readonly scene: THREE.Scene;
   readonly renderer: THREE.WebGLRenderer;
   readonly camera: THREE.PerspectiveCamera;
-  readonly controls: OrbitControls;
+  readonly controls: CameraControls;
 
   /** Root group for domain content. Keep system objects (lights, grid) on the
    *  scene; put walls/floor/equipment under this so it can be cleared
@@ -60,15 +77,13 @@ export class SceneManager {
   private tickFns: Set<FrameTickFn> = new Set();
   private disposed = false;
 
-  /** Active camera-focus tween (controls.target + optional dolly). */
-  private focusTween: {
-    fromTarget: THREE.Vector3;
-    toTarget: THREE.Vector3;
-    fromPos: THREE.Vector3;
-    toPos: THREE.Vector3;
-    elapsed: number;
-    duration: number;
-  } | null = null;
+  /**
+   * Reference count for "pause the camera while something is being dragged".
+   * Equipment-body drag and the rotate gizmo each push on start / pop on end.
+   * The camera re-enables ONLY when the count returns to zero, so the two
+   * sources can't fight over `controls.enabled` and leave it stuck disabled.
+   */
+  private interactionLocks = 0;
 
   // Lights — kept as fields so callers can tune them.
   readonly ambient: THREE.AmbientLight;
@@ -84,6 +99,8 @@ export class SceneManager {
       fog = false,
       cameraStart = { x: 6, y: 5, z: 8 },
     } = opts;
+
+    ensureCameraControlsInstalled();
 
     // ── Renderer ──────────────────────────────────────────────────────
     this.renderer = new THREE.WebGLRenderer({
@@ -107,10 +124,10 @@ export class SceneManager {
     }
 
     // ── Camera ────────────────────────────────────────────────────────
-    // FOV 50 → 3ds Max benzeri daha doğal/derin perspektif.
+    // FOV 50 → 3ds Max benzeri daha doğal/derin perspektif. Yönelimi
+    // camera-controls yönetir; burada lookAt çağırmıyoruz (up vektörü default
+    // (0,1,0) kalsın → zemin daima yatay).
     this.camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-    this.camera.position.set(cameraStart.x, cameraStart.y, cameraStart.z);
-    this.camera.lookAt(0, 0, 0);
     // Three uses Y-up by default — our internal model uses Z-up.
     // We rotate the contentRoot (below) so X/Y stay X/Y on the floor and
     // Z extrudes up; that way wall builders match the 2D editor exactly.
@@ -150,35 +167,61 @@ export class SceneManager {
     this.contentRoot.rotation.x = -Math.PI / 2;
     this.scene.add(this.contentRoot);
 
-    // ── Controls (orbit) ─────────────────────────────────────────────
-    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.controls.enableDamping = true;
-    // Higher damping factor = snappier catch-up / less floaty glide (more
-    // responsive feel without losing smoothness).
-    this.controls.dampingFactor = 0.15;
-    this.controls.target.set(0, 0, 0);
-    // Tam küresel orbit (3ds Max hissi): tepeden zeminin ALTINA kadar serbest
-    // dön. Kutuplarda gimbal-flip yaşanmasın diye küçük epsilon bırakıyoruz.
-    this.controls.minPolarAngle = 0.02;
-    this.controls.maxPolarAngle = Math.PI - 0.05;
+    // ── Controls (camera-controls — 3ds Max benzeri serbest orbit) ───────
+    this.controls = new CameraControls(this.camera, this.renderer.domElement);
     this.controls.minDistance = 0.5;
     this.controls.maxDistance = 200;
-    this.controls.rotateSpeed = 1.35;
-    this.controls.zoomSpeed = 1.2;
-    this.controls.panSpeed = 1.2;
-    this.controls.screenSpacePanning = true;
-    // Touch: tek parmak döndür, iki parmak pan/zoom
-    this.controls.touches = {
-      ONE: THREE.TOUCH.ROTATE,
-      TWO: THREE.TOUCH.DOLLY_PAN,
-    };
-    // Mouse: sol döndür, orta zoom, sağ pan
-    this.controls.mouseButtons = {
-      LEFT: THREE.MOUSE.ROTATE,
-      MIDDLE: THREE.MOUSE.DOLLY,
-      RIGHT: THREE.MOUSE.PAN,
-    };
-    this.controls.update();
+    // Tam küresel orbit: tepeden zeminin ALTINA kadar kesintisiz dön.
+    // camera-controls kutupları pürüzsüz yönetir (OrbitControls flip'i yok),
+    // o yüzden epsilon GEREKMEZ.
+    this.controls.minPolarAngle = 0;
+    this.controls.maxPolarAngle = Math.PI;
+    this.controls.dollyToCursor = true; // tekerlek imlece doğru zoom (3ds Max hissi)
+    this.controls.smoothTime = 0.25; // genel yumuşaklık (damping)
+    this.controls.draggingSmoothTime = 0.08; // sürüklerken daha tepkili
+    // Mouse: sol döndür (web dostu), orta + sağ pan (truck), tekerlek zoom (dolly)
+    this.controls.mouseButtons.left = CameraControls.ACTION.ROTATE;
+    this.controls.mouseButtons.middle = CameraControls.ACTION.TRUCK;
+    this.controls.mouseButtons.right = CameraControls.ACTION.TRUCK;
+    this.controls.mouseButtons.wheel = CameraControls.ACTION.DOLLY;
+    // Touch: tek parmak döndür, iki parmak zoom + pan
+    this.controls.touches.one = CameraControls.ACTION.TOUCH_ROTATE;
+    this.controls.touches.two = CameraControls.ACTION.TOUCH_DOLLY_TRUCK;
+    // Başlangıç görünümü (iso) — yönelimi de set eder.
+    this.controls.setLookAt(
+      cameraStart.x, cameraStart.y, cameraStart.z,
+      0, 0, 0,
+      false,
+    );
+  }
+
+  // ── Interaction lock (orbit'i sürükleme sırasında geçici kapatma) ────────
+  //
+  // Donma bug'ının kök çözümü: tek bir referans-sayacı. Hem ekipman-sürükleme
+  // hem gizmo-döndürme push/pop eder; sayaç 0'a dönünce orbit tekrar açılır.
+
+  /** Bir sürükleme/etkileşim başladı — orbit'i (gerekiyorsa) kapat. */
+  pushInteractionLock(): void {
+    if (this.interactionLocks++ === 0) this.controls.enabled = false;
+  }
+
+  /** Bir sürükleme/etkileşim bitti — son kilit bırakılınca orbit'i aç. */
+  popInteractionLock(): void {
+    if (this.interactionLocks > 0 && --this.interactionLocks === 0) {
+      this.controls.enabled = true;
+    }
+  }
+
+  /** Tüm kilitleri bırak (pencere blur / pointercancel güvenlik valfi). */
+  releaseAllInteractionLocks(): void {
+    this.interactionLocks = 0;
+    this.controls.enabled = true;
+  }
+
+  /** Mevcut orbit hedefini (world) döndür. camera-controls mutable `target`
+   *  Vector3 sunmaz; dışarısı bunu kullanır. */
+  getTarget(out?: THREE.Vector3): THREE.Vector3 {
+    return this.controls.getTarget(out ?? new THREE.Vector3());
   }
 
   /**
@@ -189,55 +232,41 @@ export class SceneManager {
    * @param worldPoint  Target in WORLD space (use object.getWorldPosition).
    * @param opts.distance  Desired camera→target distance (m). If omitted the
    *                       current distance is kept (sadece target kayar).
-   * @param opts.duration  Tween süresi (s). Default 0.3.
+   * @param opts.duration  >0 → yumuşak geçiş; 0 → anında. Default 0.3.
    */
   focusOn(
     worldPoint: THREE.Vector3,
     opts: { distance?: number; duration?: number } = {},
   ): void {
     const { distance, duration = 0.3 } = opts;
-    const fromTarget = this.controls.target.clone();
-    const toTarget = worldPoint.clone();
-    const fromPos = this.camera.position.clone();
+    const target = this.controls.getTarget(new THREE.Vector3());
+    const pos = this.controls.getPosition(new THREE.Vector3());
 
     // Keep the current viewing direction; only slide the eye so the new target
     // sits at the requested (or current) distance along the same ray.
-    const dir = fromPos.clone().sub(fromTarget);
-    const curDist = dir.length() || 1;
+    const dir = pos.clone().sub(target);
+    let curDist = dir.length();
+    if (curDist < 1e-4) {
+      // Kamera ≈ hedef → yön belirsiz; iso yön kullan (NaN'i önler).
+      dir.set(0.7, 0.55, 0.7);
+      curDist = 1;
+    }
     dir.normalize();
     const dist = THREE.MathUtils.clamp(
       distance ?? curDist,
       this.controls.minDistance,
       this.controls.maxDistance,
     );
-    const toPos = toTarget.clone().add(dir.multiplyScalar(dist));
-
-    if (duration <= 0) {
-      this.controls.target.copy(toTarget);
-      this.camera.position.copy(toPos);
-      this.controls.update();
-      this.focusTween = null;
-      return;
-    }
-    this.focusTween = { fromTarget, toTarget, fromPos, toPos, elapsed: 0, duration };
-  }
-
-  /** Advance the focus tween (called from the RAF loop, before controls.update). */
-  private stepFocusTween(dt: number): void {
-    const tw = this.focusTween;
-    if (!tw) return;
-    tw.elapsed += dt;
-    const raw = Math.min(1, tw.elapsed / tw.duration);
-    // easeInOutCubic — yumuşak giriş/çıkış.
-    const e = raw < 0.5 ? 4 * raw * raw * raw : 1 - Math.pow(-2 * raw + 2, 3) / 2;
-    this.controls.target.lerpVectors(tw.fromTarget, tw.toTarget, e);
-    this.camera.position.lerpVectors(tw.fromPos, tw.toPos, e);
-    if (raw >= 1) this.focusTween = null;
+    const eye = worldPoint.clone().add(dir.multiplyScalar(dist));
+    this.controls.setLookAt(
+      eye.x, eye.y, eye.z,
+      worldPoint.x, worldPoint.y, worldPoint.z,
+      duration > 0,
+    );
   }
 
   /** Reset camera to a named view preset, framing the given content box. */
   setViewPreset(preset: 'top' | 'front' | 'side' | 'iso', box?: THREE.Box3): void {
-    this.focusTween = null; // kullanıcı görünümü değiştirdi → odak tween'ini bırak
     const target = new THREE.Vector3();
     const size = new THREE.Vector3(8, 4, 8);
     if (box && !box.isEmpty()) {
@@ -256,12 +285,15 @@ export class SceneManager {
       default:      dir = new THREE.Vector3(0.7, 0.55, 0.7);
     }
     dir.normalize();
-    this.camera.position.copy(target.clone().add(dir.multiplyScalar(dist)));
+    const eye = target.clone().add(dir.multiplyScalar(dist));
     this.camera.near = Math.max(0.05, dist / 2000);
     this.camera.far = Math.max(500, dist * 100);
     this.camera.updateProjectionMatrix();
-    this.controls.target.copy(target);
-    this.controls.update();
+    this.controls.setLookAt(
+      eye.x, eye.y, eye.z,
+      target.x, target.y, target.z,
+      true,
+    );
   }
 
   /** Toggle atmospheric fog at runtime. */
@@ -314,8 +346,8 @@ export class SceneManager {
       const dt = (t - this.lastTime) / 1000;
       this.lastTime = t;
       for (const fn of this.tickFns) fn(dt, t);
-      this.stepFocusTween(dt);
-      this.controls.update();
+      // camera-controls damping/transitions need delta-time updates each frame.
+      this.controls.update(dt);
       this.renderer.render(this.scene, this.camera);
     };
     this.rafId = requestAnimationFrame(loop);
@@ -364,7 +396,6 @@ export class SceneManager {
   // ── Camera framing ────────────────────────────────────────────────────
   fitCameraToBox(box: THREE.Box3, padding = 1.4): void {
     if (box.isEmpty()) return;
-    this.focusTween = null; // sığdırma odak tween'ini ezmesin
     const size = new THREE.Vector3();
     const center = new THREE.Vector3();
     box.getSize(size);
@@ -380,12 +411,15 @@ export class SceneManager {
     dist = Math.max(dist, this.controls.minDistance + 1);
 
     const dir = new THREE.Vector3(0.7, 0.55, 0.7).normalize();
-    this.camera.position.copy(center.clone().add(dir.multiplyScalar(dist)));
+    const eye = center.clone().add(dir.multiplyScalar(dist));
     this.camera.near = Math.max(0.05, dist / 2000);
     this.camera.far = Math.max(500, dist * 100);
     this.camera.updateProjectionMatrix();
-    this.controls.target.copy(center);
-    this.controls.update();
+    this.controls.setLookAt(
+      eye.x, eye.y, eye.z,
+      center.x, center.y, center.z,
+      true,
+    );
   }
 
   // ── Internals ─────────────────────────────────────────────────────────

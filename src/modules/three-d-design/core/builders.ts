@@ -149,6 +149,60 @@ export function splitWall(
   return { newVertexId, newWallId };
 }
 
+/**
+ * splitWall'un TERSİ: bir köşeyi (vertex) çözer — o köşeyi paylaşan İKİ duvarı
+ * tek duvara birleştirir. Köşe ekle/sil + taşı ile oda yeniden şekillendirilir
+ * (L-şekli, çentik = "alan çıkarma", çıkıntı = "alan ekleme").
+ *
+ * Oda loop'unun yönünü ve kapalılığını (I-2) korur. Köşe tam 2 duvarla
+ * paylaşılmıyorsa veya işlem üçgen odayı bozacaksa hiçbir şey yapmaz → false.
+ */
+export function dissolveVertex(draft: ProjectDocument, vid: VertexId): boolean {
+  const incident = Object.values(draft.walls).filter((w) => w.a === vid || w.b === vid);
+  if (incident.length !== 2) return false;
+  const [w1, w2] = incident;
+  const otherOf = (w: Wall) => (w.a === vid ? w.b : w.a);
+  const keepEnd = otherOf(w1);
+  const mergeEnd = otherOf(w2);
+  if (keepEnd === mergeEnd) return false; // dejenere — iki duvar aynı iki köşeyi paylaşıyor
+
+  // Üçgen odayı bozma: 3 duvarlı bir odanın köşesi çözülemez (2 duvar kalırdı).
+  for (const room of Object.values(draft.rooms)) {
+    if (
+      room.wallLoop.length <= 3 &&
+      room.wallLoop.includes(w1.id) &&
+      room.wallLoop.includes(w2.id)
+    ) {
+      return false;
+    }
+  }
+
+  // w1'i, vid'in olduğu ucundan mergeEnd'e uzat (loop yönünü korur).
+  if (w1.b === vid) w1.b = mergeEnd;
+  else w1.a = mergeEnd;
+
+  // w2 + üzerindeki açıklıkları (kapı/pencere) kaldır.
+  for (const o of Object.values(draft.openings)) {
+    if (o.wallId === w2.id) {
+      delete draft.openings[o.id];
+      const oi = draft.order.indexOf(o.id);
+      if (oi !== -1) draft.order.splice(oi, 1);
+    }
+  }
+  delete draft.walls[w2.id];
+  const wi = draft.order.indexOf(w2.id);
+  if (wi !== -1) draft.order.splice(wi, 1);
+
+  // Oda loop'larından w2'yi çıkar (w1 kalır, artık mergeEnd'e kadar uzanır).
+  for (const room of Object.values(draft.rooms)) {
+    const idx = room.wallLoop.indexOf(w2.id);
+    if (idx !== -1) room.wallLoop.splice(idx, 1);
+  }
+
+  pruneOrphanVertex(draft, vid);
+  return true;
+}
+
 // ── Room ────────────────────────────────────────────────────────────────────
 
 export interface CreatePolygonRoomOpts {

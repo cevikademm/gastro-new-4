@@ -32,7 +32,6 @@ import type { ModelKey } from '../../components/landing/KitchenModelViewer';
 const KitchenModelViewer = React.lazy(() => import('../../components/landing/KitchenModelViewer').then(m => ({ default: m.KitchenModelViewer })));
 const ModelComparisonViewer = React.lazy(() => import('../../components/landing/KitchenModelViewer').then(m => ({ default: m.ModelComparisonViewer })));
 import { AnnouncementBar } from '../../components/landing/sections/AnnouncementBar';
-import { TestimonialsBand } from '../../components/landing/sections/TestimonialsBand';
 import { StatsBand } from '../../components/landing/sections/StatsBand';
 import { FloatingWidgets } from '../../components/landing/sections/FloatingWidgets';
 import { useCartStore } from '../../stores/cartStore';
@@ -845,7 +844,7 @@ export function LandingPage() {
                   </h2>
                   <p className="mt-1 text-xs text-slate-500">Bestseller direkt in die Angebotsliste legen, Leasingrate sehen und Projektpreis anfordern.</p>
                 </div>
-                <a href="/diamond" className="text-xs font-bold uppercase tracking-[0.2em] text-[#0F2440] hover:text-brand-red transition-all cursor-pointer">
+                <a href="/magaza" className="text-xs font-bold uppercase tracking-[0.2em] text-[#0F2440] hover:text-brand-red transition-all cursor-pointer">
                   ALLE PRODUKTE ANSEHEN &gt;
                 </a>
               </div>
@@ -978,7 +977,7 @@ export function LandingPage() {
           </section>
 
           {/* 8. KI Küchenplaner Section */}
-          <section className="py-16 bg-[#FAFAFA] border-b border-slate-200 relative z-20" id="chatbotSection">
+          <section className="py-8 bg-[#FAFAFA] border-b border-slate-200 relative z-20" id="chatbotSection">
             <div className="lp-container">
               
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center max-w-[1400px] mx-auto w-full">
@@ -1005,7 +1004,7 @@ export function LandingPage() {
                 </div>
 
                 {/* Right Side: only the auto-rotating 3D model — transparent, blends into the section */}
-                <div className="lg:col-span-7 xl:col-span-8 relative h-[440px] lg:h-[520px] xl:h-[560px] flex items-center justify-center">
+                <div className="lg:col-span-7 xl:col-span-8 relative h-[300px] lg:h-[400px] xl:h-[420px] flex items-center justify-center">
                   <React.Suspense fallback={
                     <div className="flex h-full w-full items-center justify-center">
                       <div className="w-8 h-8 border-t-2 border-brand-red rounded-full animate-spin" />
@@ -1301,8 +1300,6 @@ export function LandingPage() {
             </div>
           </section>
 
-          <TestimonialsBand />
-
           {/* Quote Builder / Contact Form */}
           <section id="quote" className="py-24 bg-white relative z-10">
             <div className="lp-container">
@@ -1550,6 +1547,31 @@ export function LandingPage() {
                     <li><a href="#siteFooter" className="hover:text-brand-red transition-colors">AGB & B2B Richtlinien</a></li>
                     <li><a href="#siteFooter" className="hover:text-brand-red transition-colors">Impressum</a></li>
                   </ul>
+                </div>
+              </div>
+
+              {/* Ödeme yöntemleri — gerçek marka logoları (public/payment) */}
+              <div className="border-t border-white/10 pt-10 mb-2">
+                <p className="text-center text-[10px] font-bold uppercase tracking-[0.22em] text-white/45 mb-5">Sichere Zahlungsarten</p>
+                <div className="flex flex-wrap items-center justify-center gap-2.5">
+                  {[
+                    { src: "/payment/paypal.svg",     name: "PayPal" },
+                    { src: "/payment/visa.svg",       name: "Visa" },
+                    { src: "/payment/mastercard.svg", name: "Mastercard" },
+                    { src: "/payment/amex.svg",       name: "American Express" },
+                    { src: "/payment/maestro.svg",    name: "Maestro" },
+                    { src: "/payment/applepay.svg",   name: "Apple Pay" },
+                    { src: "/payment/googlepay.svg",  name: "Google Pay" },
+                    { src: "/payment/klarna.svg",     name: "Klarna", pink: true },
+                  ].map((pm) => (
+                    <span
+                      key={pm.name}
+                      title={pm.name}
+                      className={`inline-flex h-9 w-[58px] items-center justify-center rounded-md border shadow-sm ${pm.pink ? "bg-[#FFB3C7] border-[#FFB3C7]" : "bg-white border-slate-200"}`}
+                    >
+                      <img src={pm.src} alt={pm.name} loading="lazy" className="max-h-5 max-w-[44px] object-contain" />
+                    </span>
+                  ))}
                 </div>
               </div>
 

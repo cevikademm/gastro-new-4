@@ -24,8 +24,8 @@ export default function ImpressumPage() {
           <p><strong>Geschäftsführer:</strong> [Name Geschäftsführer]</p>
           <p><strong>Adresse:</strong><br />[Straße und Hausnummer]<br />[PLZ Stadt]<br />Deutschland</p>
           <p><strong>Handelsregister:</strong> HRB XXXXX, Amtsgericht [Stadt]</p>
-          <p><strong>USt-IdNr.:</strong> DE XXXXXXXXX</p>
-          <p><strong>E-Mail:</strong> <a href="mailto:info@2mcgastro.com" className="text-primary hover:underline">info@2mcgastro.com</a></p>
+          <p><strong>USt-IdNr.:</strong> DE365660948</p>
+          <p><strong>E-Mail:</strong> <a href="mailto:info@2mcgastro.de" className="text-primary hover:underline">info@2mcgastro.de</a></p>
           <p><strong>Telefon:</strong> +49 (0) 221 1234 5678</p>
         </div>
       ) : i18n.language === 'en' ? (
@@ -34,8 +34,8 @@ export default function ImpressumPage() {
           <p><strong>Managing Director:</strong> [Managing Director Name]</p>
           <p><strong>Address:</strong><br />[Street and House Number]<br />[Postal Code City]<br />Germany</p>
           <p><strong>Trade Register:</strong> HRB XXXXX, District Court [City]</p>
-          <p><strong>VAT ID:</strong> DE XXXXXXXXX</p>
-          <p><strong>Email:</strong> <a href="mailto:info@2mcgastro.com" className="text-primary hover:underline">info@2mcgastro.com</a></p>
+          <p><strong>VAT ID:</strong> DE365660948</p>
+          <p><strong>Email:</strong> <a href="mailto:info@2mcgastro.de" className="text-primary hover:underline">info@2mcgastro.de</a></p>
           <p><strong>Phone:</strong> +49 (0) 221 1234 5678</p>
         </div>
       ) : (
@@ -44,8 +44,8 @@ export default function ImpressumPage() {
           <p><strong>Müdür:</strong> [Müdür Adı]</p>
           <p><strong>Adres:</strong><br />[Cadde ve Ev Numarası]<br />[Posta Kodu Şehir]<br />Almanya</p>
           <p><strong>Ticaret Sicili:</strong> HRB XXXXX, Ağır Ceza Mahkemesi [Şehir]</p>
-          <p><strong>KDV No.:</strong> DE XXXXXXXXX</p>
-          <p><strong>E-posta:</strong> <a href="mailto:info@2mcgastro.com" className="text-primary hover:underline">info@2mcgastro.com</a></p>
+          <p><strong>KDV No.:</strong> DE365660948</p>
+          <p><strong>E-posta:</strong> <a href="mailto:info@2mcgastro.de" className="text-primary hover:underline">info@2mcgastro.de</a></p>
           <p><strong>Telefon:</strong> +49 (0) 221 1234 5678</p>
         </div>
       ),

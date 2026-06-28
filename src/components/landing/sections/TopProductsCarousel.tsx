@@ -75,7 +75,7 @@ export function TopProductsCarousel() {
   const marqueeProducts = [...TOP_PRODUCTS, ...TOP_PRODUCTS, ...TOP_PRODUCTS, ...TOP_PRODUCTS];
 
   return (
-    <section id="top-products-showcase" className="py-24 bg-white border-b border-slate-200 relative z-10 overflow-visible">
+    <section id="top-products-showcase" className="py-12 bg-white border-b border-slate-200 relative z-10 overflow-visible">
       <div className="lp-container">
         
         {/* Header Area */}

@@ -19,22 +19,27 @@ const COMPANY_INFO = {
   name: '2MC Werbung & Gastro GmbH',
   address: 'Musterstraße 12, 10115 Berlin, Deutschland',
   phone: '+49 30 1234 5678',
-  email: 'info@2mc-gastro.de',
-  website: 'www.2mc-gastro.de',
-  vat: 'DE123456789',
+  email: 'info@2mcgastro.de',
+  website: 'www.2mcgastro.de',
+  vat: 'DE365660948',
   tagline: 'Alles aus einer Hand. Für deine Küche.',
 };
 
 // Load an image URL → base64 dataURL (routes cross-origin through proxy)
 async function loadImageAsDataURL(src: string): Promise<string | null> {
   if (!src) return null;
+  // Already a base64 data URL → use directly, no network.
+  if (src.startsWith('data:')) return src;
   const url = src.startsWith('http') ? src : window.location.origin + (src.startsWith('/') ? '' : '/') + src;
 
   // For cross-origin URLs, use proxy to avoid CORS issues
   const fetchUrl = url.startsWith(window.location.origin) ? url : `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}`;
 
   try {
-    const res = await fetch(fetchUrl);
+    // Timeout so a slow/unreachable image (or proxy) can NEVER hang the PDF.
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 7000);
+    const res = await fetch(fetchUrl, { signal: controller.signal }).finally(() => clearTimeout(timer));
     if (!res.ok) throw new Error('fetch failed');
     const blob = await res.blob();
     return await new Promise<string | null>((resolve) => {
@@ -156,6 +161,14 @@ export default function Cart() {
 
   // ─── PDF Export ────────────────────────────────────────────────────────────
   const exportPDF = async () => {
+    // Nakliye gideri — her PDF dışa aktarımında MUTLAKA sorulur. Varsayılan
+    // 500 €; kullanıcı değiştirebilir. İptal edilirse PDF üretilmez.
+    const shippingInput = window.prompt(
+      'Nakliye gideri (€) — teklife kalem olarak eklenecek:',
+      '500',
+    );
+    if (shippingInput === null) return;
+    const shipping = Math.max(0, Number(String(shippingInput).replace(',', '.')) || 0);
     setPdfLoading(true);
     try {
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
@@ -449,7 +462,32 @@ export default function Cart() {
         y += 5;
       }
 
-      // ── Totals block ──
+      // ── Nakliye gideri — her teklifte sabit ek kalem (Versandkosten) ──
+      {
+        if (y + 18 > 272) {
+          doc.addPage(); pageNum++;
+          drawHologram(); drawStripe(); drawPageHeader(pageNum); y = 48;
+        }
+        const rowH = 16;
+        const shipStr = '€' + shipping.toLocaleString('de-DE', { minimumFractionDigits: 2 });
+        doc.setFillColor(250, 244, 244); doc.rect(10, y - 1, PW - 20, rowH, 'F');
+        doc.setFillColor(190, 36, 40); doc.roundedRect(30, y + 3, 9, 7, 1.5, 1.5, 'F');
+        doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont(FONT, 'bold');
+        doc.text('1', 34.5, y + 8.5, { align: 'center' });
+        doc.setTextColor(190, 36, 40); doc.setFontSize(6.5); doc.setFont(FONT, 'bold');
+        doc.text('NAKLİYE', 42, y + 6);
+        doc.setTextColor(147, 19, 21); doc.setFontSize(7.5); doc.setFont(FONT, 'bold');
+        doc.text('Nakliye / Versandkosten', 78, y + 6);
+        doc.setTextColor(80, 90, 120); doc.setFontSize(7.5); doc.setFont(FONT, 'normal');
+        doc.text(shipStr, 158, y + 7, { align: 'right' });
+        doc.setFont(FONT, 'bold'); doc.setTextColor(147, 19, 21);
+        doc.text(shipStr, PW - 12, y + 7, { align: 'right' });
+        doc.setDrawColor(232, 216, 216); doc.line(10, y + rowH - 1, PW - 10, y + rowH - 1);
+        y += rowH;
+      }
+
+      // ── Totals block (nakliye dahil) ──
+      const netWithShip = totalPrice + shipping;
       if (y + 45 > 272) {
         doc.addPage();
         pageNum++;
@@ -467,10 +505,10 @@ export default function Cart() {
       doc.setFont(FONT, 'normal');
       doc.setTextColor(80, 90, 120);
       doc.text('Ara Toplam:', PW / 2 + 5, y + 9);
-      doc.text(formatPrice(totalPrice), PW - 12, y + 9, { align: 'right' });
+      doc.text(formatPrice(netWithShip), PW - 12, y + 9, { align: 'right' });
 
       doc.text('KDV (%19):', PW / 2 + 5, y + 17);
-      doc.text(formatPrice(totalPrice * 0.19), PW - 12, y + 17, { align: 'right' });
+      doc.text(formatPrice(netWithShip * 0.19), PW - 12, y + 17, { align: 'right' });
 
       doc.setDrawColor(190, 36, 40);
       doc.line(PW / 2 + 3, y + 21, PW - 10, y + 21);
@@ -481,7 +519,7 @@ export default function Cart() {
       doc.setFontSize(9);
       doc.setFont(FONT, 'bold');
       doc.text('GENEL TOPLAM:', PW / 2 + 5, y + 31);
-      doc.text(formatPrice(totalPrice * 1.19), PW - 12, y + 31, { align: 'right' });
+      doc.text(formatPrice(netWithShip * 1.19), PW - 12, y + 31, { align: 'right' });
 
       // ── Footer on all pages ──
       const totalPagesCount = doc.getNumberOfPages();
@@ -563,12 +601,6 @@ export default function Cart() {
             className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
           >
             {offerSent ? t('cart.sent') : <><Send size={16} /> {t('cart.requestQuote')}</>}
-          </button>
-          <button
-            onClick={() => navigate('/checkout')}
-            className="bg-[#DC2626] hover:bg-[#991B1B] text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
-          >
-            <Package size={16} /> {t('cart.checkout', 'Ödemeye Git')}
           </button>
           <button
             onClick={() => setOrderModal(true)}
@@ -711,6 +743,12 @@ export default function Cart() {
             <span>{t('common.total')}</span>
             <span>{formatPrice(totalPrice * 1.19)}</span>
           </div>
+          <button
+            onClick={() => navigate('/checkout')}
+            className="mt-2 w-full bg-[#DC2626] hover:bg-[#991B1B] text-white px-5 py-3 rounded-lg font-headline font-bold text-sm flex items-center justify-center gap-2 transition-all shadow-sm"
+          >
+            <Package size={16} /> {t('cart.checkout', 'Ödemeye Git')}
+          </button>
         </div>
       </div>
 

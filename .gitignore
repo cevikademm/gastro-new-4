@@ -20,3 +20,6 @@ dist-v2/
 .claude/
 
 .vercel
+
+# Büyük yerel veri kaynağı (sync scriptleri kullanır; app Supabase okur)
+ürün listesi/

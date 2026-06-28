@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
@@ -7,7 +7,7 @@ import { UserPlus } from 'lucide-react';
 export default function RegisterPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { register, loginWithGoogle, isLoading } = useAuthStore();
+  const { register, loginWithGoogle, isLoading, isAuthenticated, pendingApproval } = useAuthStore();
   const [form, setForm] = useState({
     fullName: '',
     email: '',
@@ -18,6 +18,15 @@ export default function RegisterPage() {
     sector: '',
   });
   const [error, setError] = useState('');
+
+  // Google ile kayıt sonrası dönüşte App → checkSession oturumu kurar; state'e göre yönlendir.
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    } else if (pendingApproval) {
+      navigate('/pending-approval', { replace: true });
+    }
+  }, [isAuthenticated, pendingApproval, navigate]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });

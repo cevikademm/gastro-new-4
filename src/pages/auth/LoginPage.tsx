@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
@@ -29,7 +29,7 @@ const FEATURES_KEYS = [
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { login, loginWithGoogle, isLoading } = useAuthStore();
+  const { login, loginWithGoogle, isLoading, isAuthenticated, pendingApproval } = useAuthStore();
   // Dev convenience: localhost'ta sahip hesabıyla otomatik dolsun (prod'da boş kalır)
   const DEV_EMAIL = 'cevikademm@gmail.com';
   const DEV_PASSWORD = 'Adem123';
@@ -37,6 +37,16 @@ export default function LoginPage() {
   const [password, setPassword] = useState(import.meta.env.DEV ? DEV_PASSWORD : '');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+
+  // Google OAuth dönüşünde App → checkSession oturumu kurar; state'e göre yönlendir.
+  // (signInWithOAuth tam sayfa yönlendirme yaptığı için buton tıklamasında navigate edemeyiz.)
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true });
+    } else if (pendingApproval) {
+      navigate('/pending-approval', { replace: true });
+    }
+  }, [isAuthenticated, pendingApproval, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -259,7 +269,7 @@ export default function LoginPage() {
 
             <button
               type="button"
-              onClick={() => loginWithGoogle().then(() => navigate('/dashboard'))}
+              onClick={() => loginWithGoogle()}
               disabled={isLoading}
               aria-label="Sign in with Google"
               className="w-full flex items-center justify-center gap-3 border border-black/[0.08] bg-[#f7f7f7] hover:bg-[#efefef] text-[#333] py-3.5 font-semibold uppercase tracking-[0.1em] text-xs transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:ring-2 focus:ring-[rgb(220,38,38)]/50 focus:outline-none"

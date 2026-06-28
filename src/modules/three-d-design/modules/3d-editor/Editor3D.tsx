@@ -49,6 +49,7 @@ import {
   defaultMountFor,
   defaultZForMount,
   mountToWall,
+  snapFloorItemToWalls,
 } from './interaction/placement';
 import { loadEquipment } from './loaders/GLBLoader';
 import { getCatalogEntry } from './loaders/equipmentCatalog';
@@ -77,6 +78,8 @@ export default function Editor3D() {
   const equipmentCacheRef = useRef<Map<string, THREE.Object3D>>(new Map());
   /** Wall/vertex content signature last processed by re-containment. */
   const lastWallSigRef = useRef<string>('');
+  /** GLB footprint'i gerçek ölçüye göre düzeltilen ürün id'leri (tek sefer). */
+  const correctedFootprintIdsRef = useRef<Set<string>>(new Set());
 
   /** Rotate gizmo (TransformControls) + state. */
   const gizmoRef = useRef<TransformControls | null>(null);
@@ -151,10 +154,19 @@ export default function Editor3D() {
     gizmoRef.current = gizmo;
     m.scene.add(gizmo.getHelper());
 
+    // Gizmo sürükleme kilidinin push/pop dengesini koruyan guard (çift-fire'a karşı).
+    let gizmoLockHeld = false;
     gizmo.addEventListener('dragging-changed', (event) => {
       const dragging = (event as unknown as { value: boolean }).value;
-      // OrbitControls ile çakışmasın: gizmo sürüklenirken orbit kapalı.
-      m.controls.enabled = !dragging;
+      // Gizmo sürüklenirken orbit'i kilitle (referans-sayımlı). Ekipman-sürükleme
+      // ile aynı kilidi paylaştığı için ikisi birbirinin durumunu ezemez.
+      if (dragging && !gizmoLockHeld) {
+        m.pushInteractionLock();
+        gizmoLockHeld = true;
+      } else if (!dragging && gizmoLockHeld) {
+        m.popInteractionLock();
+        gizmoLockHeld = false;
+      }
       gizmoActiveRef.current = dragging;
       // Bırakma anında (dragging=false) yönelimi store'a yaz. Sürükleme boyunca
       // equipment-sync zaten bu ürünü atlar (gizmoAttachedIdRef), o yüzden ayrı
@@ -190,7 +202,22 @@ export default function Editor3D() {
           others,
           eqId,
         );
-        e.position = { x: resolved.x, y: resolved.y, z: e.position.z };
+        let fx = resolved.x;
+        let fy = resolved.y;
+        // Döndürme köşeleri duvara sokabilir — zemin ürününü oda/duvar içinde
+        // tut (gizmo da sürükleme/panel ile aynı duvar kuralını uygulasın).
+        if ((e.mount ?? 'floor') !== 'wall') {
+          const contained = containFloorItem(
+            d,
+            { x: fx, y: fy },
+            yaw,
+            e.footprint.width,
+            e.footprint.depth,
+          );
+          fx = contained.x;
+          fy = contained.y;
+        }
+        e.position = { x: fx, y: fy, z: e.position.z };
       });
       // Kanonik re-seat (yaw dış + tilt iç pivot + seatOnFloor) + tekrar bake →
       // gizmo oturumu kesintisiz sürsün, halka eksenleri hizalı kalsın.
@@ -257,8 +284,9 @@ export default function Editor3D() {
         // never spawn inside existing ones — kesin kural.
         const snapped = snapToEdges({ x: xMm, y: yMm }, 0, item.l, item.w, others, null, 50);
         const safe = resolveCollision(snapped, 0, item.l, item.w, others, null);
-        // Oda duvarlarının dışına taşmasın.
-        const contained = containFloorItem(project, safe, 0, item.l, item.w);
+        // Yakın duvara yapıştır (yanaşma), sonra oda duvarlarının dışına taşmasın.
+        const snappedWall = snapFloorItemToWalls(project, safe, 0, item.l, item.w);
+        const contained = containFloorItem(project, snappedWall, 0, item.l, item.w);
         xMm = contained.x;
         yMm = contained.y;
       }
@@ -299,7 +327,7 @@ export default function Editor3D() {
     return () => {
       // 3D'den ayrılırken kamera hedefini paylaş → 2D aynı noktaya pan'lar.
       try {
-        const local = m.contentRoot.worldToLocal(m.controls.target.clone());
+        const local = m.contentRoot.worldToLocal(m.getTarget());
         useEditor2DState.getState().setFocusWorld({
           x: local.x * THREE_TO_MM,
           y: local.y * THREE_TO_MM,
@@ -440,6 +468,30 @@ export default function Editor3D() {
           equipmentRoot.add(group);
           seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
+
+          // GLB footprint düzeltmesi (tek sefer): çarpışma görselle uyuşsun.
+          // loadEquipment uniform ölçekleme yapar; kayıtlı footprint gerçek
+          // modelden sapabilir → ürünler birbirinin içinden geçer. Gerçek domain
+          // footprint'ini ölçüp belirgin sapma varsa store'a yaz.
+          if (!correctedFootprintIdsRef.current.has(id)) {
+            correctedFootprintIdsRef.current.add(id);
+            const fp = measureDomainFootprint(group);
+            const cur = useProjectStore.getState().project.equipment[id];
+            if (
+              cur &&
+              fp.width > 10 &&
+              fp.depth > 10 &&
+              (Math.abs(fp.width - cur.footprint.width) > cur.footprint.width * 0.05 ||
+                Math.abs(fp.depth - cur.footprint.depth) > cur.footprint.depth * 0.05)
+            ) {
+              useProjectStore.getState().update((d) => {
+                const e = d.equipment[id];
+                if (e) {
+                  e.footprint = { width: Math.round(fp.width), depth: Math.round(fp.depth) };
+                }
+              });
+            }
+          }
         })();
         continue;
       }
@@ -683,6 +735,29 @@ export default function Editor3D() {
  *  2) Manual height: `baseZ = eq.position.z` lets the user lift an item onto a
  *     counter / wall — its base lands at the requested height instead of z = 0.
  */
+/**
+ * Bir ekipman group'unun GERÇEK domain footprint'ini (genişlik × derinlik, mm)
+ * ölç. Yaw'ı geçici sıfırlayıp WORLD AABB'sini alır; contentRoot'un -90° X
+ * dönüşü gereği domain genişlik = world.x, domain derinlik = world.z.
+ *
+ * Oryantasyondan/uniform-ölçekten bağımsız: çizilen ne ise onu ölçer. GLB
+ * ürünlerin çarpışma footprint'ini görsele eşitlemek için kullanılır (kutu
+ * ürünler zaten footprint = görseldir, onlara gerek yok).
+ */
+function measureDomainFootprint(group: THREE.Object3D): { width: number; depth: number } {
+  const prevZ = group.rotation.z;
+  group.rotation.z = 0;
+  group.updateWorldMatrix(true, true);
+  const box = new THREE.Box3().setFromObject(group);
+  group.rotation.z = prevZ;
+  group.updateWorldMatrix(true, true);
+  if (box.isEmpty()) return { width: 0, depth: 0 };
+  return {
+    width: (box.max.x - box.min.x) * THREE_TO_MM,
+    depth: (box.max.z - box.min.z) * THREE_TO_MM,
+  };
+}
+
 function seatOnFloor(group: THREE.Object3D, baseZ: number): void {
   group.updateWorldMatrix(true, true);
   const box = new THREE.Box3().setFromObject(group);

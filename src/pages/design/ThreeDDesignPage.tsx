@@ -26,10 +26,54 @@ import {
   isEmptyDocument,
   STANDALONE_KEY,
 } from '../../lib/gastroDesignSync';
+import { reconcileProductsIntoDesign, type ProductLike } from '../../lib/designProductSync';
+import { useProjectStore as useDiamondProjectStore } from '../../stores/projectStore';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'local' | 'error';
 
 const FIT_PADDING = 0.1;
+
+/**
+ * Teklif/Ürünler tarafındaki ürünleri (diamond projectStore.project.products)
+ * tasarım belgesine (ProjectDocument.equipment) ODA İÇİNE ekler — yalnızca
+ * eksik olanları (catalogId dedup), yalnızca-EKLE. SADECE proje kapsamında
+ * (standalone /3d-design'da çalışmaz). `loadBestDesign` ile belge yüklenip
+ * hydrate olduktan SONRA bir kez çağrılır.
+ */
+function syncProductsIntoDesign(
+  projectId: string | undefined,
+  projectKey: string,
+  loadProject: (doc: ProjectDocument) => void,
+  reconciledKeyRef: { current: string | null },
+): void {
+  if (!projectId) return; // standalone — teklif ürünü kavramı yok
+  if (reconciledKeyRef.current === projectKey) return; // bu açılış için zaten koştu
+  reconciledKeyRef.current = projectKey;
+
+  const diamond = useDiamondProjectStore
+    .getState()
+    .projects.find((p) => p.id === projectId);
+  const sourceProducts = diamond?.products ?? [];
+  if (sourceProducts.length === 0) return;
+
+  // ProductItem (cm) → ProductLike (mm).
+  const products: ProductLike[] = sourceProducts.map((p) => ({
+    code: p.code,
+    name: p.name,
+    category: p.category,
+    widthMm: (p.dimensions?.width ?? 0) * 10,
+    depthMm: (p.dimensions?.depth ?? 0) * 10,
+    heightMm: (p.dimensions?.height ?? 0) * 10,
+  }));
+
+  const current = useProjectStore.getState().project;
+  const { doc, added } = reconcileProductsIntoDesign(current, products);
+  if (added > 0) {
+    loadProject(doc);
+    saveDesignLocal(doc, projectKey);
+    void syncDesignProject(doc, projectKey);
+  }
+}
 
 function fitViewportToBounds(
   bounds: { min: { x: number; y: number }; max: { x: number; y: number } },
@@ -78,6 +122,9 @@ export default function ThreeDDesignPage() {
   const hydratedRef = useRef(false);
   const remoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const jsonInputRef = useRef<HTMLInputElement | null>(null);
+  // Teklif→tasarım senkronu yalnızca her proje açılışında BİR KEZ koşsun
+  // (kendi yazdığımız equipment değişimi reconcile'ı tekrar tetiklemesin).
+  const reconciledKeyRef = useRef<string | null>(null);
 
   // Açılışta: bu projeye ait yerel + Supabase belgesini yükle. Kullanıcı yükleme
   // bitmeden çizmeye başladıysa ONUN çalışmasını ASLA ezmeyiz. projectKey
@@ -85,6 +132,7 @@ export default function ThreeDDesignPage() {
   useEffect(() => {
     let cancelled = false;
     hydratedRef.current = false;
+    reconciledKeyRef.current = null;
     loadBestDesign(projectKey)
       .then((res) => {
         if (cancelled) return;
@@ -98,10 +146,15 @@ export default function ThreeDDesignPage() {
         }
       })
       .catch(() => { /* yükleme başarısız — boş projeyle devam */ })
-      .finally(() => { if (!cancelled) hydratedRef.current = true; });
+      .finally(() => {
+        if (cancelled) return;
+        hydratedRef.current = true;
+        // Belge hazır → teklifteki ürünlerden eksik olanları belgeye ekle.
+        syncProductsIntoDesign(params.id, projectKey, loadProject, reconciledKeyRef);
+      });
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [projectKey]);
+  }, [projectKey, params.id]);
 
   // Otomatik kaydetme: belge her değiştiğinde localStorage'a ANINDA, Supabase'e
   // debounced (2s). Boş belge ya da henüz yükleme bitmemişse atlanır.

@@ -37,6 +37,7 @@ import {
   pruneOrphanVertex,
   removeRoom as removeRoomBuilder,
   splitWall as splitWallBuilder,
+  dissolveVertex as dissolveVertexBuilder,
 } from '../core/builders';
 import { assertProjectInvariants } from '../core/invariants';
 import { withHistory, type HistoryActions, type HistoryState } from './history';
@@ -90,6 +91,8 @@ export interface ProjectSlice {
   addWall: (a: VertexId, b: VertexId, opts?: { thickness?: number; height?: number }) => WallId;
   removeWall: (id: WallId) => void;
   splitWall: (id: WallId, t: number) => { newVertexId: VertexId; newWallId: WallId };
+  /** Köşeyi çöz → komşu iki duvarı birleştir (splitWall'un tersi). */
+  dissolveVertex: (id: VertexId) => boolean;
 
   // ── Opening actions ──────────────────────────────────────────────────
   addOpening: (input: Omit<Opening, 'id' | 'type'>) => string;
@@ -254,6 +257,15 @@ export const useProjectStore = create<ProjectStore>(
             }),
           });
           return result;
+        },
+        dissolveVertex: (id) => {
+          let ok = false;
+          set({
+            project: apply((d) => {
+              ok = dissolveVertexBuilder(d, id);
+            }),
+          });
+          return ok;
         },
 
         // ── Openings ───────────────────────────────────────────────

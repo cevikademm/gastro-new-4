@@ -26,12 +26,20 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 async function loadFontData() {
   if (cache) return cache;
-  const [reg, bold] = await Promise.all([
-    fetch('/fonts/Inter-Regular.ttf').then((r) => r.arrayBuffer()),
-    fetch('/fonts/Inter-Bold.ttf').then((r) => r.arrayBuffer()),
-  ]);
-  cache = { regular: arrayBufferToBase64(reg), bold: arrayBufferToBase64(bold) };
-  return cache;
+  // Timeout so an unreachable/slow font fetch can't hang PDF export — on abort
+  // the caller (ensurePdfFont) falls back to helvetica.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 7000);
+  try {
+    const [reg, bold] = await Promise.all([
+      fetch('/fonts/Inter-Regular.ttf', { signal: controller.signal }).then((r) => r.arrayBuffer()),
+      fetch('/fonts/Inter-Bold.ttf', { signal: controller.signal }).then((r) => r.arrayBuffer()),
+    ]);
+    cache = { regular: arrayBufferToBase64(reg), bold: arrayBufferToBase64(bold) };
+    return cache;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**

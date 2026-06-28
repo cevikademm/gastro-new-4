@@ -53,6 +53,12 @@ export function TitleBlock({ project, scale = '1:100' }: TitleBlockProps) {
     totalArea += roomAreaM2(project, room);
     totalPerimeter += roomPerimeterM(project, room);
   }
+  // Ürünlerin (ekipman) toplam kapladığı taban alanı (footprint mm² → m²).
+  let productAreaMm2 = 0;
+  for (const eq of Object.values(project.equipment)) {
+    productAreaMm2 += eq.footprint.width * eq.footprint.depth;
+  }
+  const productAreaM2 = productAreaMm2 / 1_000_000;
 
   return (
     <div className="absolute bottom-3 right-3 pointer-events-none select-none">
@@ -67,9 +73,13 @@ export function TitleBlock({ project, scale = '1:100' }: TitleBlockProps) {
             <td className="px-3 py-1 border-r border-slate-300 text-slate-500">ALAN</td>
             <td className="px-3 py-1 font-semibold tabular-nums">{totalArea.toFixed(1)} m²</td>
           </tr>
-          <tr>
+          <tr className="border-b border-slate-300">
             <td className="px-3 py-1 border-r border-slate-300 text-slate-500">ÇEVRE</td>
             <td className="px-3 py-1 font-semibold tabular-nums">{totalPerimeter.toFixed(1)} m</td>
+          </tr>
+          <tr>
+            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">ÜRÜN ALANI</td>
+            <td className="px-3 py-1 font-semibold tabular-nums">{productAreaM2.toFixed(1)} m²</td>
           </tr>
           <tr>
             <td className="px-3 py-0.5 border-t border-slate-300 text-[9px] text-slate-400 uppercase" colSpan={2}>

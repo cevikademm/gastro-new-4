@@ -155,16 +155,17 @@ const ICONS: Record<CategoryKey, (p: SvgProps) => ReactElement> = {
   other: Other,
 };
 
+// Sıra önemli: daha spesifik anahtarlar önce. TR/DE/EN + NL (CombiSteel/HENDI).
 const KEYWORDS: Array<[RegExp, CategoryKey]> = [
-  [/(pişir|pisir|kochen|cook|grill|herd|ocak|fry|fritöz|fritoz|salamander)/i, 'cooking'],
-  [/(fırın|firin|ofen|oven|backo|konvek)/i, 'oven'],
-  [/(soğut|sogut|kühl|kuhl|cool|fridge|froster|gefrier|freeze|buzdolab|chiller)/i, 'cooling'],
-  [/(yıka|yika|spül|spul|wash|dish|bulaşık|bulasik)/i, 'washing'],
-  [/(hazırlık|hazirlik|prep|arbeitsti|work.*table|çalışma|calisma|kesim|cut)/i, 'prep'],
-  [/(raf|regal|shelf|storage|depola|lager|schrank|dolap)/i, 'storage'],
-  [/(servis|serving|bain|ısıt|isit|warmhalte|warmer|tepsi|tray)/i, 'service'],
-  [/(içecek|icecek|getränk|getrank|beverage|kaffee|coffee|bar|espresso)/i, 'beverage'],
-  [/(havaland|abzug|hood|davlumbaz|ventil|extract)/i, 'ventilation'],
+  [/(yıka|yika|spül|spul|wash|dish|bulaşık|bulasik|spoel|vaatwas|afwas|glazenspoel)/i, 'washing'],
+  [/(soğut|sogut|kühl|kuhl|cool|fridge|froster|gefrier|freeze|buzdolab|chiller|koel|vries|ijs|ice|barkoel)/i, 'cooling'],
+  [/(fırın|firin|ofen|oven|backo|konvek|steam|stoom|convect|combisteam)/i, 'oven'],
+  [/(havaland|abzug|hood|davlumbaz|ventil|extract|afzuig)/i, 'ventilation'],
+  [/(servis|serving|bain|ısıt|isit|warmhalte|warmer|warmhoud|tepsi|tray|buffet)/i, 'service'],
+  [/(içecek|icecek|getränk|getrank|beverage|kaffee|coffee|koffie|espresso|drank)/i, 'beverage'],
+  [/(hazırlık|hazirlik|prep|arbeitsti|work.*table|çalışma|calisma|kesim|cut|werkbank|werktafel|snij|meng|mixer|deeg)/i, 'prep'],
+  [/(pişir|pisir|kochen|cook|grill|herd|ocak|fry|fritöz|fritoz|frituur|salamander|kook|bakplaat|brander)/i, 'cooking'],
+  [/(raf|regal|shelf|storage|depola|lager|schrank|dolap|rek|stelling|kast|schap|\bgn\b|bak|afval|opslag|container|trolley|wagen)/i, 'storage'],
 ];
 
 export function resolveCategoryKey(name?: string | null): CategoryKey {

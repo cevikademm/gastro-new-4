@@ -14,7 +14,7 @@ import { CartDrawer } from './CartDrawer';
 import {
   Bell, Settings, LayoutDashboard, Ruler, Refrigerator, Home, Search,
   SlidersHorizontal, HelpCircle, BookOpen, PlusCircle,
-  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Diamond, Box, Boxes, Package, Palette, Shield, Users
+  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Box, Boxes, Package, Palette, Shield, Users, FileText
 } from 'lucide-react';
 // NOTE: "Manuel çizim" (legacy DesignStudio manualMode) kaldırıldı — kat planı artık 3D Design bölümünde.
 
@@ -35,11 +35,11 @@ const SIDE_ITEMS = [
   { path: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard, id: 'dashboard' },
   // Projeler sekmesi gizlendi — gösterge panelinde (Dashboard) zaten erişilebilir durumda.
   { path: '/3d-design', labelKey: '3D Design', icon: Boxes, id: '3d-design', raw: true },
-  { path: '/diamond', labelKey: 'Diamond', icon: Diamond, id: 'diamond', raw: true },
-  { path: '/combisteel', labelKey: 'CombiSteel', icon: Box, id: 'combisteel', raw: true },
+  { path: '/katalog', labelKey: 'Ürünler', icon: Package, id: 'urunler', raw: true },
   { path: '/kitchen-planner', labelKey: 'AI Mutfak Planlayıcı', icon: Refrigerator, id: 'kitchen-planner', raw: true },
   { path: '/cart', labelKey: 'nav.cart', icon: ShoppingCart, id: 'cart' },
   { path: '/orders', labelKey: 'nav.myOrders', icon: Package, id: 'orders' },
+  { path: '/teklifler', labelKey: 'Teklifler', icon: FileText, id: 'teklifler', raw: true },
 
   { path: '/settings', labelKey: 'nav.settings', icon: SlidersHorizontal, id: 'settings' },
   { path: '/payment', labelKey: 'nav.payment', icon: CreditCard, id: 'payment' },
@@ -54,7 +54,7 @@ const BOTTOM_NAV = [
   { path: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.panel' },
   { path: '/design', icon: Ruler, labelKey: 'nav.drawing' },
   { path: '/cart', icon: ShoppingCart, labelKey: 'nav.cart' },
-  { path: '/diamond', icon: Search, labelKey: 'nav.search' },
+  { path: '/katalog', icon: Package, labelKey: 'Ürünler' },
 ];
 
 export default function Layout() {

@@ -12,6 +12,8 @@ import {
   Trash2, ChevronDown, SlidersHorizontal, RotateCcw,
 } from 'lucide-react';
 import CartQuantityButton from '../../components/CartQuantityButton';
+import CategoryFilterPanel from '../../components/CategoryFilterPanel';
+import { useProductDetailStore } from '../../stores/productDetailStore';
 
 /* ─── Product Image ─── */
 function ProductImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
@@ -52,6 +54,7 @@ function toCompareItem(p: CombisteelProduct): CompareItem {
 /* ─── Main Page ─── */
 export default function CombiSteelPage() {
   const navigate = useNavigate();
+  const openDetail = useProductDetailStore((s) => s.open);
   const store = useCombisteelStore();
   const { addItem: addToCart, isInCart } = useCartStore();
   const { projects } = useProjectStore();
@@ -261,38 +264,13 @@ export default function CombiSteelPage() {
         </div>
       )}
 
-      {/* ─── Category Pills ─── */}
+      {/* ─── Kategori filtresi (açılır ikon-grid panel) ─── */}
       <div className="flex flex-wrap gap-1.5 items-center">
-        <button
-          onClick={() => setFilter('category', '')}
-          className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-            !filters.category ? 'bg-red-500 text-white shadow-md shadow-red-200' : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#DC2626]'
-          }`}
-        >
-          Tümü
-        </button>
-        {visibleCategories.map(cat => (
-          <button
-            key={cat.name}
-            onClick={() => setFilter('category', filters.category === cat.name ? '' : cat.name)}
-            className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
-              filters.category === cat.name
-                ? 'bg-red-500 text-white shadow-md shadow-red-200'
-                : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#DC2626]'
-            }`}
-          >
-            {cat.name} <span className="opacity-50">({cat.count})</span>
-          </button>
-        ))}
-        {categories.length > 12 && (
-          <button
-            onClick={() => setShowAllCategories(!showAllCategories)}
-            className="flex items-center gap-1 px-3 py-2 text-xs text-[#DC2626] font-bold hover:text-[#991B1B] transition-colors"
-          >
-            <ChevronDown size={14} className={`transition-transform ${showAllCategories ? 'rotate-180' : ''}`} />
-            {showAllCategories ? 'Daha az' : `+${categories.length - 12} daha`}
-          </button>
-        )}
+        <CategoryFilterPanel
+          categories={categories}
+          selected={filters.category}
+          onSelect={(name) => setFilter('category', name)}
+        />
       </div>
 
       {/* Loading */}
@@ -308,7 +286,23 @@ export default function CombiSteelPage() {
         </div>
       )}
 
-      {error && <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-600 text-sm">{error}</div>}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-600 text-sm">
+          {error}
+          <button onClick={fetchProducts} className="ml-3 underline font-bold">Tekrar dene</button>
+        </div>
+      )}
+
+      {/* Boş durum — yükleme/hata yok ama ürün de yok (asla takılı spinner) */}
+      {!isLoading && !error && products.length === 0 && (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <Package size={40} className="text-slate-300 mb-3" />
+          <p className="text-sm font-bold text-slate-600">Ürün bulunamadı</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm">
+            Filtreleri değiştirin ya da katalog verisi henüz yüklenmemiş olabilir.
+          </p>
+        </div>
+      )}
 
       {/* ─── Grid View ─── */}
       {!isLoading && viewMode === 'grid' && (
@@ -322,7 +316,7 @@ export default function CombiSteelPage() {
                 className={`bg-white rounded-2xl border overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group relative ${
                   inCompare ? 'border-violet-300 ring-2 ring-violet-100' : 'border-slate-200/80'
                 }`}
-                onClick={() => setDetailItem(item)}
+                onClick={() => openDetail('combisteel', item.id)}
               >
                 {/* Badges */}
                 <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
@@ -389,7 +383,7 @@ export default function CombiSteelPage() {
                 className={`bg-white rounded-2xl border p-4 flex items-center gap-4 hover:shadow-lg transition-all cursor-pointer group ${
                   inCompare ? 'border-violet-300 ring-2 ring-violet-100' : 'border-slate-200/80'
                 }`}
-                onClick={() => setDetailItem(item)}
+                onClick={() => openDetail('combisteel', item.id)}
               >
                 <button
                   onClick={e => { e.stopPropagation(); toggleCompare(item); }}
@@ -443,7 +437,7 @@ export default function CombiSteelPage() {
               {products.map((item, idx) => {
                 const inCompare = isComparing(item.id);
                 return (
-                  <tr key={item.id} className={`hover:bg-red-50/40 cursor-pointer transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`} onClick={() => setDetailItem(item)}>
+                  <tr key={item.id} className={`hover:bg-red-50/40 cursor-pointer transition-colors ${idx % 2 === 0 ? '' : 'bg-slate-50/30'}`} onClick={() => openDetail('combisteel', item.id)}>
                     <td className="py-2 px-3" onClick={e => e.stopPropagation()}>
                       <button
                         onClick={() => toggleCompare(item)}

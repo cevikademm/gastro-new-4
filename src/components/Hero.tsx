@@ -70,7 +70,7 @@ export function Hero() {
             <motion.button
               whileHover={{ scale: 1.04, y: -2 }}
               whileTap={{ scale: 0.97 }}
-              onClick={() => navigate('/diamond')}
+              onClick={() => navigate('/magaza')}
               className="bg-brand-red text-white py-4 sm:py-5 px-8 sm:px-12 rounded-full font-bold uppercase tracking-[0.2em] text-[10px] flex items-center justify-center gap-4 shadow-[0_18px_40px_-12px_rgba(220,38,38,0.55)] hover:shadow-[0_24px_50px_-12px_rgba(220,38,38,0.7)] hover:bg-[#B91C1C] transition-all duration-300 w-full sm:w-auto"
             >
               Koleksiyonu İncele <ArrowRight className="w-4 h-4" />

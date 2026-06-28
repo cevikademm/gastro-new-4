@@ -23,8 +23,8 @@ import * as THREE from 'three';
 import { MM_TO_THREE, THREE_TO_MM } from '../../../core/to3d';
 import type { SceneManager } from '../scene/SceneManager';
 import { useProjectStore } from '../../../store';
-import { othersAtHeight, resolveCollision, snapToEdges } from './collision';
-import { containFloorItem, mountToWall, obbCenterFromMinCorner } from './placement';
+import { obbCenterFromMinCorner } from './placement';
+import { resolveEquipmentDrag } from './resolveDrag';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -65,6 +65,10 @@ export class InteractionController {
   private selectedRoot: THREE.Object3D | null = null;
   private hoveredRoot: THREE.Object3D | null = null;
   private dragging: boolean = false;
+  /** Aktif sürüklemenin pointerId'si (pointer-capture + güvenli bitiş için). */
+  private dragPointerId: number | null = null;
+  /** Son GEÇERLİ (duvar geçmemiş) OBB merkezi — anti-tünel için (domain mm). */
+  private dragLastCenter: { x: number; y: number } | null = null;
   private events: InteractionEvents;
 
   /** mm grid for drag snapping. 0 = no snap. Domain-space mm. */
@@ -96,23 +100,31 @@ export class InteractionController {
     const onKeyDown = this.onKeyDown.bind(this);
     const onKeyUp = this.onKeyUp.bind(this);
     const onContextMenu = (e: Event) => e.preventDefault();
+    const onPointerCancel = this.onPointerCancel.bind(this);
+    const onWindowBlur = this.onWindowBlur.bind(this);
 
     dom.addEventListener('pointermove', onPointerMove);
     dom.addEventListener('pointerdown', onPointerDown);
     dom.addEventListener('pointerup', onPointerUp);
+    dom.addEventListener('pointercancel', onPointerCancel);
+    dom.addEventListener('lostpointercapture', onPointerCancel);
     dom.addEventListener('dblclick', onDblClick);
     dom.addEventListener('contextmenu', onContextMenu);
     window.addEventListener('keydown', onKeyDown);
     window.addEventListener('keyup', onKeyUp);
+    window.addEventListener('blur', onWindowBlur);
 
     this.detachFns.push(
       () => dom.removeEventListener('pointermove', onPointerMove),
       () => dom.removeEventListener('pointerdown', onPointerDown),
       () => dom.removeEventListener('pointerup', onPointerUp),
+      () => dom.removeEventListener('pointercancel', onPointerCancel),
+      () => dom.removeEventListener('lostpointercapture', onPointerCancel),
       () => dom.removeEventListener('dblclick', onDblClick),
       () => dom.removeEventListener('contextmenu', onContextMenu),
       () => window.removeEventListener('keydown', onKeyDown),
       () => window.removeEventListener('keyup', onKeyUp),
+      () => window.removeEventListener('blur', onWindowBlur),
     );
   }
 
@@ -159,7 +171,13 @@ export class InteractionController {
       // Locked items are selectable (so the panel opens) but not draggable.
       if (!eq?.locked) {
         this.beginDrag(hit.point);
-        this.manager.controls.enabled = false;
+        // Orbit'i kilitle (referans-sayımlı) + pointer-capture al → imleç canvas
+        // dışına çıksa bile move/up gelir, sürükleme yarıda kopup orbit donmaz.
+        this.manager.pushInteractionLock();
+        this.dragPointerId = e.pointerId;
+        try {
+          this.manager.renderer.domElement.setPointerCapture(e.pointerId);
+        } catch { /* capture opsiyonel — desteklenmese de sürükleme çalışır */ }
       }
     } else {
       this.select(null);
@@ -167,10 +185,42 @@ export class InteractionController {
   }
 
   private onPointerUp(e: PointerEvent): void {
-    if (e.button !== 0) return;
+    // Sürükleme bittiğinde HER durumda kilidi bırak (buton/pointer eşleşse de
+    // eşleşmese de) — orbit asla kilitli kalmasın.
+    if (this.dragging && (this.dragPointerId === null || e.pointerId === this.dragPointerId)) {
+      this.finishDrag();
+    }
+  }
+
+  /** Pointer iptal / capture kaybı → sürüklemeyi güvenle bitir. */
+  private onPointerCancel(_e: PointerEvent): void {
+    if (this.dragging) this.finishDrag();
+  }
+
+  /** Pencere odağı kaybolursa (alt-tab) sürüklemeyi bitir ve TÜM kilitleri
+   *  bırak — kamera donmuş kalmasın (güvenlik valfi). */
+  private onWindowBlur(): void {
     if (this.dragging) {
       this.endDrag();
-      this.manager.controls.enabled = true;
+      this.releaseDragPointer();
+    }
+    this.manager.releaseAllInteractionLocks();
+  }
+
+  /** Sürüklemeyi bitir: store'a yaz, kilidi bırak, pointer-capture'ı serbest. */
+  private finishDrag(): void {
+    if (!this.dragging) return;
+    this.endDrag();
+    this.manager.popInteractionLock();
+    this.releaseDragPointer();
+  }
+
+  private releaseDragPointer(): void {
+    if (this.dragPointerId !== null) {
+      try {
+        this.manager.renderer.domElement.releasePointerCapture(this.dragPointerId);
+      } catch { /* zaten serbest */ }
+      this.dragPointerId = null;
     }
   }
 
@@ -195,7 +245,7 @@ export class InteractionController {
     const maxDim = Math.max(size.x, size.y, size.z);
     const fov = (this.manager.camera.fov * Math.PI) / 180;
     const fitDist = (maxDim * 1.8) / (2 * Math.tan(fov / 2));
-    const curDist = this.manager.camera.position.distanceTo(this.manager.controls.target);
+    const curDist = this.manager.camera.position.distanceTo(this.manager.getTarget());
     this.manager.focusOn(center, { distance: Math.min(curDist, Math.max(fitDist, 1.2)) });
   }
 
@@ -339,6 +389,19 @@ export class InteractionController {
     this.dragOffset.copy(local).sub(this.selectedRoot.position);
     this.dragOffset.z = 0; // we drag on the floor plane (domain z = 0)
     this.dragging = true;
+
+    // Anti-tünel başlangıç merkezi: ürünün şu anki (geçerli) OBB merkezi.
+    const eqId = this.selectedRoot.userData?.equipmentId as string | undefined;
+    const eq = eqId ? useProjectStore.getState().project.equipment[eqId] : undefined;
+    this.dragLastCenter = eq
+      ? obbCenterFromMinCorner(
+          eq.position.x,
+          eq.position.y,
+          eq.rotation,
+          eq.footprint.width,
+          eq.footprint.depth,
+        )
+      : null;
   }
 
   private dragSelectedTo(_e: PointerEvent): void {
@@ -369,81 +432,24 @@ export class InteractionController {
       return;
     }
 
-    let rotation = eq.rotation;
-    // Only items sharing this item's height band block it — a wall cabinet
-    // above a counter must not be pushed away, but same-level items can't
-    // interpenetrate.
-    const others = othersAtHeight(
-      eq.position.z,
-      eq.heightMm,
-      Object.values(project.equipment),
-    );
-
+    // Çakışma/snap/anti-tünel/oda-clamp — 2D editör ile ORTAK çözücü.
+    const res = resolveEquipmentDrag({
+      project,
+      eq,
+      desiredMinCornerMm: { x: xMm, y: yMm },
+      snapGridMm: 0, // xMm/yMm zaten yukarıda grid-snap'lendi
+      edgeSnapTolMm: this.edgeSnapTolMm,
+      collisionEnabled: this.collisionEnabled && !this.shiftHeld,
+      prevValidCenter: this.dragLastCenter,
+    });
+    xMm = res.x;
+    yMm = res.y;
     if (eq.mount === 'wall') {
-      // Wall items slide ALONG the nearest wall. We project the cursor (cursor
-      // = OBB center for intuitive sliding) onto the wall, re-derive rotation
-      // so the back face stays flush, then resolve item-item overlap so wall
-      // cabinets line up side by side.
-      const cursorCenter = obbCenterFromMinCorner(
-        xMm,
-        yMm,
-        eq.rotation,
-        eq.footprint.width,
-        eq.footprint.depth,
-      );
-      const mounted = mountToWall(
-        project,
-        cursorCenter,
-        eq.footprint.width,
-        eq.footprint.depth,
-      );
-      if (mounted) {
-        xMm = mounted.pos.x;
-        yMm = mounted.pos.y;
-        rotation = mounted.rotation;
-        if (this.collisionEnabled && !this.shiftHeld) {
-          const resolved = resolveCollision(
-            { x: xMm, y: yMm },
-            rotation,
-            eq.footprint.width,
-            eq.footprint.depth,
-            others,
-            eq.id,
-          );
-          xMm = resolved.x;
-          yMm = resolved.y;
-        }
-        // Reflect the live rotation while dragging.
-        this.selectedRoot.rotation.z = rotation;
-      }
+      // Sürükleme sırasında canlı dönüşü yansıt.
+      this.selectedRoot.rotation.z = res.rotation;
     } else {
-      if (this.collisionEnabled && !this.shiftHeld) {
-        // 2) Edge-snap to neighbours so kabin sıraları 0 mm gap'le otursun.
-        const snapped = snapToEdges(
-          { x: xMm, y: yMm },
-          rotation,
-          eq.footprint.width,
-          eq.footprint.depth,
-          others,
-          eq.id,
-          this.edgeSnapTolMm,
-        );
-        // 3) Resolve any remaining overlap (push out along smallest axis).
-        const resolved = resolveCollision(
-          snapped,
-          rotation,
-          eq.footprint.width,
-          eq.footprint.depth,
-          others,
-          eq.id,
-        );
-        xMm = resolved.x;
-        yMm = resolved.y;
-      }
-      // 4) Keep the whole footprint inside the room walls (no-op if no rooms).
-      const contained = containFloorItem(project, { x: xMm, y: yMm }, rotation, eq.footprint.width, eq.footprint.depth);
-      xMm = contained.x;
-      yMm = contained.y;
+      // Sonraki anti-tünel kontrolünün referansı.
+      this.dragLastCenter = res.validCenter;
     }
 
     this.selectedRoot.position.x = xMm * MM_TO_THREE;

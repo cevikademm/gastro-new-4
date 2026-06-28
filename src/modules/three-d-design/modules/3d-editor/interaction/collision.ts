@@ -80,7 +80,7 @@ export function obbAABB(o: OBB): { minX: number; minY: number; maxX: number; max
   return { minX, minY, maxX, maxY };
 }
 
-function projectOBB(o: OBB, ax: Vec2): { min: number; max: number; center: number } {
+export function projectOBB(o: OBB, ax: Vec2): { min: number; max: number; center: number } {
   const c = o.cx * ax.x + o.cy * ax.y;
   const r =
     Math.abs(o.cos * ax.x + o.sin * ax.y) * o.hw +

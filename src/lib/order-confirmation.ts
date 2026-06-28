@@ -30,9 +30,9 @@ const DEFAULT_COMPANY_INFO: CompanyInfo = {
   city: 'Berlin',
   zipCode: '10115',
   phone: '+49 30 123456789',
-  email: 'info@2mc-gastro.de',
+  email: 'info@2mcgastro.de',
   hrb: 'HRB 234567 Amtsgericht Berlin',
-  ustIdNr: 'DE123456789',
+  ustIdNr: 'DE365660948',
   taxOffice: 'Finanzamt Berlin-Mitte',
   ceo: 'John Doe',
 };

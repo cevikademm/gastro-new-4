@@ -25,6 +25,7 @@
     "@tailwindcss/vite": "^4.1.14",
     "@types/three": "^0.183.1",
     "@vitejs/plugin-react": "^5.0.4",
+    "camera-controls": "^3.1.2",
     "clsx": "^2.1.1",
     "dxf-parser": "^1.1.2",
     "framer-motion": "^12.38.0",

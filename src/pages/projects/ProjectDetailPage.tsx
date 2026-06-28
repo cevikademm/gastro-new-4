@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProjectStore, type ProductItem } from '../../stores/projectStore';
 import {
@@ -14,6 +14,8 @@ import { useMeshStore } from '../../stores/meshStore';
 import SafeModelViewer from '../../components/SafeModelViewer';
 import { IMAGE_PROXY_URL } from '../../lib/assets';
 import { ensurePdfFont } from '../../lib/pdfFont';
+import { designQuoteLines, quoteLinesFromDoc, type DesignQuoteLine } from '../../lib/designQuoteLines';
+import { loadBestDesign } from '../../lib/gastroDesignSync';
 
 // Kat planından placedItems okuma
 interface FloorPlanItem {
@@ -29,6 +31,8 @@ interface FloorPlanItem {
   price?: number;
   brand?: string;
   desc?: string;
+  qty?: number;            // 2D/3D tasarımda aynı üründen kaç adet
+  priceOnRequest?: boolean; // katalog fiyatı yok → "Fiyat sorulacak"
 }
 
 function getFloorPlanItems(projectId: string): FloorPlanItem[] {
@@ -54,30 +58,75 @@ const CATEGORY_COLORS: Record<string, string> = {
   cooking: '#ef4444', cold: '#3b82f6', cleaning: '#06b6d4', neutral: '#6b7280', other: '#8b5cf6',
 };
 
-function QuoteTab({ project, floorItems }: { project: import('../../stores/projectStore').Project; floorItems: FloorPlanItem[] }) {
+function QuoteTab({ project, floorItems, designLines }: { project: import('../../stores/projectStore').Project; floorItems: FloorPlanItem[]; designLines: DesignQuoteLine[] }) {
   const { name, clientName, id } = project;
-  // Kat planındaki ürünleri ProductItem formatına çevir
-  const products = floorItems.map((fi): ProductItem => ({
-    id: fi.equipmentId || fi.id,
-    name: fi.name,
-    code: fi.equipmentId || fi.id,
-    category: (fi.category as any) || 'other',
-    icon: fi.icon || 'package',
-    imageData: fi.imageData,
-    dimensions: { width: Math.round(fi.width / 10), height: Math.round(fi.height / 10), depth: 0 },
-    kw: fi.kw || 0,
-    powerType: fi.kw > 0 ? 'electric' : 'none',
-    price: fi.price || 0,
-    description: fi.desc || '',
-    brand: fi.brand || '',
+
+  // Teklif satırı = ProductItem + adet + "fiyat sorulacak".
+  type QuoteRow = ProductItem & { qty: number; priceOnRequest: boolean };
+  // Tasarım aracı (2D/3D) ekipmanı ÖNCELİKLİ; aynı catalogId floor-plan'dan tekrar eklenmez.
+  const designIds = new Set(designLines.map((l) => l.catalogId));
+  const designRows: QuoteRow[] = designLines.map((l) => ({
+    id: l.catalogId,
+    name: l.name,
+    code: l.catalogId,
+    category: (l.category as any) || 'other',
+    icon: 'package',
+    imageData: l.img,
+    dimensions: { width: l.dimsCm.width, height: l.dimsCm.height, depth: l.dimsCm.depth },
+    kw: l.kw,
+    powerType: l.kw > 0 ? 'electric' : 'none',
+    price: l.unitPrice,
+    description: '',
+    brand: l.brand,
     series: '',
     features: [],
+    qty: l.qty,
+    priceOnRequest: l.priceOnRequest,
   }));
+  // Kat planı + elle eklenen ürünler (allItems) → satır (adet 1); tasarım satırının kapsadığını atla.
+  const floorRows: QuoteRow[] = floorItems
+    .filter((fi) => !designIds.has(fi.equipmentId || fi.id))
+    .map((fi) => ({
+      id: fi.equipmentId || fi.id,
+      name: fi.name,
+      code: fi.equipmentId || fi.id,
+      category: (fi.category as any) || 'other',
+      icon: fi.icon || 'package',
+      imageData: fi.imageData,
+      dimensions: { width: Math.round(fi.width / 10), height: Math.round(fi.height / 10), depth: 0 },
+      kw: fi.kw || 0,
+      powerType: fi.kw > 0 ? 'electric' : 'none',
+      price: fi.price || 0,
+      description: fi.desc || '',
+      brand: fi.brand || '',
+      series: '',
+      features: [],
+      qty: 1,
+      priceOnRequest: false,
+    }));
+  const products: QuoteRow[] = [...designRows, ...floorRows];
   const quoteNo = `TKF-${id.slice(-6).toUpperCase()}-${new Date().getFullYear()}`;
-  const subtotal = products.reduce((sum, p) => sum + p.price, 0);
+  const subtotal = products.reduce((sum, p) => sum + (p.priceOnRequest ? 0 : p.price * p.qty), 0);
+  // Nakliye gideri (Versandkosten) — net ara toplamın %'si. Teklif bazında
+  // düzenlenebilir; localStorage'da saklanır (store/şema/sync'e dokunmaz).
+  const SHIP_KEY = `2mc-quote-ship:${id}`;
+  const [shipRate, setShipRate] = useState<number>(() => {
+    try {
+      const raw = localStorage.getItem(SHIP_KEY);
+      if (raw === null) return 6;
+      const v = Number(raw);
+      return Number.isFinite(v) && v >= 0 ? v : 6;
+    } catch { return 6; }
+  });
+  const setShip = (v: number) => {
+    const r = Math.max(0, Math.min(100, Math.round(Number.isFinite(v) ? v : 0)));
+    setShipRate(r);
+    try { localStorage.setItem(SHIP_KEY, String(r)); } catch { /* ignore */ }
+  };
+  const shipping = subtotal * (shipRate / 100);
   const vatRate = 0.19;
-  const vat = subtotal * vatRate;
-  const total = subtotal + vat;
+  const vat = (subtotal + shipping) * vatRate; // KDV nakliye dahil
+  const total = subtotal + shipping + vat;
   const fmt = (n: number) => n > 0 ? `€${n.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` : '—';
   const quoteRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
@@ -86,17 +135,23 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
     name: '2MC Werbung & Gastro GmbH',
     address: 'Musterstraße 12, 10115 Berlin, Deutschland',
     phone: '+49 30 1234 5678',
-    email: 'info@2mc-gastro.de',
-    website: 'www.2mc-gastro.de',
-    vat: 'DE123456789',
+    email: 'info@2mcgastro.de',
+    website: 'www.2mcgastro.de',
+    vat: 'DE365660948',
   };
 
   async function loadImgBase64(src: string): Promise<string | null> {
     if (!src) return null;
+    // Already a base64 data URL → use directly, no network.
+    if (src.startsWith('data:')) return src;
     const url = src.startsWith('http') ? src : window.location.origin + (src.startsWith('/') ? '' : '/') + src;
     const fetchUrl = url.startsWith(window.location.origin) ? url : `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}`;
     try {
-      const res = await fetch(fetchUrl);
+      // Timeout so a slow/unreachable image (or proxy) can NEVER hang the PDF.
+      // On timeout/failure the image is simply skipped (N/A placeholder).
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 7000);
+      const res = await fetch(fetchUrl, { signal: controller.signal }).finally(() => clearTimeout(timer));
       if (!res.ok) throw new Error();
       const blob = await res.blob();
       return await new Promise<string | null>((resolve) => {
@@ -109,13 +164,15 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
   }
 
   const exportQuotePDF = async () => {
+    // Nakliye gideri (Versandkosten) — teklif sayfasındaki orandan (shipRate)
+    // türetilir: net ara toplamın %'si. Tarayıcı prompt'u YOK.
     setExporting(true);
     try {
       const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const FONT = await ensurePdfFont(doc); // Unicode font so Turkish/German render correctly
       const PW = 210;
       const PH = 297;
-      const dateStr = new Date().toLocaleDateString('tr-TR');
+      const dateStr = new Date().toLocaleDateString('de-DE');
 
       // Load logos
       const [logoFull, logoHolo] = await Promise.all([
@@ -181,17 +238,17 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
       doc.setFillColor(190, 36, 40);
       doc.roundedRect(10, 46, 4, 28, 2, 2, 'F');
       doc.setTextColor(147, 19, 21); doc.setFontSize(16); doc.setFont(FONT, 'bold');
-      doc.text('TEKLİF  /  ANGEBOT', 20, 57);
+      doc.text('ANGEBOT', 20, 57);
       doc.setFontSize(8); doc.setFont(FONT, 'normal'); doc.setTextColor(80, 90, 120);
-      doc.text(`Teklif No: ${quoteNo}`, 20, 65);
-      doc.text(`Tarih: ${dateStr}`, 80, 65);
-      doc.text(`Müşteri: ${clientName || '—'}`, 120, 65);
+      doc.text(`Angebot-Nr.: ${quoteNo}`, 20, 65);
+      doc.text(`Datum: ${dateStr}`, 80, 65);
+      doc.text(`Kunde: ${clientName || '—'}`, 120, 65);
 
       // Client info bar
       doc.setFillColor(147, 19, 21);
       doc.rect(10, 78, PW - 20, 10, 'F');
       doc.setTextColor(255, 255, 255); doc.setFontSize(7.5);
-      doc.text(`Proje: ${name}`, 14, 85);
+      doc.text(`Projekt: ${name}`, 14, 85);
       doc.text(`Tel: ${COMPANY.phone}`, 80, 85);
       doc.text(`E-Mail: ${COMPANY.email}`, 130, 85);
       doc.text(`USt: ${COMPANY.vat}`, 175, 85);
@@ -212,12 +269,12 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
       // Column headers
       const drawColumnHeaders = () => {
         doc.setFontSize(7); doc.setFont(FONT, 'bold'); doc.setTextColor(100, 110, 140);
-        doc.text('GÖRSEL', 12, y);
-        doc.text('ADET', 32, y);
-        doc.text('ÜRÜN KODU', 42, y);
-        doc.text('ÜRÜN ADI', 78, y);
-        doc.text('BİRİM FİYAT', 158, y, { align: 'right' });
-        doc.text('TOPLAM', PW - 12, y, { align: 'right' });
+        doc.text('BILD', 12, y);
+        doc.text('MENGE', 32, y);
+        doc.text('ART.-NR.', 42, y);
+        doc.text('BEZEICHNUNG', 78, y);
+        doc.text('EINZELPREIS', 158, y, { align: 'right' });
+        doc.text('GESAMT', PW - 12, y, { align: 'right' });
         y += 2;
         doc.setDrawColor(228, 208, 208); doc.line(10, y, PW - 10, y);
         y += 3;
@@ -249,7 +306,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         // Quantity badge
         doc.setFillColor(190, 36, 40); doc.roundedRect(30, y + 3, 9, 7, 1.5, 1.5, 'F');
         doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont(FONT, 'bold');
-        doc.text('1', 34.5, y + 8.5, { align: 'center' });
+        doc.text(String(product.qty), 34.5, y + 8.5, { align: 'center' });
 
         // Code
         doc.setTextColor(190, 36, 40); doc.setFontSize(6.5); doc.setFont(FONT, 'bold');
@@ -269,34 +326,45 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         const dims = `${product.dimensions.width}×${product.dimensions.height}cm${product.kw > 0 ? `  |  ${product.kw} kW` : ''}`;
         doc.text(dims, 78, y + 11);
 
-        // Price
+        // Price (EINZELPREIS = birim, GESAMT = birim × adet)
         doc.setTextColor(80, 90, 120); doc.setFontSize(7.5); doc.setFont(FONT, 'normal');
-        doc.text(product.price > 0 ? fmt(product.price) : '—', 158, y + 7, { align: 'right' });
+        doc.text(product.priceOnRequest ? 'Auf Anfrage' : (product.price > 0 ? fmt(product.price) : '—'), 158, y + 7, { align: 'right' });
         doc.setFont(FONT, 'bold'); doc.setTextColor(147, 19, 21);
-        doc.text(product.price > 0 ? fmt(product.price) : '—', PW - 12, y + 7, { align: 'right' });
+        doc.text(product.priceOnRequest ? '—' : (product.price > 0 ? fmt(product.price * product.qty) : '—'), PW - 12, y + 7, { align: 'right' });
 
         doc.setDrawColor(232, 216, 216); doc.line(10, y + rowH - 1, PW - 10, y + rowH - 1);
         y += rowH;
       }
 
       // Totals
-      if (y + 45 > 272) {
+      if (y + 52 > 272) {
         doc.addPage(); pageNum++;
         drawHologram(); drawStripe(); drawPageHeader(pageNum);
         y = 48;
       }
+      // Toplamlar: Zwischensumme (ürünler) + Versandkosten (%) ayrı kalem;
+      // MwSt ve Gesamtbetrag nakliye DAHİL (component gövdesindeki türetilenler).
+      const hasShip = shipping > 0;
+      const boxH = hasShip ? 48 : 40;
       y += 4;
-      doc.setFillColor(250, 244, 244); doc.roundedRect(PW / 2, y, PW / 2 - 10, 40, 3, 3, 'F');
+      doc.setFillColor(250, 244, 244); doc.roundedRect(PW / 2, y, PW / 2 - 10, boxH, 3, 3, 'F');
       doc.setFontSize(8); doc.setFont(FONT, 'normal'); doc.setTextColor(80, 90, 120);
-      doc.text('Ara Toplam:', PW / 2 + 5, y + 9);
-      doc.text(fmt(subtotal), PW - 12, y + 9, { align: 'right' });
-      doc.text('KDV (%19):', PW / 2 + 5, y + 17);
-      doc.text(fmt(vat), PW - 12, y + 17, { align: 'right' });
-      doc.setDrawColor(190, 36, 40); doc.line(PW / 2 + 3, y + 21, PW - 10, y + 21);
-      doc.setFillColor(147, 19, 21); doc.roundedRect(PW / 2, y + 23, PW / 2 - 10, 13, 2, 2, 'F');
+      let ty = y + 9;
+      doc.text('Zwischensumme:', PW / 2 + 5, ty);
+      doc.text(fmt(subtotal), PW - 12, ty, { align: 'right' });
+      if (hasShip) {
+        ty += 8;
+        doc.text(`Versandkosten (${shipRate}%):`, PW / 2 + 5, ty);
+        doc.text(fmt(shipping), PW - 12, ty, { align: 'right' });
+      }
+      ty += 8;
+      doc.text('MwSt. (19%):', PW / 2 + 5, ty);
+      doc.text(fmt(vat), PW - 12, ty, { align: 'right' });
+      doc.setDrawColor(190, 36, 40); doc.line(PW / 2 + 3, ty + 4, PW - 10, ty + 4);
+      doc.setFillColor(147, 19, 21); doc.roundedRect(PW / 2, ty + 6, PW / 2 - 10, 13, 2, 2, 'F');
       doc.setTextColor(255, 255, 255); doc.setFontSize(9); doc.setFont(FONT, 'bold');
-      doc.text('GENEL TOPLAM:', PW / 2 + 5, y + 31);
-      doc.text(fmt(total), PW - 12, y + 31, { align: 'right' });
+      doc.text('GESAMTBETRAG:', PW / 2 + 5, ty + 14);
+      doc.text(fmt(total), PW - 12, ty + 14, { align: 'right' });
 
       // Footer on all pages
       const totalPg = doc.getNumberOfPages();
@@ -310,10 +378,10 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         doc.text(`${pg} / ${totalPg}`, PW - 12, PH - 6, { align: 'right' });
       }
 
-      doc.save(`Teklif_${quoteNo}_${dateStr.replace(/\./g, '-')}.pdf`);
+      doc.save(`Angebot_${quoteNo}_${dateStr.replace(/\./g, '-')}.pdf`);
     } catch (err) {
-      console.error('PDF export hatası:', err);
-      alert('PDF oluşturulurken bir hata oluştu.');
+      console.error('PDF export error:', err);
+      alert('Beim Erstellen der PDF ist ein Fehler aufgetreten.');
     } finally {
       setExporting(false);
     }
@@ -327,17 +395,37 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
           <h2 className="font-headline font-black text-xl text-on-surface">Teklif Formu</h2>
           <p className="text-sm text-on-surface-variant mt-0.5">{clientName || 'Müşteri'} — {name} <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded ml-1">{quoteNo}</span></p>
         </div>
-        <button
-          onClick={exportQuotePDF}
-          disabled={exporting}
-          className="flex items-center gap-2 bg-surface-container-low hover:bg-surface-container-high text-primary px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm border border-primary/20 self-start disabled:opacity-60"
-        >
-          {exporting ? <><Loader2 size={16} className="animate-spin" /> Hazırlanıyor...</> : <><Download size={16} /> PDF İndir</>}
-        </button>
+        <div className="flex items-center gap-3 self-start">
+          {/* Nakliye (Versand) oranı — şık inline kontrol; forma + PDF'e canlı yansır. */}
+          <div className="flex items-center gap-2 bg-surface-container-low border border-outline-variant/40 rounded-lg pl-3 pr-2 py-1.5">
+            <span className="text-xs font-bold text-on-surface-variant whitespace-nowrap">Nakliye</span>
+            <div className="flex items-center bg-surface-container-lowest border border-outline-variant/40 rounded-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-colors">
+              <input
+                type="number"
+                min={0}
+                max={100}
+                step={1}
+                value={shipRate}
+                onChange={(e) => setShip(Number(e.target.value))}
+                className="w-12 bg-transparent text-right text-sm font-bold text-on-surface px-2 py-1 outline-none"
+                aria-label="Nakliye oranı (%)"
+              />
+              <span className="text-sm font-bold text-on-surface-variant pr-2">%</span>
+            </div>
+            <span className="text-xs font-semibold text-primary tabular-nums whitespace-nowrap min-w-[64px] text-right">{shipping > 0 ? fmt(shipping) : '—'}</span>
+          </div>
+          <button
+            onClick={exportQuotePDF}
+            disabled={exporting}
+            className="flex items-center gap-2 bg-surface-container-low hover:bg-surface-container-high text-primary px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm border border-primary/20 disabled:opacity-60"
+          >
+            {exporting ? <><Loader2 size={16} className="animate-spin" /> Hazırlanıyor...</> : <><Download size={16} /> PDF İndir</>}
+          </button>
+        </div>
       </div>
 
       {/* Quote Document — captured by html2canvas for PDF */}
-      <div ref={quoteRef} className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden relative" style={{ fontFamily: 'Arial, sans-serif' }}>
+      <div ref={quoteRef} className="bg-white rounded-2xl border border-slate-200 shadow-lg overflow-hidden relative" style={{ fontFamily: 'Arial, sans-serif', '--color-primary': '#931315' } as React.CSSProperties}>
         {/* Hologram watermark — new circular logo */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
           <img
@@ -358,29 +446,29 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
             </div>
           </div>
           <div className="text-right text-white">
-            <p className="text-[10px] uppercase tracking-widest opacity-70 font-bold">Teklif No</p>
+            <p className="text-[10px] uppercase tracking-widest opacity-70 font-bold">Angebot-Nr.</p>
             <p className="font-black text-lg font-mono">{quoteNo}</p>
-            <p className="text-[10px] opacity-70 mt-0.5">{new Date().toLocaleDateString('tr-TR')}</p>
+            <p className="text-[10px] opacity-70 mt-0.5">{new Date().toLocaleDateString('de-DE')}</p>
           </div>
         </div>
 
         {/* Client info bar */}
         <div className="relative z-10 bg-slate-50 border-b border-slate-200 px-6 py-3 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
           <div>
-            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Müşteri</span>
+            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Kunde</span>
             <span className="font-bold text-slate-700">{clientName || '—'}</span>
           </div>
           <div>
-            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Proje</span>
+            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Projekt</span>
             <span className="font-bold text-slate-700">{name}</span>
           </div>
           <div>
-            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Teklif Tarihi</span>
-            <span className="font-bold text-slate-700">{new Date().toLocaleDateString('tr-TR')}</span>
+            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Angebotsdatum</span>
+            <span className="font-bold text-slate-700">{new Date().toLocaleDateString('de-DE')}</span>
           </div>
           <div>
-            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Geçerlilik</span>
-            <span className="font-bold text-slate-700">30 Gün</span>
+            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Gültigkeit</span>
+            <span className="font-bold text-slate-700">30 Tage</span>
           </div>
         </div>
 
@@ -388,21 +476,21 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
         {products.length === 0 ? (
           <div className="relative z-10 py-20 text-center">
             <Package size={40} className="mx-auto text-slate-200 mb-3" />
-            <p className="text-slate-400 font-medium">Teklif için ürün ekleyin</p>
+            <p className="text-slate-400 font-medium">Produkte für das Angebot hinzufügen</p>
             <Link to={`/projects/${project.id}/products/add`} className="text-primary text-sm font-bold hover:underline mt-2 inline-block">
-              Ürün ekle →
+              Produkt hinzufügen →
             </Link>
           </div>
         ) : (
           <div className="relative z-10">
             {/* Table header */}
             <div className="hidden sm:grid px-6 py-2.5 bg-primary/5 border-b border-slate-200 text-[9px] font-black uppercase tracking-widest text-primary" style={{ gridTemplateColumns: '64px 1fr 80px 90px 60px 90px' }}>
-              <div>Görsel</div>
-              <div>Ürün Bilgileri</div>
-              <div>Ölçü (cm)</div>
-              <div>Güç / Tip</div>
-              <div className="text-center">Adet</div>
-              <div className="text-right">Fiyat</div>
+              <div>Bild</div>
+              <div>Produkt</div>
+              <div>Maße (cm)</div>
+              <div>Leistung / Typ</div>
+              <div className="text-center">Menge</div>
+              <div className="text-right">Preis</div>
             </div>
 
             <div className="divide-y divide-slate-100">
@@ -430,8 +518,12 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
                         </div>
                       </div>
                       <div className="text-right flex-shrink-0">
-                        <p className="font-black text-base text-primary">{prod.price > 0 ? fmt(prod.price) : '—'}</p>
-                        <p className="text-[9px] text-slate-400">Adet: 1</p>
+                        {prod.priceOnRequest ? (
+                          <p className="text-[11px] font-bold text-amber-600">Auf Anfrage</p>
+                        ) : (
+                          <p className="font-black text-base text-primary">{prod.price > 0 ? fmt(prod.price * prod.qty) : '—'}</p>
+                        )}
+                        <p className="text-[9px] text-slate-400">Menge: {prod.qty}</p>
                       </div>
                     </div>
 
@@ -449,7 +541,7 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
                         <p className="text-[10px] font-mono text-slate-400 mt-0.5">{prod.code}{prod.brand ? ` · ${prod.brand}` : ''}</p>
                         {prod.description && <p className="text-[10px] text-slate-400 mt-1 line-clamp-1">{prod.description}</p>}
                         {prod.imageData && prod.imageData.startsWith('http') && (
-                          <a href={prod.imageData} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline font-medium mt-0.5 inline-block">Ürün Görseli ↗</a>
+                          <a href={prod.imageData} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline font-medium mt-0.5 inline-block">Produktbild ↗</a>
                         )}
                       </div>
                       <div className="text-sm text-slate-600">
@@ -460,11 +552,13 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
                         {prod.kw > 0 ? <><span className="font-medium">{prod.kw} kW</span><span className="text-[10px] text-slate-400 block">{prod.powerType}</span></> : <span className="text-slate-300">—</span>}
                       </div>
                       <div className="text-center">
-                        <span className="font-black text-primary text-lg">1</span>
+                        <span className="font-black text-primary text-lg">{prod.qty}</span>
                       </div>
                       <div className="text-right">
-                        {prod.price > 0 ? (
-                          <span className="font-black text-sm text-primary">{fmt(prod.price)}</span>
+                        {prod.priceOnRequest ? (
+                          <span className="text-xs font-bold text-amber-600">Auf Anfrage</span>
+                        ) : prod.price > 0 ? (
+                          <span className="font-black text-sm text-primary">{fmt(prod.price * prod.qty)}</span>
                         ) : (
                           <span className="text-slate-300 text-sm">—</span>
                         )}
@@ -479,15 +573,21 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
             <div className="px-6 py-5 bg-slate-50 border-t border-slate-200">
               <div className="max-w-xs ml-auto space-y-2">
                 <div className="flex justify-between text-sm text-slate-600">
-                  <span>Ara Toplam</span>
+                  <span>Zwischensumme</span>
                   <span className="font-bold">{fmt(subtotal)}</span>
                 </div>
+                {shipRate > 0 && (
+                  <div className="flex justify-between text-sm text-slate-600">
+                    <span>Versandkosten ({shipRate}%)</span>
+                    <span className="font-bold">{fmt(shipping)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-sm text-slate-600">
-                  <span>KDV (%19)</span>
+                  <span>MwSt. (19%)</span>
                   <span className="font-bold">{fmt(vat)}</span>
                 </div>
                 <div className="flex justify-between items-center bg-primary rounded-xl px-4 py-3 mt-3">
-                  <span className="font-black text-sm text-white uppercase tracking-wide">Genel Toplam</span>
+                  <span className="font-black text-sm text-white uppercase tracking-wide">Gesamtbetrag</span>
                   <span className="font-black text-2xl text-white">{fmt(total)}</span>
                 </div>
               </div>
@@ -502,19 +602,19 @@ function QuoteTab({ project, floorItems }: { project: import('../../stores/proje
             <span className="text-[10px] text-slate-400">2MC Gastro · info@2mcgastro.com</span>
           </div>
           <div className="text-[10px] text-slate-400 text-right">
-            Bu teklif 30 gün geçerlidir.<br />Fiyatlara KDV dahil değildir.
+            Dieses Angebot ist 30 Tage gültig.<br />Preise verstehen sich zzgl. MwSt.
           </div>
         </div>
       </div>
 
       {/* Notes */}
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm p-5">
-        <h3 className="font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-3">Notlar & Koşullar</h3>
+        <h3 className="font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-3">Hinweise & Bedingungen</h3>
         <ul className="text-xs text-on-surface-variant space-y-1.5">
-          <li>• Bu teklif hazırlanış tarihinden itibaren 30 gün geçerlidir.</li>
-          <li>• Fiyatlara KDV dahil değildir. %19 KDV ayrıca uygulanır.</li>
-          <li>• Teslimat süresi sipariş tarihinden itibaren 4-8 haftadır.</li>
-          <li>• Montaj ve devreye alma hizmetleri ayrıca fiyatlandırılır.</li>
+          <li>• Dieses Angebot ist ab Erstellungsdatum 30 Tage gültig.</li>
+          <li>• Alle Preise verstehen sich zzgl. 19% MwSt.</li>
+          <li>• Die Lieferzeit beträgt 4–8 Wochen ab Bestelldatum.</li>
+          <li>• Montage und Inbetriebnahme werden separat berechnet.</li>
         </ul>
       </div>
     </div>
@@ -525,8 +625,13 @@ export default function ProjectDetailPage() {
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { projects, selectedProject, selectProject, clearSelection, removeProductFromProject } = useProjectStore();
-  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'quote' | 'settings'>('overview');
+  // ?tab=quote ile (Teklifler sayfasından) doğrudan Teklif sekmesini aç.
+  const [activeTab, setActiveTab] = useState<'overview' | 'products' | 'quote' | 'settings'>(() => {
+    const t = searchParams.get('tab');
+    return t === 'quote' || t === 'products' || t === 'settings' ? t : 'overview';
+  });
   const [viewProduct, setViewProduct] = useState<ProductItem | null>(null);
   const [selected3D, setSelected3D] = useState<Set<string>>(new Set());
   const [meshModalOpen, setMeshModalOpen] = useState(false);
@@ -550,7 +655,7 @@ export default function ProjectDetailPage() {
     // Seçim ürünler sekmesindeki TÜM ürünler (kat planı + "Ürün Ekle" ile eklenen
     // store ürünleri = allItems) üzerinden yapılır. Sadece floorItems filtrelersek
     // store ürünleri eşleşmez, istek hiç gitmez ve modal boş açılırdı.
-    const items = allItems.filter(fi => selected3D.has(fi.id));
+    const items = unifiedItems.filter(fi => selected3D.has(fi.id));
     const keys = items.map(fi => productKeyFor(fi.imageData, fi.equipmentId || fi.id)).filter(Boolean);
     setMeshActiveKeys(keys);
     setMeshModalOpen(true);
@@ -632,6 +737,50 @@ export default function ProjectDetailPage() {
     return [...floorItems, ...uniqueStoreItems];
   }, [floorItems, storeProductItems]);
 
+  // 2D/3D tasarım aracında yerleştirilen ekipmanı teklif satırlarına çevir.
+  // Hızlı yol: yerel (senkron, localStorage); ardından loadBestDesign ile
+  // (Supabase dahil) en güncel sürümle tazele → cihazlar arası da doğru.
+  const [designLines, setDesignLines] = useState<DesignQuoteLine[]>([]);
+  useEffect(() => {
+    if (!id) { setDesignLines([]); return; }
+    setDesignLines(designQuoteLines(id));
+    let cancelled = false;
+    loadBestDesign(id)
+      .then((res) => { if (!cancelled && res) setDesignLines(quoteLinesFromDoc(res.doc)); })
+      .catch(() => { /* yoksay — yerel sürüm kalır */ });
+    return () => { cancelled = true; };
+  }, [id, activeTab]);
+
+  // ─── BİRLEŞİK ÜRÜN LİSTESİ ───
+  // Ürünler sekmesi = Teklif sekmesi = AYNI küme:
+  //   2D/3D tasarımda yerleştirilen ekipman (designLines) + kat planı + "Ürün Ekle" ürünleri (allItems).
+  // Böylece 2D/3D'de eklenen/çıkarılan ürün anında Ürünler sekmesinde de görünür.
+  // (QuoteTab kendi içinde allItems + designLines'ı aynı kuralla birleştirdiği için iki sekme eşittir.)
+  const unifiedItems: FloorPlanItem[] = useMemo(() => {
+    const designIds = new Set(designLines.map((l) => l.catalogId));
+    const designAsFloor: FloorPlanItem[] = designLines.map((l) => ({
+      id: l.catalogId,
+      equipmentId: l.catalogId,
+      name: l.name,
+      icon: 'package',
+      imageData: l.img,
+      width: (l.dimsCm.width || 0) * 10,   // cm → mm (kart "÷10" ile cm gösteriyor)
+      height: (l.dimsCm.height || 0) * 10,
+      category: l.category || 'other',
+      kw: l.kw || 0,
+      price: l.unitPrice || 0,
+      brand: l.brand || '',
+      desc: '',
+      qty: l.qty,
+      priceOnRequest: l.priceOnRequest,
+    }));
+    const rest = allItems.filter((fi) => !designIds.has(fi.equipmentId || fi.id));
+    return [...designAsFloor, ...rest];
+  }, [allItems, designLines]);
+
+  // Gösterilecek toplam adet (tasarım satırları adetli olabilir).
+  const totalUnits = unifiedItems.reduce((sum, fi) => sum + (fi.qty || 1), 0);
+
   // model-viewer script'ini bir kez yükle (çift register'ı önle)
   useEffect(() => {
     if (typeof document === 'undefined') return;
@@ -680,8 +829,8 @@ export default function ProjectDetailPage() {
     inProgress: t('dashboard.inProgress'),
   };
 
-  const totalKW = allItems.reduce((sum, fi) => sum + (fi.kw || 0), 0);
-  const totalPrice = allItems.reduce((sum, fi) => sum + (fi.price || 0), 0);
+  const totalKW = unifiedItems.reduce((sum, fi) => sum + (fi.kw || 0) * (fi.qty || 1), 0);
+  const totalPrice = unifiedItems.reduce((sum, fi) => sum + (fi.priceOnRequest ? 0 : (fi.price || 0) * (fi.qty || 1)), 0);
 
   return (
     <div className="max-w-6xl mx-auto w-full space-y-6">
@@ -697,7 +846,7 @@ export default function ProjectDetailPage() {
             <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full ${statusColors[p.status]}`}>
               {statusLabels[p.status] ?? p.status}
             </span>
-            <span className="text-sm text-on-surface-variant">{allItems.length} ürün</span>
+            <span className="text-sm text-on-surface-variant">{totalUnits} ürün</span>
             <span className="text-sm text-on-surface-variant">•</span>
             <span className="text-sm text-on-surface-variant">{p.area} m²</span>
           </div>
@@ -723,7 +872,7 @@ export default function ProjectDetailPage() {
         <div className="flex gap-6">
           {[
             { key: 'overview', label: 'Genel Bakış', icon: Building },
-            { key: 'products', label: `Ürünler (${allItems.length})`, icon: Package },
+            { key: 'products', label: `Ürünler (${totalUnits})`, icon: Package },
             { key: 'quote', label: 'Teklif', icon: FileText },
             { key: 'settings', label: 'Ayarlar', icon: Settings2 },
           ].map((tab) => {
@@ -752,7 +901,7 @@ export default function ProjectDetailPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 shadow-sm">
                 <div className="text-[10px] font-bold text-slate-400 uppercase">Ürün Sayısı</div>
-                <div className="text-2xl font-black text-primary mt-1">{allItems.length}</div>
+                <div className="text-2xl font-black text-primary mt-1">{totalUnits}</div>
               </div>
               <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 shadow-sm">
                 <div className="text-[10px] font-bold text-slate-400 uppercase">Toplam Güç</div>
@@ -830,7 +979,7 @@ export default function ProjectDetailPage() {
                 <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider">Ürünler</h2>
                 <button onClick={() => setActiveTab('products')} className="text-xs text-primary font-bold hover:underline">Tümü →</button>
               </div>
-              {allItems.length === 0 ? (
+              {unifiedItems.length === 0 ? (
                 <div className="text-center py-8">
                   <Package size={32} className="mx-auto text-slate-300 mb-2" />
                   <p className="text-xs text-slate-400">Henüz ürün eklenmedi</p>
@@ -840,7 +989,7 @@ export default function ProjectDetailPage() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {allItems.slice(0, 5).map((fi) => {
+                  {unifiedItems.slice(0, 5).map((fi) => {
                     const Icon = ICON_MAP[fi.icon] || Package;
                     return (
                       <div key={fi.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
@@ -871,7 +1020,7 @@ export default function ProjectDetailPage() {
         <div className="space-y-4">
           <div className="flex justify-between items-center flex-wrap gap-3">
             <p className="text-sm text-on-surface-variant">
-              {allItems.length} ürün
+              {totalUnits} ürün
               {selected3D.size > 0 && <span className="ml-2 text-primary font-bold">• {selected3D.size} seçili</span>}
             </p>
             <div className="flex items-center gap-2">
@@ -893,7 +1042,7 @@ export default function ProjectDetailPage() {
             </div>
           </div>
 
-          {allItems.length === 0 ? (
+          {unifiedItems.length === 0 ? (
             <div className="bg-surface-container-lowest rounded-xl shadow-sm p-16 text-center border border-outline-variant/10">
               <Package size={48} className="mx-auto text-slate-200 mb-4" />
               <h3 className="font-bold text-lg text-slate-500 mb-2">Henüz ürün eklenmedi</h3>
@@ -915,7 +1064,7 @@ export default function ProjectDetailPage() {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {allItems.map((fi) => {
+              {unifiedItems.map((fi) => {
                 const Icon = ICON_MAP[fi.icon] || Package;
                 const catColor = CATEGORY_COLORS[fi.category] || '#6b7280';
                 const catLabel = CATEGORY_LABELS[fi.category] || fi.category || 'Diğer';
@@ -963,7 +1112,12 @@ export default function ProjectDetailPage() {
 
                     {/* Product Info */}
                     <div className="p-4">
-                      <h3 className="font-bold text-sm text-on-surface">{fi.name}</h3>
+                      <h3 className="font-bold text-sm text-on-surface">
+                        {fi.name}
+                        {(fi.qty || 1) > 1 && (
+                          <span className="ml-1.5 align-middle text-[10px] font-black text-violet-700 bg-violet-100 px-1.5 py-0.5 rounded-full">×{fi.qty}</span>
+                        )}
+                      </h3>
                       <p className="text-[10px] text-slate-400 mt-0.5 font-mono">{fi.equipmentId || fi.id}</p>
                       {fi.brand && <p className="text-[10px] text-primary font-medium mt-1">{fi.brand}</p>}
                       {fi.desc && <p className="text-xs text-slate-500 mt-2 line-clamp-2">{fi.desc}</p>}
@@ -971,7 +1125,9 @@ export default function ProjectDetailPage() {
                       <div className="flex items-center gap-3 mt-3 text-[10px] text-slate-400">
                         <span className="font-bold">{Math.round(fi.width / 10)}×{Math.round(fi.height / 10)}cm</span>
                         {fi.kw > 0 && <><span>•</span><span className="font-bold">{fi.kw} kW</span></>}
-                        {(fi.price || 0) > 0 && <><span>•</span><span className="font-bold text-primary">€{(fi.price || 0).toLocaleString()}</span></>}
+                        {fi.priceOnRequest
+                          ? <><span>•</span><span className="font-bold text-amber-600">Fiyat sorulacak</span></>
+                          : (fi.price || 0) > 0 && <><span>•</span><span className="font-bold text-primary">€{(fi.price || 0).toLocaleString()}</span></>}
                       </div>
                     </div>
                   </div>
@@ -984,7 +1140,7 @@ export default function ProjectDetailPage() {
 
       {/* Quote Tab */}
       {activeTab === 'quote' && (
-        <QuoteTab project={p} floorItems={allItems} />
+        <QuoteTab project={p} floorItems={allItems} designLines={designLines} />
       )}
 
       {/* Settings Tab */}

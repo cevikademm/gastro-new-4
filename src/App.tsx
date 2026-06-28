@@ -6,6 +6,7 @@ import { useAuthStore } from './stores/authStore';
 
 // Eager: minimal shell
 import AdminGuard from './components/AdminGuard';
+import RouteErrorBoundary from './components/RouteErrorBoundary';
 import AnalyticsListener from './components/AnalyticsListener';
 import NotFoundPage from './pages/NotFoundPage';
 import ScrollProgress from './components/ScrollProgress';
@@ -26,18 +27,19 @@ const ProjectListPage = lazy(() => import('./pages/projects/ProjectListPage'));
 const FavoritesPage = lazy(() => import('./pages/favorites/FavoritesPage'));
 const NewProjectPage = lazy(() => import('./pages/projects/NewProjectPage'));
 const ProjectDetailPage = lazy(() => import('./pages/projects/ProjectDetailPage'));
+const QuotesPage = lazy(() => import('./pages/projects/QuotesPage'));
 const AddProductPage = lazy(() => import('./pages/products/AddProductPage'));
 const SelectProductPage = lazy(() => import('./pages/products/SelectProductPage'));
+const ShopPage = lazy(() => import('./pages/shop/ShopPage'));
 const SettingsPage = lazy(() => import('./pages/settings/SettingsPage'));
 const SupportPage = lazy(() => import('./pages/support/SupportPage'));
 const DocsPage = lazy(() => import('./pages/docs/DocsPage'));
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 const PaymentPage = lazy(() => import('./pages/payment/PaymentPage'));
-const DiamondPage = lazy(() => import('./pages/diamond/DiamondPage'));
+const ProductsPage = lazy(() => import('./pages/products/ProductsPage'));
 const ProductDetailPage = lazy(() => import('./pages/product/ProductDetailPage'));
 const CheckoutPage = lazy(() => import('./pages/checkout/CheckoutPage'));
 const KitchenPlannerPage = lazy(() => import('./pages/planner/KitchenPlannerPage'));
-const CombiSteelPage = lazy(() => import('./pages/combisteel/CombiSteelPage'));
 const OrdersPage = lazy(() => import('./pages/orders/OrdersPage'));
 const OrderDetailPage = lazy(() => import('./pages/orders/OrderDetailPage'));
 const BrandPage = lazy(() => import('./pages/brand/BrandPage'));
@@ -79,6 +81,17 @@ export default function App() {
 
   useEffect(() => {
     checkSession();
+    // Başarılı yükleme sonrası stale-chunk yeniden-yükleme bayrağını temizle
+    try { sessionStorage.removeItem('rt-chunk-reloaded'); } catch { /* ignore */ }
+    // Vite dinamik import (preload) hatası → bir kez otomatik yenile
+    const onPreloadError = () => {
+      if (!sessionStorage.getItem('rt-chunk-reloaded')) {
+        sessionStorage.setItem('rt-chunk-reloaded', '1');
+        window.location.reload();
+      }
+    };
+    window.addEventListener('vite:preloadError', onPreloadError);
+    return () => window.removeEventListener('vite:preloadError', onPreloadError);
   }, [checkSession]);
 
   return (
@@ -86,11 +99,14 @@ export default function App() {
       <AnalyticsListener />
       <ScrollProgress />
       <RevealOnScroll />
+      <RouteErrorBoundary>
       <Suspense fallback={<RouteFallback />}>
         <Routes>
           {/* Welcome & Auth routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/welcome" element={<LandingPage />} />
+          <Route path="/magaza" element={<ShopPage />} />
+          <Route path="/urunler" element={<ShopPage />} />
           <Route path="/old-welcome" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -105,8 +121,11 @@ export default function App() {
             <Route path="3d-design" element={<ThreeDDesignPage />} />
             <Route path="bom" element={<BOM />} />
             <Route path="bom/:id" element={<BOM />} />
-            <Route path="diamond" element={<DiamondPage />} />
-            <Route path="combisteel" element={<CombiSteelPage />} />
+            {/* Birleşik Ürünler paneli (Diamond + CombiSteel sekmeli) */}
+            <Route path="katalog" element={<ProductsPage />} />
+            {/* Eski rotalar → birleşik panele yönlendir (link/bookmark korunur) */}
+            <Route path="diamond" element={<Navigate to="/katalog?tab=diamond" replace />} />
+            <Route path="combisteel" element={<Navigate to="/katalog?tab=combisteel" replace />} />
             <Route path="product/:id" element={<ProductDetailPage />} />
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="kitchen-planner" element={<KitchenPlannerPage />} />
@@ -115,6 +134,7 @@ export default function App() {
             <Route path="orders" element={<OrdersPage />} />
             <Route path="orders/:id" element={<OrderDetailPage />} />
 
+            <Route path="teklifler" element={<QuotesPage />} />
             <Route path="projects" element={<ProjectListPage />} />
             <Route path="projects/new" element={<NewProjectPage />} />
             <Route path="projects/:id" element={<ProjectDetailPage />} />
@@ -161,6 +181,7 @@ export default function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
+      </RouteErrorBoundary>
       <CookieBanner />
     </BrowserRouter>
   );

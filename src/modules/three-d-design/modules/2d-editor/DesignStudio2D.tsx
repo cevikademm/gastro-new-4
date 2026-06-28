@@ -67,7 +67,8 @@ import PropertiesPanel, { OPENING_DEFAULTS } from './panels/PropertiesPanel';
 import EquipmentLayer2D from './render/EquipmentLayer2D';
 import EquipmentCatalogPanel from '../3d-editor/panels/EquipmentCatalogPanel';
 import { parseHeightMm, mapEquipmentCategory } from '../3d-editor/loaders/productMesh';
-import { defaultMountFor, defaultZForMount, containFloorItem } from '../3d-editor/interaction/placement';
+import { defaultMountFor, defaultZForMount, containFloorItem, obbCenterFromMinCorner } from '../3d-editor/interaction/placement';
+import { resolveEquipmentDrag } from '../3d-editor/interaction/resolveDrag';
 import type { EquipmentItem } from '../../../../stores/equipmentStore';
 
 // ── Constants ────────────────────────────────────────────────────────────────
@@ -106,6 +107,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   const addWall = useProjectStore((s) => s.addWall);
   const addEquipment = useProjectStore((s) => s.addEquipment);
   const updateEquipment = useProjectStore((s) => s.updateEquipment);
+  const dissolveVertex = useProjectStore((s) => s.dissolveVertex);
   const removeEquipment = useProjectStore((s) => s.removeEquipment);
   const undo = useProjectStore((s) => s.undo);
   const redo = useProjectStore((s) => s.redo);
@@ -585,6 +587,16 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         if (selectedEquipmentId) setSelectedEquipmentId(null);
         return;
       }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedVertex !== null && activeRoom) {
+        // Seçili köşeyi sil → komşu iki duvar birleşir (L-şekli/çentik = alan çıkar/ekle).
+        const vid = activeRoom.vertexIds[selectedVertex];
+        if (vid) {
+          dissolveVertex(vid);
+          selectVertex(null);
+        }
+        e.preventDefault();
+        return;
+      }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEquipmentId) {
         removeEquipment(selectedEquipmentId);
         setSelectedEquipmentId(null);
@@ -599,6 +611,16 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
       }
       if (e.key === 'Enter' && tool === 'draw-room' && draftPoints.length >= 3) {
         finishPolygon(draftPoints);
+        return;
+      }
+      if (e.key.toLowerCase() === 'r' && selectedEquipmentId) {
+        // Seçili ürünü 90° döndür (3D editör ile aynı; Shift = ters yön).
+        const eq = project.equipment[selectedEquipmentId];
+        if (eq) {
+          const delta = ((e.shiftKey ? -90 : 90) * Math.PI) / 180;
+          updateEquipment(selectedEquipmentId, { rotation: eq.rotation + delta });
+        }
+        e.preventDefault();
         return;
       }
       if (e.key.toLowerCase() === 'v') setTool('select');
@@ -631,7 +653,43 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
     armedProduct,
     selectedEquipmentId,
     removeEquipment,
+    project,
+    updateEquipment,
+    selectedVertex,
+    activeRoom,
+    selectVertex,
+    dissolveVertex,
   ]);
+
+  // ── Equipment drag (2D) — 3D ile ORTAK çözücü (snap + çakışma + clamp) ─────
+  const dragCenterRef = useRef<{ x: number; y: number } | null>(null);
+  const resolveEqDrag = useCallback(
+    (id: string, center: { x: number; y: number }) => {
+      const eq = project.equipment[id];
+      if (!eq) return null;
+      const w = eq.footprint.width;
+      const d = eq.footprint.depth;
+      const res = resolveEquipmentDrag({
+        project,
+        eq,
+        desiredMinCornerMm: { x: center.x - w / 2, y: center.y - d / 2 },
+        snapGridMm: 10,
+        edgeSnapTolMm: 50,
+        collisionEnabled: true,
+        prevValidCenter: dragCenterRef.current,
+      });
+      dragCenterRef.current = res.validCenter;
+      return {
+        nodeX: res.x + w / 2,
+        nodeY: res.y + d / 2,
+        rotationDeg: (res.rotation * 180) / Math.PI,
+        rotationRad: res.rotation,
+        minX: res.x,
+        minY: res.y,
+      };
+    },
+    [project],
+  );
 
   // ── Fit to content ───────────────────────────────────────────────────────
   const fitToContent = useCallback(() => {
@@ -750,20 +808,26 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
               selectOpening(null);
               selectWall(null);
             }}
-            onDragEnd={(id, center) => {
+            onDragStart={(id) => {
               const eq = project.equipment[id];
-              if (!eq) return;
-              // Duvar dışına taşma — oda sınırlarına geri çek.
-              const contained = containFloorItem(
-                project,
-                { x: center.x - eq.footprint.width / 2, y: center.y - eq.footprint.depth / 2 },
-                eq.rotation,
-                eq.footprint.width,
-                eq.footprint.depth,
-              );
-              updateEquipment(id, {
-                position: { x: contained.x, y: contained.y, z: eq.position.z },
-              });
+              dragCenterRef.current = eq
+                ? obbCenterFromMinCorner(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth)
+                : null;
+            }}
+            onDragMove={(id, center) => {
+              const r = resolveEqDrag(id, center);
+              return r ? { x: r.nodeX, y: r.nodeY, rotation: r.rotationDeg } : undefined;
+            }}
+            onDragEnd={(id, center) => {
+              const r = resolveEqDrag(id, center);
+              const eq = project.equipment[id];
+              if (r && eq) {
+                updateEquipment(id, {
+                  position: { x: r.minX, y: r.minY, z: eq.position.z },
+                  rotation: r.rotationRad,
+                });
+              }
+              dragCenterRef.current = null;
             }}
           />
         </Layer>

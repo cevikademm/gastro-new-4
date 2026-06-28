@@ -39,6 +39,10 @@ interface EquipmentLayer2DProps {
   selectedId: string | null;
   draggable: boolean;
   onSelect: (id: string) => void;
+  /** Sürükleme başında — anti-tünel referansını kurmak için. */
+  onDragStart?: (id: string) => void;
+  /** Canlı: kısıtlanmış düğüm merkezini (mm) + dönüşü (derece) döndür → sürüklerken snap. */
+  onDragMove?: (id: string, center: { x: number; y: number }) => { x: number; y: number; rotation?: number } | undefined;
   /** Reports the new CENTER (mm) after a drag. */
   onDragEnd: (id: string, center: { x: number; y: number }) => void;
 }
@@ -49,6 +53,8 @@ export default function EquipmentLayer2D({
   selectedId,
   draggable,
   onSelect,
+  onDragStart,
+  onDragMove,
   onDragEnd,
 }: EquipmentLayer2DProps) {
   const stroke = 2.2 / scale;
@@ -81,6 +87,15 @@ export default function EquipmentLayer2D({
             draggable={draggable}
             onMouseDown={select}
             onTap={select as unknown as (e: KonvaEventObject<Event>) => void}
+            onDragStart={() => onDragStart?.(eq.id)}
+            onDragMove={(e) => {
+              const r = onDragMove?.(eq.id, { x: e.target.x(), y: e.target.y() });
+              if (r) {
+                e.target.x(r.x);
+                e.target.y(r.y);
+                if (typeof r.rotation === 'number') e.target.rotation(r.rotation);
+              }
+            }}
             onDragEnd={(e) => onDragEnd(eq.id, { x: e.target.x(), y: e.target.y() })}
           >
             <Rect

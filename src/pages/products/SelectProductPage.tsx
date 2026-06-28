@@ -51,7 +51,8 @@ function parseHeight(h: string): number {
   return isFinite(first) ? first : 0;
 }
 
-// Katalog ürününü proje ürünü formatına çevir (boyutlar mm → cm)
+// Katalog ürününü proje ürünü formatına çevir (boyutlar mm → cm). code = katalog id
+// → tasarım açılışında reconcileProductsIntoDesign bunu Equipment.catalogId ile eşler.
 function toProductItem(item: EquipmentItem): Omit<ProductItem, 'id'> {
   const category = CAT_MAP[item.cat] || 'other';
   return {
@@ -194,6 +195,8 @@ export default function SelectProductPage() {
 
   const handleAdd = (item: EquipmentItem) => {
     if (!projectId) return;
+    // project.products'a yaz (code = katalog id). Ürünler + Teklif anında gösterir;
+    // tasarım (2D/3D) açılışında reconcileProductsIntoDesign bunu odaya yerleştirir.
     addProductToProject(projectId, toProductItem(item));
     setAddedCounts((prev) => ({ ...prev, [item.id]: (prev[item.id] || 0) + 1 }));
     setToast(`${item.name} eklendi`);
