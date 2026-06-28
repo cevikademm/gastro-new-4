@@ -27,8 +27,12 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-  VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+  # Proje/org kimlikleri GİZLİ DEĞİL (.vercel/project.json'daki güncel değerler).
+  # Eski VERCEL_PROJECT_ID secret'ı silinmiş projeye işaret ettiği için "vercel pull"
+  # "Project not found" verip her deploy patlıyordu. Doğru değerleri doğrudan yazıyoruz;
+  # gizli olan tek şey VERCEL_TOKEN (aşağıdaki adımlarda secret'tan gelir).
+  VERCEL_ORG_ID: team_n41lqYU6oRB9bwmiOJqQVWeS
+  VERCEL_PROJECT_ID: prj_ZEHhkIuJQmcpWrGCIEHtv5SL3cqI
 
 jobs:
   deploy:
