@@ -12,6 +12,7 @@ import {
   Trash2, ChevronDown, SlidersHorizontal, RotateCcw,
 } from 'lucide-react';
 import CartQuantityButton from '../../components/CartQuantityButton';
+import ProductCard from '../../components/catalog/ProductCard';
 import CategoryFilterPanel from '../../components/CategoryFilterPanel';
 import { useProductDetailStore } from '../../stores/productDetailStore';
 
@@ -307,67 +308,25 @@ export default function CombiSteelPage() {
       {/* ─── Grid View ─── */}
       {!isLoading && viewMode === 'grid' && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          {products.map(item => {
-            const inCompare = isComparing(item.id);
-            const inCart = isInCart(item.sku || item.id);
-            return (
-              <div
-                key={item.id}
-                className={`bg-white rounded-2xl border overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group relative ${
-                  inCompare ? 'border-violet-300 ring-2 ring-violet-100' : 'border-slate-200/80'
-                }`}
-                onClick={() => openDetail('combisteel', item.id)}
-              >
-                {/* Badges */}
-                <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                  {item.stock != null && item.stock > 0 && (
-                    <span className="bg-emerald-500 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm">Stokta</span>
-                  )}
-                </div>
-
-                {/* Compare checkbox */}
-                <button
-                  onClick={e => { e.stopPropagation(); toggleCompare(item); }}
-                  className={`absolute top-2 right-2 z-10 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
-                    inCompare ? 'bg-violet-500 border-violet-500 text-white' : 'bg-white/80 border-slate-300 text-transparent opacity-0 group-hover:opacity-100'
-                  }`}
-                >
-                  {inCompare && <GitCompareArrows size={12} />}
-                </button>
-
-                {/* Image */}
-                <div className="bg-gradient-to-b from-slate-50/50 to-white p-2 pt-4">
-                  <ProductImage src={item.image_url || ''} alt={item.title} className="w-full h-32 group-hover:scale-105 transition-transform duration-300" />
-                </div>
-
-                {/* Info */}
-                <div className="p-3 pt-2">
-                  <p className="text-[10px] font-mono text-[#A04654] tracking-wide">{item.sku}</p>
-                  <p className="text-[11px] font-bold text-on-surface mt-0.5 line-clamp-2 leading-snug">{item.title || item.description}</p>
-                  {item.brand && <p className="text-[10px] text-slate-400 font-medium mt-1">{item.brand}</p>}
-
-                  <div className="flex items-end justify-between mt-2 pt-2 border-t border-slate-100/80">
-                    <div>
-                      <p className="text-base font-black text-[#DC2626] tracking-tight">{formatPrice(item.price)}</p>
-                      {item.width_mm && <p className="text-[9px] text-slate-400 mt-0.5">{item.width_mm}×{item.depth_mm || item.height_mm} mm</p>}
-                    </div>
-                  </div>
-
-                  {/* Actions */}
-                  <div className="flex gap-1.5 mt-2.5">
-                    <CartQuantityButton product={toCartItem(item) as any} size="sm" className="flex-1" />
-                    <button
-                      onClick={e => { e.stopPropagation(); handleShowOnFloorPlan(item.sku || item.id); }}
-                      className="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all"
-                      title="Kat Planına Ekle"
-                    >
-                      <Ruler size={10} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {products.map(item => (
+            <ProductCard
+              key={item.id}
+              brand={item.brand || 'CombiSteel'}
+              code={item.sku}
+              name={item.title || item.description}
+              subtitle={item.category_name || undefined}
+              price={item.price}
+              dims={(item.length_mm || item.width_mm) ? `${item.length_mm || item.width_mm}×${item.depth_mm || item.width_mm}×${item.height_mm || 0} mm` : undefined}
+              imageUrl={item.image_url || ''}
+              badges={{ stock: (item.stock != null && item.stock > 0) ? 'Stokta' : undefined }}
+              inCompare={isComparing(item.id)}
+              cartProduct={toCartItem(item) as any}
+              formatPrice={formatPrice}
+              onOpenDetail={() => openDetail('combisteel', item.id)}
+              onToggleCompare={() => toggleCompare(item)}
+              onFloorPlan={() => handleShowOnFloorPlan(item.sku || item.id)}
+            />
+          ))}
         </div>
       )}
 

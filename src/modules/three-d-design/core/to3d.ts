@@ -36,6 +36,7 @@ import type {
 } from './types';
 import { distance2, normalize2, perp2, sub2 } from './math';
 import { roomPolygon, wallSegment } from './geometry';
+import { flipPointY, flipEquipPlacement } from './renderSpace';
 
 // ── Output shapes ───────────────────────────────────────────────────────────
 
@@ -155,8 +156,10 @@ export function projectToScene(project: ProjectDocument): SceneDescription {
     const va = project.vertices[wall.a];
     const vb = project.vertices[wall.b];
     if (!va || !vb) continue;
-    const a: Vec2 = { x: va.x, y: va.y };
-    const b: Vec2 = { x: vb.x, y: vb.y };
+    // 2D↔3D aynalama düzeltmesi: domain Y'yi render'a yansıt (bkz. renderSpace.ts).
+    // a/b yansıtılınca köşe/normal/açı ve kapı-pencere yönü otomatik tutarlı yansır.
+    const a: Vec2 = { x: va.x, y: flipPointY(va.y) };
+    const b: Vec2 = { x: vb.x, y: flipPointY(vb.y) };
     const len = distance2(a, b);
     walls.push({
       wallId: wall.id,
@@ -174,21 +177,25 @@ export function projectToScene(project: ProjectDocument): SceneDescription {
   // Floors
   const floors: FloorPolygon[] = [];
   for (const room of Object.values(project.rooms) as Room[]) {
-    const pts = roomPolygon(project, room);
+    const pts = roomPolygon(project, room).map((p) => ({ x: p.x, y: flipPointY(p.y) }));
     if (pts.length >= 3) {
       floors.push({ roomId: room.id, points: pts, zMm: room.floorHeight });
     }
   }
 
-  // Equipment
-  const equipment: EquipmentInstance[] = Object.values(project.equipment).map((e) => ({
-    equipmentId: e.id,
-    catalogId: e.catalogId,
-    position: { x: e.position.x, y: e.position.y, z: e.position.z },
-    rotationRad: e.rotation,
-    footprint: e.footprint,
-    heightMm: e.heightMm,
-  }));
+  // Equipment — konum+yaw'ı render uzayına yansıt (bounds/framing için; mesh'ler
+  // ekipman-sync efektinde ayrıca yansıtılır).
+  const equipment: EquipmentInstance[] = Object.values(project.equipment).map((e) => {
+    const r = flipEquipPlacement(e.position.x, e.position.y, e.rotation, e.footprint.width, e.footprint.depth);
+    return {
+      equipmentId: e.id,
+      catalogId: e.catalogId,
+      position: { x: r.x, y: r.y, z: e.position.z },
+      rotationRad: r.yaw,
+      footprint: e.footprint,
+      heightMm: e.heightMm,
+    };
+  });
 
   // Bounds (mm)
   let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;

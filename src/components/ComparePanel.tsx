@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useCompareStore, type CompareItem } from '../stores/compareStore';
 import { useUIStore } from '../stores/uiStore';
-import { X, GitCompareArrows, Trash2, Package, Diamond, Box, ChevronDown } from 'lucide-react';
+import { X, GitCompareArrows, Trash2, Package, Diamond, Box } from 'lucide-react';
 
 function ProductImage({ src, alt, className }: { src: string; alt: string; className?: string }) {
   const [error, setError] = useState(false);
@@ -10,8 +10,23 @@ function ProductImage({ src, alt, className }: { src: string; alt: string; class
   return <img src={src} alt={alt} onError={() => setError(true)} className={`object-contain ${className}`} />;
 }
 
+/** Kaynak (source) → renk/rozet/ikon. Bilinmeyen kaynaklar için nötr varsayılan. */
+const SOURCE_COLORS: Record<string, { bg: string; badge: string; icon: typeof Package }> = {
+  diamond: { bg: 'from-[#DC2626] to-[#991B1B]', badge: 'bg-red-100 text-[#DC2626]', icon: Diamond },
+  combisteel: { bg: 'from-[#0F2440] to-[#1E3A5F]', badge: 'bg-blue-50 text-[#0F2440]', icon: Box },
+};
+const DEFAULT_SOURCE = { bg: 'from-slate-500 to-slate-700', badge: 'bg-slate-100 text-slate-600', icon: Package };
+const sourceMeta = (s: string) => SOURCE_COLORS[s] || DEFAULT_SOURCE;
+
+/** Tablo/rozet etiketi: bilinen kaynaklar sabit ad, diğerleri marka adı. */
+function sourceLabel(item: CompareItem, long = false): string {
+  if (item.source === 'diamond') return long ? 'Diamond EU' : 'Diamond';
+  if (item.source === 'combisteel') return 'CombiSteel';
+  return item.brand || String(item.source || '—');
+}
+
 const COMPARE_ROWS: { labelKey: string; key: string; render: (p: CompareItem) => string; bestMode?: 'min' | 'max' }[] = [
-  { labelKey: 'compare.source', key: 'source', render: p => p.source === 'diamond' ? 'Diamond EU' : 'CombiSteel' },
+  { labelKey: 'compare.source', key: 'source', render: p => sourceLabel(p, true) },
   { labelKey: 'compare.brand', key: 'brand', render: p => p.brand || '—' },
   { labelKey: 'compare.category', key: 'category', render: p => p.category || '—' },
   { labelKey: 'compare.price', key: 'price', render: p => p.price && p.price > 0 ? `€${p.price.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` : '—', bestMode: 'min' },
@@ -26,21 +41,25 @@ const COMPARE_ROWS: { labelKey: string; key: string; render: (p: CompareItem) =>
   { labelKey: 'compare.connection', key: 'connection', render: p => p.connection || '—' },
 ];
 
-const SOURCE_COLORS = {
-  diamond: { bg: 'from-[#DC2626] to-[#991B1B]', badge: 'bg-red-100 text-[#DC2626]', icon: Diamond },
-  combisteel: { bg: 'from-[#0F2440] to-[#1E3A5F]', badge: 'bg-blue-50 text-[#0F2440]', icon: Box },
-};
-
 export default function ComparePanel() {
   const { t } = useTranslation();
   const { items, showPanel, removeItem, clear, setShowPanel } = useCompareStore();
   const showPromo = useUIStore(s => s.showPromoProducts);
-  const [filterSource, setFilterSource] = useState<'all' | 'diamond' | 'combisteel'>('all');
+  const [filterSource, setFilterSource] = useState<string>('all');
 
   if (items.length === 0) return null;
 
+  // Mevcut öğelerden gerçek kaynak listesi (diamond/combisteel/hendi/marka…).
+  const sources = Array.from(new Set(items.map(i => i.source)));
+  const hasMixed = sources.length > 1;
+  const sourceKeyLabel = (src: string) => {
+    if (src === 'diamond') return 'Diamond';
+    if (src === 'combisteel') return 'CombiSteel';
+    const it = items.find(i => i.source === src);
+    return it?.brand || src;
+  };
+
   const filteredItems = filterSource === 'all' ? items : items.filter(i => i.source === filterSource);
-  const hasMixed = new Set(items.map(i => i.source)).size > 1;
 
   // Floating bar
   if (!showPanel) {
@@ -48,7 +67,7 @@ export default function ComparePanel() {
       <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-40 bg-white/95 backdrop-blur-lg border border-red-200 shadow-2xl shadow-red-100/50 rounded-2xl px-5 py-3 flex items-center gap-3 max-w-[90vw]">
         <div className="flex -space-x-2.5">
           {items.slice(0, 6).map(item => {
-            const colors = SOURCE_COLORS[item.source];
+            const colors = sourceMeta(item.source);
             return (
               <div key={item.id} className={`w-10 h-10 rounded-xl border-2 border-white bg-slate-50 overflow-hidden shadow-sm relative`}>
                 <ProductImage src={item.image} alt="" className="w-full h-full" />
@@ -60,12 +79,11 @@ export default function ComparePanel() {
         <div className="text-xs">
           <p className="font-bold text-on-surface">{t('compare.productsSelected', { count: items.length })}</p>
           <p className="text-slate-400">
-            {hasMixed && <>
-              <span className="text-[#DC2626]">{items.filter(i => i.source === 'diamond').length} Diamond</span>
-              {' + '}
-              <span className="text-[#0F2440]">{items.filter(i => i.source === 'combisteel').length} CombiSteel</span>
-            </>}
-            {!hasMixed && `${6 - items.length} ${t('common.moreCanBeAdded')}`}
+            {hasMixed
+              ? sources.map((s, idx) => (
+                  <span key={s}>{idx > 0 && ' + '}{items.filter(i => i.source === s).length} {sourceKeyLabel(s)}</span>
+                ))
+              : `${Math.max(0, 6 - items.length)} ${t('common.moreCanBeAdded')}`}
           </p>
         </div>
         <button
@@ -99,10 +117,10 @@ export default function ComparePanel() {
             </div>
           </div>
           <div className="relative z-10 flex items-center gap-2">
-            {/* Source filter tabs */}
+            {/* Source filter tabs — mevcut kaynaklara göre dinamik */}
             {hasMixed && (
-              <div className="flex bg-white/10 rounded-lg p-0.5 mr-2">
-                {(['all', 'diamond', 'combisteel'] as const).map(src => (
+              <div className="flex bg-white/10 rounded-lg p-0.5 mr-2 flex-wrap max-w-[60vw] justify-end">
+                {['all', ...sources].map(src => (
                   <button
                     key={src}
                     onClick={() => setFilterSource(src)}
@@ -110,7 +128,7 @@ export default function ComparePanel() {
                       filterSource === src ? 'bg-white text-[#DC2626] shadow-sm' : 'text-white/70 hover:text-white'
                     }`}
                   >
-                    {src === 'all' ? t('common.all') : src === 'diamond' ? 'Diamond' : 'CombiSteel'}
+                    {src === 'all' ? t('common.all') : sourceKeyLabel(src)}
                   </button>
                 ))}
               </div>
@@ -131,7 +149,7 @@ export default function ComparePanel() {
               <tr className="border-b border-slate-100">
                 <th className="sticky left-0 bg-white w-32 p-4 z-10" />
                 {filteredItems.map(item => {
-                  const colors = SOURCE_COLORS[item.source];
+                  const colors = sourceMeta(item.source);
                   const Icon = colors.icon;
                   return (
                     <th key={item.id} className="p-4 min-w-[190px] max-w-[220px] text-center align-top">
@@ -144,12 +162,12 @@ export default function ComparePanel() {
                         </button>
                         {/* Source badge */}
                         <span className={`inline-flex items-center gap-1 ${colors.badge} text-[9px] font-bold px-2 py-0.5 rounded-full mb-2`}>
-                          <Icon size={10} /> {item.source === 'diamond' ? 'Diamond' : 'CombiSteel'}
+                          <Icon size={10} /> {sourceLabel(item)}
                         </span>
-                        <div className={`bg-gradient-to-br from-slate-50 ${item.source === 'diamond' ? 'to-red-50' : 'to-blue-50'} rounded-2xl p-3 mb-3`}>
+                        <div className={`bg-gradient-to-br from-slate-50 ${item.source === 'diamond' ? 'to-red-50' : item.source === 'combisteel' ? 'to-blue-50' : 'to-slate-100'} rounded-2xl p-3 mb-3`}>
                           <ProductImage src={item.image} alt={item.name} className="w-24 h-24 mx-auto" />
                         </div>
-                        <p className={`text-[10px] font-mono ${item.source === 'diamond' ? 'text-[#DC2626]/60' : 'text-[#0F2440]/60'}`}>{item.sku}</p>
+                        <p className={`text-[10px] font-mono ${item.source === 'diamond' ? 'text-[#DC2626]/60' : item.source === 'combisteel' ? 'text-[#0F2440]/60' : 'text-slate-400'}`}>{item.sku}</p>
                         <p className="text-xs font-bold text-on-surface mt-1 line-clamp-2 leading-snug">{item.name}</p>
                       </div>
                     </th>
@@ -178,7 +196,7 @@ export default function ComparePanel() {
                       return (
                         <td key={item.id} className={`px-4 py-3 text-xs text-center font-medium ${isBest ? 'text-emerald-600 font-bold bg-emerald-50/50' : 'text-on-surface'}`}>
                           {row.key === 'source' ? (
-                            <span className={`inline-flex items-center gap-1 ${SOURCE_COLORS[item.source].badge} text-[10px] font-bold px-2 py-0.5 rounded-full`}>
+                            <span className={`inline-flex items-center gap-1 ${sourceMeta(item.source).badge} text-[10px] font-bold px-2 py-0.5 rounded-full`}>
                               {val}
                             </span>
                           ) : val}

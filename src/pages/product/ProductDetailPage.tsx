@@ -9,7 +9,9 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../../lib/supabase';
 import type { DiamondProduct } from '../../stores/diamondStore';
 import { useCartStore } from '../../stores/cartStore';
-import { useCompareStore } from '../../stores/compareStore';
+import { useCompareStore, equipmentToCompareItem } from '../../stores/compareStore';
+import { useEquipmentStore } from '../../stores/equipmentStore';
+import { getCompatibleAccessories } from '../../lib/categoryTaxonomy';
 import { diamondToEquipment, parseGallery, getStockLabel } from '../../lib/diamondAdapter';
 import SEO from '../../components/SEO';
 import ReviewWidget from '../../components/ReviewWidget';
@@ -73,6 +75,14 @@ export default function ProductDetailPage() {
       .filter(Boolean) as string[];
     return Array.from(new Set(list));
   }, [product]);
+
+  // Bu cihaza uyumlu aksesuarlar (aynı seri + tip) — katalogda gizli, burada görünür.
+  const allEquip = useEquipmentStore((s) => s.allItems);
+  const accessories = useMemo(() => {
+    if (!product) return [];
+    const local = allEquip.find((i) => i.id === String(product.id));
+    return getCompatibleAccessories(local, allEquip, 18);
+  }, [product, allEquip]);
 
   const stock = getStockLabel(product?.stock);
   const price = product?.price_promo ?? product?.price_display ?? product?.price_catalog ?? 0;
@@ -290,7 +300,7 @@ export default function ProductDetailPage() {
             {/* Secondary actions */}
             <div className="mt-3 grid grid-cols-2 gap-2">
               <button
-                onClick={() => compareAdd?.(diamondToEquipment(product))}
+                onClick={() => compareAdd?.(equipmentToCompareItem(diamondToEquipment(product)))}
                 className="h-10 rounded-lg border border-slate-200 text-sm font-medium text-slate-600 hover:bg-slate-50 flex items-center justify-center gap-2"
               >
                 <GitCompare size={14} /> {t('product.compare', 'Karşılaştır')}
@@ -372,6 +382,53 @@ export default function ProductDetailPage() {
           </div>
         </div>
       </div>
+
+      {/* Passendes Zubehör — bu sisteme/seriye uyumlu aksesuarlar (katalogda gizli) */}
+      {accessories.length > 0 && (
+        <div className="max-w-7xl mx-auto px-4 mt-8">
+          <h2 className="text-xl font-bold text-slate-900 mb-1">Passendes Zubehör</h2>
+          <p className="text-sm text-slate-500 mb-4">
+            Für dieses System passende Körbe, Teile &amp; GN-Zubehör
+          </p>
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+            {accessories.map((a) => (
+              <div
+                key={a.id}
+                className="bg-white rounded-xl p-3 shadow-sm hover:shadow-md transition group flex flex-col"
+              >
+                <Link to={`/product/${a.id}`} className="block">
+                  <div className="aspect-square bg-slate-50 rounded-lg overflow-hidden mb-2">
+                    {a.img ? (
+                      <img
+                        src={a.img}
+                        alt={a.name}
+                        loading="lazy"
+                        className="w-full h-full object-contain group-hover:scale-105 transition"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-300">
+                        <Package size={28} />
+                      </div>
+                    )}
+                  </div>
+                  <p className="text-xs font-semibold text-slate-900 line-clamp-2 min-h-[2rem]">{a.name}</p>
+                </Link>
+                <div className="mt-auto flex items-center justify-between pt-2">
+                  <span className="text-sm font-bold text-brand-red">
+                    {a.price > 0 ? `${a.price.toLocaleString('de-DE')} €` : '—'}
+                  </span>
+                  <button
+                    onClick={() => addItem(a, 1)}
+                    className="text-[11px] font-bold px-2 py-1 rounded-md bg-[#0F2440] text-white hover:bg-brand-red transition inline-flex items-center gap-1"
+                  >
+                    <Plus size={12} /> {t('cart.add', 'Sepet')}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Related products */}
       {related.length > 0 && (

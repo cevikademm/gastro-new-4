@@ -5,7 +5,6 @@ import DiamondPage from '../diamond/DiamondPage';
 import CombiSteelPage from '../combisteel/CombiSteelPage';
 import HendiPage from '../handi/HendiPage';
 import AllProductsGrid from './AllProductsGrid';
-import ProductDetailModal from '../../components/ProductDetailModal';
 
 /**
  * Ürünler — tüm marka kataloglarını TEK panelde birleştirir.
@@ -65,9 +64,7 @@ export default function ProductsPage() {
       {tab === 'diamond' && <DiamondPage />}
       {tab === 'combisteel' && <CombiSteelPage />}
       {tab === 'handi' && <HendiPage />}
-
-      {/* Tüm sekmeler için tek tip modern detay penceresi */}
-      <ProductDetailModal />
+      {/* Detay penceresi App kökünde global mount edilir (ProductDetailDrawer). */}
     </div>
   );
 }

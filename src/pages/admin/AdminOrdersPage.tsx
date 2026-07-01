@@ -2,9 +2,11 @@ import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import {
   Package, Search, Filter, CheckCircle, Clock, Truck, XCircle,
-  Box, StickyNote, ChevronDown, X, Loader2,
+  Box, StickyNote, ChevronDown, X, Loader2, MessageCircle, FileText, Check,
 } from 'lucide-react';
 import { useAdminStore, type AdminOrder, type AdminOrderStatus } from '../../stores/adminStore';
+import { sendOrderWhatsapp } from '../../lib/orderWhatsapp';
+import { downloadOrderPdf } from '../../lib/orderPdf';
 
 const STATUS_FLOW: AdminOrderStatus[] = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
@@ -213,6 +215,18 @@ function OrderDetailDrawer({
   const [carrier, setCarrier] = useState(order.tracking_carrier || '');
   const [trackingNo, setTrackingNo] = useState(order.tracking_number || '');
   const [saving, setSaving] = useState<string | null>(null);
+  const [waState, setWaState] = useState<'idle' | 'sending' | 'sent' | 'err'>('idle');
+  const [pdfState, setPdfState] = useState<'idle' | 'gen' | 'err'>('idle');
+
+  const handleWa = async () => {
+    setWaState('sending');
+    const r = await sendOrderWhatsapp(order, { force: true });
+    setWaState(r.ok ? 'sent' : 'err');
+  };
+  const handlePdf = async () => {
+    setPdfState('gen');
+    try { await downloadOrderPdf(order); setPdfState('idle'); } catch { setPdfState('err'); }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
@@ -258,6 +272,29 @@ function OrderDetailDrawer({
                 <span>Toplam</span>
                 <span>{fmtMoney(order.total_price)}</span>
               </div>
+            </div>
+          </section>
+
+          {/* Bildirim & Belge */}
+          <section>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Bildirim &amp; Belge</h3>
+            <div className="flex gap-2">
+              <button
+                onClick={handleWa}
+                disabled={waState === 'sending'}
+                className="flex-1 px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold text-sm hover:opacity-90 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              >
+                {waState === 'sending' ? <Loader2 size={14} className="animate-spin" /> : waState === 'sent' ? <Check size={14} /> : <MessageCircle size={14} />}
+                {waState === 'sent' ? 'Gönderildi' : waState === 'err' ? 'Hata — tekrar' : 'WhatsApp gönder'}
+              </button>
+              <button
+                onClick={handlePdf}
+                disabled={pdfState === 'gen'}
+                className="flex-1 px-3 py-2 rounded-lg border border-outline-variant/30 font-bold text-sm hover:bg-surface-container-high disabled:opacity-50 inline-flex items-center justify-center gap-2"
+              >
+                {pdfState === 'gen' ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                {pdfState === 'err' ? 'PDF hata' : 'PDF indir'}
+              </button>
             </div>
           </section>
 

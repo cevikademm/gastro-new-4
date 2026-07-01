@@ -1,9 +1,39 @@
-import { useEffect, useState } from 'react';
-import { useAllProductsStore } from '../../stores/allProductsStore';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAllProductsStore, type AllProduct } from '../../stores/allProductsStore';
 import { useProductDetailStore, type ProductSource } from '../../stores/productDetailStore';
+import { useCompareStore, brandToSource, type CompareItem } from '../../stores/compareStore';
+import { useProjectStore } from '../../stores/projectStore';
+import { useEquipmentStore, type EquipmentItem } from '../../stores/equipmentStore';
+import ProductCard from '../../components/catalog/ProductCard';
 import {
-  Search, X, ChevronLeft, ChevronRight, Package, Loader2,
+  Search, X, ChevronLeft, ChevronRight, Package, Loader2, Clock, CheckCircle2, MapPin,
 } from 'lucide-react';
+
+// all_products satırı → sepet (EquipmentItem) şekli — Diamond/CombiSteel ile aynı sepet anahtarı (id)
+const toCartItem = (p: AllProduct): EquipmentItem => ({
+  id: p.id,
+  name: p.name,
+  desc: '',
+  cat: p.category || 'other',
+  sub: '',
+  fam: p.category || '',
+  img: p.image || '',
+  url: p.image || '',
+  brand: p.brand,
+  l: Number(p.length_mm) || 0,
+  w: Number(p.width_mm) || Number(p.depth_mm) || 0,
+  h: String(p.height_mm ?? '0'),
+  kw: 0,
+  price: p.price || 0,
+  line: '',
+});
+
+// Ölçü etiketi (kartta gösterim) — L×W×H mm.
+const dimStr = (p: AllProduct): string | undefined =>
+  (p.length_mm && p.width_mm && p.height_mm)
+    ? `${p.length_mm}×${p.width_mm}×${p.height_mm} mm`
+    : (p.width_mm ? `${p.width_mm} mm` : undefined);
 
 const SOURCES = [
   { id: '', label: 'Tümü' },
@@ -11,6 +41,27 @@ const SOURCES = [
   { id: 'combisteel', label: 'CombiSteel' },
   { id: 'handi', label: 'HENDI' },
 ];
+
+// all_products satırı → karşılaştırma öğesi (boyut verisi yok; fiyat/marka/kategori karşılaştırılır)
+const toCompareItem = (p: AllProduct): CompareItem => ({
+  id: `${p.source}-${p.id}`,
+  sku: p.id,
+  name: p.name,
+  brand: p.brand,
+  image: p.image || '',
+  price: p.price,
+  promoPrice: null,
+  stock: p.stock != null && !isNaN(Number(p.stock)) ? Number(p.stock) : null,
+  width_mm: p.width_mm ?? null,
+  height_mm: p.height_mm ?? null,
+  depth_mm: p.depth_mm ?? null,
+  length_mm: p.length_mm ?? null,
+  weight: null,
+  kw: null,
+  connection: null,
+  category: p.category,
+  source: (p.source === 'diamond' || p.source === 'combisteel') ? p.source : brandToSource(p.brand),
+});
 
 const fmtPrice = (p: number | null) =>
   p && p > 0 ? `€${p.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` : '—';
@@ -37,6 +88,24 @@ export default function AllProductsGrid() {
     fetchProducts, setFilter, setPage,
   } = useAllProductsStore();
   const openDetail = useProductDetailStore((s) => s.open);
+  const compareItems = useCompareStore((s) => s.items);
+  const toggleCompare = useCompareStore((s) => s.toggleItem);
+  const compareIds = useMemo(() => new Set(compareItems.map((i) => i.id)), [compareItems]);
+
+  const navigate = useNavigate();
+  const { projects } = useProjectStore();
+  const { setFloorPlanItem } = useEquipmentStore();
+  const [projectModalItem, setProjectModalItem] = useState<string | null>(null);
+  const activeProjects = projects.filter((p) => p.status !== 'complete');
+  const completedProjects = projects.filter((p) => p.status === 'complete');
+  const handleShowOnFloorPlan = (id: string) => setProjectModalItem(id);
+  const handleProjectSelect = (projectId: string) => {
+    if (projectModalItem) {
+      setFloorPlanItem(projectModalItem);
+      setProjectModalItem(null);
+      navigate(`/projects/${projectId}/design`);
+    }
+  };
 
   useEffect(() => { fetchProducts(); }, []);
 
@@ -96,19 +165,28 @@ export default function AllProductsGrid() {
 
       {!isLoading && !error && products.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          {products.map((item) => (
-            <div key={`${item.source}-${item.id}`} onClick={() => openDetail(item.source as ProductSource, item.id)} className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 flex flex-col cursor-pointer">
-              <div className="bg-gradient-to-b from-slate-50/50 to-white p-2 pt-3">
-                <ProductImage src={item.image || ''} alt={item.name} />
-              </div>
-              <div className="p-3 flex flex-col flex-1">
-                <p className="text-[10px] font-bold text-[#DC2626] uppercase tracking-wider truncate">{item.brand}</p>
-                <h3 className="text-xs font-bold text-slate-700 line-clamp-2 mt-0.5 min-h-[2rem]" title={item.name}>{item.name}</h3>
-                {item.category && <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.category}</p>}
-                <span className="mt-auto pt-2 text-sm font-black text-slate-800">{fmtPrice(item.price)}</span>
-              </div>
-            </div>
-          ))}
+          {products.map((item) => {
+            const inCompare = compareIds.has(`${item.source}-${item.id}`);
+            return (
+              <ProductCard
+                key={`${item.source}-${item.id}`}
+                brand={item.brand}
+                code={item.code || undefined}
+                name={item.name}
+                subtitle={item.category || undefined}
+                dims={dimStr(item)}
+                price={item.price}
+                imageUrl={item.image || ''}
+                badges={{ stock: (item.stock != null && Number(item.stock) > 0) ? 'Stokta' : undefined }}
+                inCompare={inCompare}
+                cartProduct={toCartItem(item)}
+                formatPrice={fmtPrice}
+                onOpenDetail={() => openDetail(item.source as ProductSource, item.id, toCartItem(item))}
+                onToggleCompare={() => toggleCompare(toCompareItem(item))}
+                onFloorPlan={() => handleShowOnFloorPlan(item.id)}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -117,6 +195,66 @@ export default function AllProductsGrid() {
           <button disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)} className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 hover:border-red-300"><ChevronLeft size={16} /></button>
           <span className="text-xs font-bold text-slate-600 px-2">{currentPage} / {totalPages}</span>
           <button disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)} className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 hover:border-red-300"><ChevronRight size={16} /></button>
+        </div>
+      )}
+
+      {/* ─── Projeye ekle — proje seçim modalı ─── */}
+      {projectModalItem && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setProjectModalItem(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <div>
+                <h2 className="text-base font-headline font-black text-slate-800">Projeye Ekle</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Hangi projeye eklensin?</p>
+              </div>
+              <button onClick={() => setProjectModalItem(null)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500"><X size={18} /></button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-4 space-y-4">
+              {activeProjects.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Clock size={13} className="text-[#DC2626]" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#DC2626]">Devam Eden</span>
+                  </div>
+                  <div className="space-y-2">
+                    {activeProjects.map((p) => (
+                      <button key={p.id} onClick={() => handleProjectSelect(p.id)} className="w-full text-left px-4 py-3 rounded-xl bg-red-50 hover:bg-red-100 border border-red-100 hover:border-red-300 transition-all group">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-slate-800 group-hover:text-[#DC2626] transition-colors">{p.name}</span>
+                          <MapPin size={14} className="text-[#DC2626] opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-[10px] text-slate-500">{p.clientName}</span>
+                          <span className="text-[10px] text-slate-500">{p.area} m²</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {completedProjects.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <CheckCircle2 size={13} className="text-slate-400" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tamamlanan</span>
+                  </div>
+                  <div className="space-y-2">
+                    {completedProjects.map((p) => (
+                      <button key={p.id} onClick={() => handleProjectSelect(p.id)} className="w-full text-left px-4 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 transition-all group opacity-70 hover:opacity-100">
+                        <span className="text-sm font-bold text-slate-600 group-hover:text-slate-800 transition-colors">{p.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {projects.length === 0 && (
+                <div className="py-10 text-center">
+                  <Package size={36} className="mx-auto text-slate-200 mb-3" />
+                  <p className="text-sm font-bold text-slate-500">Henüz proje yok</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

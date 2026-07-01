@@ -4,11 +4,14 @@ import { Navbar } from '../../components/Navbar';
 import { AnnouncementBar } from '../../components/landing/sections/AnnouncementBar';
 import SiteFooter from '../../components/SiteFooter';
 import { useEquipmentStore, CATEGORIES, type EquipmentItem } from '../../stores/equipmentStore';
+import { resolvedOf, matchesSubGroup, getSubGroupsFor, isAccessory } from '../../lib/categoryTaxonomy';
 import { useCartStore } from '../../stores/cartStore';
+import { useCompareStore, equipmentToCompareItem } from '../../stores/compareStore';
+import { useProductDetailStore } from '../../stores/productDetailStore';
 import {
   Search, X, ShoppingCart, BadgeCheck, ChevronLeft, ChevronRight, ArrowUpDown,
   Package, Zap, ShieldCheck, Truck, Store, SlidersHorizontal, Check, Tag,
-  Refrigerator, Flame, Droplets, Microwave, Waves, Table,
+  Refrigerator, Flame, Droplets, Microwave, Waves, Table, GitCompareArrows,
 } from 'lucide-react';
 
 const iconMap: Record<string, any> = {
@@ -74,8 +77,17 @@ export default function ShopPage() {
   const cartIds = useMemo(() => new Set(cartItems.map((i) => i.product.id)), [cartItems]);
   const cartCount = useMemo(() => cartItems.reduce((s, i) => s + i.quantity, 0), [cartItems]);
 
+  // Ürün karşılaştırma (global panel App kökünde render edilir)
+  const compareItems = useCompareStore((s) => s.items);
+  const toggleCompare = useCompareStore((s) => s.toggleItem);
+  const compareIds = useMemo(() => new Set(compareItems.map((i) => i.id)), [compareItems]);
+
+  // Karta tıklayınca sağdan açılan tek standart detay paneli (App kökünde mount).
+  const openDetail = useProductDetailStore((s) => s.openFromItem);
+
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [category, setCategory] = useState(searchParams.get('cat') || '');
+  const [subGroup, setSubGroup] = useState(searchParams.get('sub') || '');
   const [priceKey, setPriceKey] = useState('all');
   const [powerKey, setPowerKey] = useState('all');
   const [sort, setSort] = useState<SortKey>('default');
@@ -87,14 +99,22 @@ export default function ShopPage() {
   useEffect(() => {
     setQuery(searchParams.get('q') || '');
     setCategory(searchParams.get('cat') || '');
+    setSubGroup(searchParams.get('sub') || '');
     setPage(1);
   }, [searchParams]);
 
   const resetPage = () => setPage(1);
 
+  // Seçili kategorinin temiz/sıralı alt-grupları (taksonomi).
+  const subGroups = useMemo(() => (category ? getSubGroupsFor(category, allItems) : []), [category, allItems]);
+
+  // Aksesuar/küçük parçalar katalogda gizli — yalnızca ürün detay sayfasında uyumlu aksesuar olarak görünür.
+  const browseItems = useMemo(() => allItems.filter((i) => !isAccessory(i)), [allItems]);
+
   const filtered = useMemo(() => {
-    let list = allItems;
-    if (category) list = list.filter((i) => i.cat === category);
+    let list = browseItems;
+    if (category) list = list.filter((i) => resolvedOf(i).cat === category);
+    if (category && subGroup) list = list.filter((i) => matchesSubGroup(category, subGroup, i));
     const range = PRICE_RANGES.find((r) => r.key === priceKey);
     if (range && range.key !== 'all') list = list.filter((i) => range.test(i.price));
     const pr = POWER_RANGES.find((r) => r.key === powerKey);
@@ -112,16 +132,17 @@ export default function ShopPage() {
       );
     }
     return list;
-  }, [allItems, category, priceKey, query]);
+  }, [browseItems, category, subGroup, priceKey, powerKey, query]);
 
   const sorted = useMemo(() => {
-    if (sort === 'default') return filtered;
     const priceVal = (p: number) => (p > 0 ? p : Number.POSITIVE_INFINITY);
     const arr = [...filtered];
     if (sort === 'name-asc') arr.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
     else if (sort === 'price-asc') arr.sort((a, b) => priceVal(a.price) - priceVal(b.price));
     else if (sort === 'price-desc') arr.sort((a, b) => (b.price || 0) - (a.price || 0));
     else if (sort === 'kw-desc') arr.sort((a, b) => (b.kw || 0) - (a.kw || 0));
+    // Önerilen (default): önemli/yüksek değerli ürünler önce, fiyatsız ("Fiyat sorun") en sona
+    else arr.sort((a, b) => (b.price > 0 ? b.price : -1) - (a.price > 0 ? a.price : -1));
     return arr;
   }, [filtered, sort]);
 
@@ -131,20 +152,32 @@ export default function ShopPage() {
 
   const setCat = (id: string) => {
     setCategory(id);
+    setSubGroup(''); // kategori değişince alt-grup sıfırlanır
     resetPage();
     setMobileFilters(false);
     const next = new URLSearchParams(searchParams);
     if (id) next.set('cat', id); else next.delete('cat');
+    next.delete('sub');
     if (query) next.set('q', query); else next.delete('q'); // arama terimini koru
     setSearchParams(next, { replace: true });
   };
 
-  const activeCount = (category ? 1 : 0) + (priceKey !== 'all' ? 1 : 0) + (powerKey !== 'all' ? 1 : 0);
+  const setSub = (id: string) => {
+    setSubGroup(id);
+    resetPage();
+    const next = new URLSearchParams(searchParams);
+    if (category) next.set('cat', category);
+    if (id) next.set('sub', id); else next.delete('sub');
+    if (query) next.set('q', query); else next.delete('q');
+    setSearchParams(next, { replace: true });
+  };
+
+  const activeCount = (category ? 1 : 0) + (subGroup ? 1 : 0) + (priceKey !== 'all' ? 1 : 0) + (powerKey !== 'all' ? 1 : 0);
   const formatPrice = (p: number) => (p > 0 ? `€ ${p.toLocaleString('de-DE')}` : 'Fiyat sorun');
 
   const clearAll = () => {
-    setCategory(''); setPriceKey('all'); setPowerKey('all'); setQuery(''); resetPage();
-    const next = new URLSearchParams(searchParams); next.delete('cat'); next.delete('q');
+    setCategory(''); setSubGroup(''); setPriceKey('all'); setPowerKey('all'); setQuery(''); resetPage();
+    const next = new URLSearchParams(searchParams); next.delete('cat'); next.delete('sub'); next.delete('q');
     setSearchParams(next, { replace: true });
   };
 
@@ -205,7 +238,7 @@ export default function ShopPage() {
             }`}
           >
             <span className="flex items-center gap-2"><Store size={15} /> Tüm Ürünler</span>
-            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${!category ? 'bg-brand-red/15 text-brand-red' : 'bg-slate-100 text-slate-400'}`}>{allItems.length.toLocaleString('de-DE')}</span>
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md ${!category ? 'bg-brand-red/15 text-brand-red' : 'bg-slate-100 text-slate-400'}`}>{browseItems.length.toLocaleString('de-DE')}</span>
           </button>
           {CATEGORIES.filter((c) => c.count > 0).map((cat) => {
             const Icon = iconMap[cat.icon] || Package;
@@ -225,6 +258,41 @@ export default function ShopPage() {
           })}
         </div>
       </div>
+
+      {/* Alt Grup (üretici serisi / tipi) — yalnızca kategori seçiliyken */}
+      {category && subGroups.length > 0 && (
+        <>
+          <div className="h-px bg-slate-100" />
+          <div>
+            {sectionTitle('Alt Grup')}
+            <div className="space-y-0.5 max-h-[280px] overflow-y-auto pr-1 -mr-1 [scrollbar-width:thin]">
+              <button
+                onClick={() => setSub('')}
+                className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[13px] font-bold transition-all ${
+                  !subGroup ? 'bg-brand-red/10 text-brand-red' : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <span>Alle Gruppen</span>
+              </button>
+              {subGroups.map((sg) => {
+                const isActive = subGroup === sg.id;
+                return (
+                  <button
+                    key={sg.id}
+                    onClick={() => setSub(isActive ? '' : sg.id)}
+                    className={`w-full flex items-center justify-between gap-2 px-2.5 py-2 rounded-lg text-[13px] font-semibold transition-all ${
+                      isActive ? 'bg-brand-red/10 text-brand-red' : 'text-slate-600 hover:bg-slate-100'
+                    }`}
+                  >
+                    <span className="truncate">{sg.label}</span>
+                    <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-md shrink-0 ${isActive ? 'bg-brand-red/15 text-brand-red' : 'bg-slate-100 text-slate-400'}`}>{sg.count}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </>
+      )}
 
       <div className="h-px bg-slate-100" />
 
@@ -373,10 +441,15 @@ export default function ShopPage() {
                   <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 items-start">
                     {pageItems.map((item: EquipmentItem) => {
                       const added = cartIds.has(item.id);
+                      const inCompare = compareIds.has(item.id);
                       return (
                         <div
                           key={item.id}
-                          className="group bg-white border border-slate-200/70 rounded-2xl overflow-hidden hover:shadow-[0_18px_40px_-22px_rgba(15,36,64,0.45)] hover:border-brand-red/30 hover:-translate-y-1 transition-all duration-300 flex flex-col"
+                          onClick={() => openDetail(item)}
+                          role="button"
+                          tabIndex={0}
+                          onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openDetail(item); } }}
+                          className="group bg-white border border-slate-200/70 rounded-2xl overflow-hidden hover:shadow-[0_18px_40px_-22px_rgba(15,36,64,0.45)] hover:border-brand-red/30 hover:-translate-y-1 transition-all duration-300 flex flex-col cursor-pointer"
                         >
                           {/* Görsel — sabit yükseklik (tüm kartlar eşit) */}
                           <div className="relative h-44 bg-gradient-to-b from-white to-slate-50 p-4 flex items-center justify-center shrink-0">
@@ -388,6 +461,20 @@ export default function ShopPage() {
                                 TOP
                               </span>
                             )}
+                            {/* Karşılaştır toggle */}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); toggleCompare(equipmentToCompareItem(item)); }}
+                              title={inCompare ? 'Karşılaştırmadan çıkar' : 'Karşılaştır'}
+                              aria-label="Karşılaştır"
+                              aria-pressed={inCompare}
+                              className={`absolute bottom-2.5 right-2.5 z-10 w-8 h-8 rounded-lg flex items-center justify-center shadow-sm transition-all ${
+                                inCompare
+                                  ? 'bg-brand-red text-white'
+                                  : 'bg-white/85 backdrop-blur border border-slate-200 text-slate-500 hover:text-brand-red hover:border-brand-red/40'
+                              }`}
+                            >
+                              <GitCompareArrows size={15} />
+                            </button>
                             <ProductImage src={item.img} alt={item.name} />
                           </div>
 
@@ -427,7 +514,7 @@ export default function ShopPage() {
 
                             {/* buton — en altta, tüm kartlarda hizalı */}
                             <button
-                              onClick={() => { added ? removeItem(item.id) : addItem(item); }}
+                              onClick={(e) => { e.stopPropagation(); added ? removeItem(item.id) : addItem(item); }}
                               className={`mt-3 w-full py-2.5 rounded-xl text-[11px] font-black tracking-[0.06em] uppercase transition-all cursor-pointer inline-flex items-center justify-center gap-1.5 ${
                                 added
                                   ? 'bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100'

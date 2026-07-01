@@ -2,56 +2,17 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useCartStore } from '../stores/cartStore';
-import { useOrderStore, type OrderItem } from '../stores/orderStore';
+import { useOrderStore, type OrderItem, getUserInfo } from '../stores/orderStore';
 import { CATEGORIES } from '../stores/equipmentStore';
 import {
   ShoppingCart, Trash2, Plus, Minus, Package,
   Phone, Mail, Globe, MapPin, ChevronDown, ChevronRight,
   FileText, Send, Euro, CheckCircle, X, Lock, Sparkles, Check
 } from 'lucide-react';
-import { jsPDF } from 'jspdf';
 import { useAuthStore } from '../stores/authStore';
 import { EmptyState, EmptyCartIllustration } from './illustrations/EmptyState';
-import { IMAGE_PROXY_URL } from '../lib/assets';
-import { ensurePdfFont } from '../lib/pdfFont';
-
-const COMPANY_INFO = {
-  name: '2MC Werbung & Gastro GmbH',
-  address: 'Musterstraße 12, 10115 Berlin, Deutschland',
-  phone: '+49 30 1234 5678',
-  email: 'info@2mcgastro.de',
-  website: 'www.2mcgastro.de',
-  vat: 'DE365660948',
-  tagline: 'Alles aus einer Hand. Für deine Küche.',
-};
-
-// Load an image URL → base64 dataURL (routes cross-origin through proxy)
-async function loadImageAsDataURL(src: string): Promise<string | null> {
-  if (!src) return null;
-  // Already a base64 data URL → use directly, no network.
-  if (src.startsWith('data:')) return src;
-  const url = src.startsWith('http') ? src : window.location.origin + (src.startsWith('/') ? '' : '/') + src;
-
-  // For cross-origin URLs, use proxy to avoid CORS issues
-  const fetchUrl = url.startsWith(window.location.origin) ? url : `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}`;
-
-  try {
-    // Timeout so a slow/unreachable image (or proxy) can NEVER hang the PDF.
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 7000);
-    const res = await fetch(fetchUrl, { signal: controller.signal }).finally(() => clearTimeout(timer));
-    if (!res.ok) throw new Error('fetch failed');
-    const blob = await res.blob();
-    return await new Promise<string | null>((resolve) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = () => resolve(null);
-      reader.readAsDataURL(blob);
-    });
-  } catch {
-    return null;
-  }
-}
+import { COMPANY_INFO } from '../lib/companyInfo';
+import { buildAngebotPdf, type DocLine } from '../lib/angebotPdf';
 
 function ProductImage({ src, alt }: { src: string; alt: string }) {
   const [err, setErr] = useState(false);
@@ -88,14 +49,22 @@ export default function Cart() {
   const { items, removeItem, updateQuantity, clearCart, getTotalItems, getTotalPrice, getItemsByCategory } = useCartStore();
   const { createOrder } = useOrderStore();
   const [collapsed, setCollapsed] = useState<Record<string, boolean>>({});
-  const [offerSent, setOfferSent] = useState(false);
   const [pdfLoading, setPdfLoading] = useState(false);
   const [orderModal, setOrderModal] = useState(false);
+  // Aynı onay modalı iki işi görür: gerçek sipariş ('order') ve teklif talebi ('quote').
+  const [modalMode, setModalMode] = useState<'order' | 'quote'>('order');
   const [orderNotes, setOrderNotes] = useState('');
+  const [custName, setCustName] = useState(() => getUserInfo().fullName || '');
+  const [custPhone, setCustPhone] = useState('');
   const [orderLoading, setOrderLoading] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
+  const [quoteSuccess, setQuoteSuccess] = useState(false);
   const [orderError, setOrderError] = useState('');
   const [paywallOpen, setPaywallOpen] = useState(false);
+  const [clearConfirm, setClearConfirm] = useState(false);
+
+  const openOrderModal = () => { setModalMode('order'); setOrderError(''); setOrderModal(true); };
+  const openQuoteModal = () => { setModalMode('quote'); setOrderError(''); setOrderModal(true); };
 
   // Premium gate — PDF Teklif yalnızca 'pro' abonelik için açıktır
   const user = useAuthStore((s) => s.user);
@@ -109,10 +78,14 @@ export default function Cart() {
     exportPDF();
   };
 
+  // Sipariş VE teklif talebini tek akış üretir. İkisi de gastro_orders'a kayıt
+  // açar + şirkete WhatsApp bildirir (createOrder içinde). Fark: teklif talebinde
+  // sepet KORUNUR, yönlendirme yoktur; not "Teklif Talebi" ile işaretlenir.
   const handleCreateOrder = async () => {
     setOrderLoading(true);
     setOrderError('');
     try {
+      const isQuote = modalMode === 'quote';
       const orderItems: OrderItem[] = items.map((i) => ({
         product_id: i.product.id,
         name: i.product.name,
@@ -122,19 +95,35 @@ export default function Cart() {
         category: i.product.cat || '',
         brand: i.product.brand || '',
       }));
-      console.log('Creating order with', orderItems.length, 'items, total:', getTotalPrice());
-      const result = await createOrder(orderItems, getTotalPrice(), getTotalItems(), orderNotes);
-      console.log('Order result:', result);
+
+      // Yapılı not — WhatsApp/PDF müşteri bloğunu doldurur (parseOrderNotes ayrıştırır).
+      const info = getUserInfo();
+      const notes = [
+        isQuote ? 'Teklif Talebi' : '',
+        (custName || info.fullName) ? `Teslimat: ${custName || info.fullName}` : '',
+        info.company ? `Firma: ${info.company}` : '',
+        custPhone ? `Tel: ${custPhone}` : '',
+        orderNotes.trim(),
+      ].filter(Boolean).join(' | ');
+
+      const result = await createOrder(orderItems, getTotalPrice(), getTotalItems(), notes);
       setOrderLoading(false);
       if (result) {
         setOrderModal(false);
-        setOrderSuccess(true);
         setOrderNotes('');
-        clearCart();
-        setTimeout(() => {
-          setOrderSuccess(false);
-          navigate('/orders');
-        }, 2500);
+        setCustPhone('');
+        if (isQuote) {
+          // Teklif talebi: sepet KORUNUR, sayfa değişmez — sadece onay göster.
+          setQuoteSuccess(true);
+          setTimeout(() => setQuoteSuccess(false), 4500);
+        } else {
+          setOrderSuccess(true);
+          clearCart();
+          setTimeout(() => {
+            setOrderSuccess(false);
+            navigate('/orders');
+          }, 2500);
+        }
       } else {
         setOrderError(t('cart.orderCreateFailed'));
       }
@@ -159,7 +148,7 @@ export default function Cart() {
   const toggleCollapse = (cat: string) =>
     setCollapsed(prev => ({ ...prev, [cat]: !prev[cat] }));
 
-  // ─── PDF Export ────────────────────────────────────────────────────────────
+  // ─── PDF Export (ortak Angebot/Teklif şablonu) ──────────────────────────────
   const exportPDF = async () => {
     // Nakliye gideri — her PDF dışa aktarımında MUTLAKA sorulur. Varsayılan
     // 500 €; kullanıcı değiştirebilir. İptal edilirse PDF üretilmez.
@@ -171,387 +160,46 @@ export default function Cart() {
     const shipping = Math.max(0, Number(String(shippingInput).replace(',', '.')) || 0);
     setPdfLoading(true);
     try {
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const FONT = await ensurePdfFont(doc); // Unicode font so Turkish/German render correctly
-      const PW = 210; // page width mm
-      const PH = 297; // page height mm
       const quoteNo = `2MC-${Date.now().toString().slice(-6)}`;
-      const dateStr = new Date().toLocaleDateString('tr-TR');
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('de-DE');
+      const validTo = new Date(now);
+      validTo.setDate(validTo.getDate() + 30);
 
-      // ── Load logos ──
-      const [logoFull, logoHolo] = await Promise.all([
-        loadImageAsDataURL('/logo-2mc-gastro-white.png'),
-        loadImageAsDataURL('/logo-2mc-gastro-red.png'),
-      ]);
-
-      // ── Helper: draw hologram watermark on current page ──
-      // Pre-render hologram once as base64 with low opacity
-      let holoPageData: string | null = null;
-      if (logoHolo) {
-        holoPageData = await new Promise<string | null>((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 794;
-            canvas.height = 1123;
-            const ctx = canvas.getContext('2d')!;
-            // Yeni 2MC Gastro logosu — en-boy oranı korunarak sayfanın ortasına
-            // soluk filigran (hologram) olarak yerleştirilir.
-            const w = canvas.width * 0.78;
-            const h = w * (img.naturalHeight / (img.naturalWidth || 1));
-            const x = (canvas.width - w) / 2;
-            const y = (canvas.height - h) / 2;
-            ctx.globalAlpha = 0.05;
-            ctx.drawImage(img, x, y, w, h);
-            resolve(canvas.toDataURL('image/png'));
-          };
-          img.onerror = () => resolve(null);
-          img.src = logoHolo;
+      const lines: DocLine[] = items.map(({ product, quantity }, i) => {
+        const dims = `${product.l}×${product.w}×${product.h} mm`;
+        const sub = [product.id, product.brand, dims, product.kw > 0 ? `${product.kw} kW` : '']
+          .filter(Boolean).join('  ·  ');
+        return {
+          pos: i + 1,
+          name: product.name || '—',
+          sub,
+          qty: quantity,
+          unit: 'Stück',
+          unitPrice: product.price > 0 ? product.price : null,
+          imageUrl: product.url || product.img || null,
+        };
+      });
+      if (shipping > 0) {
+        lines.push({
+          pos: lines.length + 1,
+          name: 'Versandkosten / Nakliye',
+          qty: 1,
+          unit: 'Pauschal',
+          unitPrice: shipping,
         });
       }
-      const drawHologram = () => {
-        if (!holoPageData) return;
-        doc.addImage(holoPageData, 'PNG', 0, 0, PW, PH);
-      };
 
-      // ── Helper: decorative diagonal stripe ──
-      const drawStripe = () => {
-        doc.setFillColor(190, 36, 40);
-        doc.setGState(doc.GState({ opacity: 0.06 }));
-        // Draw 3 thin diagonal bands across page
-        for (let i = 0; i < 3; i++) {
-          const offset = 60 + i * 25;
-          doc.triangle(
-            0, PH - offset,
-            PW + 20, PH - offset - 80,
-            PW + 20, PH - offset - 84,
-            'F'
-          );
-        }
-        doc.setGState(doc.GState({ opacity: 1 }));
-      };
-
-      // ── Page 1 header ──
-      const drawPageHeader = (pageNum: number, totalPages?: number) => {
-        // Red header band
-        doc.setFillColor(147, 19, 21);
-        doc.rect(0, 0, PW, 38, 'F');
-
-        // Red accent stripe
-        doc.setFillColor(190, 36, 40);
-        doc.rect(0, 38, PW, 2, 'F');
-
-        // Logo full (white 2MC Gastro lockup on the red header band)
-        if (logoFull) {
-          doc.addImage(logoFull, 'PNG', 10, 8, 76, 18.1);
-        } else {
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(18);
-          doc.setFont(FONT, 'bold');
-          doc.text('2MC GASTRO', 14, 20);
-        }
-
-        // Firma bilgileri (sağ) — eski yuvarlak logo yerine adres + iletişim.
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
-        doc.setFont(FONT, 'bold');
-        doc.text(COMPANY_INFO.name, PW - 10, 11, { align: 'right' });
-
-        doc.setTextColor(245, 210, 210);
-        doc.setFontSize(6.8);
-        doc.setFont(FONT, 'normal');
-        doc.text(COMPANY_INFO.address, PW - 10, 16, { align: 'right' });
-        doc.text(`Tel: ${COMPANY_INFO.phone}`, PW - 10, 20, { align: 'right' });
-        doc.text(`E-Mail: ${COMPANY_INFO.email}`, PW - 10, 24, { align: 'right' });
-        doc.text(`${COMPANY_INFO.website}  ·  USt: ${COMPANY_INFO.vat}`, PW - 10, 28, { align: 'right' });
-
-        // Page number
-        if (totalPages) {
-          doc.setTextColor(235, 190, 190);
-          doc.setFontSize(7);
-          doc.text(`Sayfa ${pageNum}`, PW - 10, 36, { align: 'right' });
-        }
-      };
-
-      // ── Page 1: cover info ──
-      drawHologram();
-      drawStripe();
-      drawPageHeader(1);
-
-      // Quote title block
-      doc.setFillColor(250, 244, 244);
-      doc.roundedRect(10, 46, PW - 20, 28, 3, 3, 'F');
-      doc.setFillColor(190, 36, 40);
-      doc.roundedRect(10, 46, 4, 28, 2, 2, 'F');
-
-      doc.setTextColor(147, 19, 21);
-      doc.setFontSize(16);
-      doc.setFont(FONT, 'bold');
-      doc.text('TEKLİF  /  ANGEBOT', 20, 57);
-
-      doc.setFontSize(8);
-      doc.setFont(FONT, 'normal');
-      doc.setTextColor(80, 90, 120);
-      doc.text(`Teklif No: ${quoteNo}`, 20, 65);
-      doc.text(`Tarih: ${dateStr}`, 80, 65);
-      doc.text(`Toplam Kalem: ${categoryKeys.length}  |  Toplam Adet: ${totalItems}`, 130, 65);
-
-      // Contact row
-      doc.setFillColor(147, 19, 21);
-      doc.rect(10, 78, PW - 20, 10, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(7.5);
-      const contactY = 85;
-      doc.text(`Tel: ${COMPANY_INFO.phone}`, 14, contactY);
-      doc.text(`E-Mail: ${COMPANY_INFO.email}`, 68, contactY);
-      doc.text(`Web: ${COMPANY_INFO.website}`, 128, contactY);
-      doc.text(`USt: ${COMPANY_INFO.vat}`, 175, contactY);
-
-      let y = 96;
-      let pageNum = 1;
-
-      // Pre-load all product images (try url first, then img)
-      const imgCache: Record<string, string | null> = {};
-      const imgSources = items.map(i => ({
-        key: i.product.id,
-        urls: [i.product.url, i.product.img].filter(Boolean) as string[],
-      }));
-      await Promise.all(
-        imgSources.map(async ({ key, urls }) => {
-          for (const src of urls) {
-            if (imgCache[key]) break;
-            const data = await loadImageAsDataURL(src);
-            if (data) { imgCache[key] = data; break; }
-          }
-          if (!imgCache[key]) imgCache[key] = null;
-        })
+      const doc = await buildAngebotPdf(
+        { kind: 'angebot', number: quoteNo, date: dateStr, validUntil: validTo.toLocaleDateString('de-DE'), recipient: [] },
+        lines,
       );
-
-      // ── Draw items by category ──
-      for (const cat of categoryKeys) {
-        const catItems = grouped[cat];
-        if (!catItems?.length) continue;
-
-        // Space check — add page if needed
-        if (y > 240) {
-          doc.addPage();
-          pageNum++;
-          drawHologram();
-          drawStripe();
-          drawPageHeader(pageNum);
-          y = 48;
-        }
-
-        // Category header
-        doc.setFillColor(147, 19, 21);
-        doc.roundedRect(10, y, PW - 20, 8, 1.5, 1.5, 'F');
-        doc.setFillColor(190, 36, 40);
-        doc.roundedRect(10, y, 3, 8, 1, 1, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(8);
-        doc.setFont(FONT, 'bold');
-        doc.text(getCategoryName(cat).toUpperCase(), 16, y + 5.5);
-        const catTotal = catItems.reduce((s, i) => s + i.quantity * (i.product.price || 0), 0);
-        if (catTotal > 0) {
-          doc.text(formatPrice(catTotal), PW - 12, y + 5.5, { align: 'right' });
-        }
-        y += 11;
-
-        // Column headers
-        doc.setFontSize(7);
-        doc.setFont(FONT, 'bold');
-        doc.setTextColor(100, 110, 140);
-        doc.text('GÖRSEL', 12, y);
-        doc.text('ADET', 32, y);
-        doc.text('ÜRÜN KODU', 42, y);
-        doc.text('ÜRÜN ADI', 78, y);
-        doc.text('BİRİM FİYAT', 158, y, { align: 'right' });
-        doc.text('TOPLAM', PW - 12, y, { align: 'right' });
-        y += 2;
-        doc.setDrawColor(228, 208, 208);
-        doc.line(10, y, PW - 10, y);
-        y += 3;
-
-        // Product rows
-        let rowAlt = false;
-        for (const { product, quantity } of catItems) {
-          const rowH = 18;
-          if (y + rowH > 272) {
-            doc.addPage();
-            pageNum++;
-            drawHologram();
-            drawStripe();
-            drawPageHeader(pageNum);
-            y = 48;
-          }
-
-          // Alternating row background
-          if (rowAlt) {
-            doc.setFillColor(250, 244, 244);
-            doc.rect(10, y - 1, PW - 20, rowH, 'F');
-          }
-          rowAlt = !rowAlt;
-
-          // Product image
-          const imgData = imgCache[product.id] || null;
-          if (imgData) {
-            doc.addImage(imgData, 'PNG', 12, y, 14, 14);
-          } else {
-            doc.setFillColor(230, 235, 245);
-            doc.roundedRect(12, y, 14, 14, 2, 2, 'F');
-            doc.setTextColor(180, 190, 210);
-            doc.setFontSize(6);
-            doc.text('N/A', 19, y + 8, { align: 'center' });
-          }
-
-          // Quantity badge
-          doc.setFillColor(190, 36, 40);
-          doc.roundedRect(30, y + 3, 9, 7, 1.5, 1.5, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(8);
-          doc.setFont(FONT, 'bold');
-          doc.text(String(quantity), 34.5, y + 8.5, { align: 'center' });
-
-          // Product code
-          doc.setTextColor(190, 36, 40);
-          doc.setFontSize(6.5);
-          doc.setFont(FONT, 'bold');
-          doc.text(product.id.substring(0, 22), 42, y + 5);
-
-          // Brand
-          if (product.brand) {
-            doc.setTextColor(140, 150, 170);
-            doc.setFontSize(6);
-            doc.setFont(FONT, 'normal');
-            doc.text(product.brand, 42, y + 11);
-          }
-
-          // Product name
-          doc.setTextColor(147, 19, 21);
-          doc.setFontSize(7.5);
-          doc.setFont(FONT, 'bold');
-          const name = product.name.length > 42 ? product.name.substring(0, 42) + '…' : product.name;
-          doc.text(name, 78, y + 5);
-
-          // Dims & kW
-          doc.setFont(FONT, 'normal');
-          doc.setFontSize(6);
-          doc.setTextColor(120, 130, 155);
-          const dims = `${product.l}×${product.w}×${product.h} mm${product.kw > 0 ? `  |  ${product.kw} kW` : ''}`;
-          doc.text(dims, 78, y + 11);
-
-          // Unit price
-          doc.setTextColor(80, 90, 120);
-          doc.setFontSize(7.5);
-          doc.setFont(FONT, 'normal');
-          doc.text(product.price > 0 ? formatPrice(product.price) : '—', 158, y + 7, { align: 'right' });
-
-          // Line total
-          const lineTotal = quantity * (product.price || 0);
-          doc.setFont(FONT, 'bold');
-          doc.setTextColor(147, 19, 21);
-          doc.text(lineTotal > 0 ? formatPrice(lineTotal) : '—', PW - 12, y + 7, { align: 'right' });
-
-          // Separator line
-          doc.setDrawColor(232, 216, 216);
-          doc.line(10, y + rowH - 1, PW - 10, y + rowH - 1);
-
-          y += rowH;
-        }
-
-        y += 5;
-      }
-
-      // ── Nakliye gideri — her teklifte sabit ek kalem (Versandkosten) ──
-      {
-        if (y + 18 > 272) {
-          doc.addPage(); pageNum++;
-          drawHologram(); drawStripe(); drawPageHeader(pageNum); y = 48;
-        }
-        const rowH = 16;
-        const shipStr = '€' + shipping.toLocaleString('de-DE', { minimumFractionDigits: 2 });
-        doc.setFillColor(250, 244, 244); doc.rect(10, y - 1, PW - 20, rowH, 'F');
-        doc.setFillColor(190, 36, 40); doc.roundedRect(30, y + 3, 9, 7, 1.5, 1.5, 'F');
-        doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont(FONT, 'bold');
-        doc.text('1', 34.5, y + 8.5, { align: 'center' });
-        doc.setTextColor(190, 36, 40); doc.setFontSize(6.5); doc.setFont(FONT, 'bold');
-        doc.text('NAKLİYE', 42, y + 6);
-        doc.setTextColor(147, 19, 21); doc.setFontSize(7.5); doc.setFont(FONT, 'bold');
-        doc.text('Nakliye / Versandkosten', 78, y + 6);
-        doc.setTextColor(80, 90, 120); doc.setFontSize(7.5); doc.setFont(FONT, 'normal');
-        doc.text(shipStr, 158, y + 7, { align: 'right' });
-        doc.setFont(FONT, 'bold'); doc.setTextColor(147, 19, 21);
-        doc.text(shipStr, PW - 12, y + 7, { align: 'right' });
-        doc.setDrawColor(232, 216, 216); doc.line(10, y + rowH - 1, PW - 10, y + rowH - 1);
-        y += rowH;
-      }
-
-      // ── Totals block (nakliye dahil) ──
-      const netWithShip = totalPrice + shipping;
-      if (y + 45 > 272) {
-        doc.addPage();
-        pageNum++;
-        drawHologram();
-        drawStripe();
-        drawPageHeader(pageNum);
-        y = 48;
-      }
-
-      y += 4;
-      doc.setFillColor(250, 244, 244);
-      doc.roundedRect(PW / 2, y, PW / 2 - 10, 40, 3, 3, 'F');
-
-      doc.setFontSize(8);
-      doc.setFont(FONT, 'normal');
-      doc.setTextColor(80, 90, 120);
-      doc.text('Ara Toplam:', PW / 2 + 5, y + 9);
-      doc.text(formatPrice(netWithShip), PW - 12, y + 9, { align: 'right' });
-
-      doc.text('KDV (%19):', PW / 2 + 5, y + 17);
-      doc.text(formatPrice(netWithShip * 0.19), PW - 12, y + 17, { align: 'right' });
-
-      doc.setDrawColor(190, 36, 40);
-      doc.line(PW / 2 + 3, y + 21, PW - 10, y + 21);
-
-      doc.setFillColor(147, 19, 21);
-      doc.roundedRect(PW / 2, y + 23, PW / 2 - 10, 13, 2, 2, 'F');
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(9);
-      doc.setFont(FONT, 'bold');
-      doc.text('GENEL TOPLAM:', PW / 2 + 5, y + 31);
-      doc.text(formatPrice(netWithShip * 1.19), PW - 12, y + 31, { align: 'right' });
-
-      // ── Footer on all pages ──
-      const totalPagesCount = doc.getNumberOfPages();
-      for (let p = 1; p <= totalPagesCount; p++) {
-        doc.setPage(p);
-        doc.setFillColor(147, 19, 21);
-        doc.rect(0, PH - 12, PW, 12, 'F');
-        doc.setFillColor(190, 36, 40);
-        doc.rect(0, PH - 12, PW, 1.5, 'F');
-        doc.setTextColor(245, 210, 210);
-        doc.setFontSize(6.5);
-        doc.setFont(FONT, 'normal');
-        doc.text(
-          `${COMPANY_INFO.name}  ·  ${COMPANY_INFO.address}  ·  ${COMPANY_INFO.phone}  ·  ${COMPANY_INFO.email}`,
-          PW / 2, PH - 6,
-          { align: 'center' }
-        );
-        doc.setTextColor(230, 180, 180);
-        doc.text(`${p} / ${totalPagesCount}`, PW - 12, PH - 6, { align: 'right' });
-      }
-
-      doc.save(`Teklif_2MC_${quoteNo}_${dateStr.replace(/\./g, '-')}.pdf`);
+      doc.save(`Angebot_2MC_${quoteNo}_${dateStr.replace(/\./g, '-')}.pdf`);
     } catch (err) {
       console.error('PDF export error:', err);
     } finally {
       setPdfLoading(false);
     }
-  };
-
-  const handleSendOffer = () => {
-    setOfferSent(true);
-    setTimeout(() => setOfferSent(false), 3000);
   };
 
   if (items.length === 0) {
@@ -573,7 +221,7 @@ export default function Cart() {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <h1 className="text-3xl font-black font-headline text-primary tracking-tight flex items-center gap-3">
-            <ShoppingCart size={28} /> {offerSent ? t('cart.orderQuote') : t('cart.title')}
+            <ShoppingCart size={28} /> {t('cart.title')}
           </h1>
           <p className="text-on-surface-variant font-medium mt-1">{totalItems} {t('common.products')} · {formatPrice(totalPrice)}</p>
         </div>
@@ -597,19 +245,20 @@ export default function Cart() {
             )}
           </button>
           <button
-            onClick={handleSendOffer}
+            onClick={openQuoteModal}
+            title={t('cart.requestQuoteHint', 'Sepetinizi 2MC’ye teklif talebi olarak gönderin')}
             className="bg-primary hover:bg-primary/90 text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
           >
-            {offerSent ? t('cart.sent') : <><Send size={16} /> {t('cart.requestQuote')}</>}
+            <Send size={16} /> {t('cart.requestQuote')}
           </button>
           <button
-            onClick={() => setOrderModal(true)}
+            onClick={openOrderModal}
             className="bg-success hover:bg-success/90 text-white px-5 py-2.5 rounded-lg font-headline font-bold text-sm flex items-center gap-2 transition-all shadow-sm"
           >
             <Package size={16} /> {t('cart.placeOrder')}
           </button>
           <button
-            onClick={clearCart}
+            onClick={() => setClearConfirm(true)}
             className="text-error hover:bg-error-container px-4 py-2.5 rounded-lg font-bold text-sm flex items-center gap-2 transition-all"
           >
             <Trash2 size={16} /> {t('cart.clearCart')}
@@ -752,9 +401,9 @@ export default function Cart() {
         </div>
       </div>
 
-      {offerSent && (
-        <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 bg-success text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm flex items-center gap-2 z-50">
-          <Send size={16} /> {t('cart.quoteSent')}
+      {quoteSuccess && (
+        <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 bg-primary text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm flex items-center gap-2 z-50">
+          <CheckCircle size={16} /> {t('cart.quoteRequestSent', 'Teklif talebiniz alındı! En kısa sürede size dönüş yapılacak.')}
         </div>
       )}
 
@@ -764,22 +413,44 @@ export default function Cart() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 p-6 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-headline font-black text-on-surface flex items-center gap-2">
-                <Package size={20} className="text-success" /> {t('cart.confirmOrderTitle')}
+                {modalMode === 'quote'
+                  ? <><Send size={20} className="text-primary" /> {t('cart.requestQuote')}</>
+                  : <><Package size={20} className="text-success" /> {t('cart.confirmOrderTitle')}</>}
               </h2>
               <button onClick={() => setOrderModal(false)} className="p-1 hover:bg-surface-container-high rounded-full">
                 <X size={18} />
               </button>
             </div>
+            {modalMode === 'quote' && (
+              <p className="text-xs text-on-surface-variant -mt-1">
+                {t('cart.quoteModalHint', 'Talebiniz 2MC’ye iletilir, en kısa sürede dönüş yapılır. Sepetiniz korunur.')}
+              </p>
+            )}
             <div className="bg-surface-container-highest rounded-lg p-4 space-y-2 text-sm">
               <div className="flex justify-between"><span className="text-on-surface-variant">{t('cart.itemCount')}</span><span className="font-bold">{totalItems}</span></div>
               <div className="flex justify-between"><span className="text-on-surface-variant">{t('common.subtotal')}</span><span className="font-mono">{formatPrice(totalPrice)}</span></div>
               <div className="flex justify-between"><span className="text-on-surface-variant">{t('common.vat')} (19%)</span><span className="font-mono">{formatPrice(totalPrice * 0.19)}</span></div>
               <div className="border-t pt-2 flex justify-between font-bold text-primary"><span>{t('common.total')}</span><span>{formatPrice(totalPrice * 1.19)}</span></div>
             </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <input
+                value={custName}
+                onChange={(e) => setCustName(e.target.value)}
+                placeholder={t('cart.fieldName', 'Ad Soyad / Firma')}
+                className="bg-surface-container-highest border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary outline-none"
+              />
+              <input
+                value={custPhone}
+                onChange={(e) => setCustPhone(e.target.value)}
+                placeholder={t('cart.fieldPhone', 'Telefon')}
+                inputMode="tel"
+                className="bg-surface-container-highest border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary outline-none"
+              />
+            </div>
             <textarea
               value={orderNotes}
               onChange={(e) => setOrderNotes(e.target.value)}
-              placeholder={t('cart.orderNotePlaceholder')}
+              placeholder={modalMode === 'quote' ? t('cart.quoteNotePlaceholder', 'Not (opsiyonel) — adres, teslim tarihi, özel istek…') : t('cart.orderNotePlaceholder')}
               className="w-full bg-surface-container-highest border-none rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary outline-none resize-none h-20"
             />
             {orderError && (
@@ -797,10 +468,12 @@ export default function Cart() {
               <button
                 onClick={handleCreateOrder}
                 disabled={orderLoading}
-                className="flex-1 py-2.5 rounded-lg bg-success hover:bg-success/90 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60"
+                className={`flex-1 py-2.5 rounded-lg text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-60 ${modalMode === 'quote' ? 'bg-primary hover:bg-primary/90' : 'bg-success hover:bg-success/90'}`}
               >
                 {orderLoading ? (
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : modalMode === 'quote' ? (
+                  <><Send size={16} /> {t('cart.requestQuote')}</>
                 ) : (
                   <><CheckCircle size={16} /> {t('cart.confirmOrder')}</>
                 )}
@@ -814,6 +487,34 @@ export default function Cart() {
       {orderSuccess && (
         <div className="fixed bottom-24 md:bottom-8 left-1/2 -translate-x-1/2 bg-success text-white px-6 py-3 rounded-full shadow-lg font-bold text-sm flex items-center gap-2 z-50">
           <CheckCircle size={16} /> {t('cart.orderSuccess')}
+        </div>
+      )}
+
+      {/* Sepeti Temizle — onay (yanlışlıkla silmeyi önler) */}
+      {clearConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40" onClick={() => setClearConfirm(false)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm mx-4 p-6 space-y-4" onClick={(e) => e.stopPropagation()}>
+            <h2 className="text-lg font-headline font-black text-on-surface flex items-center gap-2">
+              <Trash2 size={20} className="text-error" /> {t('cart.clearCart')}
+            </h2>
+            <p className="text-sm text-on-surface-variant">
+              {t('cart.clearConfirm', 'Sepetteki tüm ürünler kaldırılacak. Emin misiniz?')}
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setClearConfirm(false)}
+                className="flex-1 py-2.5 rounded-lg border border-outline-variant/30 text-on-surface-variant font-bold text-sm hover:bg-surface-container-low transition-colors"
+              >
+                {t('common.cancel')}
+              </button>
+              <button
+                onClick={() => { clearCart(); setClearConfirm(false); }}
+                className="flex-1 py-2.5 rounded-lg bg-error hover:bg-error/90 text-white font-bold text-sm flex items-center justify-center gap-2 transition-colors"
+              >
+                <Trash2 size={16} /> {t('cart.clearConfirmYes', 'Evet, temizle')}
+              </button>
+            </div>
+          </div>
         </div>
       )}
 

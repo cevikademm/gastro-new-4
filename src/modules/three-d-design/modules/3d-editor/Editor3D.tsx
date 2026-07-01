@@ -39,6 +39,7 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 
 import { useProjectStore } from '../../store';
 import { MM_TO_THREE, projectToScene, THREE_TO_MM } from '../../core/to3d';
+import { flipPointY, flipEquipPlacement } from '../../core/renderSpace';
 import { useEditor2DState } from '../2d-editor/state/editorState';
 import { SceneManager } from './scene/SceneManager';
 import { buildStaticScene } from './builders/sceneBuilders';
@@ -76,6 +77,10 @@ export default function Editor3D() {
   const equipmentRootRef = useRef<THREE.Group | null>(null);
   /** Cache: equipmentId → loaded Object3D in equipmentRoot. */
   const equipmentCacheRef = useRef<Map<string, THREE.Object3D>>(new Map());
+  /** Görsel imza: equipmentId → sig (renk/footprint/yükseklik/catalogId). Değişince
+   *  mevcut mesh yeniden kurulur (cache yalnız id ekle/çıkar diff'ler; bu görünüm
+   *  değişimlerini de yakalar). */
+  const equipmentSigRef = useRef<Map<string, string>>(new Map());
   /** Wall/vertex content signature last processed by re-containment. */
   const lastWallSigRef = useRef<string>('');
   /** GLB footprint'i gerçek ölçüye göre düzeltilen ürün id'leri (tek sefer). */
@@ -179,10 +184,16 @@ export default function Editor3D() {
       // Son yönelimi ZXY euler olarak çöz, store'a TEK update yaz (undo/redo
       // tek adım). Sahnedeki nesne zaten doğru yönde; store ↔ görsel tutarlı
       // kalsın diye kanonik re-seat'i hemen elle uygularız.
-      const { yaw, tiltX, tiltY } = readZXY(obj);
+      const { yaw: renderYaw, tiltX, tiltY } = readZXY(obj);
+      // obj render min-köşesi (mm). Döndürme render min-köşe etrafında olduğundan
+      // konum değişmez; ama render→domain yansıması konum+yaw'ı BİRLİKTE çevirir.
+      const rxMm = obj.position.x * THREE_TO_MM;
+      const ryMm = obj.position.y * THREE_TO_MM;
       useProjectStore.getState().update((d) => {
         const e = d.equipment[eqId];
         if (!e) return;
+        const dom = flipEquipPlacement(rxMm, ryMm, renderYaw, e.footprint.width, e.footprint.depth);
+        const yaw = dom.yaw;
         e.rotation = yaw;
         e.tiltX = tiltX;
         e.tiltY = tiltY;
@@ -195,7 +206,7 @@ export default function Editor3D() {
           Object.values(d.equipment).filter((o) => o.id !== eqId),
         );
         const resolved = resolveCollision(
-          { x: e.position.x, y: e.position.y },
+          { x: dom.x, y: dom.y },
           yaw,
           e.footprint.width,
           e.footprint.depth,
@@ -259,33 +270,44 @@ export default function Editor3D() {
       const heightMm = parseHeightMm(item.h);
       const category = mapEquipmentCategory(item.cat);
       const mount = defaultMountFor(category);
+      // render → domain: Y'yi geri yansıt (bkz. renderSpace.ts).
       let xMm = local.x * THREE_TO_MM - item.l / 2;
-      let yMm = local.y * THREE_TO_MM - item.w / 2;
+      let yMm = flipPointY(local.y * THREE_TO_MM) - item.w / 2;
       let rotation = 0;
       const zMm = defaultZForMount(mount);
 
       const project = useProjectStore.getState().project;
-      // Yeni ürün yalnızca kendi yükseklik bandındaki ürünlerle çakışsın
+      // Yeni ürünün overlap izni katalog varsayılanından gelir (yoksa undefined/false).
+      const allowOverlap = getCatalogEntry(item.id)?.allowOverlap;
+      // Yalnızca kendi yükseklik bandındaki + overlap-izinSİZ ürünler çakışsın
       // (tezgah üstüne mikrodalga / range üstüne davlumbaz serbest kalsın).
-      const others = othersAtHeight(zMm, heightMm, Object.values(project.equipment));
+      const others = othersAtHeight(zMm, heightMm, Object.values(project.equipment))
+        .filter((o) => !o.allowOverlap);
 
       if (mount === 'wall') {
         // Davlumbaz vb.: en yakın duvara, odaya bakar şekilde yapıştır.
-        const clickCenter = { x: local.x * THREE_TO_MM, y: local.y * THREE_TO_MM };
+        const clickCenter = { x: local.x * THREE_TO_MM, y: flipPointY(local.y * THREE_TO_MM) };
         const mounted = mountToWall(project, clickCenter, item.l, item.w);
         if (mounted) {
           rotation = mounted.rotation;
-          const safe = resolveCollision(mounted.pos, rotation, item.l, item.w, others, null);
-          xMm = safe.x;
-          yMm = safe.y;
+          const pos = allowOverlap
+            ? mounted.pos
+            : resolveCollision(mounted.pos, rotation, item.l, item.w, others, null);
+          xMm = pos.x;
+          yMm = pos.y;
         }
       } else {
-        // Edge-snap to neighbours, then push out of any overlap. New items
-        // never spawn inside existing ones — kesin kural.
-        const snapped = snapToEdges({ x: xMm, y: yMm }, 0, item.l, item.w, others, null, 50);
-        const safe = resolveCollision(snapped, 0, item.l, item.w, others, null);
-        // Yakın duvara yapıştır (yanaşma), sonra oda duvarlarının dışına taşmasın.
-        const snappedWall = snapFloorItemToWalls(project, safe, 0, item.l, item.w);
+        // Overlap'e izinli DEĞİLSE: komşuya yanaş, örtüşmeyi it. (İzinliyse üst üste serbest.)
+        let px = xMm;
+        let py = yMm;
+        if (!allowOverlap) {
+          const snapped = snapToEdges({ x: px, y: py }, 0, item.l, item.w, others, null, 50);
+          const safe = resolveCollision(snapped, 0, item.l, item.w, others, null);
+          px = safe.x;
+          py = safe.y;
+        }
+        // Yakın duvara yapıştır (yanaşma), sonra oda duvarlarının dışına taşmasın (HER ZAMAN).
+        const snappedWall = snapFloorItemToWalls(project, { x: px, y: py }, 0, item.l, item.w);
         const contained = containFloorItem(project, snappedWall, 0, item.l, item.w);
         xMm = contained.x;
         yMm = contained.y;
@@ -300,6 +322,7 @@ export default function Editor3D() {
         mount,
         footprint: { width: item.l, depth: item.w },
         heightMm,
+        allowOverlap,
       });
 
       // Multi-place with Shift; otherwise disarm.
@@ -317,7 +340,7 @@ export default function Editor3D() {
       const f = useEditor2DState.getState().focusWorld;
       if (f) {
         const wp = m.contentRoot.localToWorld(
-          new THREE.Vector3(f.x * MM_TO_THREE, f.y * MM_TO_THREE, 0),
+          new THREE.Vector3(f.x * MM_TO_THREE, flipPointY(f.y) * MM_TO_THREE, 0),
         );
         m.focusOn(wp, { duration: 0 });
         firstFitDoneRef.current = true; // odak korunsun, otomatik sığdırma ezmesin
@@ -330,7 +353,7 @@ export default function Editor3D() {
         const local = m.contentRoot.worldToLocal(m.getTarget());
         useEditor2DState.getState().setFocusWorld({
           x: local.x * THREE_TO_MM,
-          y: local.y * THREE_TO_MM,
+          y: flipPointY(local.y * THREE_TO_MM),
         });
       } catch { /* yoksay */ }
       controllerRef.current = null;
@@ -338,6 +361,7 @@ export default function Editor3D() {
       staticRootRef.current = null;
       equipmentRootRef.current = null;
       equipmentCacheRef.current.clear();
+      equipmentSigRef.current.clear();
       dom.removeEventListener('pointerdown', onPlaceClick, { capture: true });
       window.removeEventListener('keydown', onGizmoKeyDown);
       window.removeEventListener('keyup', onGizmoKeyUp);
@@ -428,6 +452,7 @@ export default function Editor3D() {
         equipmentRoot.remove(obj);
         disposeObject(obj);
         cache.delete(id);
+        equipmentSigRef.current.delete(id);
       }
     }
 
@@ -440,8 +465,18 @@ export default function Editor3D() {
         // durumda; kanonik re-seat onu un-bake eder, o yüzden ATLA. Gizmo bırakınca
         // (reseatAndRebake) zaten elle kanonik konuma getiriyoruz.
         if (gizmoAttachedIdRef.current === id) continue;
-        reseatCanonical(existing, eq);
-        continue;
+        // Görsel imza (renk/footprint/yükseklik/catalogId) değiştiyse mesh'i baştan
+        // kur — cache yalnız id ekle/çıkar diff'ler, bu değişimleri yakalamaz.
+        if (equipmentSigRef.current.get(id) !== equipmentSig(eq)) {
+          equipmentRoot.remove(existing);
+          disposeObject(existing);
+          cache.delete(id);
+          equipmentSigRef.current.delete(id);
+          // aşağıdaki yeniden-kurma yollarına düş (continue YOK)
+        } else {
+          reseatCanonical(existing, eq);
+          continue;
+        }
       }
 
       // Async build — first try GLB catalog (legacy), then product image box.
@@ -451,12 +486,13 @@ export default function Editor3D() {
           const { group } = await loadEquipment(glbEntry);
           if (!equipmentRootRef.current) return;
           if (!useProjectStore.getState().project.equipment[id]) return;
+          const rGlb = flipEquipPlacement(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth);
           group.position.set(
-            eq.position.x * MM_TO_THREE,
-            eq.position.y * MM_TO_THREE,
+            rGlb.x * MM_TO_THREE,
+            rGlb.y * MM_TO_THREE,
             eq.position.z * MM_TO_THREE,
           );
-          group.rotation.z = eq.rotation;
+          group.rotation.z = rGlb.yaw;
           group.userData = { equipmentId: id, kind: 'equipment', catalogId: glbEntry.id };
           // Pivot at footprint bottom-center so tilt rotates a real-object
           // axis (not the back-left corner). Children are pre-shifted to
@@ -468,6 +504,7 @@ export default function Editor3D() {
           equipmentRoot.add(group);
           seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
+          equipmentSigRef.current.set(id, equipmentSig(eq));
 
           // GLB footprint düzeltmesi (tek sefer): çarpışma görselle uyuşsun.
           // loadEquipment uniform ölçekleme yapar; kayıtlı footprint gerçek
@@ -500,18 +537,25 @@ export default function Editor3D() {
       const item = useEquipmentStore.getState().getItemById(eq.catalogId);
       if (item) {
         void (async () => {
+          const rPm = flipEquipPlacement(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth);
           const group = await buildProductMesh(item, {
             equipmentId: id,
-            positionMm: eq.position,
-            rotationRad: eq.rotation,
+            positionMm: { x: rPm.x, y: rPm.y, z: eq.position.z },
+            rotationRad: rPm.yaw,
             tiltXRad: eq.tiltX ?? 0,
             tiltYRad: eq.tiltY ?? 0,
+            // Kutu ölçüsünü Equipment instance'ından besle → 2B dikdörtgen = 3B kutu.
+            widthMm: eq.footprint.width,
+            depthMm: eq.footprint.depth,
+            heightMm: eq.heightMm,
+            color: eq.color,
           });
           if (!equipmentRootRef.current) return;
           if (!useProjectStore.getState().project.equipment[id]) return;
           equipmentRoot.add(group);
           seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
+          equipmentSigRef.current.set(id, equipmentSig(eq));
         })();
         continue;
       }
@@ -523,6 +567,7 @@ export default function Editor3D() {
       equipmentRoot.add(boxGroup);
       seatOnFloor(boxGroup, eq.position.z * MM_TO_THREE);
       cache.set(id, boxGroup);
+      equipmentSigRef.current.set(id, equipmentSig(eq));
     }
   }, [project.equipment]);
 
@@ -625,7 +670,7 @@ export default function Editor3D() {
       <div ref={hostRef} className="absolute inset-0" />
 
       {/* ── Top toolbar ─────────────────────────────────────────────── */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-1.5 py-1 bg-white/95 backdrop-blur border border-slate-200 rounded-lg shadow-sm">
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5">
         <ToolBtn onClick={fit} title="Sahneye sığdır"><Maximize2 size={14} /></ToolBtn>
         <Sep />
         <ToolBtn onClick={() => setView('iso')} title="İzometri görünüm">
@@ -662,13 +707,13 @@ export default function Editor3D() {
 
       {/* ── Armed banner ───────────────────────────────────────────── */}
       {armedProduct && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white text-xs rounded-lg shadow-md z-10">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-brand-red text-white text-[11px] shadow-lg shadow-slate-900/10 z-10">
           <span className="font-semibold">{armedProduct.name}</span>
           <span className="opacity-80">· yerleştirmek için zemine tıklayın</span>
           <span className="opacity-60">· Shift+klik = ardışık</span>
           <button
             onClick={() => setArmedProduct(null)}
-            className="ml-1 p-0.5 rounded hover:bg-white/20"
+            className="ml-1 p-1 rounded-lg hover:bg-white/20 transition"
             aria-label="İptal (Esc)"
             title="İptal (Esc)"
           >
@@ -678,21 +723,21 @@ export default function Editor3D() {
       )}
 
       {/* ── HUD ─────────────────────────────────────────────────────── */}
-      <div className="absolute bottom-3 left-3 px-2 py-1 bg-white/90 border border-slate-200 rounded text-[11px] font-mono text-slate-500 flex items-center gap-2">
-        <Box size={11} /> {wallCount} duvar · {roomCount} oda · {equipmentCount} ekipman
+      <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5 text-[11px] tabular-nums text-slate-500">
+        <Box size={11} className="text-slate-400" /> {wallCount} duvar · {roomCount} oda · {equipmentCount} ekipman
         {selectedEquipmentId && (
-          <span className="ml-2 text-blue-600">
+          <span className="ml-1 text-brand-red font-medium">
             seçili · gövdeyi sürükle (snap + çakışma) · 3B döndürme için ↻ butonu (toolbar / sağ panel) · F / çift tık = odaklan · R 90° · Del sil
           </span>
         )}
       </div>
 
       {/* ── Kontrol ipucu (sağ alt) ─────────────────────────────────── */}
-      <div className="absolute bottom-3 right-3 px-2.5 py-1.5 bg-white/90 border border-slate-200 rounded text-[10px] text-slate-500 flex items-center gap-3 pointer-events-none">
-        <span><b className="text-slate-700">Sol</b> döndür</span>
-        <span><b className="text-slate-700">Sağ</b> taşı</span>
-        <span><b className="text-slate-700">Tekerlek</b> yakınlaş</span>
-        <span><b className="text-slate-700">Çift tık</b> ürüne odaklan</span>
+      <div className="absolute bottom-3 right-3 inline-flex items-center gap-3 px-3 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5 text-[10px] text-slate-500 pointer-events-none">
+        <span><b className="font-semibold text-slate-700">Sol</b> döndür</span>
+        <span><b className="font-semibold text-slate-700">Sağ</b> taşı</span>
+        <span><b className="font-semibold text-slate-700">Tekerlek</b> yakınlaş</span>
+        <span><b className="font-semibold text-slate-700">Çift tık</b> ürüne odaklan</span>
       </div>
 
       {/* ── Equipment catalog panel (rich, search + categories) ─────── */}
@@ -713,7 +758,7 @@ export default function Editor3D() {
 
       {wallCount === 0 && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="bg-white/85 backdrop-blur border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-500 text-center max-w-xs">
+          <div className="rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 px-4 py-3 text-[12px] text-slate-500 text-center max-w-xs">
             Önce 2D editörde bir oda çizin — 3D görünüm canlı güncellenir.
           </div>
         </div>
@@ -774,12 +819,14 @@ function seatOnFloor(group: THREE.Object3D, baseZ: number): void {
  * equipment-sync effect and after a gizmo session ends.
  */
 function reseatCanonical(group: THREE.Object3D, eq: import('../../core/types').Equipment): void {
+  // 2D↔3D aynalama: domain yerleşimini render uzayına yansıt (bkz. renderSpace.ts).
+  const r = flipEquipPlacement(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth);
   group.position.set(
-    eq.position.x * MM_TO_THREE,
-    eq.position.y * MM_TO_THREE,
+    r.x * MM_TO_THREE,
+    r.y * MM_TO_THREE,
     eq.position.z * MM_TO_THREE,
   );
-  group.rotation.set(0, 0, eq.rotation); // yaw only on the outer group
+  group.rotation.set(0, 0, r.yaw); // yaw only on the outer group
   const pivot = group.userData?.pivot as THREE.Object3D | undefined;
   if (pivot) {
     pivot.rotation.x = eq.tiltX ?? 0;
@@ -798,6 +845,21 @@ function reseatAndRebake(group: THREE.Object3D, eq: import('../../core/types').E
   bakeTiltIntoOuter(group);
 }
 
+/**
+ * Bir ekipmanın GÖRSEL imzası — değişince 3B mesh'in yeniden kurulması gerekenler:
+ * renk, footprint, yükseklik, catalogId. Konum/dönüş/tilt mesh'i yeniden kurmadan
+ * güncellendiği için imzaya DAHİL DEĞİL.
+ */
+function equipmentSig(eq: import('../../core/types').Equipment): string {
+  return [
+    eq.color ?? '',
+    eq.footprint.width,
+    eq.footprint.depth,
+    eq.heightMm,
+    eq.catalogId,
+  ].join('|');
+}
+
 function buildFallbackBox(
   id: string,
   eq: import('../../core/types').Equipment,
@@ -807,7 +869,7 @@ function buildFallbackBox(
   const h = eq.heightMm * MM_TO_THREE;
   const geom = new THREE.BoxGeometry(w, d, h);
   const mat = new THREE.MeshStandardMaterial({
-    color: 0xc0c5cc,
+    color: eq.color ?? 0xc0c5cc,
     roughness: 0.5,
     metalness: 0.4,
   });
@@ -825,12 +887,13 @@ function buildFallbackBox(
   pivot.add(mesh);
   group.add(pivot);
   group.userData.pivot = pivot;
+  const r = flipEquipPlacement(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth);
   group.position.set(
-    eq.position.x * MM_TO_THREE,
-    eq.position.y * MM_TO_THREE,
+    r.x * MM_TO_THREE,
+    r.y * MM_TO_THREE,
     eq.position.z * MM_TO_THREE,
   );
-  group.rotation.z = eq.rotation;
+  group.rotation.z = r.yaw;
   return group;
 }
 
@@ -945,8 +1008,10 @@ function ToolBtn({
       onClick={onClick}
       title={title}
       className={[
-        'inline-flex items-center justify-center w-7 h-7 rounded text-xs transition-colors',
-        active ? 'bg-primary text-white' : 'text-slate-600 hover:bg-slate-100',
+        'inline-flex items-center justify-center h-9 w-9 rounded-xl transition',
+        active
+          ? 'bg-brand-red/10 text-brand-red ring-1 ring-brand-red/20'
+          : 'text-slate-500 hover:bg-slate-100',
       ].join(' ')}
     >
       {children}
@@ -955,5 +1020,5 @@ function ToolBtn({
 }
 
 function Sep() {
-  return <div className="w-px h-5 bg-slate-200 mx-0.5" />;
+  return <div className="w-px h-6 bg-slate-200 mx-0.5" />;
 }

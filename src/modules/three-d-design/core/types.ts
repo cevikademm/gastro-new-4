@@ -128,6 +128,19 @@ export interface Equipment {
   heightMm: number;
   roomId?: RoomId;
   /**
+   * Kullanıcı tarafından seçilen ayırt edici renk (hex `#rrggbb`). Tanımsızsa 2B
+   * görünüm `catalogId`'den deterministik bir ton üretir; tanımlıysa hem 2B
+   * dolgusu hem 3B fallback kutu tonu bunu kullanır (GLB'li ürünler dokusunu korur).
+   */
+  color?: string;
+  /**
+   * `true` ise bu ürün diğer ürünlerle ÜST ÜSTE / iç içe konabilir (ör. tezgah
+   * üstü küçük cihaz). Çakışma çözmesi yalnız ÜRÜN↔ÜRÜN için atlanır; duvar
+   * geçişi ve oda-içi tutma HER ZAMAN uygulanır. Katalogdan varsayılan alınır,
+   * örnek bazında değiştirilebilir.
+   */
+  allowOverlap?: boolean;
+  /**
    * Where the item is anchored. 'floor' (default / undefined for backward
    * compatibility with older saved docs) sits at z=0 on the ground; 'wall'
    * mounts flush against the nearest wall at `position.z` (mounting height),

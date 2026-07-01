@@ -5,18 +5,19 @@ interface CategoryBubblesProps {
   onSelectConcept?: (conceptId: string) => void;
 }
 
-// cat = equipmentStore kategori id'si (mağaza /magaza?cat= ile eşleşir)
+// cat = taksonomi üst kategorisi, sub = alt-grup id'si (categoryTaxonomy).
+// Mağaza /magaza?cat=<cat>&sub=<sub> ile eşleşir.
 const CATEGORIES = [
-  { id: "ovens", cat: "cooking", name: "Öfen", deal: "ab €79/M.", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/50418/conversions/SBET-XC-22-big.jpg" },
+  { id: "ovens", cat: "cooking", sub: "oefen", name: "Öfen", deal: "ab €79/M.", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/50418/conversions/SBET-XC-22-big.jpg" },
   { id: "cooling", cat: "cooling", name: "Kühltechnik", deal: "24-48h", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/57188/conversions/001DT274-R2%2B5-big.jpg" },
-  { id: "mixers", cat: "bakery", name: "Teigtechnik", deal: "B2B", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/62571/conversions/001-PSB2-big.jpg" },
+  { id: "mixers", cat: "pizza_pasta", sub: "teigkneter", name: "Teigtechnik", deal: "B2B", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/62571/conversions/001-PSB2-big.jpg" },
   { id: "dishwash", cat: "dishwash", name: "Spültechnik", deal: "Service", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/73407/conversions/001-DCR49-6-AC-RC-big.jpg" },
-  { id: "ice_makers", cat: "ice_cream", name: "Eisbereiter", deal: "Lagernd", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/71318/conversions/001-ICE300MA-big.jpg" },
-  { id: "displays", cat: "self_service", name: "Vitrinen", deal: "Top Deal", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/76419/conversions/001-AD2N-H2G-R2-big.jpg" },
+  { id: "ice_makers", cat: "cooling", sub: "eiswuerfel", name: "Eisbereiter", deal: "Lagernd", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/71318/conversions/001-ICE300MA-big.jpg" },
+  { id: "displays", cat: "cooling", sub: "vitrinen", name: "Vitrinen", deal: "Top Deal", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/76419/conversions/001-AD2N-H2G-R2-big.jpg" },
   { id: "pizza", cat: "pizza_pasta", name: "Pizza Linie", deal: "Paket", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/12048385/conversions/001-LFD-18L-LX-big.jpg" },
-  { id: "combi", cat: "cooking", name: "Kombidämpfer", deal: "Bestseller", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/50418/conversions/SBET-XC-22-big.jpg" },
-  { id: "cooltables", cat: "cooling", name: "Kühltische", deal: "Profi", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/57188/conversions/001DT274-R2%2B5-big.jpg" },
-  { id: "fryers", cat: "cooking", name: "Fritteusen", deal: "Neu", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/75472/conversions/001-E22-F23CFSA4-AC-big.jpg" },
+  { id: "combi", cat: "cooking", sub: "kombidaempfer", name: "Kombidämpfer", deal: "Bestseller", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/50418/conversions/SBET-XC-22-big.jpg" },
+  { id: "cooltables", cat: "cooling", sub: "kuehltische", name: "Kühltische", deal: "Profi", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/57188/conversions/001DT274-R2%2B5-big.jpg" },
+  { id: "fryers", cat: "cooking", sub: "friteusen", name: "Fritteusen", deal: "Neu", image: "https://diamond-eu-prod.s3.eu-central-1.amazonaws.com/media/75472/conversions/001-E22-F23CFSA4-AC-big.jpg" },
 ];
 
 export function CategoryBubbles({ onSelectConcept }: CategoryBubblesProps) {
@@ -28,7 +29,7 @@ export function CategoryBubbles({ onSelectConcept }: CategoryBubblesProps) {
             {CATEGORIES.map((cat, index) => (
               <motion.button
                 key={`${cat.id}-${index}`}
-                onClick={() => { onSelectConcept?.(cat.id); navigate(`/magaza?cat=${cat.cat}`); }}
+                onClick={() => { onSelectConcept?.(cat.id); navigate(cat.sub ? `/magaza?cat=${cat.cat}&sub=${cat.sub}` : `/magaza?cat=${cat.cat}`); }}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.03, duration: 0.24, ease: "easeOut" }}

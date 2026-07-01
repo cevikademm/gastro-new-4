@@ -2,6 +2,8 @@ import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Layout from './components/Layout';
 import CookieBanner from './components/CookieBanner';
+import ComparePanel from './components/ComparePanel';
+import ProductDetailDrawer from './components/ProductDetailDrawer';
 import { useAuthStore } from './stores/authStore';
 
 // Eager: minimal shell
@@ -48,6 +50,7 @@ const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const BlogAdminPage = lazy(() => import('./pages/admin/BlogAdminPage'));
 const WelcomeOrderPage = lazy(() => import('./pages/admin/WelcomeOrderPage'));
 const CustomerFinderPage = lazy(() => import('./pages/admin/CustomerFinderPage'));
+const ErrorReportsPage = lazy(() => import('./pages/admin/ErrorReportsPage'));
 const BlogListPage = lazy(() => import('./pages/blog/BlogListPage'));
 const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'));
 const KitchenCalculatorPage = lazy(() => import('./pages/tools/KitchenCalculatorPage'));
@@ -176,12 +179,17 @@ export default function App() {
             <Route path="admin/blog"   element={<AdminGuard><BlogAdminPage /></AdminGuard>} />
             <Route path="admin/welcome-order" element={<AdminGuard><WelcomeOrderPage /></AdminGuard>} />
             <Route path="admin/customer-finder" element={<AdminGuard><CustomerFinderPage /></AdminGuard>} />
+            <Route path="admin/error-reports" element={<AdminGuard><ErrorReportsPage /></AdminGuard>} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Suspense>
       </RouteErrorBoundary>
+      {/* Ürün karşılaştırma — tüm sayfalarda (ana sayfa + mağaza dahil) yüzen çubuk/modal */}
+      <ComparePanel />
+      {/* Tek standart ürün detay kartı — mağaza + katalog ortak (sağdan kayan panel) */}
+      <ProductDetailDrawer />
       <CookieBanner />
     </BrowserRouter>
   );

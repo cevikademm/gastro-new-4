@@ -12,7 +12,7 @@ import {
   Ruler, Euro, ExternalLink, Pen, RotateCcw,
   DoorOpen, AppWindow, FileDown, StickyNote, Loader2, Box
 } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import html2canvas from 'html2canvas-pro';
 import { debouncedSyncFloorPlan, loadFloorPlan } from '../lib/gastroSync';
 
 /* ─── Types ─── */

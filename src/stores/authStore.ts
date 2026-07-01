@@ -39,6 +39,12 @@ interface AuthState {
   logout: () => void;
   updateProfile: (data: Partial<User>) => void;
   checkSession: () => Promise<void>;
+  /** Mevcut oturumun şifresini değiştirir (kullanıcının kendi Supabase oturumuyla). */
+  changePassword: (newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  /** Mevcut şifreyi doğrulayıp yeni şifreyi ayarlar (Profil sayfası formu). */
+  changePasswordWithCurrent: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  /** Bu cihaz HARİÇ diğer tüm oturumları (cihazları) kapatır. */
+  logoutOtherSessions: () => Promise<{ success: boolean; error?: string }>;
 }
 
 const defaultUserSettings = {
@@ -173,6 +179,35 @@ export const useAuthStore = create<AuthState>()(
         set((state) => ({
           user: state.user ? { ...state.user, ...data } : null,
         }));
+      },
+
+      changePassword: async (newPassword) => {
+        if (!supabase) return { success: false, error: 'Supabase yapılandırılmamış' };
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) return { success: false, error: error.message };
+        return { success: true };
+      },
+
+      changePasswordWithCurrent: async (currentPassword, newPassword) => {
+        if (!supabase) return { success: false, error: 'Supabase yapılandırılmamış' };
+        const email = get().user?.email;
+        if (!email) return { success: false, error: 'Oturum bulunamadı, lütfen yeniden giriş yapın.' };
+        // 1) Mevcut şifreyi doğrula (Supabase updateUser mevcut şifreyi sormaz;
+        //    bu yüzden yeniden giriş ile doğruluyoruz).
+        const { error: verifyErr } = await supabase.auth.signInWithPassword({ email, password: currentPassword });
+        if (verifyErr) return { success: false, error: 'Mevcut şifreniz hatalı.' };
+        // 2) Yeni şifreyi ayarla
+        const { error } = await supabase.auth.updateUser({ password: newPassword });
+        if (error) return { success: false, error: error.message };
+        return { success: true };
+      },
+
+      // scope: 'others' → mevcut cihaz açık kalır, diğer tüm oturumlar kapanır.
+      logoutOtherSessions: async () => {
+        if (!supabase) return { success: false, error: 'Supabase yapılandırılmamış' };
+        const { error } = await supabase.auth.signOut({ scope: 'others' });
+        if (error) return { success: false, error: error.message };
+        return { success: true };
       },
 
       // Called on app load to check OAuth callback & existing session

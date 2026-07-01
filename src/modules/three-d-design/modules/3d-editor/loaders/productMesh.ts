@@ -133,6 +133,16 @@ export interface ProductMeshOptions {
   rotationRad: number;
   tiltXRad?: number;
   tiltYRad?: number;
+  /**
+   * Kutu ölçüleri (mm) — Equipment instance'ından (footprint/heightMm). 2B üst
+   * görünümdeki dikdörtgen ile 3B kutunun BİREBİR aynı ölçüde olması için
+   * instance'tan geçilir. Verilmezse katalog item ölçülerine düşer.
+   */
+  widthMm?: number;
+  depthMm?: number;
+  heightMm?: number;
+  /** Kullanıcı ayırt edici rengi (hex). Verilirse çelik gövde bu tona boyanır. */
+  color?: string;
 }
 
 /**
@@ -165,9 +175,11 @@ export async function buildProductMesh(
   item: EquipmentItem,
   opts: ProductMeshOptions,
 ): Promise<THREE.Group> {
-  const widthMm = item.l;
-  const depthMm = item.w;
-  const heightMm = parseHeightMm(item.h);
+  // Ölçü kaynağı: Equipment instance (footprint/heightMm) → 2B dikdörtgen = 3B kutu.
+  // Verilmezse katalog item ölçülerine düş (geriye dönük uyum).
+  const widthMm = opts.widthMm ?? item.l;
+  const depthMm = opts.depthMm ?? item.w;
+  const heightMm = opts.heightMm ?? parseHeightMm(item.h);
 
   const w = widthMm * MM_TO_THREE;
   const d = depthMm * MM_TO_THREE;
@@ -189,12 +201,22 @@ export async function buildProductMesh(
   group.add(pivot);
   group.userData.pivot = pivot;
 
-  // ── Body: stainless box ─────────────────────────────────────────────
+  // ── Body: stainless box (veya kullanıcı rengine boyanmış kutu) ──────
   // BoxGeometry face order: 0=+X, 1=-X, 2=+Y, 3=-Y, 4=+Z, 5=-Z.
-  const sideMat = getSteelSide();
-  const materials: THREE.MeshStandardMaterial[] = [
-    sideMat, sideMat, sideMat, sideMat, getSteelTop(), getSteelBottom(),
-  ];
+  let materials: THREE.MeshStandardMaterial[];
+  if (opts.color) {
+    // Ayırt edici renk: paylaşılan çelik singleton'ları KİRLETMEDEN örnek-bazlı
+    // tonlu materyal (aksi halde tüm kutular boyanırdı).
+    const tinted = new THREE.MeshStandardMaterial({
+      color: opts.color,
+      roughness: 0.5,
+      metalness: 0.35,
+    });
+    materials = [tinted, tinted, tinted, tinted, tinted, tinted];
+  } else {
+    const sideMat = getSteelSide();
+    materials = [sideMat, sideMat, sideMat, sideMat, getSteelTop(), getSteelBottom()];
+  }
   const boxGeom = new THREE.BoxGeometry(w, d, h);
   const box = new THREE.Mesh(boxGeom, materials);
   box.castShadow = true;

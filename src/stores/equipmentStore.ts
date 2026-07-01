@@ -2,6 +2,13 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import productsData from '../data/products.json';
 import { debouncedSyncUserPrefs, loadUserPrefs } from '../lib/gastroSync';
+import {
+  resolvedOf,
+  matchesSubGroup,
+  buildIndex,
+  getSubGroupsFor,
+  type SubGroupCount,
+} from '../lib/categoryTaxonomy';
 
 /* ─── Types ─── */
 export interface EquipmentItem {
@@ -49,21 +56,20 @@ export const CATEGORIES: EquipmentCategory[] = [
   { id: 'cleaning_products', name: 'Temizlik Ürünleri', icon: 'droplets', color: '#059669', count: 0 },
 ];
 
-// Count products per category
+// Count products per category — taksonomi çözümlemesine göre (Diamond ham cat +
+// CombiSteel/Hendi anahtar kelime sınıflaması + üreticinin yeniden yerleştirmesi).
 const allItems = productsData as EquipmentItem[];
-const catCounts = new Map<string, number>();
-allItems.forEach(item => {
-  catCounts.set(item.cat, (catCounts.get(item.cat) || 0) + 1);
-});
+const _categoryIndex = buildIndex(allItems);
 CATEGORIES.forEach(c => {
-  c.count = catCounts.get(c.id) || 0;
+  c.count = _categoryIndex.get(c.id)?.count || 0;
 });
 
 /* ─── Helper: filter logic ─── */
+// cat = taksonomi üst kategorisi, sub = alt-grup id'si (categoryTaxonomy).
 function applyFilters(items: EquipmentItem[], cat: string, sub: string, query: string): EquipmentItem[] {
   let filtered = items;
-  if (cat) filtered = filtered.filter(i => i.cat === cat);
-  if (sub) filtered = filtered.filter(i => i.sub === sub);
+  if (cat) filtered = filtered.filter(i => resolvedOf(i).cat === cat);
+  if (cat && sub) filtered = filtered.filter(i => matchesSubGroup(cat, sub, i));
   if (query) {
     const q = query.toLowerCase();
     filtered = filtered.filter(i =>
@@ -96,6 +102,7 @@ interface EquipmentState {
   getItemById: (id: string) => EquipmentItem | undefined;
   getFilteredItems: () => EquipmentItem[];
   getSubranges: () => string[];
+  getSubGroups: () => SubGroupCount[];
   getTotalPages: () => number;
   getAllFiltered: () => EquipmentItem[];
 }
@@ -155,6 +162,13 @@ export const useEquipmentStore = create<EquipmentState>()(
           if (item.cat === selectedCategory && item.sub) subs.add(item.sub);
         });
         return Array.from(subs).sort();
+      },
+
+      // Seçili kategorinin temiz/sıralı alt-grupları + ürün sayıları (taksonomi).
+      getSubGroups: () => {
+        const { allItems, selectedCategory } = get();
+        if (!selectedCategory) return [];
+        return getSubGroupsFor(selectedCategory, allItems);
       },
 
       getTotalPages: () => {

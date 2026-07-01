@@ -87,7 +87,7 @@ function PaymentForm({ amount, onPaid }: { amount: number; onPaid: () => void })
     <form onSubmit={handleSubmit} className="space-y-5">
       <PaymentElement
         options={{
-          layout: { type: 'accordion', defaultCollapsed: false, radios: true, spacedAccordionItems: true },
+          layout: { type: 'accordion', defaultCollapsed: false, radios: 'always', spacedAccordionItems: true },
         }}
       />
 

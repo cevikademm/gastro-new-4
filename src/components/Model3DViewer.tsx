@@ -12,7 +12,7 @@ export function has3DModel(productId?: string | null): boolean {
 }
 
 let modelViewerLoaded = false;
-function loadModelViewerScript() {
+export function loadModelViewerScript() {
   if (modelViewerLoaded || typeof document === 'undefined') return;
   if (document.querySelector('script[data-model-viewer]')) {
     modelViewerLoaded = true;

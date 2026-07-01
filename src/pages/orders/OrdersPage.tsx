@@ -1,13 +1,17 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useOrderStore, getUserInfo, type Order } from '../../stores/orderStore';
+import { useOrderStore, getUserInfo, type Order, type OrderItem } from '../../stores/orderStore';
 import { useAuthStore } from '../../stores/authStore';
+import { useEquipmentStore } from '../../stores/equipmentStore';
 import {
   Package, Search, Filter, ChevronRight, Clock, CheckCircle, Truck,
-  PackageCheck, XCircle, ShoppingCart, Euro, User, Building2, CalendarDays, Hash, Eye
+  PackageCheck, XCircle, ShoppingCart, Euro, User, Building2, CalendarDays, Hash, Eye,
+  MessageCircle, FileText, Loader2, Check, Trash2, AlertTriangle
 } from 'lucide-react';
-import { IMAGE_PROXY_URL } from '../../lib/assets';
+import { proxiedImage } from '../../lib/assets';
+import { sendOrderWhatsapp } from '../../lib/orderWhatsapp';
+import { downloadOrderPdf } from '../../lib/orderPdf';
 
 const STATUS_CONFIG: Record<string, { labelKey: string; color: string; bg: string; icon: typeof Clock }> = {
   pending: { labelKey: 'orders.pending', color: 'text-on-warning-container', bg: 'bg-warning-container border-warning/30', icon: Clock },
@@ -19,15 +23,43 @@ const STATUS_CONFIG: Record<string, { labelKey: string; color: string; bg: strin
 
 export default function OrdersPage() {
   const { t } = useTranslation();
-  const { orders, loading, fetchOrders } = useOrderStore();
+  const { orders, loading, fetchOrders, deleteOrder } = useOrderStore();
   const { user } = useAuthStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [expandedOrder, setExpandedOrder] = useState<string | null>(null);
+  const [actionState, setActionState] = useState<Record<string, { wa?: 'sending' | 'sent' | 'err'; pdf?: 'gen' | 'done' | 'err' }>>({});
+  const [confirmDelete, setConfirmDelete] = useState<Order | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     fetchOrders();
   }, [fetchOrders]);
+
+  const handleWa = async (order: Order) => {
+    setActionState((s) => ({ ...s, [order.id]: { ...s[order.id], wa: 'sending' } }));
+    const r = await sendOrderWhatsapp(order, { force: true });
+    setActionState((s) => ({ ...s, [order.id]: { ...s[order.id], wa: r.ok ? 'sent' : 'err' } }));
+  };
+  const handlePdf = async (order: Order) => {
+    setActionState((s) => ({ ...s, [order.id]: { ...s[order.id], pdf: 'gen' } }));
+    try {
+      await downloadOrderPdf(order);
+      setActionState((s) => ({ ...s, [order.id]: { ...s[order.id], pdf: 'done' } }));
+    } catch {
+      setActionState((s) => ({ ...s, [order.id]: { ...s[order.id], pdf: 'err' } }));
+    }
+  };
+  const handleDelete = async () => {
+    if (!confirmDelete) return;
+    setDeleting(true);
+    const ok = await deleteOrder(confirmDelete.id);
+    setDeleting(false);
+    if (ok) {
+      if (expandedOrder === confirmDelete.id) setExpandedOrder(null);
+      setConfirmDelete(null);
+    }
+  };
 
   const filtered = orders.filter((o) => {
     const matchSearch =
@@ -43,8 +75,11 @@ export default function OrdersPage() {
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  const proxyImg = (url: string) =>
-    url?.startsWith('http') ? `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}` : url;
+  // Satır görseli: kayıtlı image yoksa katalogdan (product_id) geri-doldur.
+  const resolveItemImg = (item: OrderItem): string => {
+    const raw = item.image || useEquipmentStore.getState().getItemById(item.product_id)?.img || '';
+    return raw ? proxiedImage(raw) : '';
+  };
 
   // Summary stats
   const totalRevenue = orders.reduce((s, o) => s + (o.status !== 'cancelled' ? o.total_price : 0), 0);
@@ -136,6 +171,7 @@ export default function OrdersPage() {
           const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.pending;
           const StatusIcon = cfg.icon;
           const isExpanded = expandedOrder === order.id;
+          const st = actionState[order.id];
 
           return (
             <div key={order.id} className="bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_rgba(15,36,64,0.04),0_8px_24px_-12px_rgba(15,36,64,0.06)] border border-outline-variant/40 overflow-hidden hover:border-outline-variant/70 transition-colors">
@@ -219,15 +255,17 @@ export default function OrdersPage() {
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-outline-variant/5">
-                        {order.items.map((item, idx) => (
+                        {order.items.map((item, idx) => {
+                          const imgUrl = resolveItemImg(item);
+                          return (
                           <tr key={idx} className="hover:bg-surface-container-high/30 transition-colors">
                             <td className="px-5 py-2.5">
-                              {item.image ? (
-                                <img src={proxyImg(item.image)} alt="" className="w-9 h-9 object-contain rounded bg-white border border-outline-variant/10 p-0.5"
+                              {imgUrl ? (
+                                <img src={imgUrl} alt="" className="w-12 h-12 object-contain rounded bg-white border border-outline-variant/10 p-0.5"
                                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
                               ) : (
-                                <div className="w-9 h-9 bg-surface-container-highest rounded flex items-center justify-center">
-                                  <Package size={14} className="text-on-surface-variant/30" />
+                                <div className="w-12 h-12 bg-surface-container-highest rounded flex items-center justify-center">
+                                  <Package size={16} className="text-on-surface-variant/30" />
                                 </div>
                               )}
                             </td>
@@ -242,7 +280,8 @@ export default function OrdersPage() {
                             <td className="px-3 py-2.5 text-right text-xs font-mono text-on-surface-variant">{formatPrice(item.price)}</td>
                             <td className="px-5 py-2.5 text-right text-sm font-mono font-bold text-on-surface">{formatPrice(item.quantity * item.price)}</td>
                           </tr>
-                        ))}
+                          );
+                        })}
                       </tbody>
                     </table>
                   </div>
@@ -270,11 +309,37 @@ export default function OrdersPage() {
                     </div>
                   </div>
 
-                  {/* Detail Page Link */}
-                  <div className="px-5 py-2.5 border-t border-outline-variant/5">
+                  {/* Aksiyonlar: Detay · PDF indir · WhatsApp'a gönder */}
+                  <div className="px-5 py-2.5 border-t border-outline-variant/5 flex flex-wrap items-center gap-4">
                     <Link to={`/orders/${order.id}`} className="text-xs text-primary font-bold hover:underline flex items-center gap-1">
                       <Eye size={12} /> {t('orders.viewDetail')}
                     </Link>
+                    <button
+                      onClick={() => handlePdf(order)}
+                      disabled={st?.pdf === 'gen'}
+                      className="text-xs font-bold text-on-surface-variant hover:text-primary flex items-center gap-1 disabled:opacity-50"
+                    >
+                      {st?.pdf === 'gen' ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
+                      {st?.pdf === 'err' ? 'PDF hata — tekrar' : 'PDF indir'}
+                    </button>
+                    <button
+                      onClick={() => handleWa(order)}
+                      disabled={st?.wa === 'sending'}
+                      className="text-xs font-bold text-emerald-700 hover:text-emerald-800 flex items-center gap-1 disabled:opacity-50"
+                    >
+                      {st?.wa === 'sending' ? <Loader2 size={12} className="animate-spin" />
+                        : st?.wa === 'sent' ? <Check size={12} />
+                        : <MessageCircle size={12} />}
+                      {st?.wa === 'sent' ? 'WhatsApp gönderildi'
+                        : st?.wa === 'err' ? 'Hata — tekrar dene'
+                        : "WhatsApp'a gönder"}
+                    </button>
+                    <button
+                      onClick={() => setConfirmDelete(order)}
+                      className="ml-auto text-xs font-bold text-error hover:text-error flex items-center gap-1"
+                    >
+                      <Trash2 size={12} /> Siparişi sil
+                    </button>
                   </div>
                 </div>
               )}
@@ -298,6 +363,50 @@ export default function OrdersPage() {
           </div>
         )}
       </div>
+
+      {/* Silme onay modalı */}
+      {confirmDelete && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+          onClick={() => !deleting && setConfirmDelete(null)}
+        >
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" />
+          <div
+            className="relative bg-surface-container-lowest rounded-2xl shadow-2xl border border-outline-variant/20 w-full max-w-md p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-11 h-11 rounded-full bg-error-container flex items-center justify-center flex-shrink-0">
+                <AlertTriangle size={20} className="text-error" />
+              </div>
+              <div className="flex-1">
+                <h3 className="font-headline font-black text-lg text-on-surface">Siparişi sil</h3>
+                <p className="text-sm text-on-surface-variant mt-1.5">
+                  <span className="font-mono font-bold text-on-surface">{confirmDelete.order_number}</span> numaralı sipariş
+                  kalıcı olarak silinecek. Bu işlem geri alınamaz.
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center justify-end gap-3 mt-6">
+              <button
+                onClick={() => setConfirmDelete(null)}
+                disabled={deleting}
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50"
+              >
+                Vazgeç
+              </button>
+              <button
+                onClick={handleDelete}
+                disabled={deleting}
+                className="px-5 py-2.5 rounded-xl bg-error text-white text-sm font-bold hover:opacity-90 disabled:opacity-50 inline-flex items-center gap-2"
+              >
+                {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
+                {deleting ? 'Siliniyor...' : 'Evet, sil'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Lock,
   Unlock,
@@ -30,6 +31,7 @@ import {
   Minus,
   Square as FloorIcon,
   PanelLeft as WallIcon,
+  Layers as OverlapIcon,
 } from 'lucide-react';
 import { useProjectStore } from '../../../store';
 import type { Equipment, EquipmentId } from '../../../core/types';
@@ -40,6 +42,7 @@ import {
   mountToWall,
   snapFloorItemToWalls,
 } from '../interaction/placement';
+import { deterministicHex } from '../../../lib/equipmentColor';
 
 interface EquipmentPropertiesPanelProps {
   equipmentId: string | null;
@@ -59,6 +62,7 @@ export default function EquipmentPropertiesPanel({
   gizmoEnabled = false,
   onToggleGizmo,
 }: EquipmentPropertiesPanelProps) {
+  const { t } = useTranslation();
   const project = useProjectStore((s) => s.project);
   const update = useProjectStore((s) => s.update);
   const removeEquipment = useProjectStore((s) => s.removeEquipment);
@@ -93,28 +97,32 @@ export default function EquipmentPropertiesPanel({
     let x = xMm;
     let y = yMm;
     if (applySnap) {
-      // Only neighbours sharing this item's height band constrain it.
-      const blockers = othersAtHeight(eq.position.z, eq.heightMm, otherEquipment);
-      const snapped = snapToEdges(
-        { x, y },
-        eq.rotation,
-        eq.footprint.width,
-        eq.footprint.depth,
-        blockers,
-        eq.id,
-        EDGE_SNAP_TOL_MM,
-      );
-      const resolved = resolveCollision(
-        snapped,
-        eq.rotation,
-        eq.footprint.width,
-        eq.footprint.depth,
-        blockers,
-        eq.id,
-      );
-      x = resolved.x;
-      y = resolved.y;
-      // Zemin ürünü: yakın duvara yapışsın (yanaşma) ve oda dışına çıkamasın.
+      // Only neighbours sharing this item's height band constrain it; overlap'e
+      // izinli komşular çakışma dışı, overlap-izinli bu ürün de çakışma çözmesini atlar.
+      const blockers = othersAtHeight(eq.position.z, eq.heightMm, otherEquipment)
+        .filter((o) => !o.allowOverlap);
+      if (!eq.allowOverlap) {
+        const snapped = snapToEdges(
+          { x, y },
+          eq.rotation,
+          eq.footprint.width,
+          eq.footprint.depth,
+          blockers,
+          eq.id,
+          EDGE_SNAP_TOL_MM,
+        );
+        const resolved = resolveCollision(
+          snapped,
+          eq.rotation,
+          eq.footprint.width,
+          eq.footprint.depth,
+          blockers,
+          eq.id,
+        );
+        x = resolved.x;
+        y = resolved.y;
+      }
+      // Zemin ürünü: yakın duvara yapışsın (yanaşma) ve oda dışına çıkamasın (HER ZAMAN).
       if ((eq.mount ?? 'floor') === 'floor') {
         const snappedWall = snapFloorItemToWalls(
           project,
@@ -203,14 +211,18 @@ export default function EquipmentPropertiesPanel({
   const setRotation = (rad: number) => {
     // After rotation, OBB shifts — re-resolve collision so the rotated item
     // doesn't overlap a neighbour that was OK at the old angle.
-    const resolved = resolveCollision(
-      { x: eq.position.x, y: eq.position.y },
-      rad,
-      eq.footprint.width,
-      eq.footprint.depth,
-      othersAtHeight(eq.position.z, eq.heightMm, otherEquipment),
-      eq.id,
-    );
+    const blockers = othersAtHeight(eq.position.z, eq.heightMm, otherEquipment)
+      .filter((o) => !o.allowOverlap);
+    const resolved = eq.allowOverlap
+      ? { x: eq.position.x, y: eq.position.y }
+      : resolveCollision(
+          { x: eq.position.x, y: eq.position.y },
+          rad,
+          eq.footprint.width,
+          eq.footprint.depth,
+          blockers,
+          eq.id,
+        );
     let rx = resolved.x;
     let ry = resolved.y;
     // Döndürme köşeleri duvara sokabilir — zemin ürününü oda/duvar içinde tut.
@@ -270,62 +282,110 @@ export default function EquipmentPropertiesPanel({
   const yMax = yMm + 20000;
 
   return (
-    <aside className="absolute top-3 right-3 w-72 bg-white/95 backdrop-blur border border-slate-200 rounded-lg shadow-md text-[11px] flex flex-col max-h-[calc(100vh-7rem)] overflow-y-auto">
-      <header className="px-3 h-9 flex items-center gap-2 border-b border-slate-100">
-        <Move size={12} className="text-blue-600" />
-        <span className="text-xs font-bold text-slate-800 truncate flex-1" title={eq.name}>
+    <aside className="absolute top-3 right-3 w-72 rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 text-[11px] flex flex-col max-h-[calc(100vh-7rem)] overflow-y-auto">
+      <header className="px-4 h-11 flex items-center gap-2 border-b border-slate-100">
+        <Move size={13} className="text-brand-red shrink-0" />
+        <span className="text-[12px] font-semibold text-slate-800 truncate flex-1" title={eq.name}>
           {eq.name}
         </span>
         <button
           type="button"
           onClick={toggleLock}
-          className="p-1 rounded hover:bg-slate-100 text-slate-500"
+          className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
           title={eq.locked ? 'Kilidi aç' : 'Kilitle'}
         >
-          {eq.locked ? <Lock size={12} /> : <Unlock size={12} />}
+          {eq.locked ? <Lock size={13} /> : <Unlock size={13} />}
         </button>
       </header>
 
       {/* Read-only scale info — kullanıcının ölçek bilgisini her zaman görmesi için. */}
       <Section title="Ölçü">
-        <div className="grid grid-cols-3 gap-1 tabular-nums text-slate-700">
+        <div className="grid grid-cols-3 gap-1.5 tabular-nums text-slate-700">
           <Stat label="G" value={eq.footprint.width} unit="mm" />
           <Stat label="D" value={eq.footprint.depth} unit="mm" />
           <Stat label="Y" value={eq.heightMm} unit="mm" />
         </div>
       </Section>
 
+      {/* Görünüm — ayırt edici renk (2B dolgu + 3B fallback tonu) + üst üste izni */}
+      <Section title={t('design3d.appearance')}>
+        <Row label={t('design3d.color')}>
+          <input
+            type="color"
+            value={eq.color ?? deterministicHex(eq.catalogId || eq.name || eq.id)}
+            disabled={!!eq.locked}
+            onChange={(e) =>
+              update((d) => {
+                const item = d.equipment[eq.id];
+                if (item) item.color = e.target.value;
+              })
+            }
+            className="h-8 w-10 shrink-0 cursor-pointer rounded-lg border border-slate-200 bg-white p-0.5 disabled:opacity-50"
+          />
+          <button
+            type="button"
+            disabled={!!eq.locked || !eq.color}
+            onClick={() =>
+              update((d) => {
+                const item = d.equipment[eq.id];
+                if (item) delete item.color;
+              })
+            }
+            className="inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-medium bg-white text-slate-700 border border-slate-200 px-2 hover:bg-slate-50 disabled:opacity-50 transition"
+          >
+            {t('design3d.resetColor')}
+          </button>
+        </Row>
+        <label className="mt-1.5 flex cursor-pointer items-center gap-2">
+          <input
+            type="checkbox"
+            checked={!!eq.allowOverlap}
+            disabled={!!eq.locked}
+            onChange={(e) =>
+              update((d) => {
+                const item = d.equipment[eq.id];
+                if (item) item.allowOverlap = e.target.checked;
+              })
+            }
+            className="h-4 w-4 rounded accent-[#931315]"
+          />
+          <span className="inline-flex items-center gap-1 text-[11px] text-slate-600">
+            <OverlapIcon size={11} /> {t('design3d.allowOverlap')}
+          </span>
+        </label>
+      </Section>
+
       <Section title="Montaj">
-        <div className="grid grid-cols-2 gap-1">
+        <div className="grid grid-cols-2 gap-1.5">
           <button
             type="button"
             onClick={() => setMount('floor')}
             disabled={!!eq.locked}
             className={[
-              'inline-flex items-center justify-center gap-1 h-7 rounded text-[10px] font-bold border transition-colors',
+              'inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] transition',
               mount === 'floor'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+                ? 'font-semibold bg-brand-red text-white shadow-sm hover:brightness-110'
+                : 'font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
               eq.locked ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
             title="Zemine otur (z = 0)"
           >
-            <FloorIcon size={11} /> Zemin
+            <FloorIcon size={12} /> Zemin
           </button>
           <button
             type="button"
             onClick={() => setMount('wall')}
             disabled={!!eq.locked}
             className={[
-              'inline-flex items-center justify-center gap-1 h-7 rounded text-[10px] font-bold border transition-colors',
+              'inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] transition',
               mount === 'wall'
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+                ? 'font-semibold bg-brand-red text-white shadow-sm hover:brightness-110'
+                : 'font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
               eq.locked ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
             title="En yakın duvara yapıştır (asma dolap / davlumbaz)"
           >
-            <WallIcon size={11} /> Duvar
+            <WallIcon size={12} /> Duvar
           </button>
         </div>
 
@@ -339,7 +399,7 @@ export default function EquipmentPropertiesPanel({
               value={Math.min(2400, Math.max(0, zMm))}
               onChange={(e) => setWallHeight(Number(e.target.value))}
               disabled={!!eq.locked}
-              className="flex-1 accent-emerald-600"
+              className="flex-1 accent-[#931315]"
             />
             <NumberInput
               value={zInput}
@@ -349,7 +409,7 @@ export default function EquipmentPropertiesPanel({
             />
           </Row>
         )}
-        <p className="mt-1 text-[9px] text-slate-400 leading-snug">
+        <p className="mt-2 text-[10px] text-slate-400 leading-snug">
           {mount === 'wall'
             ? 'Duvar ürünü en yakın duvara yapışır, odaya bakar; sürüklerken duvar boyunca kayar.'
             : 'Zemin ürünü yere oturur ve oda duvarlarının dışına çıkamaz.'}
@@ -366,7 +426,7 @@ export default function EquipmentPropertiesPanel({
             value={xMm}
             onChange={(e) => setPosition(Number(e.target.value), eq.position.y)}
             disabled={!!eq.locked}
-            className="flex-1 accent-blue-600"
+            className="flex-1 accent-[#931315]"
           />
           <NumberInput
             value={xInput}
@@ -384,7 +444,7 @@ export default function EquipmentPropertiesPanel({
             value={yMm}
             onChange={(e) => setPosition(eq.position.x, Number(e.target.value))}
             disabled={!!eq.locked}
-            className="flex-1 accent-blue-600"
+            className="flex-1 accent-[#931315]"
           />
           <NumberInput
             value={yInput}
@@ -402,7 +462,7 @@ export default function EquipmentPropertiesPanel({
             value={Math.min(3000, Math.max(0, zMm))}
             onChange={(e) => setZ(Number(e.target.value))}
             disabled={!!eq.locked}
-            className="flex-1 accent-emerald-600"
+            className="flex-1 accent-[#931315]"
           />
           <NumberInput
             value={zInput}
@@ -416,10 +476,10 @@ export default function EquipmentPropertiesPanel({
             type="button"
             onClick={() => setZ(0)}
             disabled={!!eq.locked}
-            className="mt-1 w-full inline-flex items-center justify-center gap-1 h-6 rounded text-[10px] font-medium bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 disabled:opacity-50"
+            className="mt-1.5 w-full inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition"
             title="Ekipmanı zemine indir (Z = 0)"
           >
-            <ArrowDown size={11} /> Zemine indir
+            <ArrowDown size={12} /> Zemine indir
           </button>
         )}
       </Section>
@@ -431,15 +491,15 @@ export default function EquipmentPropertiesPanel({
             onClick={onToggleGizmo}
             disabled={!!eq.locked}
             className={[
-              'w-full mb-2 inline-flex items-center justify-center gap-1.5 h-7 rounded text-[10px] font-bold border transition-colors',
+              'w-full mb-2 inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] transition',
               gizmoEnabled
-                ? 'bg-blue-600 text-white border-blue-600'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+                ? 'font-semibold bg-brand-red text-white shadow-sm hover:brightness-110'
+                : 'font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
               eq.locked ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
             title="3B döndürme halkalarını aç/kapat (gizmo)"
           >
-            <Rotate3d size={12} />
+            <Rotate3d size={13} />
             {gizmoEnabled ? '3B döndürme açık — kapat' : '3B döndürme halkaları'}
           </button>
         )}
@@ -452,7 +512,7 @@ export default function EquipmentPropertiesPanel({
             value={rotDeg}
             onChange={(e) => setRotation((Number(e.target.value) * Math.PI) / 180)}
             disabled={!!eq.locked}
-            className="flex-1 accent-blue-600"
+            className="flex-1 accent-[#931315]"
           />
           <NumberInput
             value={rotInput}
@@ -463,7 +523,7 @@ export default function EquipmentPropertiesPanel({
           />
         </Row>
 
-        <div className="grid grid-cols-4 gap-1 mt-2">
+        <div className="grid grid-cols-4 gap-1.5 mt-2">
           {ROT_STEPS.map((deg) => {
             const active = rotDeg === deg;
             return (
@@ -473,10 +533,10 @@ export default function EquipmentPropertiesPanel({
                 onClick={() => setRotation((deg * Math.PI) / 180)}
                 disabled={!!eq.locked}
                 className={[
-                  'h-7 rounded text-[10px] font-bold tabular-nums border transition-colors',
+                  'h-8 rounded-xl text-[11px] tabular-nums transition',
                   active
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+                    ? 'font-semibold bg-brand-red text-white shadow-sm hover:brightness-110'
+                    : 'font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
                   eq.locked ? 'opacity-50 cursor-not-allowed' : '',
                 ].join(' ')}
               >
@@ -486,7 +546,7 @@ export default function EquipmentPropertiesPanel({
           })}
         </div>
 
-        <div className="grid grid-cols-3 gap-1 mt-1.5">
+        <div className="grid grid-cols-3 gap-1.5 mt-1.5">
           <ActionBtn
             onClick={() => setRotation(eq.rotation - Math.PI / 2)}
             disabled={!!eq.locked}
@@ -521,7 +581,7 @@ export default function EquipmentPropertiesPanel({
             value={tiltXDeg}
             onChange={(e) => setTilt('x', (Number(e.target.value) * Math.PI) / 180)}
             disabled={!!eq.locked}
-            className="flex-1 accent-violet-600"
+            className="flex-1 accent-[#931315]"
           />
           <NumberInput
             value={tiltXInput}
@@ -540,7 +600,7 @@ export default function EquipmentPropertiesPanel({
             value={tiltYDeg}
             onChange={(e) => setTilt('y', (Number(e.target.value) * Math.PI) / 180)}
             disabled={!!eq.locked}
-            className="flex-1 accent-violet-600"
+            className="flex-1 accent-[#931315]"
           />
           <NumberInput
             value={tiltYInput}
@@ -551,7 +611,7 @@ export default function EquipmentPropertiesPanel({
           />
         </Row>
 
-        <div className="grid grid-cols-4 gap-1 mt-2">
+        <div className="grid grid-cols-4 gap-1.5 mt-2">
           <ActionBtn
             onClick={() => {
               setTilt('x', 0);
@@ -586,7 +646,7 @@ export default function EquipmentPropertiesPanel({
         </div>
 
         {!isUpright && (
-          <p className="mt-1.5 text-[9px] text-amber-600 leading-snug">
+          <p className="mt-2 text-[10px] text-amber-600 leading-snug">
             ⚠ Eğim aktif. Çakışma kontrolü dik (0°) hâlin tabanına göre yapılır.
           </p>
         )}
@@ -596,11 +656,11 @@ export default function EquipmentPropertiesPanel({
         <button
           type="button"
           onClick={handleDelete}
-          className="w-full inline-flex items-center justify-center gap-1.5 h-8 rounded text-[11px] font-medium bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100"
+          className="inline-flex items-center justify-center gap-1.5 h-8 w-full rounded-xl text-[11px] font-medium bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition"
         >
           <Trash2 size={12} /> Ekipmanı sil
         </button>
-        <p className="mt-2 text-[10px] text-slate-400 leading-snug">
+        <p className="mt-2.5 text-[10px] text-slate-400 leading-snug">
           ⌨ Sürüklerken Shift basılı: çakışma kontrolünü geçici devre dışı bırakır.
         </p>
       </Section>
@@ -612,9 +672,9 @@ export default function EquipmentPropertiesPanel({
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="px-3 py-2 border-b border-slate-100 last:border-b-0">
+    <section className="px-4 py-3 border-b border-slate-100 last:border-b-0">
       {title && (
-        <h3 className="text-[9px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+        <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
           {title}
         </h3>
       )}
@@ -625,8 +685,8 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function Row({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <label className="flex flex-col gap-1 mb-1.5 last:mb-0">
-      <span className="text-[10px] text-slate-500">{label}</span>
+    <label className="flex flex-col gap-1 mb-2 last:mb-0">
+      <span className="text-[11px] text-slate-500">{label}</span>
       <div className="flex items-center gap-1.5">{children}</div>
     </label>
   );
@@ -634,9 +694,9 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
 
 function Stat({ label, value, unit }: { label: string; value: number; unit: string }) {
   return (
-    <div className="flex flex-col items-center justify-center bg-slate-50 border border-slate-200 rounded px-1 py-1">
-      <span className="text-[9px] text-slate-400 font-bold">{label}</span>
-      <span className="text-[10px] font-mono text-slate-700">
+    <div className="flex flex-col items-center justify-center rounded-xl bg-slate-50 border border-slate-200/70 px-2 py-1.5">
+      <span className="text-[10px] text-slate-400 font-semibold">{label}</span>
+      <span className="text-[11px] font-mono tabular-nums text-slate-700">
         {Math.round(value)}
         <span className="text-slate-400">{unit}</span>
       </span>
@@ -674,10 +734,10 @@ function NumberInput({
             if (Number.isFinite(n)) onCommit(n);
           }
         }}
-        className="w-16 h-7 px-1.5 pr-3 text-[11px] tabular-nums border border-slate-200 rounded outline-none focus:border-blue-500 disabled:bg-slate-50 disabled:text-slate-400"
+        className="w-16 h-8 px-2 pr-4 text-[11px] tabular-nums rounded-lg border border-slate-200 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 disabled:bg-slate-50 disabled:text-slate-400 transition"
       />
       {suffix && (
-        <span className="absolute right-1 top-1/2 -translate-y-1/2 text-[9px] text-slate-400 pointer-events-none">
+        <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none">
           {suffix}
         </span>
       )}
@@ -702,7 +762,7 @@ function ActionBtn({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className="inline-flex items-center justify-center gap-1 h-7 rounded text-[10px] font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 disabled:opacity-50"
+      className="inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition"
     >
       {children}
     </button>

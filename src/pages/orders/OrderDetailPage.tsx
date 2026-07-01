@@ -1,10 +1,11 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useOrderStore } from '../../stores/orderStore';
+import { useOrderStore, type OrderItem } from '../../stores/orderStore';
+import { useEquipmentStore } from '../../stores/equipmentStore';
 import {
   Package, ArrowLeft, Clock, CheckCircle, Truck, PackageCheck, XCircle, Euro
 } from 'lucide-react';
-import { IMAGE_PROXY_URL } from '../../lib/assets';
+import { proxiedImage } from '../../lib/assets';
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
   pending: { label: 'Beklemede', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', icon: Clock },
@@ -42,8 +43,10 @@ export default function OrderDetailPage() {
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  const proxyImg = (url: string) =>
-    url?.startsWith('http') ? `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}` : url;
+  const resolveItemImg = (item: OrderItem): string => {
+    const raw = item.image || useEquipmentStore.getState().getItemById(item.product_id)?.img || '';
+    return raw ? proxiedImage(raw) : '';
+  };
 
   return (
     <div className="max-w-5xl mx-auto w-full space-y-6">
@@ -74,11 +77,13 @@ export default function OrderDetailPage() {
           </h2>
         </div>
         <div className="divide-y divide-outline-variant/10">
-          {order.items.map((item, idx) => (
+          {order.items.map((item, idx) => {
+            const imgUrl = resolveItemImg(item);
+            return (
             <div key={idx} className="flex items-center gap-4 px-5 py-4">
-              {item.image ? (
+              {imgUrl ? (
                 <img
-                  src={proxyImg(item.image)}
+                  src={imgUrl}
                   alt={item.name}
                   className="w-14 h-14 object-contain rounded-lg bg-white border border-outline-variant/10 p-1 flex-shrink-0"
                   onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
@@ -104,7 +109,8 @@ export default function OrderDetailPage() {
                 {formatPrice(item.quantity * item.price)}
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

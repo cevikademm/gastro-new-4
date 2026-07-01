@@ -21,7 +21,9 @@ import {
 import {
   saveDesignLocal,
   syncDesignProject,
+  saveDesignProject,
   flushDesignProject,
+  flushDesignProjectBeacon,
   loadBestDesign,
   isEmptyDocument,
   STANDALONE_KEY,
@@ -120,7 +122,6 @@ export default function ThreeDDesignPage() {
   // ── Kalıcı saklama (persistence) ───────────────────────────────────────────
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
   const hydratedRef = useRef(false);
-  const remoteTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const jsonInputRef = useRef<HTMLInputElement | null>(null);
   // Teklif→tasarım senkronu yalnızca her proje açılışında BİR KEZ koşsun
   // (kendi yazdığımız equipment değişimi reconcile'ı tekrar tetiklemesin).
@@ -157,29 +158,39 @@ export default function ThreeDDesignPage() {
   }, [projectKey, params.id]);
 
   // Otomatik kaydetme: belge her değiştiğinde localStorage'a ANINDA, Supabase'e
-  // debounced (2s). Boş belge ya da henüz yükleme bitmemişse atlanır.
+  // ~400ms içinde (coalesced kuyruk + retry + çevrimdışı dayanıklılık). Sürükleme
+  // ARA kareleri store'a yazılmaz (yalnız bırakışta commit) → yalnız gerçek
+  // değişiklikler kaydedilir. Boş belge ya da henüz yükleme bitmemişse atlanır.
   useEffect(() => {
     if (!hydratedRef.current) return;
     if (isEmptyDocument(project)) return;
-    setSaveStatus('saving');
-    saveDesignLocal(project, projectKey); // anlık yerel yedek (yenilemeye dayanır)
-    if (remoteTimerRef.current) clearTimeout(remoteTimerRef.current);
-    remoteTimerRef.current = setTimeout(async () => {
-      const ok = await syncDesignProject(project, projectKey);
-      setSaveStatus(ok ? 'saved' : 'local');
-    }, 2000);
-    return () => {
-      if (remoteTimerRef.current) clearTimeout(remoteTimerRef.current);
-    };
+    saveDesignProject(project, projectKey, setSaveStatus);
   }, [project, projectKey]);
 
-  // Sayfadan ayrılırken bekleyen Supabase kaydını gönder (localStorage zaten güncel).
+  // Sayfadan ayrılırken (route değişimi) bekleyen Supabase kaydını gönder.
   useEffect(() => {
     return () => {
       const current = useProjectStore.getState().project;
       if (!isEmptyDocument(current)) void flushDesignProject(current, projectKey);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectKey]);
+
+  // Tab kapanışı / arka plana alma: canlı belgeyi keepalive ile zorunlu flush et
+  // (localStorage zaten anlık; bu son birkaç yüz ms'lik değişikliğin uzak yedeğini
+  // de garanti eder → veri-kaybı penceresi kapanır).
+  useEffect(() => {
+    const flush = () => {
+      const current = useProjectStore.getState().project;
+      if (!isEmptyDocument(current)) flushDesignProjectBeacon(current, projectKey);
+    };
+    const onVisibility = () => { if (document.visibilityState === 'hidden') flush(); };
+    window.addEventListener('pagehide', flush);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      window.removeEventListener('pagehide', flush);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [projectKey]);
 
   const onManualSave = async () => {
@@ -266,15 +277,15 @@ export default function ThreeDDesignPage() {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <header className="flex items-center justify-between gap-3 px-4 h-12 border-b border-slate-200 bg-white">
-        <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-md bg-primary/10 text-primary flex items-center justify-center">
+      <header className="flex items-center justify-between gap-3 px-4 h-14 border-b border-slate-200/70 bg-white/95 backdrop-blur shadow-sm shadow-slate-900/5">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-brand-red/10 text-brand-red flex items-center justify-center shrink-0">
             <Boxes size={16} />
           </div>
-          <h1 className="text-sm font-bold text-slate-800">3D Design</h1>
-          <span className="text-xs text-slate-400">· {projectName}</span>
+          <h1 className="text-[12px] font-semibold text-slate-800 truncate">3D Design</h1>
+          <span className="text-[12px] text-slate-400 truncate">· {projectName}</span>
           {importing && (
-            <span className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-violet-600 font-medium">
+            <span className="ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium bg-brand-red/10 text-brand-red">
               <Loader2 size={12} className="animate-spin" />
               {importStatus || 'İçe aktarılıyor…'}
             </span>
@@ -300,14 +311,14 @@ export default function ThreeDDesignPage() {
             className="hidden"
             onChange={(e) => void onImportJson(e.target.files?.[0] ?? null)}
           />
-          <div className="w-px h-5 bg-slate-200 mx-1" />
+          <div className="w-px h-5 bg-slate-200 mx-1.5" />
           <ToolbarButton onClick={undo} disabled={!canUndo} title="Geri al (Ctrl+Z)">
             <Undo2 size={14} />
           </ToolbarButton>
           <ToolbarButton onClick={redo} disabled={!canRedo} title="Yinele (Ctrl+Y)">
             <Redo2 size={14} />
           </ToolbarButton>
-          <div className="w-px h-5 bg-slate-200 mx-1" />
+          <div className="w-px h-5 bg-slate-200 mx-1.5" />
           <ToolbarButton
             onClick={() => cadInputRef.current?.click()}
             disabled={importing}
@@ -323,16 +334,42 @@ export default function ThreeDDesignPage() {
             className="hidden"
             onChange={(e) => void onCadPick(e.target.files?.[0] ?? null)}
           />
-          <div className="w-px h-5 bg-slate-200 mx-1" />
-          <ToolbarButton active={tab === '2d'} onClick={() => switchTab('2d')}>
-            2D
-          </ToolbarButton>
-          <ToolbarButton active={tab === '3d'} onClick={() => switchTab('3d')}>
-            3D
-          </ToolbarButton>
-          <ToolbarButton active={tab === 'split'} onClick={() => switchTab('split')}>
-            Split
-          </ToolbarButton>
+          <div className="w-px h-5 bg-slate-200 mx-1.5" />
+          <div className="inline-flex items-center gap-0.5 bg-slate-100 rounded-xl p-1">
+            <button
+              type="button"
+              onClick={() => switchTab('2d')}
+              className={
+                tab === '2d'
+                  ? 'h-7 px-3 rounded-lg text-[12px] font-semibold bg-white text-brand-red shadow-sm transition'
+                  : 'h-7 px-3 rounded-lg text-[12px] font-medium text-slate-500 hover:text-slate-700 transition'
+              }
+            >
+              2D
+            </button>
+            <button
+              type="button"
+              onClick={() => switchTab('3d')}
+              className={
+                tab === '3d'
+                  ? 'h-7 px-3 rounded-lg text-[12px] font-semibold bg-white text-brand-red shadow-sm transition'
+                  : 'h-7 px-3 rounded-lg text-[12px] font-medium text-slate-500 hover:text-slate-700 transition'
+              }
+            >
+              3D
+            </button>
+            <button
+              type="button"
+              onClick={() => switchTab('split')}
+              className={
+                tab === 'split'
+                  ? 'h-7 px-3 rounded-lg text-[12px] font-semibold bg-white text-brand-red shadow-sm transition'
+                  : 'h-7 px-3 rounded-lg text-[12px] font-medium text-slate-500 hover:text-slate-700 transition'
+              }
+            >
+              Split
+            </button>
+          </div>
         </div>
       </header>
 
@@ -341,7 +378,7 @@ export default function ThreeDDesignPage() {
         {tab === '3d' && <Editor3D />}
         {tab === 'split' && (
           <div className="grid grid-cols-2 h-full">
-            <div className="border-r border-slate-200"><Editor2D /></div>
+            <div className="border-r border-slate-200/70"><Editor2D /></div>
             <Editor3D />
           </div>
         )}
@@ -370,7 +407,7 @@ function SaveStatusBadge({ status }: { status: SaveStatus }) {
   if (status === 'idle') return null;
   if (status === 'saving') {
     return (
-      <span className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-slate-400 font-medium">
+      <span className="ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-slate-100 text-slate-500">
         <Loader2 size={12} className="animate-spin" />
         Kaydediliyor…
       </span>
@@ -378,7 +415,7 @@ function SaveStatusBadge({ status }: { status: SaveStatus }) {
   }
   if (status === 'saved') {
     return (
-      <span className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-emerald-600 font-medium">
+      <span className="ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
         <Check size={12} />
         Kaydedildi
       </span>
@@ -387,7 +424,7 @@ function SaveStatusBadge({ status }: { status: SaveStatus }) {
   // 'local' | 'error' — Supabase'e ulaşılamadı ama yerel yedek alındı.
   return (
     <span
-      className="ml-2 inline-flex items-center gap-1.5 text-[11px] text-amber-600 font-medium"
+      className="ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-amber-50 text-amber-600 border border-amber-100"
       title="Buluta kaydedilemedi — değişiklik bu cihazda (localStorage) güvende. Bağlantı gelince tekrar deneyin."
     >
       <CloudOff size={12} />
@@ -492,23 +529,25 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden"
+        className="bg-white rounded-2xl border border-slate-200/70 shadow-2xl shadow-slate-900/10 max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Layers size={20} />
+            <span className="w-9 h-9 rounded-xl bg-brand-red/10 text-brand-red flex items-center justify-center shrink-0">
+              <Layers size={18} />
+            </span>
             <div>
-              <h2 className="font-bold text-base">CAD İçe Aktarma — Katman Seçimi</h2>
-              <p className="text-[11px] text-white/80">
+              <h2 className="text-[14px] font-semibold text-slate-800">CAD İçe Aktarma — Katman Seçimi</h2>
+              <p className="text-[11px] text-slate-400">
                 {analysis.filename} · {analysis.kind.toUpperCase()} · {analysis.layers.length} katman · {totalSegments.toLocaleString('tr-TR')} segment
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/20 transition-colors">
+          <button onClick={onClose} className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition">
             <X size={18} />
           </button>
         </div>
@@ -516,13 +555,13 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
         {/* Options */}
         <div className="px-6 py-4 border-b border-slate-100 grid grid-cols-3 gap-4">
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1">
+            <label className="block text-[10px] font-semibold uppercase text-slate-400 tracking-wider mb-2">
               Birim {unit === analysis.guessedUnit && <span className="text-emerald-600 normal-case">· otomatik</span>}
             </label>
             <select
               value={unit}
               onChange={(e) => setUnit(e.target.value as any)}
-              className="w-full bg-slate-50 border border-slate-200 rounded-md px-2 py-1.5 text-xs focus:ring-1 focus:ring-violet-500 outline-none"
+              className="w-full h-8 bg-white border border-slate-200 rounded-lg px-2 text-[11px] outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
             >
               <option value="mm">Milimetre (mm)</option>
               <option value="cm">Santimetre (cm)</option>
@@ -532,14 +571,14 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
             {boundsSpan > 0 && (
               <p className="text-[9px] text-slate-400 mt-1">
                 Çizim alanı: {boundsSpan.toFixed(1)} {unit} →{' '}
-                <span className="font-bold text-slate-600">
+                <span className="font-semibold text-slate-600">
                   {(boundsSpan * unitScale / 1000).toFixed(1)} m
                 </span>
               </p>
             )}
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1">
+            <label className="block text-[10px] font-semibold uppercase text-slate-400 tracking-wider mb-2">
               Duvar Kalınlığı: {thicknessMm}mm
             </label>
             <input
@@ -549,11 +588,11 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
               step={10}
               value={thicknessMm}
               onChange={(e) => setThicknessMm(Number(e.target.value))}
-              className="w-full accent-violet-600"
+              className="w-full accent-[#931315]"
             />
           </div>
           <div>
-            <label className="block text-[10px] font-bold uppercase text-slate-400 tracking-wider mb-1">
+            <label className="block text-[10px] font-semibold uppercase text-slate-400 tracking-wider mb-2">
               Min. Çizgi: {minSegmentMm}mm
             </label>
             <input
@@ -563,37 +602,37 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
               step={50}
               value={minSegmentMm}
               onChange={(e) => setMinSegmentMm(Number(e.target.value))}
-              className="w-full accent-violet-600"
+              className="w-full accent-[#931315]"
             />
           </div>
         </div>
 
         {/* Konumlandırma */}
-        <div className="px-6 py-3 border-b border-slate-100 flex flex-wrap items-center gap-x-4 gap-y-2 bg-slate-50/50">
-          <span className="text-[10px] font-bold uppercase text-slate-500 tracking-wider">Konumlandırma</span>
+        <div className="px-6 py-3 border-b border-slate-100 flex flex-wrap items-center gap-x-4 gap-y-2 bg-slate-50/60">
+          <span className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Konumlandırma</span>
 
-          <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+          <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
             <input
               type="checkbox"
               checked={normalizeOrigin}
               onChange={(e) => setNormalizeOrigin(e.target.checked)}
-              className="w-3.5 h-3.5 accent-violet-600"
+              className="h-4 w-4 rounded accent-[#931315]"
             />
             <span className="font-medium text-slate-700">Origin'e taşı</span>
             <span className="text-[10px] text-slate-400">(planı 0,0'a hizala)</span>
           </label>
 
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-bold text-slate-400">Döndür:</span>
+            <span className="text-[10px] font-semibold text-slate-400">Döndür:</span>
             {[0, 90, 180, 270].map((deg) => (
               <button
                 key={deg}
                 type="button"
                 onClick={() => setRotateDeg(deg as 0 | 90 | 180 | 270)}
-                className={`px-2 py-1 text-[10px] font-bold rounded transition-colors ${
+                className={`h-7 px-2.5 text-[11px] font-medium rounded-lg transition ${
                   rotateDeg === deg
-                    ? 'bg-violet-600 text-white'
-                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+                    ? 'bg-brand-red text-white shadow-sm'
+                    : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
                 }`}
               >
                 {deg}°
@@ -602,12 +641,12 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
           </div>
 
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-bold text-slate-400">Yansıt:</span>
+            <span className="text-[10px] font-semibold text-slate-400">Yansıt:</span>
             <button
               type="button"
               onClick={() => setMirrorY((v) => !v)}
-              className={`px-2 py-1 text-[10px] font-bold rounded transition-colors ${
-                mirrorY ? 'bg-violet-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+              className={`h-7 px-2.5 text-[11px] font-medium rounded-lg transition ${
+                mirrorY ? 'bg-brand-red text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
               title="X ekseninde yansıt (sol-sağ)"
             >
@@ -616,8 +655,8 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
             <button
               type="button"
               onClick={() => setMirrorX((v) => !v)}
-              className={`px-2 py-1 text-[10px] font-bold rounded transition-colors ${
-                mirrorX ? 'bg-violet-600 text-white' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-100'
+              className={`h-7 px-2.5 text-[11px] font-medium rounded-lg transition ${
+                mirrorX ? 'bg-brand-red text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
               title="Y ekseninde yansıt (üst-alt)"
             >
@@ -628,17 +667,17 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
 
         {/* Suggested-layer hint */}
         {analysis.suggestedLayers.length > 0 ? (
-          <div className="px-6 py-2 bg-emerald-50 border-b border-emerald-100 text-[11px] text-emerald-800 flex items-center gap-2">
-            <span className="font-bold">Otomatik tespit:</span>
+          <div className="px-6 py-2.5 bg-emerald-50 border-b border-emerald-100 text-[11px] text-emerald-800 flex items-center gap-2">
+            <span className="font-semibold">Otomatik tespit:</span>
             <span>
               {analysis.suggestedLayers.length} duvar katmanı bulundu — varsayılan olarak işaretlendi.
             </span>
-            <button onClick={selectSuggested} className="ml-auto font-bold underline">
+            <button onClick={selectSuggested} className="ml-auto font-semibold underline">
               Sadece bunları seç
             </button>
           </div>
         ) : (
-          <div className="px-6 py-2 bg-amber-50 border-b border-amber-100 text-[11px] text-amber-800 flex items-center gap-2">
+          <div className="px-6 py-2.5 bg-amber-50 border-b border-amber-100 text-[11px] text-amber-800 flex items-center gap-2">
             <AlertTriangle size={12} />
             <span>
               Otomatik duvar katmanı tespit edilemedi. En çok segment içeren ilk 3 katman ön seçili — sadece duvar layer'larını seçtiğinden emin ol.
@@ -648,13 +687,13 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
 
         {/* Layer list */}
         <div className="px-6 py-3 flex items-center justify-between border-b border-slate-100">
-          <div className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">
+          <div className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">
             Katmanlar ({selected.size}/{analysis.layers.length} seçili · {selectedSegments.toLocaleString('tr-TR')} segment)
           </div>
           <div className="flex gap-2 text-[11px]">
-            <button onClick={selectAll} className="text-violet-700 font-bold hover:underline">Tümü</button>
+            <button onClick={selectAll} className="text-brand-red font-semibold hover:underline">Tümü</button>
             <span className="text-slate-300">·</span>
-            <button onClick={selectNone} className="text-slate-500 font-bold hover:underline">Hiçbiri</button>
+            <button onClick={selectNone} className="text-slate-500 font-semibold hover:underline">Hiçbiri</button>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-2 py-1 min-h-0">
@@ -664,21 +703,21 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
             return (
               <label
                 key={layer.name}
-                className={`flex items-center gap-3 px-4 py-2 rounded-lg cursor-pointer transition-colors ${
-                  isSelected ? 'bg-violet-50' : 'hover:bg-slate-50'
+                className={`flex items-center gap-3 px-4 py-2 rounded-xl cursor-pointer transition ${
+                  isSelected ? 'bg-brand-red/5 ring-1 ring-brand-red/15' : 'hover:bg-slate-50'
                 }`}
               >
                 <input
                   type="checkbox"
                   checked={isSelected}
                   onChange={() => toggleLayer(layer.name)}
-                  className="w-4 h-4 accent-violet-600"
+                  className="h-4 w-4 rounded accent-[#931315]"
                 />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className="font-mono text-xs font-bold text-slate-800 truncate">{layer.name}</span>
+                    <span className="font-mono text-[11px] font-semibold text-slate-800 truncate">{layer.name}</span>
                     {isSuggested && (
-                      <span className="px-1.5 py-0.5 text-[9px] font-black uppercase rounded bg-emerald-100 text-emerald-700">
+                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase bg-emerald-100 text-emerald-700">
                         Duvar
                       </span>
                     )}
@@ -689,7 +728,7 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
                 </div>
                 <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
                   <div
-                    className="h-full bg-gradient-to-r from-violet-500 to-fuchsia-500"
+                    className="h-full bg-brand-red/70"
                     style={{ width: `${(layer.segmentCount / Math.max(1, totalSegments)) * 100}%` }}
                   />
                 </div>
@@ -699,18 +738,18 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3 border-t border-slate-100 flex justify-between items-center bg-slate-50">
+        <div className="px-6 py-3 border-t border-slate-100 flex justify-between items-center bg-slate-50/60">
           <p className="text-[10px] text-slate-400">
             İpucu: Hatching/mobilya çizgilerini elemek için "Min. Çizgi" değerini artır.
           </p>
           <div className="flex gap-2">
-            <button onClick={onClose} className="px-4 py-2 text-xs font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-100 rounded-lg transition-colors">
+            <button onClick={onClose} className="inline-flex items-center justify-center gap-1.5 h-8 px-4 rounded-xl text-[11px] font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition">
               İptal
             </button>
             <button
               onClick={handleImport}
               disabled={busy || selected.size === 0}
-              className="flex items-center gap-2 px-5 py-2 text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-5 rounded-xl text-[11px] font-semibold bg-brand-red text-white shadow-sm hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {busy ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
               İçe Aktar ({selected.size} katman)

@@ -1,7 +1,6 @@
 import type React from 'react';
 import { Check, X, Copy, Palette, Type, Image as ImageIcon, Sparkles } from 'lucide-react';
 import { useState } from 'react';
-import { brandAsset } from '../../lib/assets';
 
 type Swatch = {
   name: string;
@@ -166,7 +165,7 @@ export default function BrandPage() {
           <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest overflow-hidden">
             <div className="aspect-[16/9] flex items-center justify-center bg-surface p-8">
               <img
-                src={brandAsset('logo4.png')}
+                src="https://vwuqvweorjbqxcebnaym.supabase.co/storage/v1/object/public/product-3d/logo/WhatsApp_Imagaae_2026-04-06_202604062102.jpeg"
                 alt="2MC Gastro ana logo"
                 className="max-h-full max-w-full object-contain"
               />
@@ -175,24 +174,24 @@ export default function BrandPage() {
               <div className="font-headline font-bold text-sm text-on-surface">Ana Logo</div>
               <div className="text-xs text-on-surface-variant mt-0.5">Web header, PDF kapak, fuar</div>
               <code className="block mt-2 text-[10px] font-mono text-on-surface-variant truncate">
-                2mcwerbung/logo4.png
+                product-3d/logo/WhatsApp_Imagaae_2026-04-06.jpeg
               </code>
             </div>
           </div>
 
           <div className="rounded-xl border border-outline-variant/20 bg-surface-container-lowest overflow-hidden">
-            <div className="aspect-[16/9] flex items-center justify-center bg-tertiary p-8">
+            <div className="aspect-[16/9] flex items-center justify-center bg-surface p-8">
               <img
-                src={brandAsset('logo_werbung.png')}
-                alt="2MC Gastro werbung varyantı"
+                src="https://vwuqvweorjbqxcebnaym.supabase.co/storage/v1/object/public/product-3d/logo/2mc%20gastro%20favicon.png"
+                alt="2MC Gastro ikon / favicon"
                 className="max-h-full max-w-full object-contain"
               />
             </div>
             <div className="p-4 border-t border-outline-variant/10">
-              <div className="font-headline font-bold text-sm text-on-surface">Werbung Varyantı</div>
-              <div className="text-xs text-on-surface-variant mt-0.5">Pazarlama, sosyal medya, koyu zemin</div>
+              <div className="font-headline font-bold text-sm text-on-surface">İkon / Favicon</div>
+              <div className="text-xs text-on-surface-variant mt-0.5">Favicon, uygulama ikonu, sosyal medya avatarı</div>
               <code className="block mt-2 text-[10px] font-mono text-on-surface-variant truncate">
-                2mcwerbung/logo_werbung.png
+                product-3d/logo/2mc gastro favicon.png
               </code>
             </div>
           </div>

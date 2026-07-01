@@ -10,28 +10,11 @@
 import { Group, Rect, Text } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Equipment } from '../../../core/types';
+import { colorForKey, darkenHex } from '../../../lib/equipmentColor';
 
-// Daha doygun dolgular → ürünler plan üstünde net okunur.
-const CATEGORY_FILL: Record<string, string> = {
-  cooking: '#FCA5A5',
-  refrigeration: '#93C5FD',
-  washing: '#5EEAD4',
-  preparation: '#FCD34D',
-  ventilation: '#C4B5FD',
-  storage: '#CBD5E1',
-  service: '#F9A8D4',
-  other: '#CBD5E1',
-};
-const CATEGORY_STROKE: Record<string, string> = {
-  cooking: '#B91C1C',
-  refrigeration: '#1D4ED8',
-  washing: '#0F766E',
-  preparation: '#B45309',
-  ventilation: '#6D28D9',
-  storage: '#475569',
-  service: '#BE185D',
-  other: '#475569',
-};
+// Her ÜRÜN'e ayrı renk: kategoriye göre değil, ürün anahtarından (catalogId)
+// türetilen kararlı bir ton (ortak `equipmentColor` util'inden). Override (eq.color)
+// varsa onu kullanır; aynı ürün hep aynı rengi alır.
 
 interface EquipmentLayer2DProps {
   equipment: Equipment[];
@@ -69,8 +52,10 @@ export default function EquipmentLayer2D({
         const cy = eq.position.y + d / 2;
         const deg = (eq.rotation * 180) / Math.PI;
         const selected = eq.id === selectedId;
-        const fill = CATEGORY_FILL[eq.category] ?? CATEGORY_FILL.other;
-        const line = selected ? '#DC2626' : (CATEGORY_STROKE[eq.category] ?? CATEGORY_STROKE.other);
+        const colors = colorForKey(eq.catalogId || eq.name || eq.id);
+        // Kullanıcı override rengi varsa onu kullan; yoksa deterministik ton.
+        const fill = eq.color ?? colors.fill;
+        const line = selected ? '#DC2626' : (eq.color ? darkenHex(eq.color, 0.35) : colors.stroke);
         const showLabel = Math.min(w, d) * scale > 18;
 
         const select = (e: KonvaEventObject<MouseEvent>) => {
@@ -124,19 +109,35 @@ export default function EquipmentLayer2D({
               cornerRadius={0}
             />
             {showLabel && (
-              <Text
-                text={eq.name}
-                x={-w / 2 + 30}
-                y={-fontSize / 2}
-                width={w - 60}
-                align="center"
-                fontSize={fontSize}
-                fontStyle="bold"
-                fill="#0F172A"
-                listening={false}
-                wrap="none"
-                ellipsis
-              />
+              <>
+                {/* Ürün adı (üst satır) */}
+                <Text
+                  text={eq.name}
+                  x={-w / 2 + 30}
+                  y={-fontSize - 1 / scale}
+                  width={w - 60}
+                  align="center"
+                  fontSize={fontSize}
+                  fontStyle="bold"
+                  fill="#0F172A"
+                  listening={false}
+                  wrap="none"
+                  ellipsis
+                />
+                {/* Birebir ölçü etiketi: G×D (mm) — 3B kutu ile aynı footprint */}
+                <Text
+                  text={`${Math.round(w)}×${Math.round(d)}`}
+                  x={-w / 2 + 30}
+                  y={2 / scale}
+                  width={w - 60}
+                  align="center"
+                  fontSize={fontSize * 0.82}
+                  fill="#334155"
+                  listening={false}
+                  wrap="none"
+                  ellipsis
+                />
+              </>
             )}
           </Group>
         );

@@ -26,11 +26,11 @@ export default function CartQuantityButton({ product, size = 'sm', className = '
     return (
       <button
         onClick={(e) => { handleClick(e); addItem(product); }}
-        className={`flex items-center justify-center gap-1 font-bold transition-all ${
+        className={`flex items-center justify-center gap-1 font-bold transition-all border ${
           size === 'sm'
             ? 'py-1.5 px-2 rounded-lg text-[10px]'
             : 'py-2.5 px-4 rounded-xl text-sm'
-        } bg-red-50 text-[#DC2626] hover:bg-[#DC2626] hover:text-white ${className}`}
+        } bg-white text-[#DC2626] border-slate-200 hover:bg-[#DC2626] hover:text-white hover:border-[#DC2626] ${className}`}
       >
         <ShoppingCart size={size === 'sm' ? 10 : 16} /> {t('cart.addToCart')}
       </button>

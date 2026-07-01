@@ -67,9 +67,9 @@ export default function PropertiesPanel() {
   };
 
   return (
-    <aside className="absolute top-0 right-0 h-full w-[60vw] max-w-[15rem] sm:w-72 sm:max-w-none bg-white/95 backdrop-blur border-l border-slate-200 shadow-sm overflow-y-auto pointer-events-auto flex flex-col">
-      <header className="px-4 h-10 flex items-center border-b border-slate-200">
-        <h2 className="text-sm font-bold text-slate-800">Özellikler</h2>
+    <aside className="absolute top-0 right-0 h-full w-[60vw] max-w-[15rem] sm:w-72 sm:max-w-none bg-white/95 backdrop-blur border-l border-slate-200/70 shadow-lg shadow-slate-900/5 overflow-y-auto pointer-events-auto flex flex-col">
+      <header className="px-4 h-10 flex items-center border-b border-slate-100">
+        <h2 className="text-[12px] font-semibold text-slate-800 truncate">Özellikler</h2>
       </header>
 
       {/* ── Section 1: Add door / window ─────────────────────────────── */}
@@ -89,7 +89,7 @@ export default function PropertiesPanel() {
           </PlaceBtn>
         </div>
         {(tool === 'place-door' || tool === 'place-window') && (
-          <div className="mt-2 px-2 py-1.5 bg-blue-50 border border-blue-200 rounded text-[11px] text-blue-800">
+          <div className="mt-2 px-2.5 py-1.5 bg-brand-red/5 border border-brand-red/20 rounded-xl text-[11px] text-brand-red">
             Bir duvara tıklayarak yerleştirin. Esc — iptal.
           </div>
         )}
@@ -98,15 +98,15 @@ export default function PropertiesPanel() {
       {/* ── Section 2: Selected opening editor ───────────────────────── */}
       <Section title="Seçili Açıklık">
         {!selected ? (
-          <p className="text-xs text-slate-400">
+          <p className="text-[11px] text-slate-400">
             Düzenlemek için bir kapı veya pencere seçin.
           </p>
         ) : (
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-slate-700">
                 {selected.kind === 'door' ? <DoorOpen size={14} /> : <RectangleHorizontal size={14} />}
-                <span className="text-xs font-semibold text-slate-700 capitalize">
+                <span className="text-[12px] font-semibold text-slate-800 capitalize">
                   {selected.kind === 'door'
                     ? 'Kapı'
                     : selected.kind === 'window'
@@ -121,7 +121,7 @@ export default function PropertiesPanel() {
                   selectOpening(null);
                 }}
                 title="Sil"
-                className="p-1 text-rose-500 hover:bg-rose-50 rounded"
+                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
               >
                 <Trash2 size={14} />
               </button>
@@ -163,7 +163,7 @@ export default function PropertiesPanel() {
               />
             )}
 
-            <div className="text-[10px] text-slate-400 pt-1 border-t border-slate-100">
+            <div className="text-[10px] text-slate-400 tabular-nums pt-2 border-t border-slate-100">
               Duvar uzunluğu: {(calculateWallLength(project, selected.wallId as WallId) / 1000).toFixed(2)} m
             </div>
           </div>
@@ -173,7 +173,7 @@ export default function PropertiesPanel() {
       {/* ── Section 3: All openings list ─────────────────────────────── */}
       <Section title={`Tüm Açıklıklar (${openings.length})`}>
         {openings.length === 0 ? (
-          <p className="text-xs text-slate-400">Henüz kapı veya pencere yok.</p>
+          <p className="text-[11px] text-slate-400">Henüz kapı veya pencere yok.</p>
         ) : (
           <ul className="space-y-1">
             {openings.map((op) => {
@@ -184,10 +184,10 @@ export default function PropertiesPanel() {
                     type="button"
                     onClick={() => selectOpening(op.id)}
                     className={[
-                      'w-full flex items-center gap-2 px-2 py-1.5 rounded text-left text-[11px] transition-colors',
+                      'w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-left text-[11px] transition',
                       isSel
-                        ? 'bg-blue-50 text-blue-800 border border-blue-200'
-                        : 'hover:bg-slate-100 border border-transparent',
+                        ? 'bg-brand-red/10 text-brand-red border border-brand-red/20'
+                        : 'text-slate-700 border border-transparent hover:bg-slate-50 hover:border-slate-200/70',
                     ].join(' ')}
                   >
                     {op.kind === 'door' ? <DoorOpen size={12} /> : <RectangleHorizontal size={12} />}
@@ -211,7 +211,7 @@ export default function PropertiesPanel() {
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="px-4 py-3 border-b border-slate-100 last:border-b-0">
-      <h3 className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+      <h3 className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
         {title}
       </h3>
       {children}
@@ -233,10 +233,10 @@ function PlaceBtn({
       type="button"
       onClick={onClick}
       className={[
-        'inline-flex items-center justify-center gap-1.5 h-9 rounded text-xs font-medium border transition-colors',
+        'inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] transition',
         active
-          ? 'bg-primary text-white border-primary shadow-inner'
-          : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+          ? 'font-semibold bg-brand-red text-white shadow-sm hover:brightness-110'
+          : 'font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
       ].join(' ')}
     >
       {children}
@@ -253,11 +253,11 @@ function KindSelect({
 }) {
   return (
     <label className="block">
-      <span className="text-[10px] text-slate-500">Tip</span>
+      <span className="text-[10px] font-medium text-slate-500">Tip</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as OpeningKind)}
-        className="mt-0.5 w-full h-8 px-2 text-xs border border-slate-200 rounded bg-white"
+        className="mt-1 w-full h-8 rounded-lg border border-slate-200 px-2 text-[11px] bg-white outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
       >
         <option value="door">Kapı</option>
         <option value="window">Pencere</option>
@@ -282,7 +282,7 @@ function NumberField({
 }) {
   return (
     <label className="block">
-      <span className="text-[10px] text-slate-500">{label}</span>
+      <span className="text-[10px] font-medium text-slate-500">{label}</span>
       <input
         type="number"
         value={Number.isFinite(value) ? Math.round(value * 100) / 100 : 0}
@@ -292,7 +292,7 @@ function NumberField({
           const n = Number.parseFloat(e.target.value);
           if (Number.isFinite(n)) onChange(n);
         }}
-        className="mt-0.5 w-full h-8 px-2 text-xs border border-slate-200 rounded bg-white tabular-nums"
+        className="mt-1 w-full h-8 rounded-lg border border-slate-200 px-2 text-[11px] tabular-nums outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 disabled:bg-slate-50 disabled:text-slate-400 transition"
       />
     </label>
   );

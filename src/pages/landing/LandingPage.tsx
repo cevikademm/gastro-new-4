@@ -36,6 +36,8 @@ import { StatsBand } from '../../components/landing/sections/StatsBand';
 import { FloatingWidgets } from '../../components/landing/sections/FloatingWidgets';
 import { useCartStore } from '../../stores/cartStore';
 import type { EquipmentItem } from '../../stores/equipmentStore';
+import { useEquipmentStore } from '../../stores/equipmentStore';
+import { isAccessory, resolveTopCategory } from '../../lib/categoryTaxonomy';
 
 // New Sections
 import { CategoryBubbles } from '../../components/landing/sections/CategoryBubbles';
@@ -585,16 +587,47 @@ export function LandingPage() {
   const quoteGrossTotal = Math.round(quoteNetTotal * 1.19);
   const quoteMonthlyRate = quoteNetTotal > 0 ? Math.round((quoteNetTotal * 1.15) / 60) : 0;
 
-  // Filter products
-  const filteredProducts = useMemo(() => LANDING_PRODUCTS.filter((prod) => {
-    const catMatch = selectedCategory === "all" || prod.cat === selectedCategory;
+  // Ana sayfa kataloğu: gerçek üründen, yalnızca ÖNEMLİ (≥ €1500) cihazlar.
+  // Önemsiz/ucuz parçalar, aksesuarlar ve fiyatsız ürünler ana sayfada listelenmez.
+  const allEquip = useEquipmentStore((s) => s.allItems);
+  const HOME_MIN_PRICE = 1500;
+  const catalogPool = useMemo(
+    () =>
+      allEquip
+        .filter((i) => !isAccessory(i) && (i.price || 0) >= HOME_MIN_PRICE && !!i.img)
+        .sort((a, b) => (b.price || 0) - (a.price || 0)),
+    [allEquip]
+  );
+  const filteredProducts = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
-    const queryMatch = !query ||
-      prod.name.toLowerCase().includes(query) ||
-      prod.id.toLowerCase().includes(query) ||
-      prod.desc.toLowerCase().includes(query);
-    return catMatch && queryMatch;
-  }), [searchQuery, selectedCategory]);
+    const list = catalogPool.filter((prod) => {
+      const catMatch = selectedCategory === "all" || resolveTopCategory(prod) === selectedCategory;
+      const queryMatch = !query ||
+        prod.name.toLowerCase().includes(query) ||
+        prod.id.toLowerCase().includes(query) ||
+        (prod.desc || "").toLowerCase().includes(query);
+      return catMatch && queryMatch;
+    });
+    // "Tümü" görünümünde kategori çeşitliliği: her kategoriden en pahalıdan başlayarak
+    // round-robin — tek bir kategorinin (örn. çamaşırhane devleri) listeyi kaplaması önlenir.
+    if (selectedCategory === "all" && !query) {
+      const byCat = new Map<string, EquipmentItem[]>();
+      for (const p of list) {
+        const c = resolveTopCategory(p) || "other";
+        (byCat.get(c) ?? byCat.set(c, []).get(c)!).push(p);
+      }
+      const buckets = [...byCat.values()]; // her biri zaten fiyat-azalan (pool sıralı)
+      const out: EquipmentItem[] = [];
+      let i = 0;
+      while (out.length < 24 && buckets.some((b) => b.length)) {
+        const bucket = buckets[i % buckets.length];
+        if (bucket.length) out.push(bucket.shift()!);
+        i++;
+      }
+      return out;
+    }
+    return list;
+  }, [catalogPool, searchQuery, selectedCategory]);
 
   // Mobil kategori şeridi — görünür olunca bir kez yana kayma ipucu ver
   // (kullanıcıya "kaydırılabilir" olduğunu gösterir). Masaüstünde dikey liste.

@@ -1,5 +1,6 @@
 import { useCartStore } from '../../../stores/cartStore';
-import { BadgeCheck, CreditCard } from 'lucide-react';
+import { useCompareStore, brandToSource, type CompareItem } from '../../../stores/compareStore';
+import { BadgeCheck, CreditCard, GitCompareArrows } from 'lucide-react';
 
 const TOP_PRODUCTS = [
   {
@@ -70,8 +71,31 @@ const TOP_PRODUCTS = [
   }
 ];
 
+const toCompareItem = (prod: typeof TOP_PRODUCTS[number]): CompareItem => ({
+  id: `top-${prod.id}`,
+  sku: prod.id,
+  name: prod.name,
+  brand: prod.brand,
+  image: prod.img,
+  price: prod.price > 0 ? prod.price : null,
+  promoPrice: null,
+  stock: null,
+  width_mm: null,
+  height_mm: null,
+  depth_mm: null,
+  length_mm: null,
+  weight: null,
+  kw: null,
+  connection: null,
+  category: prod.cat,
+  source: brandToSource(prod.brand),
+});
+
 export function TopProductsCarousel() {
   const { addItem, removeItem, isInCart } = useCartStore();
+  const compareItems = useCompareStore((s) => s.items);
+  const toggleCompare = useCompareStore((s) => s.toggleItem);
+  const compareIds = new Set(compareItems.map((i) => i.id));
   const marqueeProducts = [...TOP_PRODUCTS, ...TOP_PRODUCTS, ...TOP_PRODUCTS, ...TOP_PRODUCTS];
 
   return (
@@ -102,6 +126,7 @@ export function TopProductsCarousel() {
           <div className="flex w-max min-w-full justify-center gap-6 will-change-transform hover:[animation-play-state:paused] animate-[brandMarquee_80s_linear_infinite]">
           {marqueeProducts.map((prod, i) => {
             const added = isInCart(prod.id);
+            const inCompare = compareIds.has(`top-${prod.id}`);
             const listPrice = Math.round(prod.price * 1.12);
             const saving = listPrice - prod.price;
             
@@ -197,6 +222,20 @@ export function TopProductsCarousel() {
                       {added ? "IM ANGEBOT" : "ZUM ANGEBOT"}
                     </button>
                     
+                    <button
+                      onClick={() => toggleCompare(toCompareItem(prod))}
+                      title={inCompare ? 'Vergleich entfernen' : 'Vergleichen'}
+                      aria-label="Vergleichen"
+                      aria-pressed={inCompare}
+                      className={`px-2.5 py-2.5 rounded-lg transition-colors flex items-center justify-center border ${
+                        inCompare
+                          ? 'bg-brand-red border-brand-red text-white'
+                          : 'border-slate-200 text-[#0F2440] hover:text-brand-red hover:border-brand-red/30'
+                      }`}
+                    >
+                      <GitCompareArrows size={13} />
+                    </button>
+
                     <a
                       href="#quote"
                       className="px-3 py-2.5 border border-slate-200 text-[#0F2440] hover:text-brand-red hover:border-brand-red/30 rounded-lg transition-colors text-[9px] font-bold flex items-center justify-center"

@@ -14,6 +14,13 @@ export interface AllProduct {
   image: string | null;
   price: number | null;
   category: string | null;
+  // 019 view genişletmesi — kod + ölçü + stok (kartlarda kod/ölçü/rozet için).
+  code?: string | null;
+  length_mm?: number | null;
+  width_mm?: number | null;
+  height_mm?: number | null;
+  depth_mm?: number | null;
+  stock?: string | null;
 }
 
 interface AllFilters {

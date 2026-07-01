@@ -84,11 +84,52 @@ export function loadDesignLocal(projectKey: string): ProjectDocument | null {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Supabase katmanı (kalıcı, debounced)
+// Supabase katmanı (kalıcı) — coalesce + tek-uçuşlu kuyruk + retry + çevrimdışı
 // ─────────────────────────────────────────────────────────────────────────────
+//
+// NEDEN: Eski 2 saniyelik debounce, tab kapanışında son birkaç saniyelik
+// değişikliğin yalnız localStorage'da kalmasına yol açıyordu. Artık her commit
+// kısa bir coalesce penceresinde (varsayılan 400ms) Supabase'e yazılır; yazma
+// kuyruğu + retry veri kaybını önler, 'online' olayı çevrimdışı dönüşte otomatik
+// senkronlar, pagehide/visibilitychange keepalive ile kapanışta zorunlu flush eder.
 
-const timers = new Map<string, ReturnType<typeof setTimeout>>();
+/** Uzak yazımı coalesce penceresi (ms). Rate-limit için 300–500 arası ayarlanabilir. */
+const REMOTE_COALESCE_MS = 400;
+/** Hata sonrası retry backoff basamakları (ms). */
+const RETRY_BACKOFF_MS = [1000, 2000, 5000];
+
+export type SaveStatus = 'idle' | 'saving' | 'saved' | 'local' | 'error';
+type StatusCb = (s: SaveStatus) => void;
+
+interface QueueState {
+  /** Yazılmayı bekleyen EN YENİ belge (coalesce). */
+  pending: ProjectDocument | null;
+  pendingSerialized: string | null;
+  inFlight: boolean;
+  coalesceTimer: ReturnType<typeof setTimeout> | null;
+  retryTimer: ReturnType<typeof setTimeout> | null;
+  retryIdx: number;
+  onStatus: StatusCb | null;
+}
+
+const queues = new Map<string, QueueState>();
 const lastSerialized = new Map<string, string>();
+
+function getQueue(projectKey: string): QueueState {
+  let q = queues.get(projectKey);
+  if (!q) {
+    q = {
+      pending: null, pendingSerialized: null, inFlight: false,
+      coalesceTimer: null, retryTimer: null, retryIdx: 0, onStatus: null,
+    };
+    queues.set(projectKey, q);
+  }
+  return q;
+}
+
+function emit(q: QueueState, s: SaveStatus): void {
+  try { q.onStatus?.(s); } catch { /* status callback hatası önemsiz */ }
+}
 
 /** Belgeyi Supabase'e (user_id, project_key) anahtarıyla upsert eder. */
 export async function syncDesignProject(
@@ -117,45 +158,144 @@ export async function syncDesignProject(
 }
 
 /**
- * Belgeyi kaydeder: localStorage'a ANINDA, Supabase'e debounced (2s).
- * İçerik değişmediyse hiçbir şey yapmaz (gereksiz yazma önlenir).
+ * Belgeyi kaydeder: localStorage'a ANINDA, Supabase'e ~`REMOTE_COALESCE_MS`
+ * içinde (coalesced). İçerik değişmediyse hiçbir şey yapmaz.
+ * `onStatus` verilirse kayıt durumu (saving/saved/local/error) bildirilir.
  */
-export function saveDesignProject(doc: ProjectDocument, projectKey: string): void {
+export function saveDesignProject(
+  doc: ProjectDocument,
+  projectKey: string,
+  onStatus?: StatusCb,
+): void {
   if (isEmptyDocument(doc)) return;
   const serialized = JSON.stringify(doc);
+  // İçerik değişmediyse (ör. seçim/görünüm) hiçbir şey yapma.
   if (serialized === lastSerialized.get(projectKey)) return;
   lastSerialized.set(projectKey, serialized);
 
-  // 1) Anlık yerel yedek.
+  // 1) Anlık yerel yedek (senkron, çevrimdışı bile çalışır).
   saveDesignLocal(doc, projectKey);
 
-  // 2) Debounced bulut yedeği.
-  const existing = timers.get(projectKey);
-  if (existing) clearTimeout(existing);
-  timers.set(
-    projectKey,
-    setTimeout(() => {
-      timers.delete(projectKey);
-      void syncDesignProject(doc, projectKey);
-    }, 2000),
-  );
+  // 2) Uzak yazımı coalesce et.
+  const q = getQueue(projectKey);
+  if (onStatus) q.onStatus = onStatus;
+  q.pending = doc;
+  q.pendingSerialized = serialized;
+  emit(q, 'saving');
+
+  if (q.coalesceTimer) clearTimeout(q.coalesceTimer);
+  q.coalesceTimer = setTimeout(() => {
+    q.coalesceTimer = null;
+    void drainQueue(projectKey);
+  }, REMOTE_COALESCE_MS);
 }
 
-/** Bekleyen kaydı hemen gönderir (manuel "Kaydet" / sayfadan ayrılma için). */
+/** Kuyruktaki en yeni belgeyi tek-uçuşlu olarak Supabase'e yazar. */
+async function drainQueue(projectKey: string): Promise<void> {
+  const q = queues.get(projectKey);
+  if (!q || q.inFlight || !q.pending) return;
+
+  // Çevrimdışıysa erteleme — 'online' olayında yeniden denenecek.
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) {
+    emit(q, 'local');
+    return;
+  }
+
+  const doc = q.pending;
+  const writingSerialized = q.pendingSerialized;
+  q.inFlight = true;
+
+  const ok = await syncDesignProject(doc, projectKey);
+  q.inFlight = false;
+
+  if (ok) {
+    q.retryIdx = 0;
+    if (q.retryTimer) { clearTimeout(q.retryTimer); q.retryTimer = null; }
+    // Uçuş sırasında daha yeni bir doc geldiyse onu da yaz.
+    if (q.pendingSerialized !== writingSerialized && q.pending) {
+      void drainQueue(projectKey);
+    } else {
+      q.pending = null;
+      q.pendingSerialized = null;
+      emit(q, 'saved');
+    }
+  } else {
+    // Başarısız — localStorage güvende. Backoff ile retry; pending korunur.
+    emit(q, 'local');
+    scheduleRetry(projectKey);
+  }
+}
+
+function scheduleRetry(projectKey: string): void {
+  const q = queues.get(projectKey);
+  if (!q || q.retryTimer) return;
+  const delay = RETRY_BACKOFF_MS[Math.min(q.retryIdx, RETRY_BACKOFF_MS.length - 1)];
+  q.retryIdx += 1;
+  q.retryTimer = setTimeout(() => {
+    q.retryTimer = null;
+    void drainQueue(projectKey);
+  }, delay);
+}
+
+/** Bekleyen kaydı hemen gönderir (manuel "Kaydet" / route değişimi için). */
 export async function flushDesignProject(
   doc: ProjectDocument | undefined,
   projectKey: string,
 ): Promise<boolean> {
-  const existing = timers.get(projectKey);
-  if (existing) {
-    clearTimeout(existing);
-    timers.delete(projectKey);
+  const q = queues.get(projectKey);
+  if (q) {
+    if (q.coalesceTimer) { clearTimeout(q.coalesceTimer); q.coalesceTimer = null; }
+    if (q.retryTimer) { clearTimeout(q.retryTimer); q.retryTimer = null; }
   }
-  if (doc) {
-    saveDesignLocal(doc, projectKey);
-    return syncDesignProject(doc, projectKey);
+  const finalDoc = doc ?? q?.pending ?? undefined;
+  if (finalDoc && !isEmptyDocument(finalDoc)) {
+    saveDesignLocal(finalDoc, projectKey);
+    const ok = await syncDesignProject(finalDoc, projectKey);
+    if (q && ok) { q.pending = null; q.pendingSerialized = null; emit(q, 'saved'); }
+    return ok;
   }
   return false;
+}
+
+/**
+ * Sayfa kapanışında (pagehide / visibilitychange:hidden) senkron-güvenli uzak
+ * yazım. supabase-js'in async upsert'i unload'da iptal olabileceğinden, PostgREST'e
+ * `keepalive: true` fetch ile doğrudan gönderir — tarayıcı isteği kapanıştan sonra
+ * tamamlar. localStorage zaten anlık güncel; bu uzak yedeği garanti eder.
+ */
+export function flushDesignProjectBeacon(
+  doc: ProjectDocument | undefined,
+  projectKey: string,
+): void {
+  const q = queues.get(projectKey);
+  const finalDoc = doc ?? q?.pending ?? undefined;
+  if (!finalDoc || isEmptyDocument(finalDoc)) return;
+  saveDesignLocal(finalDoc, projectKey); // her halükarda yerelde güvende
+
+  const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+  const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+  if (!url || !key) return;
+  try {
+    void fetch(`${url}/rest/v1/gastro_design_projects?on_conflict=user_id,project_key`, {
+      method: 'POST',
+      headers: {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        'Content-Type': 'application/json',
+        Prefer: 'resolution=merge-duplicates',
+      },
+      body: JSON.stringify({
+        user_id: USER_ID(),
+        project_key: projectKey,
+        name: finalDoc.name || 'Untitled Project',
+        document: finalDoc,
+      }),
+      keepalive: true,
+    });
+    if (q) { q.pending = null; q.pendingSerialized = null; }
+  } catch {
+    /* unload sırasında hata yutulur — localStorage yedeği var */
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -201,18 +341,24 @@ export async function loadBestDesign(projectKey: string): Promise<{
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Sayfadan ayrılırken bekleyen kayıtları temizle (localStorage zaten güncel)
+// Global dayanıklılık: çevrimdışı dönüşte otomatik senkron + kapanışta beacon flush
 // ─────────────────────────────────────────────────────────────────────────────
 
 if (typeof window !== 'undefined') {
-  window.addEventListener('beforeunload', () => {
-    for (const [key, t] of timers) {
-      clearTimeout(t);
-      timers.delete(key);
+  // Bağlantı dönünce bekleyen tüm yazımları gönder (çevrimdışı dayanıklılık).
+  window.addEventListener('online', () => {
+    for (const key of queues.keys()) void drainQueue(key);
+  });
+
+  // Sayfa gizlenince/kapanınca bekleyen yazımları keepalive ile gönder —
+  // localStorage zaten anlık güncel; bu uzak yedeği de garanti eder.
+  const flushAllBeacon = () => {
+    for (const [key, q] of queues) {
+      if (q.pending) flushDesignProjectBeacon(q.pending, key);
     }
-    // Not: localStorage her değişimde anlık yazıldığı için veri zaten güvende.
-    // Supabase'in senkron beforeunload çağrısı olmadığından son birkaç saniyelik
-    // değişiklik yalnızca yerelde kalabilir; bir sonraki açılışta loadBestDesign
-    // onu yine de geri yükler.
+  };
+  window.addEventListener('pagehide', flushAllBeacon);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushAllBeacon();
   });
 }

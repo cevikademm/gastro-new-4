@@ -46,7 +46,12 @@ const meshyHeaders = () => ({
   "Content-Type": "application/json",
 });
 
-// --- TEK AŞAMA: Meshy 6 + PBR doku doğrudan ---
+// --- TEK AŞAMA: Meshy 6 + yüksek kalite PBR + HD doku ---
+// Kalite kaldıraçları (Meshy image-to-3d dokümanı):
+//   should_texture+enable_pbr+hd_texture → gerçekçi 4K PBR doku (gri/dokusuz modeli önler)
+//   image_enhancement+remove_lighting    → girdi fotoyu temizleyip ışığı söker (daha temiz doku)
+//   target_polycount/quad/remesh         → geometri detayı
+// NOT: hd_texture + doku üretimi EK KREDİ harcar.
 async function meshyCreatePreview(imageUrl: string): Promise<string> {
   const res = await fetch(`${MESHY_API_URL}/openapi/v1/image-to-3d`, {
     method: "POST",
@@ -55,12 +60,13 @@ async function meshyCreatePreview(imageUrl: string): Promise<string> {
       image_url: imageUrl,
       ai_model: "meshy-6",
       topology: "quad",
-      target_polycount: 100000,
+      target_polycount: 150000,
       should_remesh: true,
-      symmetry_mode: "auto",
+      should_texture: true,
       enable_pbr: true,
-      texture_resolution: 2048,
+      hd_texture: true,
       image_enhancement: true,
+      remove_lighting: true,
       license: "CC_BY_4",
     }),
   });

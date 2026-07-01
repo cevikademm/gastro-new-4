@@ -27,10 +27,10 @@ export default function ToolbarButton({
       disabled={disabled}
       title={title}
       className={[
-        'inline-flex items-center gap-1.5 px-2.5 h-8 rounded-md text-xs font-medium transition-colors',
+        'inline-flex items-center justify-center gap-1.5 px-2.5 h-9 rounded-xl text-[11px] font-medium transition',
         active
-          ? 'bg-primary text-white'
-          : 'text-slate-600 hover:bg-slate-100 disabled:text-slate-300 disabled:hover:bg-transparent',
+          ? 'bg-brand-red/10 text-brand-red ring-1 ring-brand-red/20'
+          : 'text-slate-500 hover:bg-slate-100 disabled:text-slate-300 disabled:hover:bg-transparent',
       ].join(' ')}
     >
       {children}

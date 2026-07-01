@@ -2,18 +2,17 @@ import React, { useEffect, useRef, useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProjectStore, type ProductItem } from '../../stores/projectStore';
+import { useAuthStore } from '../../stores/authStore';
 import {
   ArrowLeft, ClipboardList, Calendar, Building,
   Plus, Trash2, Package, Flame, Droplets, Refrigerator,
   Table, Microwave, Waves, Eye, Settings2, Users, FileText, Download, Loader2,
   Box, Boxes, Sparkles, CheckCircle2, X
 } from 'lucide-react';
-import { jsPDF } from 'jspdf';
 import { meshyGenerate, getProduct3DModelsByKeys, productKeyFor, type Product3DModel } from '../../lib/meshyClient';
 import { useMeshStore } from '../../stores/meshStore';
 import SafeModelViewer from '../../components/SafeModelViewer';
-import { IMAGE_PROXY_URL } from '../../lib/assets';
-import { ensurePdfFont } from '../../lib/pdfFont';
+import { buildAngebotPdf, type DocLine } from '../../lib/angebotPdf';
 import { designQuoteLines, quoteLinesFromDoc, type DesignQuoteLine } from '../../lib/designQuoteLines';
 import { loadBestDesign } from '../../lib/gastroDesignSync';
 
@@ -60,6 +59,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 function QuoteTab({ project, floorItems, designLines }: { project: import('../../stores/projectStore').Project; floorItems: FloorPlanItem[]; designLines: DesignQuoteLine[] }) {
   const { name, clientName, id } = project;
+  // Nakliye oranı (% kontrolü) yalnızca adminlere görünür; PDF'te oran asla yazılmaz.
+  const isAdmin = useAuthStore((s) => s.user?.role === 'admin');
 
   // Teklif satırı = ProductItem + adet + "fiyat sorulacak".
   type QuoteRow = ProductItem & { qty: number; priceOnRequest: boolean };
@@ -131,252 +132,57 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
   const quoteRef = useRef<HTMLDivElement>(null);
   const [exporting, setExporting] = useState(false);
 
-  const COMPANY = {
-    name: '2MC Werbung & Gastro GmbH',
-    address: 'Musterstraße 12, 10115 Berlin, Deutschland',
-    phone: '+49 30 1234 5678',
-    email: 'info@2mcgastro.de',
-    website: 'www.2mcgastro.de',
-    vat: 'DE365660948',
-  };
-
-  async function loadImgBase64(src: string): Promise<string | null> {
-    if (!src) return null;
-    // Already a base64 data URL → use directly, no network.
-    if (src.startsWith('data:')) return src;
-    const url = src.startsWith('http') ? src : window.location.origin + (src.startsWith('/') ? '' : '/') + src;
-    const fetchUrl = url.startsWith(window.location.origin) ? url : `${IMAGE_PROXY_URL}?url=${encodeURIComponent(url)}`;
-    try {
-      // Timeout so a slow/unreachable image (or proxy) can NEVER hang the PDF.
-      // On timeout/failure the image is simply skipped (N/A placeholder).
-      const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 7000);
-      const res = await fetch(fetchUrl, { signal: controller.signal }).finally(() => clearTimeout(timer));
-      if (!res.ok) throw new Error();
-      const blob = await res.blob();
-      return await new Promise<string | null>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = () => resolve(null);
-        reader.readAsDataURL(blob);
-      });
-    } catch { return null; }
-  }
-
   const exportQuotePDF = async () => {
     // Nakliye gideri (Versandkosten) — teklif sayfasındaki orandan (shipRate)
-    // türetilir: net ara toplamın %'si. Tarayıcı prompt'u YOK.
+    // türetilir: net ara toplamın %'si → son satır olarak eklenir. Çizim ortak
+    // angebotPdf şablonuna devredilmiştir.
     setExporting(true);
     try {
-      const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const FONT = await ensurePdfFont(doc); // Unicode font so Turkish/German render correctly
-      const PW = 210;
-      const PH = 297;
-      const dateStr = new Date().toLocaleDateString('de-DE');
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('de-DE');
+      const validTo = new Date(now);
+      validTo.setDate(validTo.getDate() + 30);
 
-      // Load logos
-      const [logoFull, logoHolo] = await Promise.all([
-        loadImgBase64('/logo-2mc-gastro-white.png'),
-        loadImgBase64('/logo-2mc-gastro-red.png'),
-      ]);
-
-      // Hologram watermark
-      let holoPageData: string | null = null;
-      if (logoHolo) {
-        holoPageData = await new Promise<string | null>((resolve) => {
-          const img = new Image();
-          img.onload = () => {
-            const c = document.createElement('canvas');
-            c.width = 794; c.height = 1123;
-            const ctx = c.getContext('2d')!;
-            // Yeni 2MC Gastro logosu — en-boy oranı korunarak soluk filigran (hologram).
-            const w = c.width * 0.78;
-            const h = w * (img.naturalHeight / (img.naturalWidth || 1));
-            ctx.globalAlpha = 0.05;
-            ctx.drawImage(img, (c.width - w) / 2, (c.height - h) / 2, w, h);
-            resolve(c.toDataURL('image/png'));
-          };
-          img.onerror = () => resolve(null);
-          img.src = logoHolo;
+      const lines: DocLine[] = products.map((p, i) => {
+        const sub = [
+          p.code,
+          p.brand,
+          `${p.dimensions.width}×${p.dimensions.height} cm`,
+          p.kw > 0 ? `${p.kw} kW` : '',
+        ].filter(Boolean).join('  ·  ');
+        return {
+          pos: i + 1,
+          name: p.name || '—',
+          sub,
+          qty: p.qty,
+          unit: 'Stück',
+          unitPrice: p.priceOnRequest ? null : (p.price > 0 ? p.price : null),
+          imageUrl: p.imageData || null,
+        };
+      });
+      if (shipping > 0) {
+        lines.push({
+          pos: lines.length + 1,
+          name: 'Versandkosten', // PDF'te (müşteriye) oran YAZILMAZ
+          qty: 1,
+          unit: 'Pauschal',
+          unitPrice: shipping,
         });
       }
-      const drawHologram = () => { if (holoPageData) doc.addImage(holoPageData, 'PNG', 0, 0, PW, PH); };
 
-      const drawStripe = () => {
-        doc.setFillColor(190, 36, 40);
-        doc.setGState(doc.GState({ opacity: 0.06 }));
-        for (let i = 0; i < 3; i++) {
-          const off = 60 + i * 25;
-          doc.triangle(0, PH - off, PW + 20, PH - off - 80, PW + 20, PH - off - 84, 'F');
-        }
-        doc.setGState(doc.GState({ opacity: 1 }));
-      };
+      const recipient = [clientName, `Projekt: ${name}`].filter(Boolean) as string[];
 
-      const drawPageHeader = (pg: number) => {
-        doc.setFillColor(147, 19, 21);
-        doc.rect(0, 0, PW, 38, 'F');
-        doc.setFillColor(190, 36, 40);
-        doc.rect(0, 38, PW, 2, 'F');
-        if (logoFull) doc.addImage(logoFull, 'PNG', 10, 8, 76, 18.1);
-        else { doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.setFont(FONT, 'bold'); doc.text('2MC GASTRO', 14, 20); }
-        // Firma bilgileri (sağ) — eski yuvarlak logo yerine adres + iletişim.
-        doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont(FONT, 'bold');
-        doc.text(COMPANY.name, PW - 10, 11, { align: 'right' });
-        doc.setTextColor(245, 210, 210); doc.setFontSize(6.8); doc.setFont(FONT, 'normal');
-        doc.text(COMPANY.address, PW - 10, 16, { align: 'right' });
-        doc.text(`Tel: ${COMPANY.phone}`, PW - 10, 20, { align: 'right' });
-        doc.text(`E-Mail: ${COMPANY.email}`, PW - 10, 24, { align: 'right' });
-        doc.text(`${COMPANY.website}  ·  USt: ${COMPANY.vat}`, PW - 10, 28, { align: 'right' });
-      };
-
-      // Page 1
-      drawHologram(); drawStripe(); drawPageHeader(1);
-
-      // Title block
-      doc.setFillColor(250, 244, 244);
-      doc.roundedRect(10, 46, PW - 20, 28, 3, 3, 'F');
-      doc.setFillColor(190, 36, 40);
-      doc.roundedRect(10, 46, 4, 28, 2, 2, 'F');
-      doc.setTextColor(147, 19, 21); doc.setFontSize(16); doc.setFont(FONT, 'bold');
-      doc.text('ANGEBOT', 20, 57);
-      doc.setFontSize(8); doc.setFont(FONT, 'normal'); doc.setTextColor(80, 90, 120);
-      doc.text(`Angebot-Nr.: ${quoteNo}`, 20, 65);
-      doc.text(`Datum: ${dateStr}`, 80, 65);
-      doc.text(`Kunde: ${clientName || '—'}`, 120, 65);
-
-      // Client info bar
-      doc.setFillColor(147, 19, 21);
-      doc.rect(10, 78, PW - 20, 10, 'F');
-      doc.setTextColor(255, 255, 255); doc.setFontSize(7.5);
-      doc.text(`Projekt: ${name}`, 14, 85);
-      doc.text(`Tel: ${COMPANY.phone}`, 80, 85);
-      doc.text(`E-Mail: ${COMPANY.email}`, 130, 85);
-      doc.text(`USt: ${COMPANY.vat}`, 175, 85);
-
-      let y = 96;
-      let pageNum = 1;
-
-      // Pre-load product images
-      const imgCache: Record<string, string | null> = {};
-      await Promise.all(
-        products.map(async (p) => {
-          const src = p.imageData || '';
-          if (src) imgCache[p.id] = await loadImgBase64(src);
-          else imgCache[p.id] = null;
-        })
+      const doc = await buildAngebotPdf(
+        {
+          kind: 'angebot',
+          number: quoteNo,
+          date: dateStr,
+          validUntil: validTo.toLocaleDateString('de-DE'),
+          recipient,
+        },
+        lines,
+        { vatRate },
       );
-
-      // Column headers
-      const drawColumnHeaders = () => {
-        doc.setFontSize(7); doc.setFont(FONT, 'bold'); doc.setTextColor(100, 110, 140);
-        doc.text('BILD', 12, y);
-        doc.text('MENGE', 32, y);
-        doc.text('ART.-NR.', 42, y);
-        doc.text('BEZEICHNUNG', 78, y);
-        doc.text('EINZELPREIS', 158, y, { align: 'right' });
-        doc.text('GESAMT', PW - 12, y, { align: 'right' });
-        y += 2;
-        doc.setDrawColor(228, 208, 208); doc.line(10, y, PW - 10, y);
-        y += 3;
-      };
-      drawColumnHeaders();
-
-      // Product rows
-      let rowAlt = false;
-      for (const product of products) {
-        const rowH = 18;
-        if (y + rowH > 272) {
-          doc.addPage(); pageNum++;
-          drawHologram(); drawStripe(); drawPageHeader(pageNum);
-          y = 48; drawColumnHeaders();
-        }
-
-        if (rowAlt) { doc.setFillColor(250, 244, 244); doc.rect(10, y - 1, PW - 20, rowH, 'F'); }
-        rowAlt = !rowAlt;
-
-        // Image
-        const imgData = imgCache[product.id];
-        if (imgData) {
-          doc.addImage(imgData, 'PNG', 12, y, 14, 14);
-        } else {
-          doc.setFillColor(230, 235, 245); doc.roundedRect(12, y, 14, 14, 2, 2, 'F');
-          doc.setTextColor(180, 190, 210); doc.setFontSize(6); doc.text('N/A', 19, y + 8, { align: 'center' });
-        }
-
-        // Quantity badge
-        doc.setFillColor(190, 36, 40); doc.roundedRect(30, y + 3, 9, 7, 1.5, 1.5, 'F');
-        doc.setTextColor(255, 255, 255); doc.setFontSize(8); doc.setFont(FONT, 'bold');
-        doc.text(String(product.qty), 34.5, y + 8.5, { align: 'center' });
-
-        // Code
-        doc.setTextColor(190, 36, 40); doc.setFontSize(6.5); doc.setFont(FONT, 'bold');
-        doc.text(product.code.substring(0, 22), 42, y + 5);
-        if (product.brand) {
-          doc.setTextColor(140, 150, 170); doc.setFontSize(6); doc.setFont(FONT, 'normal');
-          doc.text(product.brand, 42, y + 11);
-        }
-
-        // Name
-        doc.setTextColor(147, 19, 21); doc.setFontSize(7.5); doc.setFont(FONT, 'bold');
-        const pName = product.name.length > 42 ? product.name.substring(0, 42) + '…' : product.name;
-        doc.text(pName, 78, y + 5);
-
-        // Dims & kW
-        doc.setFont(FONT, 'normal'); doc.setFontSize(6); doc.setTextColor(120, 130, 155);
-        const dims = `${product.dimensions.width}×${product.dimensions.height}cm${product.kw > 0 ? `  |  ${product.kw} kW` : ''}`;
-        doc.text(dims, 78, y + 11);
-
-        // Price (EINZELPREIS = birim, GESAMT = birim × adet)
-        doc.setTextColor(80, 90, 120); doc.setFontSize(7.5); doc.setFont(FONT, 'normal');
-        doc.text(product.priceOnRequest ? 'Auf Anfrage' : (product.price > 0 ? fmt(product.price) : '—'), 158, y + 7, { align: 'right' });
-        doc.setFont(FONT, 'bold'); doc.setTextColor(147, 19, 21);
-        doc.text(product.priceOnRequest ? '—' : (product.price > 0 ? fmt(product.price * product.qty) : '—'), PW - 12, y + 7, { align: 'right' });
-
-        doc.setDrawColor(232, 216, 216); doc.line(10, y + rowH - 1, PW - 10, y + rowH - 1);
-        y += rowH;
-      }
-
-      // Totals
-      if (y + 52 > 272) {
-        doc.addPage(); pageNum++;
-        drawHologram(); drawStripe(); drawPageHeader(pageNum);
-        y = 48;
-      }
-      // Toplamlar: Zwischensumme (ürünler) + Versandkosten (%) ayrı kalem;
-      // MwSt ve Gesamtbetrag nakliye DAHİL (component gövdesindeki türetilenler).
-      const hasShip = shipping > 0;
-      const boxH = hasShip ? 48 : 40;
-      y += 4;
-      doc.setFillColor(250, 244, 244); doc.roundedRect(PW / 2, y, PW / 2 - 10, boxH, 3, 3, 'F');
-      doc.setFontSize(8); doc.setFont(FONT, 'normal'); doc.setTextColor(80, 90, 120);
-      let ty = y + 9;
-      doc.text('Zwischensumme:', PW / 2 + 5, ty);
-      doc.text(fmt(subtotal), PW - 12, ty, { align: 'right' });
-      if (hasShip) {
-        ty += 8;
-        doc.text(`Versandkosten (${shipRate}%):`, PW / 2 + 5, ty);
-        doc.text(fmt(shipping), PW - 12, ty, { align: 'right' });
-      }
-      ty += 8;
-      doc.text('MwSt. (19%):', PW / 2 + 5, ty);
-      doc.text(fmt(vat), PW - 12, ty, { align: 'right' });
-      doc.setDrawColor(190, 36, 40); doc.line(PW / 2 + 3, ty + 4, PW - 10, ty + 4);
-      doc.setFillColor(147, 19, 21); doc.roundedRect(PW / 2, ty + 6, PW / 2 - 10, 13, 2, 2, 'F');
-      doc.setTextColor(255, 255, 255); doc.setFontSize(9); doc.setFont(FONT, 'bold');
-      doc.text('GESAMTBETRAG:', PW / 2 + 5, ty + 14);
-      doc.text(fmt(total), PW - 12, ty + 14, { align: 'right' });
-
-      // Footer on all pages
-      const totalPg = doc.getNumberOfPages();
-      for (let pg = 1; pg <= totalPg; pg++) {
-        doc.setPage(pg);
-        doc.setFillColor(147, 19, 21); doc.rect(0, PH - 12, PW, 12, 'F');
-        doc.setFillColor(190, 36, 40); doc.rect(0, PH - 12, PW, 1.5, 'F');
-        doc.setTextColor(245, 210, 210); doc.setFontSize(6.5); doc.setFont(FONT, 'normal');
-        doc.text(`${COMPANY.name}  ·  ${COMPANY.address}  ·  ${COMPANY.phone}  ·  ${COMPANY.email}`, PW / 2, PH - 6, { align: 'center' });
-        doc.setTextColor(230, 180, 180);
-        doc.text(`${pg} / ${totalPg}`, PW - 12, PH - 6, { align: 'right' });
-      }
 
       doc.save(`Angebot_${quoteNo}_${dateStr.replace(/\./g, '-')}.pdf`);
     } catch (err) {
@@ -396,24 +202,26 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
           <p className="text-sm text-on-surface-variant mt-0.5">{clientName || 'Müşteri'} — {name} <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded ml-1">{quoteNo}</span></p>
         </div>
         <div className="flex items-center gap-3 self-start">
-          {/* Nakliye (Versand) oranı — şık inline kontrol; forma + PDF'e canlı yansır. */}
-          <div className="flex items-center gap-2 bg-surface-container-low border border-outline-variant/40 rounded-lg pl-3 pr-2 py-1.5">
-            <span className="text-xs font-bold text-on-surface-variant whitespace-nowrap">Nakliye</span>
-            <div className="flex items-center bg-surface-container-lowest border border-outline-variant/40 rounded-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-colors">
-              <input
-                type="number"
-                min={0}
-                max={100}
-                step={1}
-                value={shipRate}
-                onChange={(e) => setShip(Number(e.target.value))}
-                className="w-12 bg-transparent text-right text-sm font-bold text-on-surface px-2 py-1 outline-none"
-                aria-label="Nakliye oranı (%)"
-              />
-              <span className="text-sm font-bold text-on-surface-variant pr-2">%</span>
+          {/* Nakliye (Versand) oranı — YALNIZCA ADMİN; forma + PDF'e canlı yansır (PDF'te oran yazılmaz). */}
+          {isAdmin && (
+            <div className="flex items-center gap-2 bg-surface-container-low border border-outline-variant/40 rounded-lg pl-3 pr-2 py-1.5">
+              <span className="text-xs font-bold text-on-surface-variant whitespace-nowrap">Nakliye</span>
+              <div className="flex items-center bg-surface-container-lowest border border-outline-variant/40 rounded-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-colors">
+                <input
+                  type="number"
+                  min={0}
+                  max={100}
+                  step={1}
+                  value={shipRate}
+                  onChange={(e) => setShip(Number(e.target.value))}
+                  className="w-12 bg-transparent text-right text-sm font-bold text-on-surface px-2 py-1 outline-none"
+                  aria-label="Nakliye oranı (%)"
+                />
+                <span className="text-sm font-bold text-on-surface-variant pr-2">%</span>
+              </div>
+              <span className="text-xs font-semibold text-primary tabular-nums whitespace-nowrap min-w-[64px] text-right">{shipping > 0 ? fmt(shipping) : '—'}</span>
             </div>
-            <span className="text-xs font-semibold text-primary tabular-nums whitespace-nowrap min-w-[64px] text-right">{shipping > 0 ? fmt(shipping) : '—'}</span>
-          </div>
+          )}
           <button
             onClick={exportQuotePDF}
             disabled={exporting}
@@ -578,7 +386,7 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
                 </div>
                 {shipRate > 0 && (
                   <div className="flex justify-between text-sm text-slate-600">
-                    <span>Versandkosten ({shipRate}%)</span>
+                    <span>Versandkosten{isAdmin ? ` (${shipRate}%)` : ''}</span>
                     <span className="font-bold">{fmt(shipping)}</span>
                   </div>
                 )}

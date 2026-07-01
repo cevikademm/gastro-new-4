@@ -25,6 +25,7 @@ import type { SceneManager } from '../scene/SceneManager';
 import { useProjectStore } from '../../../store';
 import { obbCenterFromMinCorner } from './placement';
 import { resolveEquipmentDrag } from './resolveDrag';
+import { flipEquipPlacement } from '../../../core/renderSpace';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -432,28 +433,32 @@ export class InteractionController {
       return;
     }
 
+    // render min-köşe → domain (çözücü/collision domain uzayında çalışır).
+    const renderYaw = this.selectedRoot.rotation.z;
+    const domIn = flipEquipPlacement(xMm, yMm, renderYaw, eq.footprint.width, eq.footprint.depth);
+
     // Çakışma/snap/anti-tünel/oda-clamp — 2D editör ile ORTAK çözücü.
     const res = resolveEquipmentDrag({
       project,
       eq,
-      desiredMinCornerMm: { x: xMm, y: yMm },
+      desiredMinCornerMm: { x: domIn.x, y: domIn.y },
       snapGridMm: 0, // xMm/yMm zaten yukarıda grid-snap'lendi
       edgeSnapTolMm: this.edgeSnapTolMm,
       collisionEnabled: this.collisionEnabled && !this.shiftHeld,
       prevValidCenter: this.dragLastCenter,
     });
-    xMm = res.x;
-    yMm = res.y;
-    if (eq.mount === 'wall') {
-      // Sürükleme sırasında canlı dönüşü yansıt.
-      this.selectedRoot.rotation.z = res.rotation;
-    } else {
-      // Sonraki anti-tünel kontrolünün referansı.
+    if (eq.mount !== 'wall') {
+      // Sonraki anti-tünel kontrolünün referansı (domain).
       this.dragLastCenter = res.validCenter;
     }
-
-    this.selectedRoot.position.x = xMm * MM_TO_THREE;
-    this.selectedRoot.position.y = yMm * MM_TO_THREE;
+    // domain sonuç → render (görsele yaz).
+    const rOut = flipEquipPlacement(res.x, res.y, res.rotation, eq.footprint.width, eq.footprint.depth);
+    if (eq.mount === 'wall') {
+      // Sürükleme sırasında canlı dönüşü yansıt.
+      this.selectedRoot.rotation.z = rOut.yaw;
+    }
+    this.selectedRoot.position.x = rOut.x * MM_TO_THREE;
+    this.selectedRoot.position.y = rOut.y * MM_TO_THREE;
     // Leave z untouched — Editor3D already seated the model (manual height +
     // tilt compensation). Forcing z = 0 here made tilted items sink mid-drag.
   }
@@ -463,18 +468,20 @@ export class InteractionController {
     if (!this.selectedRoot) return;
     const equipmentId: string | undefined = this.selectedRoot.userData.equipmentId;
     if (!equipmentId) return;
-    // contentRoot LOCAL (x, y) are domain (x, y) in METERS. Convert to mm.
-    const xMm = this.selectedRoot.position.x * THREE_TO_MM;
-    const yMm = this.selectedRoot.position.y * THREE_TO_MM;
+    // contentRoot LOCAL (x, y) = RENDER min-köşe (metre). mm'ye çevir.
+    const rxMm = this.selectedRoot.position.x * THREE_TO_MM;
+    const ryMm = this.selectedRoot.position.y * THREE_TO_MM;
     // Wall mounting re-derives rotation during the drag; persist it too.
     // Read yaw via ZXY euler so a gizmo-tilted item (tilt baked into the outer
     // group) still reports its true yaw instead of a coupled euler.z.
-    const rotZ = new THREE.Euler().setFromQuaternion(this.selectedRoot.quaternion, 'ZXY').z;
+    const renderYaw = new THREE.Euler().setFromQuaternion(this.selectedRoot.quaternion, 'ZXY').z;
     useProjectStore.getState().update((d) => {
       const eq = d.equipment[equipmentId];
       if (!eq) return;
-      eq.position = { x: xMm, y: yMm, z: eq.position.z };
-      eq.rotation = rotZ;
+      // render → domain (konum+yaw birlikte yansır; bkz. renderSpace.ts).
+      const dom = flipEquipPlacement(rxMm, ryMm, renderYaw, eq.footprint.width, eq.footprint.depth);
+      eq.position = { x: dom.x, y: dom.y, z: eq.position.z };
+      eq.rotation = dom.yaw;
     });
   }
 
@@ -483,11 +490,17 @@ export class InteractionController {
     if (!this.selectedRoot) return;
     const equipmentId: string | undefined = this.selectedRoot.userData.equipmentId;
     if (!equipmentId) return;
-    const newRotRad = this.selectedRoot.rotation.z + (deltaDeg * Math.PI) / 180;
-    this.selectedRoot.rotation.z = newRotRad;
+    const newRenderYaw = this.selectedRoot.rotation.z + (deltaDeg * Math.PI) / 180;
+    this.selectedRoot.rotation.z = newRenderYaw; // render
+    const rxMm = this.selectedRoot.position.x * THREE_TO_MM;
+    const ryMm = this.selectedRoot.position.y * THREE_TO_MM;
     useProjectStore.getState().update((d) => {
       const eq = d.equipment[equipmentId];
-      if (eq) eq.rotation = newRotRad;
+      if (!eq) return;
+      // render min-köşe etrafında döndü → domain konum+yaw'ı birlikte çöz.
+      const dom = flipEquipPlacement(rxMm, ryMm, newRenderYaw, eq.footprint.width, eq.footprint.depth);
+      eq.rotation = dom.yaw;
+      eq.position = { ...eq.position, x: dom.x, y: dom.y };
     });
   }
 }

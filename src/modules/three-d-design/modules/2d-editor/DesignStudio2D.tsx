@@ -18,7 +18,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Stage, Layer } from 'react-konva';
+import { Stage, Layer, Line } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type Konva from 'konva';
 
@@ -31,16 +31,19 @@ import {
   Minus,
   Maximize2,
   Trash2,
+  Eraser,
   Slash,
   Package,
 } from 'lucide-react';
 
 import {
+  roomForPoint,
   roomPolygon,
   roomVertexIds,
   snapToGrid,
   useProjectStore,
   type Room,
+  type RoomId,
   type Vec2,
   type VertexId,
   type WallId,
@@ -64,9 +67,11 @@ import OpeningsLayer from './render/OpeningsLayer';
 import LooseWallsLayer from './render/LooseWallsLayer';
 import { CompassRose, TitleBlock, ScaleBar } from './render/PlotOverlays';
 import PropertiesPanel, { OPENING_DEFAULTS } from './panels/PropertiesPanel';
+import EquipmentPropertiesPanel2D from './panels/EquipmentPropertiesPanel2D';
 import EquipmentLayer2D from './render/EquipmentLayer2D';
 import EquipmentCatalogPanel from '../3d-editor/panels/EquipmentCatalogPanel';
 import { parseHeightMm, mapEquipmentCategory } from '../3d-editor/loaders/productMesh';
+import { getCatalogEntry } from '../3d-editor/loaders/equipmentCatalog';
 import { defaultMountFor, defaultZForMount, containFloorItem, obbCenterFromMinCorner } from '../3d-editor/interaction/placement';
 import { resolveEquipmentDrag } from '../3d-editor/interaction/resolveDrag';
 import type { EquipmentItem } from '../../../../stores/equipmentStore';
@@ -101,6 +106,8 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   const createPolygonRoom = useProjectStore((s) => s.createPolygonRoom);
   const splitWallAction = useProjectStore((s) => s.splitWall);
   const removeRoom = useProjectStore((s) => s.removeRoom);
+  const removeOpening = useProjectStore((s) => s.removeOpening);
+  const newProject = useProjectStore((s) => s.newProject);
   const removeWall = useProjectStore((s) => s.removeWall);
   const addOpening = useProjectStore((s) => s.addOpening);
   const ensureVertex = useProjectStore((s) => s.ensureVertex);
@@ -136,6 +143,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   const selectedVertex = useEditor2DState((s) => s.selectedVertex);
   const selectRoom = useEditor2DState((s) => s.selectRoom);
   const selectEdge = useEditor2DState((s) => s.selectEdge);
+  const selectedEdge = useEditor2DState((s) => s.selectedEdge);
   const selectOpening = useEditor2DState((s) => s.selectOpening);
   const selectedOpeningId = useEditor2DState((s) => s.selectedOpeningId);
   const selectedWallId = useEditor2DState((s) => s.selectedWallId);
@@ -153,6 +161,15 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   );
   const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
   const equipmentList = useMemo(() => Object.values(project.equipment), [project.equipment]);
+
+  // Silme geri bildirimi — bir şey silinemediğinde kısa süreli ipucu (sessiz no-op yerine).
+  const [deleteHint, setDeleteHint] = useState<string | null>(null);
+  const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const flashHint = useCallback((msg: string) => {
+    setDeleteHint(msg);
+    if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
+    hintTimerRef.current = setTimeout(() => setDeleteHint(null), 3500);
+  }, []);
 
   // ── 2D ↔ 3D kamera/odak senkronu ─────────────────────────────────────────
   // 2D'ye girerken paylaşılan odağı merkeze al; çıkarken görünüm merkezini
@@ -300,6 +317,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         mount,
         footprint: { width: l, depth: w },
         heightMm: parseHeightMm(armedProduct.h),
+        allowOverlap: getCatalogEntry(armedProduct.id)?.allowOverlap,
       });
       setSelectedEquipmentId(newId);
       if (!native.shiftKey) setArmedProduct(null);
@@ -371,12 +389,37 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
       return;
     }
 
-    if (tool === 'select' && native.button === 0 && clickedOnEmpty) {
-      selectVertex(null);
-      selectEdge(null);
-      selectOpening(null);
-      selectWall(null);
-      setSelectedEquipmentId(null);
+    if (tool === 'select' && native.button === 0) {
+      // 1) Mavi oda ÇİZGİSİNE (kenara) tıklandı mı? Köşeye çok yakınsa köşe seçimi
+      //    (VertexHandlesLayer) önceliklidir, o yüzden kenar seçmeyi atla.
+      let edgePicked = false;
+      if (activeRoom && activeRoom.points.length >= 2) {
+        const nearV = nearestVertex(rawWorld, activeRoom.points, (VERTEX_MERGE_PX * 1.8) / scale);
+        if (!nearV) {
+          const edges = polygonToEdges(activeRoom.points);
+          const hit = nearestPointOnEdges(rawWorld, edges, (VERTEX_MERGE_PX * 2.5) / scale);
+          if (hit) {
+            selectVertex(null);
+            selectOpening(null);
+            selectWall(null);
+            setSelectedEquipmentId(null);
+            selectEdge(hit.edgeIndex);
+            selectRoom(activeRoom.id as RoomId);
+            edgePicked = true;
+          }
+        }
+      }
+      // 2) Kenar seçilmediyse ve boş tuvale tıklandıysa: oda içindeyse odayı seç,
+      //    tamamen boşluğa tıklandıysa tüm seçimi kaldır.
+      if (!edgePicked && clickedOnEmpty) {
+        selectVertex(null);
+        selectEdge(null);
+        selectOpening(null);
+        selectWall(null);
+        setSelectedEquipmentId(null);
+        const hitRoom = roomForPoint(project, rawWorld);
+        selectRoom(hitRoom ? (hitRoom.id as RoomId) : null);
+      }
     }
   };
 
@@ -591,9 +634,23 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         // Seçili köşeyi sil → komşu iki duvar birleşir (L-şekli/çentik = alan çıkar/ekle).
         const vid = activeRoom.vertexIds[selectedVertex];
         if (vid) {
-          dissolveVertex(vid);
-          selectVertex(null);
+          const ok = dissolveVertex(vid);
+          if (ok) selectVertex(null);
+          else flashHint('Bu köşe silinemez (odada en az 3 kenar kalmalı). Tüm odayı silmek için içine tıklayıp Delete\'e basın.');
         }
+        e.preventDefault();
+        return;
+      }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEdge !== null && activeRoom) {
+        // Seçili KENARI (mavi çizgi) sil → uç köşesini çöz; komşu kenarla birleşir.
+        const n = activeRoom.vertexIds.length;
+        const endVid = activeRoom.vertexIds[(selectedEdge + 1) % n];
+        const startVid = activeRoom.vertexIds[selectedEdge];
+        let ok = false;
+        if (endVid) ok = dissolveVertex(endVid);
+        if (!ok && startVid) ok = dissolveVertex(startVid);
+        if (ok) selectEdge(null);
+        else flashHint('Bu çizgi tek başına silinemez (odada en az 3 kenar kalmalı). Tüm odayı silmek için içine tıklayıp Delete\'e basın.');
         e.preventDefault();
         return;
       }
@@ -603,9 +660,30 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         e.preventDefault();
         return;
       }
+      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedOpeningId) {
+        // Seçili kapı/pencereyi sil.
+        removeOpening(selectedOpeningId);
+        selectOpening(null);
+        e.preventDefault();
+        return;
+      }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedWallId) {
         removeWall(selectedWallId as WallId);
         selectWall(null);
+        e.preventDefault();
+        return;
+      }
+      // Seçili odayı sil — köşe/duvar/ürün seçili DEĞİLKEN. Yalnız BU oda ve KENDİ
+      // duvarları+kapıları gider; içinde kalan başka çizim (loose bölme) KORUNUR.
+      if (
+        (e.key === 'Delete' || e.key === 'Backspace') &&
+        selectedRoomId &&
+        selectedVertex === null &&
+        !selectedWallId &&
+        !selectedEquipmentId
+      ) {
+        removeRoom(selectedRoomId as RoomId);
+        selectRoom(null);
         e.preventDefault();
         return;
       }
@@ -659,6 +737,15 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
     activeRoom,
     selectVertex,
     dissolveVertex,
+    selectedRoomId,
+    removeRoom,
+    selectRoom,
+    selectedEdge,
+    selectEdge,
+    flashHint,
+    selectedOpeningId,
+    removeOpening,
+    selectOpening,
   ]);
 
   // ── Equipment drag (2D) — 3D ile ORTAK çözücü (snap + çakışma + clamp) ─────
@@ -776,6 +863,23 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
           {livePoints.length >= 3 && (
             <>
               <WallLayer points={livePoints} scale={scale} selected />
+              {/* Seçili kenar vurgusu (silmeye hazır → kırmızı) */}
+              {selectedEdge !== null &&
+                livePoints[selectedEdge] &&
+                livePoints[(selectedEdge + 1) % livePoints.length] && (
+                  <Line
+                    points={[
+                      livePoints[selectedEdge].x,
+                      livePoints[selectedEdge].y,
+                      livePoints[(selectedEdge + 1) % livePoints.length].x,
+                      livePoints[(selectedEdge + 1) % livePoints.length].y,
+                    ]}
+                    stroke="#DC2626"
+                    strokeWidth={4 / scale}
+                    lineCap="round"
+                    listening={false}
+                  />
+                )}
               <DimensionLayer
                 points={livePoints}
                 scale={scale}
@@ -878,6 +982,14 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
       {/* ── Right-side properties panel ─────────────────────────────── */}
       <PropertiesPanel />
 
+      {/* Seçili ürün için 2B özellik paneli (renk / üst-üste / yön / sil) */}
+      {selectedEquipmentId && (
+        <EquipmentPropertiesPanel2D
+          equipmentId={selectedEquipmentId}
+          onClose={() => setSelectedEquipmentId(null)}
+        />
+      )}
+
       {/* ── Equipment catalog (shared with 3D) — arm a product, click to drop ── */}
       <EquipmentCatalogPanel
         side="left"
@@ -892,13 +1004,20 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
 
       {/* Armed-product hint */}
       {armedProduct && (
-        <div className="absolute top-14 left-1/2 -translate-x-1/2 px-3 py-1.5 bg-brand-red text-white rounded-full text-[11px] font-bold shadow-lg pointer-events-none">
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium bg-brand-red text-white shadow-lg shadow-slate-900/10 pointer-events-none">
           {armedProduct.name} · plana tıkla (Shift = çoklu · Esc = iptal)
         </div>
       )}
 
+      {/* Silme geri bildirimi (sessiz no-op yerine) */}
+      {deleteHint && (
+        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 max-w-sm inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200 shadow-lg shadow-slate-900/5 pointer-events-none text-center">
+          {deleteHint}
+        </div>
+      )}
+
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 flex items-center gap-1 px-1.5 py-1 bg-white/95 backdrop-blur border border-slate-200 rounded-lg shadow-sm">
+      <div className="absolute top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5">
         <ToolBtn active={tool === 'select'} onClick={() => setTool('select')} title="Select (V)">
           <MousePointer2 size={14} />
         </ToolBtn>
@@ -931,15 +1050,33 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         </ToolBtn>
         <Sep />
         <ToolBtn
+          danger
           disabled={!activeRoom}
           onClick={() => {
             if (!activeRoom) return;
-            removeRoom(activeRoom.id as any);
+            removeRoom(activeRoom.id as RoomId);
             selectRoom(null);
           }}
-          title="Delete room"
+          title="Seçili odayı sil (yalnız bu oda) · Delete"
         >
           <Trash2 size={14} />
+        </ToolBtn>
+        <ToolBtn
+          danger
+          onClick={() => {
+            // Tüm çizimi temizle (oda + bölme + kapı + ürün). Ctrl+Z geri alır.
+            newProject();
+            selectRoom(null);
+            selectEdge(null);
+            selectVertex(null);
+            selectWall(null);
+            selectOpening(null);
+            setSelectedEquipmentId(null);
+            setArmedProduct(null);
+          }}
+          title="Tümünü Temizle — tüm çizimi sil (Ctrl+Z geri alır)"
+        >
+          <Eraser size={14} />
         </ToolBtn>
       </div>
 
@@ -1036,12 +1173,14 @@ function ToolBtn({
   children,
   active,
   disabled,
+  danger,
   title,
   onClick,
 }: {
   children: React.ReactNode;
   active?: boolean;
   disabled?: boolean;
+  danger?: boolean;
   title?: string;
   onClick?: () => void;
 }) {
@@ -1052,10 +1191,12 @@ function ToolBtn({
       title={title}
       disabled={disabled}
       className={[
-        'inline-flex items-center justify-center w-7 h-7 rounded text-xs transition-colors',
+        'inline-flex items-center justify-center h-9 w-9 rounded-xl transition',
         active
-          ? 'bg-primary text-white'
-          : 'text-slate-600 hover:bg-slate-100 disabled:text-slate-300 disabled:hover:bg-transparent',
+          ? 'bg-brand-red/10 text-brand-red ring-1 ring-brand-red/20'
+          : danger
+            ? 'text-rose-500 hover:bg-rose-50 disabled:text-slate-300 disabled:hover:bg-transparent'
+            : 'text-slate-500 hover:bg-slate-100 disabled:text-slate-300 disabled:hover:bg-transparent',
       ].join(' ')}
     >
       {children}
@@ -1064,7 +1205,7 @@ function ToolBtn({
 }
 
 function Sep() {
-  return <div className="w-px h-5 bg-slate-200 mx-0.5" />;
+  return <div className="w-px h-5 bg-slate-200/70 mx-0.5" />;
 }
 
 function SelectedWallActions({

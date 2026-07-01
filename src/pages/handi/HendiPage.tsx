@@ -1,11 +1,15 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useHandiStore, type HandiProduct } from '../../stores/handiStore';
 import { useProductDetailStore } from '../../stores/productDetailStore';
-import CartQuantityButton from '../../components/CartQuantityButton';
+import { useCompareStore, type CompareItem } from '../../stores/compareStore';
+import { useProjectStore } from '../../stores/projectStore';
+import { useEquipmentStore } from '../../stores/equipmentStore';
+import ProductCard from '../../components/catalog/ProductCard';
 import CategoryFilterPanel from '../../components/CategoryFilterPanel';
 import {
   Search, X, ChevronLeft, ChevronRight, Package,
-  Loader2, RotateCcw,
+  Loader2, RotateCcw, Clock, CheckCircle2, MapPin,
 } from 'lucide-react';
 
 /* ─── Ürün görseli (hata/yükleme durumlu) ─── */
@@ -41,12 +45,50 @@ function ProductImage({ src, alt }: { src: string; alt: string }) {
 const fmtPrice = (p: number | null) =>
   p && p > 0 ? `€${p.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` : '—';
 
+/* ─── HENDI ürünü → global CompareItem (id 'handi-…' → Tümü ile aynı anahtar) ─── */
+function toCompareItem(p: HandiProduct): CompareItem {
+  return {
+    id: `handi-${p.id}`,
+    sku: p.id,
+    name: p.name,
+    brand: p.brand || 'HENDI',
+    image: p.image_url || '',
+    price: p.price,
+    promoPrice: null,
+    stock: p.stock,
+    width_mm: p.width_mm ?? null,
+    height_mm: p.height_mm ?? null,
+    depth_mm: null,
+    length_mm: p.length_mm ?? null,
+    weight: null,
+    kw: null,
+    connection: null,
+    category: p.category_name,
+    source: 'handi',
+  };
+}
+
 export default function HendiPage() {
   const {
     products, categories, filters, currentPage, itemsPerPage, totalCount,
     isLoading, error, fetchProducts, fetchCategories, setFilter, resetFilters, setPage,
   } = useHandiStore();
   const openDetail = useProductDetailStore((s) => s.open);
+  const { toggleItem: toggleCompare, isComparing } = useCompareStore();
+  const navigate = useNavigate();
+  const { projects } = useProjectStore();
+  const { setFloorPlanItem } = useEquipmentStore();
+  const [projectModalItem, setProjectModalItem] = useState<string | null>(null);
+  const activeProjects = projects.filter((p) => p.status !== 'complete');
+  const completedProjects = projects.filter((p) => p.status === 'complete');
+  const handleShowOnFloorPlan = (id: string) => setProjectModalItem(id);
+  const handleProjectSelect = (projectId: string) => {
+    if (projectModalItem) {
+      setFloorPlanItem(projectModalItem);
+      setProjectModalItem(null);
+      navigate(`/projects/${projectId}/design`);
+    }
+  };
 
   useEffect(() => { fetchProducts(); fetchCategories(); }, []);
 
@@ -155,29 +197,25 @@ export default function HendiPage() {
       {/* ─── Grid ─── */}
       {!isLoading && !error && products.length > 0 && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-          {products.map((item) => {
-            return (
-              <div key={item.id} onClick={() => openDetail('handi', item.id)} className="bg-white rounded-2xl border border-slate-200/80 overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 group relative flex flex-col cursor-pointer">
-                {(item.stock ?? 0) > 0 && (
-                  <span className="absolute top-2 left-2 z-10 bg-emerald-500 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm">Stokta</span>
-                )}
-                <div className="bg-gradient-to-b from-slate-50/50 to-white p-2 pt-4">
-                  <ProductImage src={item.image_url || ''} alt={item.name} />
-                </div>
-                <div className="p-3 flex flex-col flex-1">
-                  <p className="text-[10px] font-bold text-[#DC2626] uppercase tracking-wider truncate">{item.brand}</p>
-                  <h3 className="text-xs font-bold text-slate-700 line-clamp-2 mt-0.5 min-h-[2rem]" title={item.name}>{item.name}</h3>
-                  {item.category_name && <p className="text-[10px] text-slate-400 truncate mt-0.5">{item.category_name}</p>}
-                  <div className="mt-auto pt-2">
-                    <span className="text-sm font-black text-slate-800">{fmtPrice(item.price)}</span>
-                  </div>
-                  <div className="flex gap-1.5 mt-2.5" onClick={(e) => e.stopPropagation()}>
-                    <CartQuantityButton product={toCartItem(item) as any} size="sm" className="flex-1" />
-                  </div>
-                </div>
-              </div>
-            );
-          })}
+          {products.map((item) => (
+            <ProductCard
+              key={item.id}
+              brand={item.brand || 'HENDI'}
+              code={item.ean || item.id}
+              name={item.name}
+              subtitle={item.category_name || undefined}
+              dims={item.length_mm && item.width_mm && item.height_mm ? `${item.length_mm}×${item.width_mm}×${item.height_mm} mm` : undefined}
+              price={item.price}
+              imageUrl={item.image_url || ''}
+              badges={{ stock: (item.stock ?? 0) > 0 ? 'Stokta' : undefined }}
+              inCompare={isComparing(`handi-${item.id}`)}
+              cartProduct={toCartItem(item)}
+              formatPrice={fmtPrice}
+              onOpenDetail={() => openDetail('handi', item.id, toCartItem(item))}
+              onToggleCompare={() => toggleCompare(toCompareItem(item))}
+              onFloorPlan={() => handleShowOnFloorPlan(item.id)}
+            />
+          ))}
         </div>
       )}
 
@@ -187,6 +225,66 @@ export default function HendiPage() {
           <button disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)} className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 hover:border-red-300"><ChevronLeft size={16} /></button>
           <span className="text-xs font-bold text-slate-600 px-2">{currentPage} / {totalPages}</span>
           <button disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)} className="p-2 rounded-lg border border-slate-200 bg-white text-slate-600 disabled:opacity-40 hover:border-red-300"><ChevronRight size={16} /></button>
+        </div>
+      )}
+
+      {/* ─── Projeye ekle — proje seçim modalı ─── */}
+      {projectModalItem && (
+        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4" onClick={() => setProjectModalItem(null)}>
+          <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between p-5 border-b border-slate-100">
+              <div>
+                <h2 className="text-base font-headline font-black text-slate-800">Projeye Ekle</h2>
+                <p className="text-xs text-slate-500 mt-0.5">Hangi projeye eklensin?</p>
+              </div>
+              <button onClick={() => setProjectModalItem(null)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500"><X size={18} /></button>
+            </div>
+            <div className="overflow-y-auto flex-1 p-4 space-y-4">
+              {activeProjects.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <Clock size={13} className="text-[#DC2626]" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#DC2626]">Devam Eden</span>
+                  </div>
+                  <div className="space-y-2">
+                    {activeProjects.map((p) => (
+                      <button key={p.id} onClick={() => handleProjectSelect(p.id)} className="w-full text-left px-4 py-3 rounded-xl bg-red-50 hover:bg-red-100 border border-red-100 hover:border-red-300 transition-all group">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-bold text-slate-800 group-hover:text-[#DC2626] transition-colors">{p.name}</span>
+                          <MapPin size={14} className="text-[#DC2626] opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <div className="flex items-center gap-3 mt-1">
+                          <span className="text-[10px] text-slate-500">{p.clientName}</span>
+                          <span className="text-[10px] text-slate-500">{p.area} m²</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {completedProjects.length > 0 && (
+                <div>
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <CheckCircle2 size={13} className="text-slate-400" />
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tamamlanan</span>
+                  </div>
+                  <div className="space-y-2">
+                    {completedProjects.map((p) => (
+                      <button key={p.id} onClick={() => handleProjectSelect(p.id)} className="w-full text-left px-4 py-3 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-100 transition-all group opacity-70 hover:opacity-100">
+                        <span className="text-sm font-bold text-slate-600 group-hover:text-slate-800 transition-colors">{p.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {projects.length === 0 && (
+                <div className="py-10 text-center">
+                  <Package size={36} className="mx-auto text-slate-200 mb-3" />
+                  <p className="text-sm font-bold text-slate-500">Henüz proje yok</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       )}
     </div>

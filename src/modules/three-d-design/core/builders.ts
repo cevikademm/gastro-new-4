@@ -289,6 +289,16 @@ export function removeRoom(
   if (!room) return;
 
   if (!opts.keepWalls) {
+    const wallSet = new Set<WallId>(room.wallLoop);
+    // Bu odanın KENDİ duvarları üzerindeki açıklıkları (kapı/pencere) da kaldır —
+    // aksi halde silinen duvara referanslı yetim açıklık kalırdı.
+    for (const o of Object.values(draft.openings)) {
+      if (wallSet.has(o.wallId as WallId)) {
+        delete draft.openings[o.id];
+        const oi = draft.order.indexOf(o.id);
+        if (oi !== -1) draft.order.splice(oi, 1);
+      }
+    }
     const verticesUsed = new Set<VertexId>();
     for (const wid of room.wallLoop) {
       const w = draft.walls[wid];

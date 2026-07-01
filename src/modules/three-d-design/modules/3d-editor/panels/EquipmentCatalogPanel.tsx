@@ -15,7 +15,7 @@
  *   - Esc disarms.
  */
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type FC, type ReactNode, type CSSProperties } from 'react';
 import { Search, Star, X, ChevronRight, ChevronLeft, Box, Upload, Loader2 } from 'lucide-react';
 import {
   CATEGORIES,
@@ -23,7 +23,8 @@ import {
   type EquipmentItem,
 } from '../../../../../stores/equipmentStore';
 import { parseHeightMm } from '../loaders/productMesh';
-import { EQUIPMENT_CATALOG, isCustomGlb } from '../loaders/equipmentCatalog';
+import { EQUIPMENT_CATALOG, isCustomGlb, getCatalogEntry } from '../loaders/equipmentCatalog';
+import { loadModelViewerScript } from '../../../../../components/Model3DViewer';
 import { findGlbForProductId, listSystemGlbEquipment } from '../loaders/glbManifest';
 import { importGlbFile, GLB_ACCEPT_ATTR } from '../loaders/customGlb';
 import { useMeshStore } from '../../../../../stores/meshStore';
@@ -204,14 +205,14 @@ export default function EquipmentCatalogPanel({
   return (
     <aside
       className={[
-        'absolute top-16 bottom-3 bg-white/95 backdrop-blur border border-slate-200 rounded-lg shadow-sm transition-all flex flex-col overflow-hidden z-20',
+        'absolute top-16 bottom-3 rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 transition-all flex flex-col overflow-hidden z-20',
         side === 'left' ? 'left-3' : 'right-3',
         open ? 'w-[74vw] max-w-[17rem] sm:w-80 sm:max-w-none' : 'w-9',
       ].join(' ')}
     >
-      <header className="flex items-center gap-1 px-3 h-10 border-b border-slate-200">
+      <header className="flex items-center gap-1 px-4 py-3 border-b border-slate-100">
         {open && (
-          <h3 className="text-sm font-bold text-slate-800">Ekipman Kataloğu</h3>
+          <h3 className="text-[12px] font-semibold text-slate-800 truncate">Ekipman Kataloğu</h3>
         )}
         <div className="ml-auto flex items-center gap-1">
           {open && (
@@ -220,7 +221,7 @@ export default function EquipmentCatalogPanel({
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
               title="Kendi 3D modelini yükle (.glb / .gltf)"
-              className="inline-flex items-center gap-1 px-2 h-7 rounded border border-blue-200 bg-blue-50 text-[11px] font-semibold text-blue-700 hover:bg-blue-100 disabled:opacity-50"
+              className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-xl text-[11px] font-semibold bg-brand-red text-white shadow-sm hover:brightness-110 disabled:opacity-50 transition"
             >
               {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
               GLB Yükle
@@ -229,7 +230,7 @@ export default function EquipmentCatalogPanel({
           <button
             type="button"
             onClick={onToggleOpen}
-            className="p-1 text-slate-500 hover:text-slate-800"
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
             aria-label={open ? 'Daralt' : 'Genişlet'}
           >
             {open ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -247,34 +248,34 @@ export default function EquipmentCatalogPanel({
       {open && (
         <>
           {/* ── Search ───────────────────────────────────────────────── */}
-          <div className="px-3 py-2 border-b border-slate-100">
+          <div className="px-4 py-3 border-b border-slate-100">
             <div className="relative">
-              <Search size={12} className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 placeholder="Ara… (örn. fritöz)"
-                className="w-full pl-7 pr-2 h-8 text-xs border border-slate-200 rounded bg-white outline-none focus:border-blue-400"
+                className="w-full pl-8 pr-7 h-8 rounded-lg border border-slate-200 text-[11px] outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
               />
               {search && (
                 <button
                   onClick={() => setSearch('')}
-                  className="absolute right-1 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-700"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
                 >
                   <X size={11} />
                 </button>
               )}
             </div>
-            <div className="flex items-center justify-between gap-1.5 mt-2 flex-wrap">
+            <div className="flex items-center justify-between gap-1.5 mt-2.5 flex-wrap">
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
                   onClick={() => setFavOnly((v) => !v)}
                   className={[
-                    'inline-flex items-center gap-1 text-[11px] px-2 h-6 rounded border transition-colors',
+                    'inline-flex items-center gap-1 text-[11px] font-medium px-2.5 h-7 rounded-full border transition',
                     favOnly
-                      ? 'bg-amber-50 border-amber-300 text-amber-800'
-                      : 'border-slate-200 text-slate-500 hover:bg-slate-50',
+                      ? 'bg-brand-red text-white border-brand-red'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50',
                   ].join(' ')}
                 >
                   <Star size={10} fill={favOnly ? 'currentColor' : 'none'} />
@@ -285,10 +286,10 @@ export default function EquipmentCatalogPanel({
                   onClick={() => setGlbOnly((v) => !v)}
                   title="Sadece sistemde GLB / 3D modeli olan ürünleri göster"
                   className={[
-                    'inline-flex items-center gap-1 text-[11px] px-2 h-6 rounded border transition-colors',
+                    'inline-flex items-center gap-1 text-[11px] font-medium px-2.5 h-7 rounded-full border transition',
                     glbOnly
-                      ? 'bg-emerald-50 border-emerald-300 text-emerald-800'
-                      : 'border-slate-200 text-slate-500 hover:bg-slate-50',
+                      ? 'bg-brand-red text-white border-brand-red'
+                      : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50',
                   ].join(' ')}
                 >
                   <Box size={10} />
@@ -302,8 +303,8 @@ export default function EquipmentCatalogPanel({
           </div>
 
           {/* ── Category chips ───────────────────────────────────────── */}
-          <div className="px-3 py-2 border-b border-slate-100">
-            <div className="flex flex-wrap gap-1 max-h-20 overflow-y-auto">
+          <div className="px-4 py-3 border-b border-slate-100">
+            <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
               <CategoryChip
                 label="Tümü"
                 active={category === ''}
@@ -323,13 +324,13 @@ export default function EquipmentCatalogPanel({
           </div>
 
           {/* ── Results list ─────────────────────────────────────────── */}
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 overflow-y-auto p-3">
             {filtered.length === 0 ? (
-              <p className="text-xs text-slate-400 px-2 py-4 text-center">
+              <p className="text-[11px] text-slate-400 px-2 py-6 text-center">
                 Eşleşen ürün bulunamadı.
               </p>
             ) : (
-              <ul className="space-y-1">
+              <ul className="space-y-1.5">
                 {filtered.map((item) => {
                   const armed = item.id === armedProductId;
                   const fav = favorites.includes(item.id);
@@ -340,36 +341,15 @@ export default function EquipmentCatalogPanel({
                         type="button"
                         onClick={() => onArm(armed ? null : item)}
                         className={[
-                          'w-full flex gap-2 p-1.5 rounded text-left transition-colors',
+                          'w-full flex gap-2.5 p-2 rounded-xl border text-left transition',
                           armed
-                            ? 'bg-blue-50 border border-blue-300'
-                            : 'hover:bg-slate-50 border border-transparent',
+                            ? 'bg-brand-red/5 border-brand-red/40 ring-1 ring-brand-red/20'
+                            : 'bg-white border-slate-200/70 hover:border-brand-red/40 hover:shadow-sm',
                         ].join(' ')}
                       >
-                        <div className="relative flex-shrink-0 w-12 h-12 bg-slate-100 rounded overflow-hidden flex items-center justify-center">
-                          {item.img ? (
-                            <img
-                              src={item.img}
-                              alt=""
-                              className="w-full h-full object-contain"
-                              loading="lazy"
-                            />
-                          ) : glb ? (
-                            <Box size={20} className="text-emerald-500/70" />
-                          ) : (
-                            <span className="text-[9px] text-slate-400">no img</span>
-                          )}
-                          {glb && (
-                            <span
-                              className="absolute top-0.5 left-0.5 px-1 py-0 text-[8px] font-black uppercase rounded bg-emerald-500 text-white shadow-sm leading-tight"
-                              title="Sistemde 3D modeli (GLB) var"
-                            >
-                              3D
-                            </span>
-                          )}
-                        </div>
+                        <Thumb item={item} glb={glb} />
                         <div className="flex-1 min-w-0">
-                          <div className="text-xs font-medium text-slate-800 truncate">
+                          <div className="text-[12px] font-semibold text-slate-800 truncate">
                             {item.name}
                           </div>
                           <div className="text-[10px] text-slate-400 truncate">
@@ -386,8 +366,8 @@ export default function EquipmentCatalogPanel({
                             toggleFavorite(item.id);
                           }}
                           className={[
-                            'p-1 rounded',
-                            fav ? 'text-amber-500' : 'text-slate-300 hover:text-amber-400',
+                            'p-1.5 rounded-lg transition',
+                            fav ? 'text-amber-500' : 'text-slate-300 hover:bg-slate-100 hover:text-amber-400',
                           ].join(' ')}
                           aria-label={fav ? 'Favoriden çıkar' : 'Favoriye ekle'}
                         >
@@ -408,6 +388,82 @@ export default function EquipmentCatalogPanel({
 
 // ── UI atoms ───────────────────────────────────────────────────────────────
 
+/**
+ * Ürün küçük görseli. Öncelik: gerçek ürün fotoğrafı → yoksa 3D modeli olan
+ * ürünlerde CANLI GLB önizlemesi (model-viewer) → o da yoksa küp/placeholder.
+ * "3D" kırmızı etiketi her 3D modelli üründe kalır.
+ */
+function Thumb({ item, glb }: { item: EquipmentItem; glb: boolean }) {
+  const glbUrl = useMemo(
+    () => (!item.img && glb ? getCatalogEntry(item.id)?.glbUrl ?? null : null),
+    [item.img, item.id, glb],
+  );
+
+  return (
+    <div className="relative flex-shrink-0 w-12 h-12 bg-slate-50 border border-slate-200/70 rounded-lg overflow-hidden flex items-center justify-center">
+      {item.img ? (
+        <img src={item.img} alt="" className="w-full h-full object-contain" loading="lazy" />
+      ) : glbUrl ? (
+        <GlbThumb src={glbUrl} />
+      ) : glb ? (
+        <Box size={20} className="text-brand-red/60" />
+      ) : (
+        <span className="text-[9px] text-slate-400">no img</span>
+      )}
+      {glb && (
+        <span
+          className="absolute top-0.5 left-0.5 z-10 inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase bg-brand-red text-white shadow-sm leading-none"
+          title="Sistemde 3D modeli (GLB) var"
+        >
+          3D
+        </span>
+      )}
+    </div>
+  );
+}
+
+// <model-viewer> web bileşenini tipli bir React bileşeni gibi kullan (intrinsic
+// element tipi gerektirmez, JSX transform'undan bağımsız çalışır).
+type ModelViewerProps = {
+  src?: string;
+  'camera-orbit'?: string;
+  'auto-rotate'?: boolean;
+  'rotation-per-second'?: string;
+  'interaction-prompt'?: string;
+  'disable-zoom'?: boolean;
+  'disable-tap'?: boolean;
+  'shadow-intensity'?: string;
+  exposure?: string;
+  loading?: string;
+  style?: CSSProperties & Record<string, string | number>;
+  children?: ReactNode;
+};
+const ModelViewer = 'model-viewer' as unknown as FC<ModelViewerProps>;
+
+/** 48px canlı GLB önizlemesi — model-viewer; yüklenene/başarısız olana kadar küp poster'ı gösterir. */
+function GlbThumb({ src }: { src: string }) {
+  useEffect(() => { loadModelViewerScript(); }, []);
+  return (
+    <ModelViewer
+      src={src}
+      camera-orbit="35deg 72deg auto"
+      auto-rotate
+      rotation-per-second="24deg"
+      interaction-prompt="none"
+      disable-zoom
+      disable-tap
+      shadow-intensity="0.35"
+      exposure="1.05"
+      loading="lazy"
+      style={{ width: '100%', height: '100%', backgroundColor: 'transparent', pointerEvents: 'none', '--poster-color': 'transparent' }}
+    >
+      <div slot="poster" className="w-full h-full grid place-items-center">
+        <Box size={20} className="text-brand-red/60" />
+      </div>
+    </ModelViewer>
+  );
+}
+
 function CategoryChip({
   label,
   count,
@@ -426,9 +482,9 @@ function CategoryChip({
       type="button"
       onClick={onClick}
       className={[
-        'inline-flex items-center gap-1 px-2 h-6 rounded text-[10px] border transition-colors',
+        'inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] font-medium border transition',
         active
-          ? 'bg-slate-800 text-white border-slate-800'
+          ? 'bg-brand-red text-white border-brand-red'
           : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50',
       ].join(' ')}
       style={active && color ? { backgroundColor: color, borderColor: color } : undefined}

@@ -15,6 +15,7 @@ import {
   GitCompareArrows, Trash2, SlidersHorizontal, RotateCcw, ChevronDown,
 } from 'lucide-react';
 import CartQuantityButton from '../../components/CartQuantityButton';
+import ProductCard from '../../components/catalog/ProductCard';
 import Model3DViewer, { has3DModel } from '../../components/Model3DViewer';
 import CategoryFilterPanel from '../../components/CategoryFilterPanel';
 import { useProductDetailStore } from '../../stores/productDetailStore';
@@ -416,74 +417,35 @@ export default function DiamondPage() {
       {!isLoading && !error && viewMode === 'grid' && (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
           {products.map((item) => {
-            const inCompare = isItemComparing(item.id);
-            const inCart = isInCart(item.id);
+            const promoActive = showPromo && (item.price_promo ?? 0) > 0;
             return (
-              <div
+              <ProductCard
                 key={item.id}
-                onClick={() => openDetail('diamond', item.id)}
-                className={`bg-white rounded-2xl border overflow-hidden hover:shadow-xl hover:-translate-y-0.5 transition-all duration-300 cursor-pointer group relative ${inCompare ? 'border-violet-300 ring-2 ring-violet-100' : 'border-slate-200/80'}`}
-              >
-                {/* Badges */}
-                <div className="absolute top-2 left-2 z-10 flex flex-col gap-1">
-                  {item.is_new && <span className="bg-emerald-500 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm">{t('diamond.new')}</span>}
-                  {item.is_good_deal && <span className="bg-amber-500 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm">{t('diamond.deal')}</span>}
-                  {showPromo && (item.price_promo ?? 0) > 0 && <span className="bg-red-500 text-white text-[8px] font-black px-2 py-0.5 rounded-md uppercase tracking-wider shadow-sm">{t('diamond.promo')}</span>}
-                </div>
-
-                {/* Compare checkbox */}
-                <button
-                  onClick={e => { e.stopPropagation(); toggleCompare(item); }}
-                  className={`absolute top-2 right-2 z-10 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${inCompare ? 'bg-violet-500 border-violet-500 text-white' : 'bg-white/80 border-slate-300 text-transparent opacity-0 group-hover:opacity-100'}`}
-                >
-                  {inCompare && <GitCompareArrows size={12} />}
-                </button>
-
-                <div className="bg-gradient-to-b from-slate-50/50 to-white p-2 pt-4 relative">
-                  <ProductImage src={item.image_big || item.image_thumb} alt={item.name} className="w-full h-32 group-hover:scale-105 transition-transform duration-300" />
-                  {has3DModel(item.id) && (
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setView3D(item); }}
-                      className="absolute bottom-1 right-1 z-10 flex items-center gap-1 px-2 py-1 rounded-md bg-[#DC2626] text-white text-[9px] font-black uppercase tracking-wider shadow-md hover:bg-[#991B1B] transition-all"
-                      title={t('diamond.open3D')}
-                    >
-                      <Box size={10} /> 3D
-                    </button>
-                  )}
-                </div>
-                <div className="p-3 pt-2">
-                  <p className="text-[10px] font-mono text-[#A04654] tracking-wide">{item.id}</p>
-                  <h3 className="text-[11px] font-bold text-on-surface mt-0.5 line-clamp-2 leading-snug">{item.name}</h3>
-                  <p className="text-[10px] text-slate-400 font-medium mt-1">{item.product_family_name}</p>
-
-                  <div className="flex items-end justify-between mt-2 pt-2 border-t border-slate-100/80">
-                    <div>
-                      {showPromo && (item.price_promo ?? 0) > 0 ? (
-                        <>
-                          <p className="text-[9px] text-slate-400 line-through">{formatPrice(item.price_catalog)}</p>
-                          <p className="text-base font-black text-red-600 tracking-tight">{formatPrice(item.price_promo)}</p>
-                        </>
-                      ) : (
-                        <p className="text-base font-black text-[#DC2626] tracking-tight">{formatPrice(item.price_catalog)}</p>
-                      )}
-                    </div>
-                    {Number(item.electric_power_kw) > 0 && (
-                      <span className="flex items-center gap-0.5 text-[9px] text-amber-600 bg-amber-50 px-1.5 py-0.5 rounded-md"><Zap size={9} />{item.electric_power_kw}kW</span>
-                    )}
-                  </div>
-
-                  <div className="flex gap-1.5 mt-2.5">
-                    <CartQuantityButton product={toCartItem(item) as any} size="sm" className="flex-1" />
-                    <button
-                      onClick={e => { e.stopPropagation(); handleShowOnFloorPlan(item.id); }}
-                      className="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all"
-                      title={t('catalog.addToFloorPlan')}
-                    >
-                      <MapPin size={10} />
-                    </button>
-                  </div>
-                </div>
-              </div>
+                brand="Diamond"
+                code={item.id}
+                name={item.name}
+                subtitle={item.product_family_name}
+                dims={item.length_mm && item.width_mm && item.height_mm ? `${item.length_mm}×${item.width_mm}×${item.height_mm} mm` : undefined}
+                price={item.price_catalog}
+                pricePromo={promoActive ? item.price_promo : null}
+                kw={Number(item.electric_power_kw) || 0}
+                imageUrl={item.image_big || item.image_thumb}
+                badges={{
+                  new: item.is_new ? t('diamond.new') : undefined,
+                  deal: item.is_good_deal ? t('diamond.deal') : undefined,
+                  promo: promoActive ? t('diamond.promo') : undefined,
+                }}
+                has3D={has3DModel(item.id)}
+                inCompare={isItemComparing(item.id)}
+                cartProduct={toCartItem(item) as any}
+                formatPrice={formatPrice}
+                onOpenDetail={() => openDetail('diamond', item.id)}
+                onToggleCompare={() => toggleCompare(item)}
+                onFloorPlan={() => handleShowOnFloorPlan(item.id)}
+                on3D={() => setView3D(item)}
+                floorPlanTitle={t('catalog.addToFloorPlan')}
+                compareTitle={t('diamond.compare', 'Karşılaştır')}
+              />
             );
           })}
         </div>

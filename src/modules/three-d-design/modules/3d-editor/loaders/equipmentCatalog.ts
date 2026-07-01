@@ -38,6 +38,11 @@ export interface CatalogEntry {
   thumbnailUrl?: string;
   /** Default rotation (deg, around Z) when first dropped. */
   defaultRotationDeg?: number;
+  /**
+   * `true` ise bu ürün varsayılan olarak diğer ürünlerle ÜST ÜSTE konabilir
+   * (yerleştirmede örneğe kopyalanır; örnek bazında panelden değiştirilebilir).
+   */
+  allowOverlap?: boolean;
 }
 
 // ── Default catalog ────────────────────────────────────────────────────────

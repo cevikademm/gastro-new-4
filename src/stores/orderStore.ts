@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
+import { sendOrderWhatsapp } from '../lib/orderWhatsapp';
 
 export interface OrderItem {
   product_id: string;
@@ -32,6 +33,7 @@ interface OrderState {
   error: string | null;
   fetchOrders: () => Promise<void>;
   createOrder: (items: OrderItem[], totalPrice: number, totalItems: number, notes?: string) => Promise<Order | null>;
+  deleteOrder: (id: string) => Promise<boolean>;
   getOrderById: (id: string) => Order | undefined;
 }
 
@@ -132,6 +134,8 @@ export const useOrderStore = create<OrderState>()(
 
               const order = data as Order;
               set((state) => ({ orders: [order, ...state.orders], error: null }));
+              // Ekibe WhatsApp bildirimi (fire-and-forget) — siparişi ASLA bloke etmez.
+              try { void sendOrderWhatsapp(order); } catch { /* bildirim hatası yutulur */ }
               return order;
             }
             console.warn('Supabase insert failed, falling back to local:', error?.message);
@@ -146,7 +150,34 @@ export const useOrderStore = create<OrderState>()(
           id: crypto.randomUUID(),
         };
         set((state) => ({ orders: [localOrder, ...state.orders], error: null }));
+        try { void sendOrderWhatsapp(localOrder); } catch { /* bildirim hatası yutulur */ }
         return localOrder;
+      },
+
+      deleteOrder: async (id) => {
+        // Optimistik: önce yerel listeden çıkar (UI anında güncellensin).
+        const prev = get().orders;
+        set({ orders: prev.filter((o) => o.id !== id), error: null });
+
+        const userId = getUserId();
+        if (supabase && userId) {
+          try {
+            // Önce siparişe bağlı olayları sil (FK kısıtı varsa engel olmasın).
+            try { await supabase.from('gastro_order_events').delete().eq('order_id', id); } catch { /* ignore */ }
+            const { error } = await supabase
+              .from('gastro_orders')
+              .delete()
+              .eq('id', id)
+              .eq('user_id', userId); // yalnızca kendi siparişini silebilsin
+            if (error) throw error;
+          } catch (err: any) {
+            // Supabase silme başarısızsa yerel değişikliği geri al ve hata bildir.
+            console.warn('deleteOrder error:', err?.message);
+            set({ orders: prev, error: 'Sipariş silinemedi. Lütfen tekrar deneyin.' });
+            return false;
+          }
+        }
+        return true;
       },
 
       getOrderById: (id) => get().orders.find((o) => o.id === id),

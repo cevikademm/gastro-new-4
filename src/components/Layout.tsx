@@ -5,7 +5,6 @@ import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
 import { useCartStore } from '../stores/cartStore';
 import NotificationPanel from './NotificationPanel';
-import ComparePanel from './ComparePanel';
 import LanguageSelector from './LanguageSelector';
 import SearchCommand from './SearchCommand';
 import LiveChatWidget from './LiveChatWidget';
@@ -14,14 +13,16 @@ import { CartDrawer } from './CartDrawer';
 import {
   Bell, Settings, LayoutDashboard, Ruler, Refrigerator, Home, Search,
   SlidersHorizontal, HelpCircle, BookOpen, PlusCircle,
-  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Box, Boxes, Package, Palette, Shield, Users, FileText
+  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Box, Boxes, Package, Palette, Shield, Users, FileText, Bug
 } from 'lucide-react';
+import ErrorReportWidget from './ErrorReportWidget';
 // NOTE: "Manuel çizim" (legacy DesignStudio manualMode) kaldırıldı — kat planı artık 3D Design bölümünde.
 
 const ADMIN_ITEMS = [
   { path: '/admin/orders', labelKey: 'nav.adminOrders', fallback: 'Siparişler', icon: Shield, id: 'admin-orders' },
   { path: '/admin/users',  labelKey: 'nav.adminUsers',  fallback: 'Kullanıcılar', icon: Users, id: 'admin-users' },
   { path: '/admin/customer-finder', labelKey: 'nav.customerFinder', fallback: 'Müşteri Bulma', icon: Search, id: 'admin-customer-finder' },
+  { path: '/admin/error-reports', labelKey: 'nav.errorReports', fallback: 'Hata Bildirimleri', icon: Bug, id: 'admin-error-reports' },
 ];
 
 const NAV_ITEMS = [
@@ -425,9 +426,6 @@ export default function Layout() {
         </nav>
       )}
 
-      {/* Global Compare Panel */}
-      <ComparePanel />
-
       {/* Global CMD+K Search */}
       <SearchCommand open={searchOpen} onClose={() => setSearchOpen(false)} />
 
@@ -436,6 +434,9 @@ export default function Layout() {
 
       {/* Global Cart Drawer */}
       <CartDrawer open={isCartOpen} onClose={() => setIsCartOpen(false)} />
+
+      {/* Admin-only: Hata Bildir FAB (kendi içinde role kontrolü yapar) */}
+      <ErrorReportWidget />
     </div>
   );
 }

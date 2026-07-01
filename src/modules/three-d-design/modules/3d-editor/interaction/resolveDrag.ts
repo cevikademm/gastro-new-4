@@ -65,8 +65,17 @@ export function resolveEquipmentDrag(input: DragResolveInput): DragResolveResult
   let rotation = eq.rotation;
   const w = eq.footprint.width;
   const d = eq.footprint.depth;
-  // Yalnız aynı yükseklik bandındaki ürünler engeller.
-  const others = othersAtHeight(eq.position.z, eq.heightMm, Object.values(project.equipment));
+  // Yalnız aynı yükseklik bandındaki ürünler engeller. ÜST ÜSTE gelmesine izin
+  // verilen komşular (allowOverlap) çakışma listesinden de çıkarılır → diğer yön:
+  // normal bir ürün, overlap-izinli bir komşunun üstüne konabilir.
+  const others = othersAtHeight(
+    eq.position.z,
+    eq.heightMm,
+    Object.values(project.equipment),
+  ).filter((o) => !o.allowOverlap);
+  // Sürüklenen ürünün kendisi overlap'e izinliyse ÜRÜN↔ÜRÜN çakışma çözmesi atlanır.
+  // (Duvar geçişi / oda-içi tutma bundan ETKİLENMEZ — aşağıda her zaman uygulanır.)
+  const skipItemCollision = !!eq.allowOverlap;
 
   if (eq.mount === 'wall') {
     // Duvar ürünü en yakın duvar boyunca kayar; arka yüz duvara dayalı kalır.
@@ -76,7 +85,7 @@ export function resolveEquipmentDrag(input: DragResolveInput): DragResolveResult
       xMm = mounted.pos.x;
       yMm = mounted.pos.y;
       rotation = mounted.rotation;
-      if (collisionEnabled) {
+      if (collisionEnabled && !skipItemCollision) {
         const resolved = resolveCollision({ x: xMm, y: yMm }, rotation, w, d, others, eq.id);
         xMm = resolved.x;
         yMm = resolved.y;
@@ -84,13 +93,15 @@ export function resolveEquipmentDrag(input: DragResolveInput): DragResolveResult
     }
   } else {
     if (collisionEnabled) {
-      // 2) Komşuya yanaş, 3) kalan örtüşmeyi it.
-      const snapped = snapToEdges({ x: xMm, y: yMm }, rotation, w, d, others, eq.id, edgeSnapTolMm);
-      const resolved = resolveCollision(snapped, rotation, w, d, others, eq.id);
-      xMm = resolved.x;
-      yMm = resolved.y;
+      // 2) Komşuya yanaş, 3) kalan örtüşmeyi it — yalnız overlap'e izinli DEĞİLSE.
+      if (!skipItemCollision) {
+        const snapped = snapToEdges({ x: xMm, y: yMm }, rotation, w, d, others, eq.id, edgeSnapTolMm);
+        const resolved = resolveCollision(snapped, rotation, w, d, others, eq.id);
+        xMm = resolved.x;
+        yMm = resolved.y;
+      }
 
-      // 3a) Anti-tünel: merkez hiçbir duvarı geçemesin.
+      // 3a) Anti-tünel: merkez hiçbir duvarı geçemesin (HER ZAMAN — overlap'ten bağımsız).
       if (prevValidCenter) {
         const center = obbCenterFromMinCorner(xMm, yMm, rotation, w, d);
         const blocked = blockWallCrossing(project, prevValidCenter, center);
@@ -103,7 +114,7 @@ export function resolveEquipmentDrag(input: DragResolveInput): DragResolveResult
       xMm = snappedWall.x;
       yMm = snappedWall.y;
     }
-    // 4) Footprint'i oda duvarları içinde tut (oda yoksa no-op).
+    // 4) Footprint'i oda duvarları içinde tut (oda yoksa no-op) — HER ZAMAN.
     const contained = containFloorItem(project, { x: xMm, y: yMm }, rotation, w, d);
     xMm = contained.x;
     yMm = contained.y;

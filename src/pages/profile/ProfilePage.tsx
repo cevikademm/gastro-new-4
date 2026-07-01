@@ -2,12 +2,12 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
 import { useNavigate } from 'react-router-dom';
-import { Save, Key, AlertTriangle, User } from 'lucide-react';
+import { Save, Key, AlertTriangle, User, Loader2, LogOut, CheckCircle2, AlertCircle } from 'lucide-react';
 
 export default function ProfilePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { user, updateProfile, logout } = useAuthStore();
+  const { user, updateProfile, logout, changePasswordWithCurrent, logoutOtherSessions } = useAuthStore();
   const [form, setForm] = useState({
     fullName: user?.fullName || '',
     email: user?.email || '',
@@ -17,6 +17,8 @@ export default function ProfilePage() {
   const [passwordForm, setPasswordForm] = useState({ current: '', newPass: '', confirm: '' });
   const [saved, setSaved] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
+  const [pwBusy, setPwBusy] = useState<'change' | 'others' | null>(null);
+  const [pwMsg, setPwMsg] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
 
   const handleSave = () => {
     updateProfile(form);
@@ -27,6 +29,38 @@ export default function ProfilePage() {
   const handleDelete = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleChangePassword = async () => {
+    setPwMsg(null);
+    const { current, newPass, confirm } = passwordForm;
+    if (!current) return setPwMsg({ type: 'err', text: 'Mevcut şifrenizi girin.' });
+    if (newPass.length < 8) return setPwMsg({ type: 'err', text: 'Yeni şifre en az 8 karakter olmalı.' });
+    if (newPass !== confirm) return setPwMsg({ type: 'err', text: 'Yeni şifreler eşleşmiyor.' });
+    if (newPass === current) return setPwMsg({ type: 'err', text: 'Yeni şifre mevcut şifreden farklı olmalı.' });
+    setPwBusy('change');
+    const r = await changePasswordWithCurrent(current, newPass);
+    if (!r.success) { setPwBusy(null); return setPwMsg({ type: 'err', text: r.error || 'Şifre değiştirilemedi.' }); }
+    // Güvenlik: şifre değişince diğer cihazlardaki oturumları da kapat
+    const r2 = await logoutOtherSessions();
+    setPwBusy(null);
+    setPasswordForm({ current: '', newPass: '', confirm: '' });
+    setPwMsg({
+      type: 'ok',
+      text: r2.success
+        ? 'Şifreniz değiştirildi ve diğer cihazlardaki oturumlar kapatıldı.'
+        : 'Şifreniz değiştirildi.',
+    });
+  };
+
+  const handleLogoutOthers = async () => {
+    setPwMsg(null);
+    setPwBusy('others');
+    const r = await logoutOtherSessions();
+    setPwBusy(null);
+    setPwMsg(r.success
+      ? { type: 'ok', text: 'Bu cihaz hariç tüm oturumlar kapatıldı.' }
+      : { type: 'err', text: r.error || 'İşlem başarısız oldu.' });
   };
 
   return (
@@ -95,9 +129,31 @@ export default function ProfilePage() {
             <input type="password" value={passwordForm.confirm} onChange={(e) => setPasswordForm({ ...passwordForm, confirm: e.target.value })} className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors" />
           </div>
         </div>
-        <button className="flex items-center gap-2 bg-surface-container-low hover:bg-surface-container-high text-primary px-6 py-3 rounded-lg font-bold text-sm transition-colors">
-          <Key size={18} /> {t('profile.changePassword')}
-        </button>
+        {pwMsg && (
+          <div className={`flex items-start gap-2 text-sm rounded-lg px-3 py-2.5 ${pwMsg.type === 'ok' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+            {pwMsg.type === 'ok' ? <CheckCircle2 size={16} className="mt-0.5 shrink-0" /> : <AlertCircle size={16} className="mt-0.5 shrink-0" />}
+            <span>{pwMsg.text}</span>
+          </div>
+        )}
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={handleChangePassword}
+            disabled={pwBusy !== null}
+            className="flex items-center gap-2 bg-primary text-white hover:opacity-90 px-6 py-3 rounded-lg font-bold text-sm transition-colors disabled:opacity-50"
+          >
+            {pwBusy === 'change' ? <Loader2 size={18} className="animate-spin" /> : <Key size={18} />}
+            {t('profile.changePassword')}
+          </button>
+          <button
+            onClick={handleLogoutOthers}
+            disabled={pwBusy !== null}
+            title="Başka bir cihazda açık kalan oturumları kapatır (bu cihaz açık kalır)"
+            className="flex items-center gap-2 border border-outline-variant/50 text-on-surface-variant hover:text-brand-red hover:border-brand-red/30 px-5 py-3 rounded-lg font-bold text-sm transition-colors disabled:opacity-50"
+          >
+            {pwBusy === 'others' ? <Loader2 size={18} className="animate-spin" /> : <LogOut size={18} />}
+            Diğer cihazlardan çıkış yap
+          </button>
+        </div>
       </div>
 
       <div className="reveal reveal-delay-3 bg-error-container/40 rounded-2xl p-6 sm:p-8 border border-error/20 space-y-4">
