@@ -6,6 +6,7 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Box, 
   PencilRuler, 
@@ -21,6 +22,7 @@ import { Background3D } from '../../components/Background3D';
 import ImmersiveProductScene from '../../components/immersive/ImmersiveProductScene';
 
 export default function WelcomePage() {
+  const { t } = useTranslation();
   const [mounted, setMounted] = useState(false);
   const navigate = useNavigate();
 
@@ -58,13 +60,13 @@ export default function WelcomePage() {
                >
                  {[...Array(10)].map((_, i) => (
                    <div key={i} className="flex items-center gap-6">
-                      <span className="text-xl font-display font-medium tracking-widest text-white uppercase">500+ MÜŞTERİ</span>
+                      <span className="text-xl font-display font-medium tracking-widest text-white uppercase">{t('welcome.badgeCustomers', { count: 500 })}</span>
                       <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(220,38,38,1)]" />
-                      <span className="text-xl font-display font-medium tracking-widest text-gray-400 uppercase">15+ YIL DENEYİM</span>
+                      <span className="text-xl font-display font-medium tracking-widest text-gray-400 uppercase">{t('welcome.badgeExperience', { count: 15 })}</span>
                       <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(220,38,38,1)]" />
-                      <span className="text-xl font-display font-medium tracking-widest text-white uppercase">KÜRESEL TESLİMAT</span>
+                      <span className="text-xl font-display font-medium tracking-widest text-white uppercase">{t('welcome.badgeGlobalDelivery')}</span>
                       <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(220,38,38,1)]" />
-                      <span className="text-xl font-display font-medium tracking-widest text-gray-400 uppercase">HACCP UYUMLU</span>
+                      <span className="text-xl font-display font-medium tracking-widest text-gray-400 uppercase">{t('welcome.badgeHACCP')}</span>
                       <div className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_15px_rgba(220,38,38,1)]" />
                    </div>
                  ))}
@@ -76,10 +78,10 @@ export default function WelcomePage() {
               <div className="max-w-[1440px] mx-auto px-6 lg:px-12">
                 <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                   {[
-                    { t: 'Dijital Katalog', d: '10.000+ ürün parmaklarınızın ucunda.', icon: Box, path: '/diamond', c: 'from-blue-500/20' },
-                    { t: 'Tasarım Stüdyosu', d: 'Mutfağınızı 3D olarak kendiniz planlayın.', icon: PencilRuler, path: '/sketch', c: 'from-emerald-500/20' },
-                    { t: 'Projelerim', d: 'Tekliflerinizi ve siparişlerinizi yönetin.', icon: Briefcase, path: '/orders', c: 'from-amber-500/20' },
-                    { t: 'Teknik Destek', d: 'Uzman ekibimiz her an yardıma hazır.', icon: Wrench, path: '/docs', c: 'from-purple-500/20' },
+                    { t: t('welcome.actionCatalogTitle'), d: t('welcome.actionCatalogDesc'), icon: Box, path: '/diamond', c: 'from-blue-500/20' },
+                    { t: t('welcome.actionStudioTitle'), d: t('welcome.actionStudioDesc'), icon: PencilRuler, path: '/sketch', c: 'from-emerald-500/20' },
+                    { t: t('welcome.actionProjectsTitle'), d: t('welcome.actionProjectsDesc'), icon: Briefcase, path: '/orders', c: 'from-amber-500/20' },
+                    { t: t('welcome.actionSupportTitle'), d: t('welcome.actionSupportDesc'), icon: Wrench, path: '/docs', c: 'from-purple-500/20' },
                   ].map((act, i) => {
                     const I = act.icon;
                     return (
@@ -131,10 +133,10 @@ export default function WelcomePage() {
                     <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1590595568582-70b9baeb196b?w=2000&q=80')] mix-blend-overlay opacity-10 bg-cover bg-center grayscale" />
                     <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-r from-brand-dark via-brand-dark/90 to-brand-red/30 mix-blend-screen" />
                     <div className="relative z-10 max-w-3xl">
-                       <span className="text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase block mb-6">// PROJE MERKEZİ</span>
-                       <h2 className="text-4xl min-[400px]:text-5xl md:text-7xl text-white font-display font-bold mb-10 leading-[1.1] tracking-tight break-words">Geleceğin Mutfağını <span className="text-brand-red italic font-light lowercase text-transform-none block">Birlikte <br className="min-[400px]:hidden" /> Tasarlayalım.</span></h2>
+                       <span className="text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase block mb-6">// {t('welcome.ctaEyebrow')}</span>
+                       <h2 className="text-4xl min-[400px]:text-5xl md:text-7xl text-white font-display font-bold mb-10 leading-[1.1] tracking-tight break-words">{t('welcome.ctaHeadline')} <span className="text-brand-red italic font-light lowercase text-transform-none block">{t('welcome.ctaHeadlineHighlight1')} <br className="min-[400px]:hidden" /> {t('welcome.ctaHeadlineHighlight2')}</span></h2>
                        <p className="text-gray-400 text-xl md:text-2xl mb-12 leading-relaxed max-w-2xl font-light">
-                         AI destekli yerleşim planlaması, 3D mutfak simülasyonu ve mühendislik uzmanlığımızla vizyonunuzu hayata geçiriyoruz.
+                         {t('welcome.ctaDescription')}
                        </p>
                        <motion.button 
                          whileHover={{ scale: 1.05 }}
@@ -142,7 +144,7 @@ export default function WelcomePage() {
                          onClick={() => navigate('/support')}
                          className="bg-white text-brand-dark py-5 px-12 rounded-full font-bold uppercase tracking-[0.2em] text-xs hover:bg-brand-red hover:text-white transition-colors duration-300 shadow-2xl"
                        >
-                         Danışmanlık Randevusu Al
+                         {t('welcome.ctaButton')}
                        </motion.button>
                     </div>
                  </motion.div>

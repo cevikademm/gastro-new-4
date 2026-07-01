@@ -65,20 +65,20 @@ export function ProductsMegaMenu({ onClose }: Props) {
       className="w-[min(58rem,calc(100vw-2rem))] overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_28px_60px_-24px_rgba(15,36,64,0.45)]"
       role="menu"
     >
-      {/* Başlık şeridi */}
+      {/* Başlık şeridi — "Tüm Ürünler" butonu "ÜRÜNLER" yazısının hemen devamında */}
       <div className="flex items-center justify-between gap-4 border-b border-slate-100 bg-slate-50/70 px-5 py-3">
-        <div className="flex items-baseline gap-2">
+        <div className="flex items-center gap-2.5">
           <span className="font-display text-lg font-black tracking-tight text-brand-red">ÜRÜNLER</span>
-          <span className="text-[11px] font-medium text-slate-400">Kategorie &amp; Serie wählen</span>
+          <button
+            type="button"
+            onClick={() => go('/magaza')}
+            className="inline-flex items-center gap-1.5 rounded-full bg-[#0F2440] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-brand-red"
+          >
+            Tüm Ürünler
+            <ArrowRight className="h-3 w-3" />
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => go('/magaza')}
-          className="inline-flex items-center gap-1.5 rounded-full bg-[#0F2440] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-brand-red"
-        >
-          Tüm Ürünler
-          <ArrowRight className="h-3 w-3" />
-        </button>
+        <span className="text-[11px] font-medium text-slate-400">Kategorie &amp; Serie wählen</span>
       </div>
 
       <div className="flex">

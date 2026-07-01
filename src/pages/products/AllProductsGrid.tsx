@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useAllProductsStore, type AllProduct } from '../../stores/allProductsStore';
 import { useProductDetailStore, type ProductSource } from '../../stores/productDetailStore';
 import { useCompareStore, brandToSource, type CompareItem } from '../../stores/compareStore';
 import { useProjectStore } from '../../stores/projectStore';
 import { useEquipmentStore, type EquipmentItem } from '../../stores/equipmentStore';
 import ProductCard from '../../components/catalog/ProductCard';
+import { formatDims } from '../../lib/dims';
 import {
   Search, X, ChevronLeft, ChevronRight, Package, Loader2, Clock, CheckCircle2, MapPin,
 } from 'lucide-react';
@@ -29,14 +31,13 @@ const toCartItem = (p: AllProduct): EquipmentItem => ({
   line: '',
 });
 
-// Ölçü etiketi (kartta gösterim) — L×W×H mm.
+// Ölçü etiketi (kartta gösterim) — var olan ölçüleri L×W×H mm biçiminde gösterir.
 const dimStr = (p: AllProduct): string | undefined =>
-  (p.length_mm && p.width_mm && p.height_mm)
-    ? `${p.length_mm}×${p.width_mm}×${p.height_mm} mm`
-    : (p.width_mm ? `${p.width_mm} mm` : undefined);
+  formatDims(p.length_mm, p.width_mm || p.depth_mm, p.height_mm);
 
-const SOURCES = [
-  { id: '', label: 'Tümü' },
+// label null → çeviriden "Tümü" gösterilir; diğerleri marka adı (çevrilmez)
+const SOURCES: { id: string; label: string | null }[] = [
+  { id: '', label: null },
   { id: 'diamond', label: 'Diamond' },
   { id: 'combisteel', label: 'CombiSteel' },
   { id: 'handi', label: 'HENDI' },
@@ -83,6 +84,7 @@ function ProductImage({ src, alt }: { src: string; alt: string }) {
  * Ana ekranda "hepsi toplu" görünümü.
  */
 export default function AllProductsGrid() {
+  const { t } = useTranslation();
   const {
     products, filters, currentPage, itemsPerPage, totalCount, isLoading, error,
     fetchProducts, setFilter, setPage,
@@ -121,7 +123,7 @@ export default function AllProductsGrid() {
             type="text"
             value={filters.search}
             onChange={(e) => setFilter('search', e.target.value)}
-            placeholder="Tüm markalarda ara…"
+            placeholder={t('product.searchAllBrands')}
             className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-9 text-sm outline-none focus:ring-2 focus:ring-red-200"
           />
           {filters.search && (
@@ -135,31 +137,31 @@ export default function AllProductsGrid() {
               onClick={() => setFilter('source', s.id)}
               className={`px-3 py-2 rounded-xl text-xs font-bold transition-all ${filters.source === s.id ? 'bg-[#DC2626] text-white shadow-sm' : 'bg-white text-slate-500 border border-slate-200 hover:border-red-300 hover:text-[#DC2626]'}`}
             >
-              {s.label}
+              {s.label ?? t('common.all')}
             </button>
           ))}
         </div>
       </div>
 
-      <p className="text-xs text-slate-400 font-medium">{totalCount.toLocaleString()} ürün</p>
+      <p className="text-xs text-slate-400 font-medium">{t('product.productsCount', { count: totalCount })}</p>
 
       {isLoading && (
         <div className="flex items-center justify-center py-16">
           <Loader2 size={24} className="animate-spin text-[#DC2626] mr-2" />
-          <span className="text-sm text-slate-500">Yükleniyor…</span>
+          <span className="text-sm text-slate-500">{t('common.loading')}</span>
         </div>
       )}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
-          Hata: {error}
-          <button onClick={fetchProducts} className="ml-3 underline font-bold">Tekrar dene</button>
+          {t('common.errorLabel', { message: error })}
+          <button onClick={fetchProducts} className="ml-3 underline font-bold">{t('common.retry')}</button>
         </div>
       )}
       {!isLoading && !error && products.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Package size={40} className="text-slate-300 mb-3" />
-          <p className="text-sm font-bold text-slate-600">Ürün bulunamadı</p>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm">Katalog verisi henüz yüklenmemiş olabilir.</p>
+          <p className="text-sm font-bold text-slate-600">{t('product.noProductsFound')}</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm">{t('product.catalogNotLoaded')}</p>
         </div>
       )}
 
@@ -173,11 +175,12 @@ export default function AllProductsGrid() {
                 brand={item.brand}
                 code={item.code || undefined}
                 name={item.name}
+                description={item.description || undefined}
                 subtitle={item.category || undefined}
                 dims={dimStr(item)}
                 price={item.price}
                 imageUrl={item.image || ''}
-                badges={{ stock: (item.stock != null && Number(item.stock) > 0) ? 'Stokta' : undefined }}
+                badges={{ stock: (item.stock != null && Number(item.stock) > 0) ? t('common.inStock') : undefined }}
                 inCompare={inCompare}
                 cartProduct={toCartItem(item)}
                 formatPrice={fmtPrice}
@@ -204,8 +207,8 @@ export default function AllProductsGrid() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <div>
-                <h2 className="text-base font-headline font-black text-slate-800">Projeye Ekle</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Hangi projeye eklensin?</p>
+                <h2 className="text-base font-headline font-black text-slate-800">{t('product.addToProject')}</h2>
+                <p className="text-xs text-slate-500 mt-0.5">{t('product.whichProject')}</p>
               </div>
               <button onClick={() => setProjectModalItem(null)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500"><X size={18} /></button>
             </div>
@@ -214,7 +217,7 @@ export default function AllProductsGrid() {
                 <div>
                   <div className="flex items-center gap-1.5 mb-2">
                     <Clock size={13} className="text-[#DC2626]" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#DC2626]">Devam Eden</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#DC2626]">{t('project.inProgress')}</span>
                   </div>
                   <div className="space-y-2">
                     {activeProjects.map((p) => (
@@ -236,7 +239,7 @@ export default function AllProductsGrid() {
                 <div>
                   <div className="flex items-center gap-1.5 mb-2">
                     <CheckCircle2 size={13} className="text-slate-400" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tamamlanan</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('project.completed')}</span>
                   </div>
                   <div className="space-y-2">
                     {completedProjects.map((p) => (
@@ -250,7 +253,7 @@ export default function AllProductsGrid() {
               {projects.length === 0 && (
                 <div className="py-10 text-center">
                   <Package size={36} className="mx-auto text-slate-200 mb-3" />
-                  <p className="text-sm font-bold text-slate-500">Henüz proje yok</p>
+                  <p className="text-sm font-bold text-slate-500">{t('project.noProjects')}</p>
                 </div>
               )}
             </div>

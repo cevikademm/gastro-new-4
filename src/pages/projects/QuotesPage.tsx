@@ -1,5 +1,6 @@
 import { useMemo, useRef, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Search, FileText, ChevronRight, ArrowRight } from 'lucide-react';
 import { useProjectStore } from '../../stores/projectStore';
 import { designQuoteLines } from '../../lib/designQuoteLines';
@@ -17,6 +18,7 @@ export function quoteNoFor(id: string): string {
  * sekmesi) gider. Kısmi numara, müşteri ya da proje adıyla da aranabilir.
  */
 export default function QuotesPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const projects = useProjectStore((s) => s.projects);
   const [query, setQuery] = useState('');
@@ -66,10 +68,10 @@ export default function QuotesPage() {
     <div className="max-w-6xl mx-auto w-full space-y-6 py-8 px-4 sm:px-6">
       <div>
         <h1 className="font-headline text-3xl sm:text-4xl font-black text-on-surface tracking-tight flex items-center gap-3">
-          <FileText className="text-primary" size={30} /> Teklifler
+          <FileText className="text-primary" size={30} /> {t('projects.quotesTitle')}
         </h1>
         <p className="text-on-surface-variant text-sm mt-1.5">
-          Verilen tüm teklifler. Teklif numarasını yazıp Enter'a basarak doğrudan teklife ulaşın.
+          {t('projects.quotesSubtitle')}
         </p>
       </div>
 
@@ -80,7 +82,7 @@ export default function QuotesPage() {
           autoFocus
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Teklif No ara (örn. TKF-781676-2026) — Enter ile aç"
+          placeholder={t('projects.quotesSearchPlaceholder')}
           className="w-full bg-surface-container-low border border-outline-variant/50 rounded-xl py-3.5 pl-11 pr-28 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none transition-colors font-mono"
         />
         <button
@@ -88,7 +90,7 @@ export default function QuotesPage() {
           className="absolute right-2 top-1/2 -translate-y-1/2 inline-flex items-center gap-1.5 bg-primary text-white px-4 py-2 rounded-lg text-xs font-bold hover:bg-primary/90 transition-colors disabled:opacity-40"
           disabled={filtered.length === 0}
         >
-          Aç <ArrowRight size={14} />
+          {t('projects.open')} <ArrowRight size={14} />
         </button>
       </form>
 
@@ -97,11 +99,11 @@ export default function QuotesPage() {
           <table className="w-full text-left border-collapse min-w-[720px]">
             <thead>
               <tr className="bg-surface-container">
-                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant">Teklif No</th>
-                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant">Müşteri</th>
-                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant">Proje</th>
-                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant">Tarih</th>
-                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant text-right">Tutar (KDV dahil)</th>
+                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant">{t('projects.quoteNo')}</th>
+                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant">{t('projects.customer')}</th>
+                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant">{t('projects.project')}</th>
+                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant">{t('common.date')}</th>
+                <th className="px-5 py-3 text-[10px] font-bold tracking-[1.5px] uppercase text-on-surface-variant text-right">{t('projects.amountVatIncluded')}</th>
                 <th className="px-5 py-3"></th>
               </tr>
             </thead>
@@ -127,7 +129,7 @@ export default function QuotesPage() {
               {filtered.length === 0 && (
                 <tr>
                   <td colSpan={6} className="px-5 py-12 text-center text-sm text-on-surface-variant">
-                    {query ? `"${query}" için teklif bulunamadı.` : 'Henüz teklif yok.'}
+                    {query ? t('projects.noQuotesForQuery', { query }) : t('projects.noQuotesYet')}
                   </td>
                 </tr>
               )}

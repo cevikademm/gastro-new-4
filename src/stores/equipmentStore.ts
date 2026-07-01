@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import i18n from '../i18n';
 import productsData from '../data/products.json';
 import { debouncedSyncUserPrefs, loadUserPrefs } from '../lib/gastroSync';
 import {
@@ -31,29 +32,53 @@ export interface EquipmentItem {
 
 export interface EquipmentCategory {
   id: string;
-  name: string;
+  /** i18n anahtarı (categoryTaxonomy.*) — `name` bunu okur. */
+  nameKey: string;
+  /** Dile göre çözümlenen etiket (i18n.t ile, okuma anında). */
+  readonly name: string;
   icon: string;
   color: string;
   count: number;
 }
 
+// name alanı GETTER'dır: dil değişince (i18n.changeLanguage) UI'da etiket
+// otomatik güncellenir. Kategori ID'leri sabit kalır; yalnızca gösterilen
+// etiket i18n'den okuma anında çözümlenir.
+function makeCategory(
+  id: string,
+  nameKey: string,
+  icon: string,
+  color: string,
+): EquipmentCategory {
+  return {
+    id,
+    nameKey,
+    icon,
+    color,
+    count: 0,
+    get name() {
+      return i18n.t(nameKey);
+    },
+  };
+}
+
 export const CATEGORIES: EquipmentCategory[] = [
-  { id: 'cooking', name: 'Pişirme', icon: 'flame', color: '#ef4444', count: 0 },
-  { id: 'cooling', name: 'Soğutma', icon: 'refrigerator', color: '#3b82f6', count: 0 },
-  { id: 'dishwash', name: 'Bulaşık Yıkama', icon: 'droplets', color: '#06b6d4', count: 0 },
-  { id: 'prep_hygiene', name: 'Hazırlık & Hijyen', icon: 'table', color: '#6b7280', count: 0 },
-  { id: 'self_service', name: 'Self Servis & Büfe', icon: 'table', color: '#f59e0b', count: 0 },
-  { id: 'pizza_pasta', name: 'Pizza & Pasta', icon: 'flame', color: '#dc2626', count: 0 },
-  { id: 'dynamic_prep', name: 'Dinamik Hazırlık', icon: 'microwave', color: '#8b5cf6', count: 0 },
-  { id: 'cook_chill', name: 'Pişir & Soğut', icon: 'microwave', color: '#10b981', count: 0 },
-  { id: 'ventilation', name: 'Havalandırma', icon: 'waves', color: '#64748b', count: 0 },
-  { id: 'bakery', name: 'Pastane & Fırıncılık', icon: 'microwave', color: '#d97706', count: 0 },
-  { id: 'trolley_gn', name: 'Araçlar & GN Kaplar', icon: 'table', color: '#78716c', count: 0 },
-  { id: 'coffee_tea', name: 'Kahve & Çay', icon: 'droplets', color: '#92400e', count: 0 },
-  { id: 'laundry', name: 'Çamaşırhane', icon: 'waves', color: '#7c3aed', count: 0 },
-  { id: 'ice_cream', name: 'Dondurma', icon: 'refrigerator', color: '#ec4899', count: 0 },
-  { id: 'hospitality', name: 'Konaklama & Temizlik', icon: 'waves', color: '#0891b2', count: 0 },
-  { id: 'cleaning_products', name: 'Temizlik Ürünleri', icon: 'droplets', color: '#059669', count: 0 },
+  makeCategory('cooking', 'categoryTaxonomy.cooking', 'flame', '#ef4444'),
+  makeCategory('cooling', 'categoryTaxonomy.cooling', 'refrigerator', '#3b82f6'),
+  makeCategory('dishwash', 'categoryTaxonomy.dishwash', 'droplets', '#06b6d4'),
+  makeCategory('prep_hygiene', 'categoryTaxonomy.prep_hygiene', 'table', '#6b7280'),
+  makeCategory('self_service', 'categoryTaxonomy.self_service', 'table', '#f59e0b'),
+  makeCategory('pizza_pasta', 'categoryTaxonomy.pizza_pasta', 'flame', '#dc2626'),
+  makeCategory('dynamic_prep', 'categoryTaxonomy.dynamic_prep', 'microwave', '#8b5cf6'),
+  makeCategory('cook_chill', 'categoryTaxonomy.cook_chill', 'microwave', '#10b981'),
+  makeCategory('ventilation', 'categoryTaxonomy.ventilation', 'waves', '#64748b'),
+  makeCategory('bakery', 'categoryTaxonomy.bakery', 'microwave', '#d97706'),
+  makeCategory('trolley_gn', 'categoryTaxonomy.trolley_gn', 'table', '#78716c'),
+  makeCategory('coffee_tea', 'categoryTaxonomy.coffee_tea', 'droplets', '#92400e'),
+  makeCategory('laundry', 'categoryTaxonomy.laundry', 'waves', '#7c3aed'),
+  makeCategory('ice_cream', 'categoryTaxonomy.ice_cream', 'refrigerator', '#ec4899'),
+  makeCategory('hospitality', 'categoryTaxonomy.hospitality', 'waves', '#0891b2'),
+  makeCategory('cleaning_products', 'categoryTaxonomy.cleaning_products', 'droplets', '#059669'),
 ];
 
 // Count products per category — taksonomi çözümlemesine göre (Diamond ham cat +

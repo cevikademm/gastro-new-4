@@ -147,11 +147,11 @@ export default function BOM() {
           <p className="text-4xl font-headline font-black text-primary">{getUniqueSKUs()}</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm">
-          <p className="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-2">Favoriler</p>
+          <p className="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-2">{t('bom.favorites')}</p>
           <p className="text-4xl font-headline font-black text-pink-500">{equipmentStore.favorites.length}</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 shadow-sm">
-          <p className="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-2">Toplam Değer</p>
+          <p className="text-on-surface-variant text-xs uppercase tracking-widest font-bold mb-2">{t('bom.totalValue')}</p>
           <p className="text-2xl font-headline font-black text-emerald-600">{formatPrice(totalValue)}</p>
         </div>
         <div className="bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/10 relative overflow-hidden shadow-sm">
@@ -192,9 +192,9 @@ export default function BOM() {
                 <th className="px-4 py-4 w-20">{t('bom.quantity')}</th>
                 <th className="px-4 py-4 w-48">{t('bom.articleCode')}</th>
                 <th className="px-4 py-4">{t('bom.designation')}</th>
-                <th className="px-4 py-4 text-right w-32">Birim Fiyat</th>
-                <th className="px-4 py-4 text-right w-32">Toplam</th>
-                <th className="px-4 py-4 text-center w-32">İşlemler</th>
+                <th className="px-4 py-4 text-right w-32">{t('bom.unitPrice')}</th>
+                <th className="px-4 py-4 text-right w-32">{t('common.total')}</th>
+                <th className="px-4 py-4 text-center w-32">{t('common.actions')}</th>
                 <th className="px-4 py-4 text-right w-28">{t('common.status')}</th>
               </tr>
             </thead>

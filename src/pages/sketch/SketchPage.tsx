@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Pencil, MousePointer2, Undo2, Trash2,
   ZoomIn, ZoomOut, Maximize2, Info,
@@ -81,7 +82,15 @@ function gridStyle(step: number): { color: string; lw: number } {
 
 /* ─── SketchPage ─────────────────────────────────────────────── */
 export default function SketchPage() {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  /* Live labels for the canvas render loop (effect has [] deps) */
+  const labelsRef = useRef({ horizontal: '', vertical: '' });
+  labelsRef.current = {
+    horizontal: t('sketch.horizontal'),
+    vertical: t('sketch.vertical'),
+  };
 
   /* ── UI state ── */
   const [uiMode,    setUiMode]    = useState<'draw' | 'edit'>('draw');
@@ -93,7 +102,7 @@ export default function SketchPage() {
   /* Save/Load modal state */
   const [showSave,   setShowSave]   = useState(false);
   const [showLoad,   setShowLoad]   = useState(false);
-  const [sketchName, setSketchName] = useState('Yeni Eskiz');
+  const [sketchName, setSketchName] = useState(() => t('sketch.newSketch'));
   const [savedList,  setSavedList]  = useState<SavedSketch[]>(loadSketches);
   const [activeId,   setActiveId]   = useState<string | null>(null); // currently loaded sketch id
 
@@ -403,7 +412,7 @@ export default function SketchPage() {
         const lenCm = dist(dA, dB);
         if (lenCm >= 0.1) {
           const mainTxt = fmt(lenCm);
-          const dirTxt  = isH ? '⟷ Yatay' : '⟺ Dikey';
+          const dirTxt  = isH ? `⟷ ${labelsRef.current.horizontal}` : `⟺ ${labelsRef.current.vertical}`;
           ctx.font = 'bold 15px system-ui';
           const tw  = ctx.measureText(mainTxt).width;
           const bw  = tw + 30; const bh = 44;
@@ -646,12 +655,12 @@ export default function SketchPage() {
         <div className="flex rounded-lg overflow-hidden border border-slate-200 shadow-sm">
           <button onClick={() => applyMode('draw')}
             className={`flex items-center gap-1 px-3 py-2 text-xs font-bold transition-all ${uiMode === 'draw' ? 'bg-primary text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
-            <Pencil size={13} /> Çiz
+            <Pencil size={13} /> {t('sketch.draw')}
           </button>
           <div className="w-px bg-slate-200" />
           <button onClick={() => applyMode('edit')}
             className={`flex items-center gap-1 px-3 py-2 text-xs font-bold transition-all ${uiMode === 'edit' ? 'bg-amber-500 text-white' : 'bg-white text-slate-500 hover:bg-slate-50'}`}>
-            <MousePointer2 size={13} /> Düzenle
+            <MousePointer2 size={13} /> {t('sketch.edit')}
           </button>
         </div>
 
@@ -671,11 +680,11 @@ export default function SketchPage() {
         {/* Undo / Clear */}
         <button onClick={undo} disabled={histLen === 0}
           className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 disabled:opacity-30 transition-all">
-          <Undo2 size={12} /> Geri
+          <Undo2 size={12} /> {t('sketch.undo')}
         </button>
         <button onClick={clearAll} disabled={lineCount === 0}
           className="flex items-center gap-1 px-2 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-red-500 hover:bg-red-100 disabled:opacity-30 transition-all">
-          <Trash2 size={12} /> Temizle
+          <Trash2 size={12} /> {t('common.clear')}
         </button>
 
         <div className="w-px h-5 bg-slate-200" />
@@ -692,7 +701,7 @@ export default function SketchPage() {
             <ZoomOut size={13} />
           </button>
           <div className="w-px bg-slate-200" />
-          <button onClick={resetView} title="Görünümü sıfırla"
+          <button onClick={resetView} title={t('sketch.resetView')}
             className="px-2 py-1.5 bg-white hover:bg-slate-50 text-slate-500 transition-colors">
             <Maximize2 size={13} />
           </button>
@@ -703,11 +712,11 @@ export default function SketchPage() {
         {/* Save / Load */}
         <button onClick={() => setShowSave(true)}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all">
-          <Save size={13} /> Kaydet
+          <Save size={13} /> {t('common.save')}
         </button>
         <button onClick={() => { setSavedList(loadSketches()); setShowLoad(true); }}
           className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-red-50 text-[#DC2626] hover:bg-red-100 transition-all">
-          <FolderOpen size={13} /> Aç
+          <FolderOpen size={13} /> {t('common.open')}
         </button>
 
         {/* Active sketch name */}
@@ -718,7 +727,7 @@ export default function SketchPage() {
         )}
 
         <span className="text-[10px] text-slate-400 font-mono hidden md:inline ml-1">
-          {lineCount} çizgi · snap 5mm
+          {t('sketch.lineCountSnap', { count: lineCount })}
         </span>
 
         <button onClick={() => setShowHint(h => !h)}
@@ -735,25 +744,25 @@ export default function SketchPage() {
         {/* Mode badge */}
         <div className={`absolute top-3 left-3 px-3 py-1.5 rounded-full text-[10px] font-bold shadow-md pointer-events-none select-none ${
           uiMode === 'draw' ? 'bg-primary text-white' : 'bg-amber-500 text-white'}`}>
-          {uiMode === 'draw' ? '✏️ Çizim — snap 5mm' : '✋ Düzenleme Modu'}
+          {uiMode === 'draw' ? `✏️ ${t('sketch.drawModeBadge')}` : `✋ ${t('sketch.editModeBadge')}`}
         </div>
 
         {/* Hint */}
         {showHint && (
           <div className="absolute bottom-3 left-3 bg-white/92 backdrop-blur-sm rounded-xl shadow-lg border border-slate-200 p-3 text-[10px] text-slate-500 space-y-1 pointer-events-none select-none max-w-[210px]">
-            <p className="font-bold text-slate-700 text-[11px] mb-1">Kullanım</p>
+            <p className="font-bold text-slate-700 text-[11px] mb-1">{t('sketch.usageTitle')}</p>
             {uiMode === 'draw' ? (
               <>
-                <p>👆 <b>Basılı sürükle</b> → çizgi çiz</p>
-                <p>📐 Otomatik dik açı · snap 5mm</p>
-                <p>🔢 Canlı ölçü (mm / cm / m)</p>
-                <p>🤙 <b>İki parmak</b> → kaydır + zoom</p>
-                <p>🖱 <b>Tekerlek</b> → zoom</p>
+                <p>👆 <b>{t('sketch.hintDragBold')}</b> {t('sketch.hintDrawLine')}</p>
+                <p>📐 {t('sketch.hintAutoRightAngle')}</p>
+                <p>🔢 {t('sketch.hintLiveMeasure')}</p>
+                <p>🤙 <b>{t('sketch.hintTwoFingerBold')}</b> {t('sketch.hintPanZoom')}</p>
+                <p>🖱 <b>{t('sketch.hintWheelBold')}</b> {t('sketch.hintZoom')}</p>
               </>
             ) : (
               <>
-                <p>👆 <b>Noktaya bas sürükle</b> → uzat/kısalt</p>
-                <p>🤙 <b>İki parmak</b> → kaydır + zoom</p>
+                <p>👆 <b>{t('sketch.hintDragNodeBold')}</b> {t('sketch.hintStretch')}</p>
+                <p>🤙 <b>{t('sketch.hintTwoFingerBold')}</b> {t('sketch.hintPanZoom')}</p>
               </>
             )}
           </div>
@@ -766,7 +775,7 @@ export default function SketchPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 space-y-4" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between">
               <h2 className="text-base font-headline font-black text-on-surface flex items-center gap-2">
-                <Save size={18} className="text-emerald-600" /> Eskizi Kaydet
+                <Save size={18} className="text-emerald-600" /> {t('sketch.saveSketch')}
               </h2>
               <button onClick={() => setShowSave(false)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400">
                 <X size={16} />
@@ -774,13 +783,13 @@ export default function SketchPage() {
             </div>
 
             <div>
-              <label className="text-xs font-bold text-slate-500 mb-1 block">Eskiz Adı</label>
+              <label className="text-xs font-bold text-slate-500 mb-1 block">{t('sketch.sketchName')}</label>
               <input
                 type="text"
                 value={sketchName}
                 onChange={e => setSketchName(e.target.value)}
                 className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/30"
-                placeholder="Eskiz adı..."
+                placeholder={t('sketch.sketchNamePlaceholder')}
                 autoFocus
               />
             </div>
@@ -789,12 +798,12 @@ export default function SketchPage() {
               {activeId && (
                 <button onClick={handleSave}
                   className="flex-1 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all">
-                  <Check size={15} /> Üzerine Kaydet
+                  <Check size={15} /> {t('sketch.overwrite')}
                 </button>
               )}
               <button onClick={handleSaveAs}
                 className={`flex-1 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${activeId ? 'bg-slate-100 hover:bg-slate-200 text-slate-700' : 'bg-emerald-600 hover:bg-emerald-700 text-white'}`}>
-                <Save size={15} /> {activeId ? 'Yeni Olarak' : 'Kaydet'}
+                <Save size={15} /> {activeId ? t('sketch.saveAsNew') : t('common.save')}
               </button>
             </div>
           </div>
@@ -807,7 +816,7 @@ export default function SketchPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <h2 className="text-base font-headline font-black text-on-surface flex items-center gap-2">
-                <FolderOpen size={18} className="text-[#DC2626]" /> Kayıtlı Eskizler
+                <FolderOpen size={18} className="text-[#DC2626]" /> {t('sketch.savedSketches')}
               </h2>
               <button onClick={() => setShowLoad(false)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-400">
                 <X size={16} />
@@ -818,7 +827,7 @@ export default function SketchPage() {
               {savedList.length === 0 ? (
                 <div className="text-center py-12 text-slate-400">
                   <FolderOpen size={32} className="mx-auto mb-3 opacity-30" />
-                  <p className="text-sm">Henüz kayıtlı eskiz yok</p>
+                  <p className="text-sm">{t('sketch.noSavedSketches')}</p>
                 </div>
               ) : (
                 savedList.slice().reverse().map(sk => (
@@ -833,11 +842,11 @@ export default function SketchPage() {
                       <p className="text-[10px] text-slate-400 flex items-center gap-1 mt-0.5">
                         <Clock size={9} />
                         {new Date(sk.savedAt).toLocaleString('tr-TR')}
-                        · {sk.segs.length} çizgi
+                        · {t('sketch.lineCount', { count: sk.segs.length })}
                       </p>
                     </div>
                     {activeId === sk.id && (
-                      <span className="text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">Açık</span>
+                      <span className="text-[9px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">{t('sketch.open')}</span>
                     )}
                     <button
                       onClick={e => { e.stopPropagation(); handleDelete(sk.id); }}
@@ -851,7 +860,7 @@ export default function SketchPage() {
             </div>
 
             <div className="p-4 border-t border-slate-100 text-center">
-              <p className="text-[10px] text-slate-400">{savedList.length} kayıtlı eskiz</p>
+              <p className="text-[10px] text-slate-400">{t('sketch.savedSketchCount', { count: savedList.length })}</p>
             </div>
           </div>
         </div>

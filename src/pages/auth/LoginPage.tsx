@@ -83,7 +83,7 @@ export default function LoginPage() {
             transition={{ duration: 0.6 }}
             className="flex items-center gap-4 mb-10"
           >
-            <Link to="/" aria-label="Ana sayfa" className="cursor-pointer">
+            <Link to="/" aria-label={t('nav.home')} className="cursor-pointer">
               <img src="/logo-2mc-gastro-white.png" alt="2MC Gastro" className="h-14 w-auto max-w-[220px] object-contain transition-opacity hover:opacity-80" />
             </Link>
           </motion.div>

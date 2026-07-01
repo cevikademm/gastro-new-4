@@ -21,6 +21,8 @@ export interface AllProduct {
   height_mm?: number | null;
   depth_mm?: number | null;
   stock?: string | null;
+  // 020 — uzun/açıklayıcı ad (Diamond: description_tech_spec, CombiSteel/HENDI: description).
+  description?: string | null;
 }
 
 interface AllFilters {
@@ -63,10 +65,26 @@ export const useAllProductsStore = create<AllState>((set, get) => ({
 
       let query = supabase.from('all_products').select('*', { count: 'exact' });
       if (filters.search) {
-        query = query.or(`name.ilike.%${filters.search}%,brand.ilike.%${filters.search}%`);
+        // `code` (Art.-Nr. / SKU / EAN) da aransın — "DT178/P9H" gibi kodlar
+        // artık burada da bulunur (Ürün Ekle kataloğuyla tutarlı). Parantez/virgül
+        // PostgREST or() grameriyle çakışmasın diye boşlukla temizlenir (slash güvenli).
+        const term = filters.search.replace(/[(),]/g, ' ').trim();
+        query = query.or(
+          `name.ilike.%${term}%,brand.ilike.%${term}%,code.ilike.%${term}%`,
+        );
+      } else {
+        // Yalnızca GEZİNİRKEN görselsiz ürünleri gizle; ARAMADA hepsi çıksın
+        // (kullanıcı aradığı ürünü mutlaka bulsun). image görselsizde NULL.
+        query = query.not('image', 'is', null);
       }
       if (filters.source) query = query.eq('source', filters.source);
-      query = query.order('name', { ascending: true }).range(from, to);
+      // İlk sayfalar €1500–€5000 bandı (sort_rank=0), sonra kalanlar. Bant içinde
+      // ana sayfadaki gibi pahalıdan ucuza; fiyatsızlar en sona. (view: 027 sort_rank)
+      query = query
+        .order('sort_rank', { ascending: true })
+        .order('price', { ascending: false, nullsFirst: false })
+        .order('name', { ascending: true })
+        .range(from, to);
 
       const { data, error, count } = await query;
       if (error) throw error;

@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   ArrowLeft, GripVertical, RotateCcw, Check, ExternalLink, MousePointer2, X,
 } from 'lucide-react';
@@ -10,6 +11,7 @@ import {
   SORTABLE_SECTION_IDS,
   type WelcomeSectionId,
 } from '../../stores/welcomeOrderStore';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 /**
  * Karşılama sayfası bölüm sıralaması.
@@ -19,9 +21,16 @@ import {
  *   3. SÜRÜKLE-BIRAK: pointer events tabanlı (native HTML5 drag yerine)
  */
 export default function WelcomeOrderPage() {
+  const { t } = useTranslation();
   const order = useWelcomeOrderStore((s) => s.order);
   const setOrder = useWelcomeOrderStore((s) => s.setOrder);
   const reset = useWelcomeOrderStore((s) => s.reset);
+
+  // Bölüm etiketleri i18n'den; anahtar yoksa store'daki TR değere düş
+  const sectionLabel = (id: WelcomeSectionId) =>
+    t(`welcome.sections.${id}.label`, { defaultValue: SECTION_LABELS[id].tr });
+  const sectionDesc = (id: WelcomeSectionId) =>
+    t(`welcome.sections.${id}.desc`, { defaultValue: SECTION_LABELS[id].desc });
 
   // Tıkla-tıkla taşı modu
   const [picked, setPicked] = useState<WelcomeSectionId | null>(null);
@@ -34,6 +43,7 @@ export default function WelcomeOrderPage() {
   const listRef = useRef<HTMLUListElement>(null);
 
   const [savedFlash, setSavedFlash] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
 
   const flashSaved = () => {
     setSavedFlash(true);
@@ -147,11 +157,13 @@ export default function WelcomeOrderPage() {
     flashSaved();
   };
 
-  const handleReset = () => {
-    if (!confirm('Sıralamayı varsayılana döndürmek istediğinden emin misin?')) return;
+  const handleReset = () => setConfirmReset(true);
+
+  const doReset = () => {
     reset();
     setPicked(null);
     flashSaved();
+    setConfirmReset(false);
   };
 
   /* ───────── ESC ile iptal ───────── */
@@ -177,7 +189,7 @@ export default function WelcomeOrderPage() {
             style={{ color: '#0F2440' }}
           >
             <ArrowLeft size={16} />
-            Karşılama
+            {t('welcome.order.breadcrumb')}
           </Link>
           <div className="ml-auto flex items-center gap-2">
             {savedFlash && (
@@ -186,7 +198,7 @@ export default function WelcomeOrderPage() {
                 style={{ background: '#dcf3e2', color: '#1b7f3a' }}
               >
                 <Check size={12} />
-                Kaydedildi
+                {t('common.saved')}
               </span>
             )}
             <a
@@ -197,7 +209,7 @@ export default function WelcomeOrderPage() {
               style={{ borderColor: '#e8e6df', color: '#0F2440', background: '#fff' }}
             >
               <ExternalLink size={13} />
-              Yeni sekmede aç
+              {t('welcome.order.openInNewTab')}
             </a>
             <button
               type="button"
@@ -206,7 +218,7 @@ export default function WelcomeOrderPage() {
               style={{ borderColor: '#e8e6df', color: '#DC2626', background: '#fff' }}
             >
               <RotateCcw size={13} />
-              Varsayılan
+              {t('welcome.order.resetDefault')}
             </button>
           </div>
         </div>
@@ -215,13 +227,13 @@ export default function WelcomeOrderPage() {
       <main className="max-w-3xl mx-auto px-4 py-8">
         <div className="mb-6">
           <div className="text-[10px] font-mono uppercase tracking-[0.28em] mb-2" style={{ color: '#DC2626' }}>
-            // ADMIN · WELCOME ORDER
+            {t('welcome.order.eyebrow')}
           </div>
           <h1
             className="text-3xl md:text-4xl leading-[1.1]"
             style={{ fontFamily: 'Playfair Display, Georgia, serif', fontWeight: 500, letterSpacing: '-0.025em' }}
           >
-            Bölüm <em style={{ color: '#DC2626', fontStyle: 'italic' }}>sıralaması</em>
+            {t('welcome.order.titlePrefix')} <em style={{ color: '#DC2626', fontStyle: 'italic' }}>{t('welcome.order.titleEmphasis')}</em>
           </h1>
         </div>
 

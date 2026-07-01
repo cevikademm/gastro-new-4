@@ -32,8 +32,10 @@ import {
   Square as FloorIcon,
   PanelLeft as WallIcon,
   Layers as OverlapIcon,
+  Focus as FocusIcon,
 } from 'lucide-react';
 import { useProjectStore } from '../../../store';
+import { removeEquipmentEverywhere } from '../../../../../lib/designDelete';
 import type { Equipment, EquipmentId } from '../../../core/types';
 import { othersAtHeight, resolveCollision, snapToEdges } from '../interaction/collision';
 import {
@@ -51,6 +53,8 @@ interface EquipmentPropertiesPanelProps {
   gizmoEnabled?: boolean;
   /** Halkaları aç/kapat — tıklayınca otomatik açılmaz, kullanıcı buradan açar. */
   onToggleGizmo?: () => void;
+  /** Kamerayı seçili ürüne yakınlaştır (ürünü kareye ortala). */
+  onZoom?: () => void;
 }
 
 const ROT_STEPS = [0, 90, 180, 270] as const;
@@ -61,11 +65,11 @@ export default function EquipmentPropertiesPanel({
   onClose,
   gizmoEnabled = false,
   onToggleGizmo,
+  onZoom,
 }: EquipmentPropertiesPanelProps) {
   const { t } = useTranslation();
   const project = useProjectStore((s) => s.project);
   const update = useProjectStore((s) => s.update);
-  const removeEquipment = useProjectStore((s) => s.removeEquipment);
 
   const eq = equipmentId ? (project.equipment[equipmentId as EquipmentId] as Equipment | undefined) : undefined;
 
@@ -262,8 +266,10 @@ export default function EquipmentPropertiesPanel({
     });
   };
 
+  // Ürünü HER YERDEN kaldır: tasarımdan + (proje modunda) teklif/Ürünler listesinden.
+  // Her iki taraf da otomatik kaydedilir; reload'da geri gelmez.
   const handleDelete = () => {
-    removeEquipment(eq.id);
+    removeEquipmentEverywhere(eq.id);
     onClose();
   };
 
@@ -288,18 +294,38 @@ export default function EquipmentPropertiesPanel({
         <span className="text-[12px] font-semibold text-slate-800 truncate flex-1" title={eq.name}>
           {eq.name}
         </span>
+        {onZoom && (
+          <button
+            type="button"
+            onClick={onZoom}
+            className="p-1.5 rounded-lg text-slate-400 hover:bg-brand-red/10 hover:text-brand-red transition"
+            title={t('design3d.props.zoomTitle')}
+          >
+            <FocusIcon size={13} />
+          </button>
+        )}
         <button
           type="button"
           onClick={toggleLock}
           className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
-          title={eq.locked ? 'Kilidi aç' : 'Kilitle'}
+          title={eq.locked ? t('design3d.props.unlock') : t('design3d.props.lock')}
         >
           {eq.locked ? <Lock size={13} /> : <Unlock size={13} />}
+        </button>
+        {/* Hızlı sil — panelin en üstünde, kaydırmaya gerek kalmadan erişilir.
+            Ürünü tasarımdan VE (proje modunda) teklif listesinden kaldırır. */}
+        <button
+          type="button"
+          onClick={handleDelete}
+          className="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 hover:text-rose-600 transition"
+          title={t('design3d.props.deleteTitle')}
+        >
+          <Trash2 size={13} />
         </button>
       </header>
 
       {/* Read-only scale info — kullanıcının ölçek bilgisini her zaman görmesi için. */}
-      <Section title="Ölçü">
+      <Section title={t('design3d.dimensions')}>
         <div className="grid grid-cols-3 gap-1.5 tabular-nums text-slate-700">
           <Stat label="G" value={eq.footprint.width} unit="mm" />
           <Stat label="D" value={eq.footprint.depth} unit="mm" />
@@ -355,7 +381,7 @@ export default function EquipmentPropertiesPanel({
         </label>
       </Section>
 
-      <Section title="Montaj">
+      <Section title={t('design3d.props.mount')}>
         <div className="grid grid-cols-2 gap-1.5">
           <button
             type="button"
@@ -368,9 +394,9 @@ export default function EquipmentPropertiesPanel({
                 : 'font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
               eq.locked ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
-            title="Zemine otur (z = 0)"
+            title={t('design3d.props.floorTitle')}
           >
-            <FloorIcon size={12} /> Zemin
+            <FloorIcon size={12} /> {t('design3d.props.floor')}
           </button>
           <button
             type="button"
@@ -383,14 +409,14 @@ export default function EquipmentPropertiesPanel({
                 : 'font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
               eq.locked ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
-            title="En yakın duvara yapıştır (asma dolap / davlumbaz)"
+            title={t('design3d.props.wallTitle')}
           >
-            <WallIcon size={12} /> Duvar
+            <WallIcon size={12} /> {t('design3d.props.wall')}
           </button>
         </div>
 
         {mount === 'wall' && (
-          <Row label="Yükseklik (zeminden)">
+          <Row label={t('design3d.props.wallHeight')}>
             <input
               type="range"
               min={0}
@@ -411,13 +437,13 @@ export default function EquipmentPropertiesPanel({
         )}
         <p className="mt-2 text-[10px] text-slate-400 leading-snug">
           {mount === 'wall'
-            ? 'Duvar ürünü en yakın duvara yapışır, odaya bakar; sürüklerken duvar boyunca kayar.'
-            : 'Zemin ürünü yere oturur ve oda duvarlarının dışına çıkamaz.'}
+            ? t('design3d.props.wallHelp')
+            : t('design3d.props.floorHelp')}
         </p>
       </Section>
 
-      <Section title="Konum">
-        <Row label="X (sol-sağ)">
+      <Section title={t('design3d.props.position')}>
+        <Row label={t('design3d.props.posX')}>
           <input
             type="range"
             min={xMin}
@@ -435,7 +461,7 @@ export default function EquipmentPropertiesPanel({
             disabled={!!eq.locked}
           />
         </Row>
-        <Row label="Y (ön-arka)">
+        <Row label={t('design3d.props.posY')}>
           <input
             type="range"
             min={yMin}
@@ -453,7 +479,7 @@ export default function EquipmentPropertiesPanel({
             disabled={!!eq.locked}
           />
         </Row>
-        <Row label="Z (yükseklik — zeminden)">
+        <Row label={t('design3d.props.posZ')}>
           <input
             type="range"
             min={0}
@@ -477,14 +503,14 @@ export default function EquipmentPropertiesPanel({
             onClick={() => setZ(0)}
             disabled={!!eq.locked}
             className="mt-1.5 w-full inline-flex items-center justify-center gap-1.5 h-8 rounded-xl text-[11px] font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 disabled:opacity-50 transition"
-            title="Ekipmanı zemine indir (Z = 0)"
+            title={t('design3d.props.dropToFloorTitle')}
           >
-            <ArrowDown size={12} /> Zemine indir
+            <ArrowDown size={12} /> {t('design3d.props.dropToFloor')}
           </button>
         )}
       </Section>
 
-      <Section title="Yön">
+      <Section title={t('design3d.props.orientation')}>
         {onToggleGizmo && (
           <button
             type="button"
@@ -497,13 +523,13 @@ export default function EquipmentPropertiesPanel({
                 : 'font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50',
               eq.locked ? 'opacity-50 cursor-not-allowed' : '',
             ].join(' ')}
-            title="3B döndürme halkalarını aç/kapat (gizmo)"
+            title={t('design3d.props.gizmoTitle')}
           >
             <Rotate3d size={13} />
-            {gizmoEnabled ? '3B döndürme açık — kapat' : '3B döndürme halkaları'}
+            {gizmoEnabled ? t('design3d.props.gizmoOn') : t('design3d.props.gizmoOff')}
           </button>
         )}
-        <Row label="Açı">
+        <Row label={t('design3d.props.angle')}>
           <input
             type="range"
             min={0}
@@ -557,9 +583,9 @@ export default function EquipmentPropertiesPanel({
           <ActionBtn
             onClick={() => setRotation(eq.rotation + Math.PI)}
             disabled={!!eq.locked}
-            title="180° çevir (ön/arka)"
+            title={t('design3d.props.flipTitle')}
           >
-            <RefreshCw size={11} /> Çevir
+            <RefreshCw size={11} /> {t('design3d.flip')}
           </ActionBtn>
           <ActionBtn
             onClick={() => setRotation(eq.rotation + Math.PI / 2)}
@@ -571,8 +597,8 @@ export default function EquipmentPropertiesPanel({
         </div>
       </Section>
 
-      <Section title="Eğim (dik / yatık)">
-        <Row label="Ön-arka eğim (X)">
+      <Section title={t('design3d.props.tilt')}>
+        <Row label={t('design3d.props.tiltX')}>
           <input
             type="range"
             min={-180}
@@ -591,7 +617,7 @@ export default function EquipmentPropertiesPanel({
             suffix="°"
           />
         </Row>
-        <Row label="Sağ-sol eğim (Y)">
+        <Row label={t('design3d.props.tiltY')}>
           <input
             type="range"
             min={-180}
@@ -618,36 +644,36 @@ export default function EquipmentPropertiesPanel({
               setTilt('y', 0);
             }}
             disabled={!!eq.locked || isUpright}
-            title="Düz dik (0°)"
+            title={t('design3d.props.uprightTitle')}
           >
-            <ArrowUp size={11} /> Düz
+            <ArrowUp size={11} /> {t('design3d.props.upright')}
           </ActionBtn>
           <ActionBtn
             onClick={() => setTilt('x', Math.PI / 2)}
             disabled={!!eq.locked}
-            title="Öne yat (X +90°)"
+            title={t('design3d.props.tiltForwardTitle')}
           >
-            <Minus size={11} /> Öne yat
+            <Minus size={11} /> {t('design3d.props.tiltForward')}
           </ActionBtn>
           <ActionBtn
             onClick={() => setTilt('x', -Math.PI / 2)}
             disabled={!!eq.locked}
-            title="Arkaya yat (X -90°)"
+            title={t('design3d.props.tiltBackTitle')}
           >
-            <Minus size={11} /> Arka yat
+            <Minus size={11} /> {t('design3d.props.tiltBack')}
           </ActionBtn>
           <ActionBtn
             onClick={() => setTilt('y', Math.PI / 2)}
             disabled={!!eq.locked}
-            title="Yana yat (Y +90°)"
+            title={t('design3d.props.tiltSideTitle')}
           >
-            <Minus size={11} /> Yana yat
+            <Minus size={11} /> {t('design3d.props.tiltSide')}
           </ActionBtn>
         </div>
 
         {!isUpright && (
           <p className="mt-2 text-[10px] text-amber-600 leading-snug">
-            ⚠ Eğim aktif. Çakışma kontrolü dik (0°) hâlin tabanına göre yapılır.
+            {t('design3d.props.tiltWarning')}
           </p>
         )}
       </Section>
@@ -657,11 +683,12 @@ export default function EquipmentPropertiesPanel({
           type="button"
           onClick={handleDelete}
           className="inline-flex items-center justify-center gap-1.5 h-8 w-full rounded-xl text-[11px] font-medium bg-rose-50 text-rose-600 border border-rose-200 hover:bg-rose-100 transition"
+          title={t('design3d.props.deleteFullTitle')}
         >
-          <Trash2 size={12} /> Ekipmanı sil
+          <Trash2 size={12} /> {t('design3d.props.deleteFull')}
         </button>
         <p className="mt-2.5 text-[10px] text-slate-400 leading-snug">
-          ⌨ Sürüklerken Shift basılı: çakışma kontrolünü geçici devre dışı bırakır.
+          {t('design3d.props.deleteHelp')}
         </p>
       </Section>
     </aside>

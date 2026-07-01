@@ -16,6 +16,7 @@
  */
 
 import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { DoorOpen, Square, Trash2, RectangleHorizontal } from 'lucide-react';
 
 import {
@@ -34,6 +35,7 @@ const DEFAULTS = {
 } as const;
 
 export default function PropertiesPanel() {
+  const { t } = useTranslation();
   const project = useProjectStore((s) => s.project);
   const update = useProjectStore((s) => s.update);
   const removeOpening = useProjectStore((s) => s.removeOpening);
@@ -69,37 +71,37 @@ export default function PropertiesPanel() {
   return (
     <aside className="absolute top-0 right-0 h-full w-[60vw] max-w-[15rem] sm:w-72 sm:max-w-none bg-white/95 backdrop-blur border-l border-slate-200/70 shadow-lg shadow-slate-900/5 overflow-y-auto pointer-events-auto flex flex-col">
       <header className="px-4 h-10 flex items-center border-b border-slate-100">
-        <h2 className="text-[12px] font-semibold text-slate-800 truncate">Özellikler</h2>
+        <h2 className="text-[12px] font-semibold text-slate-800 truncate">{t('design3d.openings.title')}</h2>
       </header>
 
       {/* ── Section 1: Add door / window ─────────────────────────────── */}
-      <Section title="Ekle">
+      <Section title={t('design3d.openings.add')}>
         <div className="grid grid-cols-2 gap-2">
           <PlaceBtn
             active={tool === 'place-door'}
             onClick={() => setTool(tool === 'place-door' ? 'select' : 'place-door')}
           >
-            <DoorOpen size={14} /> Kapı
+            <DoorOpen size={14} /> {t('design3d.openings.door')}
           </PlaceBtn>
           <PlaceBtn
             active={tool === 'place-window'}
             onClick={() => setTool(tool === 'place-window' ? 'select' : 'place-window')}
           >
-            <RectangleHorizontal size={14} /> Pencere
+            <RectangleHorizontal size={14} /> {t('design3d.openings.window')}
           </PlaceBtn>
         </div>
         {(tool === 'place-door' || tool === 'place-window') && (
           <div className="mt-2 px-2.5 py-1.5 bg-brand-red/5 border border-brand-red/20 rounded-xl text-[11px] text-brand-red">
-            Bir duvara tıklayarak yerleştirin. Esc — iptal.
+            {t('design3d.openings.placeHint')}
           </div>
         )}
       </Section>
 
       {/* ── Section 2: Selected opening editor ───────────────────────── */}
-      <Section title="Seçili Açıklık">
+      <Section title={t('design3d.openings.selected')}>
         {!selected ? (
           <p className="text-[11px] text-slate-400">
-            Düzenlemek için bir kapı veya pencere seçin.
+            {t('design3d.openings.selectPrompt')}
           </p>
         ) : (
           <div className="space-y-2">
@@ -108,10 +110,10 @@ export default function PropertiesPanel() {
                 {selected.kind === 'door' ? <DoorOpen size={14} /> : <RectangleHorizontal size={14} />}
                 <span className="text-[12px] font-semibold text-slate-800 capitalize">
                   {selected.kind === 'door'
-                    ? 'Kapı'
+                    ? t('design3d.openings.door')
                     : selected.kind === 'window'
-                    ? 'Pencere'
-                    : 'Geçiş'}
+                    ? t('design3d.openings.window')
+                    : t('design3d.openings.passThrough')}
                 </span>
               </div>
               <button
@@ -120,7 +122,7 @@ export default function PropertiesPanel() {
                   removeOpening(selected.id);
                   selectOpening(null);
                 }}
-                title="Sil"
+                title={t('common.delete')}
                 className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
               >
                 <Trash2 size={14} />
@@ -133,21 +135,21 @@ export default function PropertiesPanel() {
             />
 
             <NumberField
-              label="Genişlik (cm)"
+              label={t('design3d.openings.width')}
               value={selected.width / 10}
               step={5}
               min={10}
               onChange={(cm) => updateOpening({ width: cm * 10 })}
             />
             <NumberField
-              label="Yükseklik (cm)"
+              label={t('design3d.openings.height')}
               value={selected.height / 10}
               step={5}
               min={10}
               onChange={(cm) => updateOpening({ height: cm * 10 })}
             />
             <NumberField
-              label="Konum (cm, duvar başından)"
+              label={t('design3d.openings.offset')}
               value={selected.offset / 10}
               step={5}
               min={0}
@@ -155,7 +157,7 @@ export default function PropertiesPanel() {
             />
             {selected.kind !== 'door' && (
               <NumberField
-                label="Eşik yüksekliği (cm)"
+                label={t('design3d.openings.sill')}
                 value={selected.sillHeight / 10}
                 step={5}
                 min={0}
@@ -164,16 +166,18 @@ export default function PropertiesPanel() {
             )}
 
             <div className="text-[10px] text-slate-400 tabular-nums pt-2 border-t border-slate-100">
-              Duvar uzunluğu: {(calculateWallLength(project, selected.wallId as WallId) / 1000).toFixed(2)} m
+              {t('design3d.openings.wallLength', {
+                m: (calculateWallLength(project, selected.wallId as WallId) / 1000).toFixed(2),
+              })}
             </div>
           </div>
         )}
       </Section>
 
       {/* ── Section 3: All openings list ─────────────────────────────── */}
-      <Section title={`Tüm Açıklıklar (${openings.length})`}>
+      <Section title={t('design3d.openings.allTitle', { n: openings.length })}>
         {openings.length === 0 ? (
-          <p className="text-[11px] text-slate-400">Henüz kapı veya pencere yok.</p>
+          <p className="text-[11px] text-slate-400">{t('design3d.openings.empty')}</p>
         ) : (
           <ul className="space-y-1">
             {openings.map((op) => {
@@ -192,7 +196,11 @@ export default function PropertiesPanel() {
                   >
                     {op.kind === 'door' ? <DoorOpen size={12} /> : <RectangleHorizontal size={12} />}
                     <span className="flex-1 truncate">
-                      {op.kind === 'door' ? 'Kapı' : op.kind === 'window' ? 'Pencere' : 'Geçiş'}
+                      {op.kind === 'door'
+                        ? t('design3d.openings.door')
+                        : op.kind === 'window'
+                        ? t('design3d.openings.window')
+                        : t('design3d.openings.passThrough')}
                     </span>
                     <span className="text-slate-400 tabular-nums">{(op.width / 10).toFixed(0)}×{(op.height / 10).toFixed(0)} cm</span>
                   </button>
@@ -251,17 +259,18 @@ function KindSelect({
   value: OpeningKind;
   onChange: (k: OpeningKind) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <label className="block">
-      <span className="text-[10px] font-medium text-slate-500">Tip</span>
+      <span className="text-[10px] font-medium text-slate-500">{t('design3d.openings.kind')}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as OpeningKind)}
         className="mt-1 w-full h-8 rounded-lg border border-slate-200 px-2 text-[11px] bg-white outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
       >
-        <option value="door">Kapı</option>
-        <option value="window">Pencere</option>
-        <option value="pass-through">Geçiş</option>
+        <option value="door">{t('design3d.openings.door')}</option>
+        <option value="window">{t('design3d.openings.window')}</option>
+        <option value="pass-through">{t('design3d.openings.passThrough')}</option>
       </select>
     </label>
   );

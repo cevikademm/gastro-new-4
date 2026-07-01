@@ -273,16 +273,19 @@ useProjectStore.subscribe((state) => {
   debouncedSyncProjects(state.projects, state.activities);
 });
 
-// Load from Supabase on startup (merge with localStorage)
+// Load from Supabase on startup (merge with localStorage).
+// Remote = source of truth: mevcut projeleri remote ile TAZELE (görsel/ölçü/fiyat
+// güncellemeleri ve cihazlar arası değişiklikler yansısın), yerel-özel projeleri
+// koru, remote-özel projeleri ekle. (Eski davranış yalnızca yeni proje ekliyordu →
+// güncellenen proje verisi cihaza asla ulaşmıyordu.)
 loadProjects().then((remote) => {
   if (!remote) return;
   const local = useProjectStore.getState();
-  // If local has only initial demo data and remote has real data, prefer remote
+  const remoteById = new Map(remote.projects.map((p) => [p.id, p]));
   const localIds = new Set(local.projects.map((p) => p.id));
-  const newProjects = remote.projects.filter((p) => !localIds.has(p.id));
-  if (newProjects.length > 0) {
-    useProjectStore.setState({
-      projects: [...local.projects, ...newProjects],
-    });
+  const refreshed = local.projects.map((p) => remoteById.get(p.id) || p);
+  const remoteOnly = remote.projects.filter((p) => !localIds.has(p.id));
+  if (remoteOnly.length > 0 || refreshed.some((p, i) => p !== local.projects[i])) {
+    useProjectStore.setState({ projects: [...refreshed, ...remoteOnly] });
   }
 });

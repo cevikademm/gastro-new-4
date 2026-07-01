@@ -21,6 +21,7 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 import {
   Maximize2,
@@ -32,7 +33,15 @@ import {
   ArrowDown,
   ArrowRight,
   Eye,
+  EyeOff,
   Rotate3d,
+  Camera,
+  Images,
+  BrickWall,
+  Loader2,
+  RotateCcw,
+  RotateCw,
+  Home,
 } from 'lucide-react';
 
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
@@ -42,7 +51,11 @@ import { MM_TO_THREE, projectToScene, THREE_TO_MM } from '../../core/to3d';
 import { flipPointY, flipEquipPlacement } from '../../core/renderSpace';
 import { useEditor2DState } from '../2d-editor/state/editorState';
 import { SceneManager } from './scene/SceneManager';
-import { buildStaticScene } from './builders/sceneBuilders';
+import {
+  buildStaticScene,
+  getWallMaterial,
+  getSelectedWallMaterial,
+} from './builders/sceneBuilders';
 import { InteractionController } from './interaction/InteractionController';
 import { othersAtHeight, resolveCollision, snapToEdges } from './interaction/collision';
 import {
@@ -53,7 +66,7 @@ import {
   snapFloorItemToWalls,
 } from './interaction/placement';
 import { loadEquipment } from './loaders/GLBLoader';
-import { getCatalogEntry } from './loaders/equipmentCatalog';
+import { getCatalogEntry, type CatalogEntry } from './loaders/equipmentCatalog';
 import {
   buildProductMesh,
   mapEquipmentCategory,
@@ -61,26 +74,54 @@ import {
 } from './loaders/productMesh';
 import EquipmentCatalogPanel from './panels/EquipmentCatalogPanel';
 import EquipmentPropertiesPanel from './panels/EquipmentPropertiesPanel';
+import WallListPanel from './panels/WallListPanel';
+import RenderGalleryPanel from './panels/RenderGalleryPanel';
+import { captureAndStoreRender } from './render/captureRender';
+import { ViewCube } from './viewcube/ViewCube';
 import {
   useEquipmentStore,
   type EquipmentItem,
 } from '../../../../stores/equipmentStore';
+import { STANDALONE_KEY } from '../../../../lib/gastroDesignSync';
+import { downloadDataUrl } from '../../../../lib/errorReport';
+import { useMeshStore } from '../../../../stores/meshStore';
+import { productKeyFor } from '../../../../lib/meshyClient';
 
 const FLOOR_PLANE = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-export default function Editor3D() {
+/** Ultra render süper-örnekleme oranı (≈4K, GPU limitine clamp'lenir). */
+const RENDER_SCALE = 4;
+
+interface Editor3DProps {
+  /** Kalıcılık anahtarı — render'ler Storage'a bu yol altında yüklenir. */
+  projectKey?: string;
+}
+
+export default function Editor3D({ projectKey }: Editor3DProps = {}) {
+  const { t } = useTranslation();
   const hostRef = useRef<HTMLDivElement | null>(null);
   const managerRef = useRef<SceneManager | null>(null);
   const controllerRef = useRef<InteractionController | null>(null);
 
   const staticRootRef = useRef<THREE.Group | null>(null);
   const equipmentRootRef = useRef<THREE.Group | null>(null);
+  /** wallId → duvar grubu (staticRoot içinde). Görünürlük/vurgu bunun üzerinden
+   *  uygulanır; her yeniden-kurulumda tazelenir. */
+  const wallMeshByIdRef = useRef<Map<string, THREE.Object3D>>(new Map());
+  /** ViewCube (sağ üst navigasyon küpü) host'u + instance'ı. */
+  const viewCubeHostRef = useRef<HTMLDivElement | null>(null);
+  const viewCubeRef = useRef<ViewCube | null>(null);
   /** Cache: equipmentId → loaded Object3D in equipmentRoot. */
   const equipmentCacheRef = useRef<Map<string, THREE.Object3D>>(new Map());
   /** Görsel imza: equipmentId → sig (renk/footprint/yükseklik/catalogId). Değişince
    *  mevcut mesh yeniden kurulur (cache yalnız id ekle/çıkar diff'ler; bu görünüm
    *  değişimlerini de yakalar). */
   const equipmentSigRef = useRef<Map<string, string>>(new Map());
+  /** equipmentId → o an geçerli kurulum jetonu. Async mesh kurulumları (GLB/kutu)
+   *  yarışabilir (ör. kutu kurulurken MeshAI GLB'si gelirse). Her yeni kurulumda
+   *  jeton artırılır; async biten ESKİ kurulum jetonu tutmuyorsa kendini iptal eder
+   *  → aynı ürün için iki mesh (öksüz kopya) oluşması engellenir. */
+  const equipmentBuildTokenRef = useRef<Map<string, number>>(new Map());
   /** Wall/vertex content signature last processed by re-containment. */
   const lastWallSigRef = useRef<string>('');
   /** GLB footprint'i gerçek ölçüye göre düzeltilen ürün id'leri (tek sefer). */
@@ -98,8 +139,21 @@ export default function Editor3D() {
   const gizmoActiveRef = useRef<boolean>(false);
 
   const project = useProjectStore((s) => s.project);
+  const hiddenWallIds = useProjectStore((s) => s.view.hiddenWallIds);
+  const selectedWallId = useProjectStore((s) => s.view.selectedWallId);
+  // MeshAI ile Supabase'e üretilmiş GLB'ler (product_3d_models). Ekipman
+  // senkronu bunu okuyup GLB'si olan ürünü kutu yerine gerçek 3B modelle kurar.
+  const meshRows = useMeshStore((s) => s.rows);
   const [showGrid, setShowGrid] = useState(true);
   const [shadows, setShadows] = useState(true);
+
+  // Duvar paneli / render galerisi / capture durumu.
+  const [wallPanelOpen, setWallPanelOpen] = useState(false);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [capturing, setCapturing] = useState(false);
+  const [captureMsg, setCaptureMsg] = useState<string | null>(null);
+  /** 3B'de bir duvara tıklanınca imlecin yanında beliren hızlı "Gizle" çipi. */
+  const [wallAction, setWallAction] = useState<{ wallId: string; sx: number; sy: number } | null>(null);
   // 3B döndürme halkaları (gizmo) varsayılan KAPALI — ürüne tıklamak sadece
   // seçer, döndürme halkaları açılmaz. Kullanıcı toolbar'dan veya sağ panelden
   // açar.
@@ -135,7 +189,16 @@ export default function Editor3D() {
     equipmentRootRef.current = equipmentRoot;
 
     const c = new InteractionController(m, {
-      onSelect: (id) => setSelectedEquipmentId(id),
+      onSelect: (id) => {
+        setSelectedEquipmentId(id);
+        // Ekipman seçilince (id) sağdaki tek panel kuralı: duvar panelini kapat +
+        // duvar seçimini/vurgusunu temizle.
+        if (id) {
+          setWallPanelOpen(false);
+          setWallAction(null);
+          useProjectStore.getState().selectWall(null);
+        }
+      },
       // Active while a ring is being dragged (gizmoActiveRef) OR while the
       // pointer is merely HOVERING a ring (`gizmo.axis` is set on hover, before
       // pointerdown). The hover check is what makes the very first click on a
@@ -334,6 +397,93 @@ export default function Editor3D() {
     };
     dom.addEventListener('pointerdown', onPlaceClick, { capture: true });
 
+    // ── Duvar seçimi (3B'de tıklayarak) ──────────────────────────────────
+    // Ekipman seçimini InteractionController yönetir; burada YALNIZCA duvarları
+    // ele alırız. Sürükleme (orbit) ile karışmasın diye seçim pointerUP'ta ve
+    // yalnızca imleç kayması eşik altındaysa (gerçek tık) yapılır.
+    const wallPick = { x: 0, y: 0, moved: false, active: false };
+    const wallRay = new THREE.Raycaster();
+    const onWallPickDown = (e: PointerEvent) => {
+      setWallAction(null);
+      if (e.button !== 0) { wallPick.active = false; return; }
+      wallPick.x = e.clientX;
+      wallPick.y = e.clientY;
+      wallPick.moved = false;
+      wallPick.active = true;
+    };
+    const onWallPickMove = (e: PointerEvent) => {
+      if (!wallPick.active) return;
+      if (Math.abs(e.clientX - wallPick.x) > 6 || Math.abs(e.clientY - wallPick.y) > 6) {
+        wallPick.moved = true;
+      }
+    };
+    const onWallPickUp = (e: PointerEvent) => {
+      if (!wallPick.active) return;
+      wallPick.active = false;
+      if (e.button !== 0 || wallPick.moved) return;
+      if (armedRef.current) return; // ürün yerleştiriliyor
+      if (gizmoActiveRef.current) return; // gizmo sürükleniyor
+      if ((gizmoRef.current as unknown as { axis: string | null } | null)?.axis != null) return;
+
+      const rect = dom.getBoundingClientRect();
+      const ndc = new THREE.Vector2(
+        ((e.clientX - rect.left) / rect.width) * 2 - 1,
+        -((e.clientY - rect.top) / rect.height) * 2 + 1,
+      );
+      wallRay.setFromCamera(ndc, m.camera);
+
+      // En yakın EKİPMAN mesafesi (önündeki ekipman duvarı gölgeler → duvar seçme).
+      let eqDist = Infinity;
+      const eqRoot = equipmentRootRef.current;
+      if (eqRoot) {
+        const hitsE = wallRay.intersectObjects(eqRoot.children, true);
+        if (hitsE.length) eqDist = hitsE[0].distance;
+      }
+      // En yakın DUVAR (gizli duvarlar visible=false → raycaster atlar).
+      const wallGroups = Array.from(wallMeshByIdRef.current.values());
+      const hitsW = wallGroups.length ? wallRay.intersectObjects(wallGroups, true) : [];
+      const wallHit = hitsW.length ? hitsW[0] : null;
+
+      if (wallHit && wallHit.distance <= eqDist) {
+        let o: THREE.Object3D | null = wallHit.object;
+        while (o && !(o.userData && o.userData.wallId)) o = o.parent;
+        const wallId = o?.userData?.wallId as string | undefined;
+        if (wallId) {
+          useProjectStore.getState().selectWall(wallId);
+          setSelectedEquipmentId(null);
+          setWallPanelOpen(true);
+          setWallAction({ wallId, sx: e.clientX, sy: e.clientY });
+          return;
+        }
+      }
+      // Boşluğa / ekipmana tıklandı → duvar seçimini ve çipi temizle.
+      useProjectStore.getState().selectWall(null);
+      setWallAction(null);
+    };
+    dom.addEventListener('pointerdown', onWallPickDown);
+    dom.addEventListener('pointermove', onWallPickMove);
+    dom.addEventListener('pointerup', onWallPickUp);
+
+    // ── ViewCube (3ds Max tarzı navigasyon küpü) ─────────────────────────
+    // İzole overlay canvas → ana render döngüsüne dokunmaz. Her karede ana
+    // kamerayla senkronlanır; yüz/kenar/köşe tıklaması hedef+mesafeyi koruyarak
+    // yalnızca yönü değiştirir (setLookAt transition).
+    let offCubeFrame: (() => void) | null = null;
+    if (viewCubeHostRef.current) {
+      const vc = new ViewCube(viewCubeHostRef.current, {
+        onView: (viewDir) => {
+          const target = m.getTarget(new THREE.Vector3());
+          const dist = Math.max(0.001, m.camera.position.distanceTo(target));
+          const eye = target
+            .clone()
+            .add(viewDir.clone().normalize().multiplyScalar(dist));
+          m.controls.setLookAt(eye.x, eye.y, eye.z, target.x, target.y, target.z, true);
+        },
+      });
+      viewCubeRef.current = vc;
+      offCubeFrame = m.onFrame(() => vc.sync(m.camera));
+    }
+
     // 2D'den gelen paylaşılan odağa bak (açı/mesafe korunur). Hata olursa
     // görünümü etkilemeden geç → mevcut çalışma mantığı bozulmaz.
     try {
@@ -363,6 +513,12 @@ export default function Editor3D() {
       equipmentCacheRef.current.clear();
       equipmentSigRef.current.clear();
       dom.removeEventListener('pointerdown', onPlaceClick, { capture: true });
+      dom.removeEventListener('pointerdown', onWallPickDown);
+      dom.removeEventListener('pointermove', onWallPickMove);
+      dom.removeEventListener('pointerup', onWallPickUp);
+      offCubeFrame?.();
+      viewCubeRef.current?.dispose();
+      viewCubeRef.current = null;
       window.removeEventListener('keydown', onGizmoKeyDown);
       window.removeEventListener('keyup', onGizmoKeyUp);
       gizmo.detach();
@@ -390,11 +546,30 @@ export default function Editor3D() {
     const built = buildStaticScene(desc);
     while (built.group.children.length > 0) staticRoot.add(built.group.children[0]);
 
+    // Duvar gruplarının haritasını sakla (child'ları staticRoot'a taşımak grup
+    // referanslarını bozmaz) ve mevcut gizli/seçili durumu YENİDEN uygula →
+    // görünürlük yeniden-kurulumu aşar. Store'dan taze oku (bayat closure yok,
+    // toggle'da geometri yeniden kurulmaz).
+    wallMeshByIdRef.current = built.meshByWallId;
+    const view = useProjectStore.getState().view;
+    applyWallVisibility(built.meshByWallId, view.hiddenWallIds);
+    applyWallHighlight(built.meshByWallId, view.selectedWallId);
+
     if (!firstFitDoneRef.current && !built.boundsM.isEmpty()) {
       m.fitCameraToBox(built.boundsM);
       firstFitDoneRef.current = true;
     }
   }, [project.walls, project.rooms, project.openings, project.vertices]);
+
+  // ── Duvar görünürlüğü (yalnızca .visible — geometri işi yok) ──────────────
+  useEffect(() => {
+    applyWallVisibility(wallMeshByIdRef.current, hiddenWallIds);
+  }, [hiddenWallIds]);
+
+  // ── Duvar vurgusu (seçili duvarın malzemesini değiştir) ───────────────────
+  useEffect(() => {
+    applyWallHighlight(wallMeshByIdRef.current, selectedWallId);
+  }, [selectedWallId]);
 
   // ── Re-contain floor items when walls change ─────────────────────────────
   // If a wall is drawn (or moved) THROUGH an existing product, push the product
@@ -459,6 +634,10 @@ export default function Editor3D() {
     // Add new / update existing.
     for (const id of wantedIds) {
       const eq = project.equipment[id];
+      // GLB kaynağını çöz: statik katalog / yüklenen / manifest / MeshAI-Supabase.
+      // meshRows sonradan gelirse `sig` değişir → mevcut kutu otomatik GLB'ye yükseltilir.
+      const glbEntry = resolveGlbEntry(eq, meshRows);
+      const sig = equipmentSig(eq, glbEntry?.glbUrl);
       const existing = cache.get(id);
       if (existing) {
         // Gizmo bu ürüne bağlıyken tilt'i DIŞ group'a yedirilmiş (pivot identity)
@@ -467,7 +646,7 @@ export default function Editor3D() {
         if (gizmoAttachedIdRef.current === id) continue;
         // Görsel imza (renk/footprint/yükseklik/catalogId) değiştiyse mesh'i baştan
         // kur — cache yalnız id ekle/çıkar diff'ler, bu değişimleri yakalamaz.
-        if (equipmentSigRef.current.get(id) !== equipmentSig(eq)) {
+        if (equipmentSigRef.current.get(id) !== sig) {
           equipmentRoot.remove(existing);
           disposeObject(existing);
           cache.delete(id);
@@ -479,13 +658,23 @@ export default function Editor3D() {
         }
       }
 
-      // Async build — first try GLB catalog (legacy), then product image box.
-      const glbEntry = getCatalogEntry(eq.catalogId);
+      // Bu id için yeni bir kurulum başlıyor: jeton üret. Async biten eski/yarışan
+      // kurulumlar bu jetonu görüp kendini iptal eder (çift/öksüz mesh önlenir).
+      const buildToken = (equipmentBuildTokenRef.current.get(id) ?? 0) + 1;
+      equipmentBuildTokenRef.current.set(id, buildToken);
+
+      // Async build — GLB (katalog/MeshAI) varsa gerçek modeli kur, yoksa ürün görselli kutu.
       if (glbEntry) {
         void (async () => {
           const { group } = await loadEquipment(glbEntry);
           if (!equipmentRootRef.current) return;
           if (!useProjectStore.getState().project.equipment[id]) return;
+          // Yarış koruması: bu id için daha yeni bir kurulum başladıysa bu (eski)
+          // GLB sonucunu at (klonun paylaşılan geometrisini dispose ETME).
+          if (equipmentBuildTokenRef.current.get(id) !== buildToken) return;
+          // Önceden kurulmuş (ör. kutu→GLB yükseltmesinde) mesh varsa sahneden kaldır.
+          const staleG = cache.get(id);
+          if (staleG && staleG !== group) { equipmentRoot.remove(staleG); cache.delete(id); }
           const rGlb = flipEquipPlacement(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth);
           group.position.set(
             rGlb.x * MM_TO_THREE,
@@ -494,17 +683,29 @@ export default function Editor3D() {
           );
           group.rotation.z = rGlb.yaw;
           group.userData = { equipmentId: id, kind: 'equipment', catalogId: glbEntry.id };
+          // MeshAI (Y-up) GLB'leri dik durması için varsayılan +90° X eğimi ister.
+          // Kullanıcı eğimi henüz değiştirmediyse (tiltX undefined) varsayılanı uygula
+          // VE store'a yaz (panelde 90° görünsün + reload'da korunsun + reseat/gizmo
+          // ile tutarlı olsun). Kullanıcı bir değer verdiyse (0 dahil) dokunma.
+          const wantsUpright = glbEntry.needsUprightTilt === true && eq.tiltX === undefined;
+          const effTiltX = eq.tiltX ?? (wantsUpright ? Math.PI / 2 : 0);
           // Pivot at footprint bottom-center so tilt rotates a real-object
           // axis (not the back-left corner). Children are pre-shifted to
           // compensate so the model stays put when tilt = 0.
           const pivot = wrapWithPivot(group, glbEntry.dimensionsMm);
-          pivot.rotation.x = eq.tiltX ?? 0;
+          pivot.rotation.x = effTiltX;
           pivot.rotation.y = eq.tiltY ?? 0;
           group.userData.pivot = pivot;
           equipmentRoot.add(group);
+          if (wantsUpright) {
+            useProjectStore.getState().update((d) => {
+              const e = d.equipment[id];
+              if (e && e.tiltX === undefined) { e.tiltX = Math.PI / 2; e.tiltY = e.tiltY ?? 0; }
+            });
+          }
           seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
-          equipmentSigRef.current.set(id, equipmentSig(eq));
+          equipmentSigRef.current.set(id, sig);
 
           // GLB footprint düzeltmesi (tek sefer): çarpışma görselle uyuşsun.
           // loadEquipment uniform ölçekleme yapar; kayıtlı footprint gerçek
@@ -552,10 +753,17 @@ export default function Editor3D() {
           });
           if (!equipmentRootRef.current) return;
           if (!useProjectStore.getState().project.equipment[id]) return;
+          // Yarış koruması (bkz. GLB yolu): daha yeni kurulum başladıysa bu kutuyu at.
+          // dispose YOK: sahneye hiç eklenmedi (GPU kaynağı yok) + kutular paylaşılan
+          // çelik materyal/doku kullanır, dispose diğer kutuları bozabilir.
+          if (equipmentBuildTokenRef.current.get(id) !== buildToken) return;
+          // Önceden kurulmuş mesh varsa sahneden kaldır (çift/öksüz mesh olmasın).
+          const staleB = cache.get(id);
+          if (staleB && staleB !== group) { equipmentRoot.remove(staleB); cache.delete(id); }
           equipmentRoot.add(group);
           seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
-          equipmentSigRef.current.set(id, equipmentSig(eq));
+          equipmentSigRef.current.set(id, sig);
         })();
         continue;
       }
@@ -567,9 +775,28 @@ export default function Editor3D() {
       equipmentRoot.add(boxGroup);
       seatOnFloor(boxGroup, eq.position.z * MM_TO_THREE);
       cache.set(id, boxGroup);
-      equipmentSigRef.current.set(id, equipmentSig(eq));
+      equipmentSigRef.current.set(id, sig);
     }
-  }, [project.equipment]);
+  }, [project.equipment, meshRows]);
+
+  // ── Seçili ürüne kamerayı yakınlaştır ────────────────────────────────────
+  // Ürünü kareyi dolduracak şekilde merkeze alır (F tuşu / çift-tık ile aynı
+  // odak; panel butonundan tetiklenir). Kamera ürünün etrafında dönmeye devam
+  // eder — sadece hedef + mesafe ürüne göre ayarlanır.
+  const zoomToEquipment = useCallback((id: string | null) => {
+    const m = managerRef.current;
+    const obj = id ? equipmentCacheRef.current.get(id) : null;
+    if (!m || !obj) return;
+    obj.updateWorldMatrix(true, true);
+    const box = new THREE.Box3().setFromObject(obj);
+    if (box.isEmpty()) return;
+    const center = box.getCenter(new THREE.Vector3());
+    const size = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = (m.camera.fov * Math.PI) / 180;
+    const fitDist = (maxDim * 1.8) / (2 * Math.tan(fov / 2));
+    m.focusOn(center, { distance: Math.max(fitDist, 1.2), duration: 0.4 });
+  }, []);
 
   // ── Rotate gizmo attach/detach ───────────────────────────────────────────
   // Attach to the selected & UNLOCKED item's outer group; detach otherwise.
@@ -656,10 +883,60 @@ export default function Editor3D() {
     [project],
   );
 
+  // ViewCube yay-okları: görünümü 90° azimut döndür (hedef+mesafe sabit).
+  const rotateView = useCallback((sign: 1 | -1) => {
+    managerRef.current?.controls.rotate((sign * Math.PI) / 2, 0, true);
+  }, []);
+
   const [fogOn, setFogOn] = useState(false);
   useEffect(() => {
     managerRef.current?.setFog(fogOn);
   }, [fogOn]);
+
+  // ── Render capture (Ultra 4× / ~4K PNG → projeye kaydet + indir) ──────────
+  const onCapture = useCallback(async () => {
+    const m = managerRef.current;
+    if (!m || capturing) return;
+    setCapturing(true);
+    setCaptureMsg(null);
+    // Yakalama anında duvar seçimi vurgusu görüntüye girmesin.
+    useProjectStore.getState().selectWall(null);
+    setWallAction(null);
+    try {
+      // Bir kare bekle → gizmo/seçim vurgusu vs. temizlensin.
+      await new Promise((r) => requestAnimationFrame(() => r(null)));
+      const key = projectKey ?? STANDALONE_KEY;
+      const { render, dataUrl } = await captureAndStoreRender(m, {
+        scale: RENDER_SCALE,
+        projectKey: key,
+      });
+      useProjectStore.getState().update((d) => {
+        (d.renders ??= []).push(render);
+      });
+      downloadDataUrl(dataUrl, `2mc-render-${render.id}.png`);
+      setCaptureMsg(
+        render.path
+          ? t('design3d.render.savedDownloaded', { w: render.width, h: render.height })
+          : t('design3d.render.downloadedNoCloud'),
+      );
+    } catch (err) {
+      console.warn('[Render] capture başarısız:', (err as Error)?.message || err);
+      setCaptureMsg(t('design3d.render.failed'));
+    } finally {
+      setCapturing(false);
+      window.setTimeout(() => setCaptureMsg(null), 4500);
+    }
+  }, [capturing, projectKey, t]);
+
+  // Duvar hızlı-çipini Escape ile kapat.
+  useEffect(() => {
+    if (!wallAction) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setWallAction(null);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [wallAction]);
 
   const wallCount = Object.keys(project.walls).length;
   const roomCount = Object.keys(project.rooms).length;
@@ -668,6 +945,43 @@ export default function Editor3D() {
   return (
     <div className="relative h-full w-full bg-slate-100 overflow-hidden">
       <div ref={hostRef} className="absolute inset-0" />
+
+      {/* ── ViewCube (3ds Max tarzı navigasyon küpü) ────────────────── */}
+      {/* Sol üst köşe: sağ kenardaki ekipman kataloğu + özellik panelleriyle
+          hiç çakışmaz (o taraf hep dolu). */}
+      <div className="absolute top-3 left-3 z-20 flex flex-col items-center gap-1.5">
+        <div
+          ref={viewCubeHostRef}
+          className="h-28 w-28 select-none"
+          title={t('design3d.viewcube.tooltip')}
+        />
+        <div className="inline-flex items-center gap-1 rounded-xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5 p-1">
+          <button
+            type="button"
+            onClick={() => rotateView(-1)}
+            title={t('design3d.viewcube.rotateLeft')}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+          >
+            <RotateCcw size={13} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setView('iso')}
+            title={t('design3d.viewcube.home')}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+          >
+            <Home size={13} />
+          </button>
+          <button
+            type="button"
+            onClick={() => rotateView(1)}
+            title={t('design3d.viewcube.rotateRight')}
+            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+          >
+            <RotateCw size={13} />
+          </button>
+        </div>
+      </div>
 
       {/* ── Top toolbar ─────────────────────────────────────────────── */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5">
@@ -703,7 +1017,84 @@ export default function Editor3D() {
         >
           <Rotate3d size={14} />
         </ToolBtn>
+        <Sep />
+        <ToolBtn
+          active={wallPanelOpen}
+          onClick={() =>
+            setWallPanelOpen((v) => {
+              const next = !v;
+              if (next) setSelectedEquipmentId(null); // sağda tek panel
+              return next;
+            })
+          }
+          title="Duvarlar — yükseklik ayarla / render için gizle"
+        >
+          <BrickWall size={14} />
+        </ToolBtn>
+        <ToolBtn
+          onClick={onCapture}
+          active={capturing}
+          title="Yüksek kaliteli render al (Ultra ~4K PNG · projeye kaydet + indir)"
+        >
+          {capturing ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
+        </ToolBtn>
+        <ToolBtn
+          active={galleryOpen}
+          onClick={() => setGalleryOpen((v) => !v)}
+          title="Render galerisi (projeye kaydedilen görüntüler)"
+        >
+          <Images size={14} />
+        </ToolBtn>
       </div>
+
+      {/* ── Render durum bildirimi ──────────────────────────────────── */}
+      {captureMsg && (
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-900/90 text-white text-[11px] shadow-lg z-30">
+          <Camera size={12} /> {captureMsg}
+        </div>
+      )}
+
+      {/* ── Duvar hızlı-çipi (3B'de tıklanan duvarı gizle) ──────────── */}
+      {wallAction && (
+        <div
+          className="fixed z-40 -translate-x-1/2 -translate-y-full"
+          style={{ left: wallAction.sx, top: wallAction.sy - 10 }}
+        >
+          <div className="inline-flex items-center gap-1 rounded-xl bg-white shadow-lg shadow-slate-900/15 border border-slate-200/70 p-1">
+            <button
+              type="button"
+              onClick={() => {
+                useProjectStore.getState().setWallHidden(wallAction.wallId, true);
+                setWallAction(null);
+              }}
+              className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] font-semibold bg-brand-red text-white hover:brightness-110 transition"
+              title="Bu duvarı render/görünümde gizle"
+            >
+              <EyeOff size={13} /> Gizle
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setWallPanelOpen(true);
+                setSelectedEquipmentId(null);
+                setWallAction(null);
+              }}
+              className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+              title="Duvar panelini aç (yükseklik)"
+            >
+              <BrickWall size={13} />
+            </button>
+            <button
+              type="button"
+              onClick={() => setWallAction(null)}
+              className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:bg-slate-100 transition"
+              title="Kapat"
+            >
+              <X size={12} />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* ── Armed banner ───────────────────────────────────────────── */}
       {armedProduct && (
@@ -749,12 +1140,27 @@ export default function Editor3D() {
       />
 
       {/* ── Selected-equipment properties (X/Y/rotation/flip/lock) ──── */}
-      <EquipmentPropertiesPanel
-        equipmentId={selectedEquipmentId}
-        onClose={() => setSelectedEquipmentId(null)}
-        gizmoEnabled={gizmoEnabled}
-        onToggleGizmo={() => setGizmoEnabled((v) => !v)}
+      {!wallPanelOpen && (
+        <EquipmentPropertiesPanel
+          equipmentId={selectedEquipmentId}
+          onClose={() => setSelectedEquipmentId(null)}
+          gizmoEnabled={gizmoEnabled}
+          onToggleGizmo={() => setGizmoEnabled((v) => !v)}
+          onZoom={() => zoomToEquipment(selectedEquipmentId)}
+        />
+      )}
+
+      {/* ── Duvarlar paneli (yükseklik + render için gizle) ─────────── */}
+      <WallListPanel
+        open={wallPanelOpen}
+        onClose={() => {
+          setWallPanelOpen(false);
+          useProjectStore.getState().selectWall(null);
+        }}
       />
+
+      {/* ── Render galerisi (projeye kaydedilen görüntüler) ─────────── */}
+      <RenderGalleryPanel open={galleryOpen} onClose={() => setGalleryOpen(false)} />
 
       {wallCount === 0 && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
@@ -850,14 +1256,58 @@ function reseatAndRebake(group: THREE.Object3D, eq: import('../../core/types').E
  * renk, footprint, yükseklik, catalogId. Konum/dönüş/tilt mesh'i yeniden kurmadan
  * güncellendiği için imzaya DAHİL DEĞİL.
  */
-function equipmentSig(eq: import('../../core/types').Equipment): string {
+function equipmentSig(
+  eq: import('../../core/types').Equipment,
+  glbUrl?: string | null,
+): string {
   return [
     eq.color ?? '',
     eq.footprint.width,
     eq.footprint.depth,
     eq.heightMm,
     eq.catalogId,
+    // GLB URL'i imzaya dahil: MeshAI modeli sonradan gelince kutu→GLB rebuild tetiklenir.
+    glbUrl ?? '',
   ].join('|');
+}
+
+/**
+ * Bir ekipman için kullanılacak GLB kaynağını çöz.
+ *  1) Statik katalog / kullanıcı yüklemesi / manifest  (getCatalogEntry)
+ *  2) MeshAI ile Supabase'e üretilmiş GLB (product_3d_models → meshStore)
+ * Hiçbiri yoksa undefined → çağıran ürün görselli kutuya (buildProductMesh) düşer.
+ *
+ * MeshAI durumunda ölçü, YERLEŞTİRİLMİŞ footprint + yükseklikten alınır; GLBLoader
+ * modeli bu ölçüye göre uniform ölçekler → sahnedeki boyut ürünle birebir olur.
+ */
+function resolveGlbEntry(
+  eq: import('../../core/types').Equipment,
+  meshRows: Record<string, { status?: string; glb_url?: string | null }>,
+): CatalogEntry | undefined {
+  const direct = getCatalogEntry(eq.catalogId);
+  if (direct) return direct;
+
+  const item = useEquipmentStore.getState().getItemById(eq.catalogId);
+  const key = productKeyFor(item?.img, eq.catalogId);
+  const row = key ? meshRows[key] : undefined;
+  if (row && row.status === 'done' && row.glb_url) {
+    return {
+      id: eq.catalogId,
+      name: eq.name,
+      category: eq.category,
+      dimensionsMm: {
+        width: eq.footprint.width,
+        depth: eq.footprint.depth,
+        height: eq.heightMm,
+      },
+      glbUrl: row.glb_url,
+      anchor: 'bottom-center',
+      defaultRotationDeg: 0,
+      // MeshAI çıktısı Y-up → sahnede dik durması için varsayılan +90° X eğimi.
+      needsUprightTilt: true,
+    };
+  }
+  return undefined;
 }
 
 function buildFallbackBox(
@@ -989,6 +1439,26 @@ function disposeObject(obj: THREE.Object3D): void {
     const mats = Array.isArray(mesh.material) ? mesh.material : mesh.material ? [mesh.material] : [];
     for (const mat of mats) mat.dispose();
   });
+}
+
+/** Gizli duvar gruplarını görünmez yap (render/görünüm için). `visible=false`
+ *  gölge dökümünü de düşürür → iç mekân renderı için istenen davranış. */
+function applyWallVisibility(map: Map<string, THREE.Object3D>, hiddenIds: string[]): void {
+  const hidden = new Set(hiddenIds);
+  for (const [id, group] of map) group.visible = !hidden.has(id);
+}
+
+/** Seçili duvarın ana mesh'ini vurgu malzemesiyle boya; diğerlerini normale al.
+ *  Duvar grubunun ilk (ana ekstrüde) mesh'i `userData.kind==='wall'` taşır;
+ *  çerçeve/cam/kanat mesh'leri farklıdır ve dokunulmaz. */
+function applyWallHighlight(map: Map<string, THREE.Object3D>, selId: string | null): void {
+  for (const [id, group] of map) {
+    const mesh = group.children.find(
+      (c) => (c as THREE.Mesh).isMesh && c.userData?.kind === 'wall',
+    ) as THREE.Mesh | undefined;
+    if (!mesh) continue;
+    mesh.material = id === selId ? getSelectedWallMaterial() : getWallMaterial();
+  }
 }
 
 function ToolBtn({

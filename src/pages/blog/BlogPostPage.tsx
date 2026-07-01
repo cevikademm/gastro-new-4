@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import SEO from '../../components/SEO';
 import { loadAllPosts, loadPostBySlug } from '../../content/blog/loader';
 import type { BlogPost } from '../../content/blog/posts';
@@ -34,6 +35,7 @@ function renderBody(body: string) {
 }
 
 export default function BlogPostPage() {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPost | undefined | null>(undefined);
   const [related, setRelated] = useState<BlogPost[]>([]);
@@ -53,7 +55,7 @@ export default function BlogPostPage() {
     return () => { cancelled = true; };
   }, [slug]);
 
-  if (post === undefined) return <div className="max-w-3xl mx-auto px-4 py-20 text-slate-500">Yükleniyor…</div>;
+  if (post === undefined) return <div className="max-w-3xl mx-auto px-4 py-20 text-slate-500">{t('common.loading')}</div>;
   if (post === null) return <Navigate to="/blog" replace />;
 
   const schemas: object[] = [
@@ -84,9 +86,9 @@ export default function BlogPostPage() {
       />
 
       <nav className="text-xs text-slate-500 mb-4">
-        <Link to="/" className="hover:text-[#DC2626]">Ana Sayfa</Link>
+        <Link to="/" className="hover:text-[#DC2626]">{t('blog.home')}</Link>
         {' / '}
-        <Link to="/blog" className="hover:text-[#DC2626]">Blog</Link>
+        <Link to="/blog" className="hover:text-[#DC2626]">{t('blog.breadcrumb')}</Link>
         {' / '}
         <span className="text-[var(--c-ink-soft)]">{post.category}</span>
       </nav>
@@ -97,7 +99,7 @@ export default function BlogPostPage() {
             {post.category}
           </span>
           <span>·</span>
-          <span>{post.readingMinutes} dk okuma</span>
+          <span>{t('blog.readingMinutes', { count: post.readingMinutes })}</span>
           <span>·</span>
           <time dateTime={post.datePublished}>
             {new Date(post.datePublished).toLocaleDateString('tr-TR', {
@@ -121,7 +123,7 @@ export default function BlogPostPage() {
 
       {post.faq?.length ? (
         <section className="mt-12 pt-8 border-t border-slate-200">
-          <h2 className="text-2xl font-bold text-slate-900 mb-6">Sıkça Sorulan Sorular</h2>
+          <h2 className="text-2xl font-bold text-slate-900 mb-6">{t('blog.faqTitle')}</h2>
           <div className="space-y-4">
             {post.faq.map((f, i) => (
               <details key={i} className="bg-slate-50 rounded-xl p-4">
@@ -144,7 +146,7 @@ export default function BlogPostPage() {
 
         {related.length > 0 && (
           <>
-            <h3 className="text-xl font-bold text-slate-900 mb-4">İlgili Yazılar</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-4">{t('blog.relatedPosts')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {related.map((r) => (
                 <Link

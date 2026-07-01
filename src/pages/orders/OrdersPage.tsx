@@ -207,7 +207,7 @@ export default function OrdersPage() {
                 <div className="flex-1 md:px-3">
                   <div className="flex items-center gap-2">
                     <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
-                      {order.total_items} ürün
+                      {t('orders.itemsCount', { count: order.total_items })}
                     </span>
                     <span className="text-xs text-on-surface-variant truncate max-w-[250px]">
                       {order.items.slice(0, 3).map((i) => i.name.length > 25 ? i.name.slice(0, 25) + '…' : i.name).join(' · ')}
@@ -320,7 +320,7 @@ export default function OrdersPage() {
                       className="text-xs font-bold text-on-surface-variant hover:text-primary flex items-center gap-1 disabled:opacity-50"
                     >
                       {st?.pdf === 'gen' ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
-                      {st?.pdf === 'err' ? 'PDF hata — tekrar' : 'PDF indir'}
+                      {st?.pdf === 'err' ? t('orders.pdfError') : t('orders.downloadPdf')}
                     </button>
                     <button
                       onClick={() => handleWa(order)}
@@ -330,15 +330,15 @@ export default function OrdersPage() {
                       {st?.wa === 'sending' ? <Loader2 size={12} className="animate-spin" />
                         : st?.wa === 'sent' ? <Check size={12} />
                         : <MessageCircle size={12} />}
-                      {st?.wa === 'sent' ? 'WhatsApp gönderildi'
-                        : st?.wa === 'err' ? 'Hata — tekrar dene'
-                        : "WhatsApp'a gönder"}
+                      {st?.wa === 'sent' ? t('orders.whatsappSent')
+                        : st?.wa === 'err' ? t('orders.whatsappError')
+                        : t('orders.sendWhatsapp')}
                     </button>
                     <button
                       onClick={() => setConfirmDelete(order)}
                       className="ml-auto text-xs font-bold text-error hover:text-error flex items-center gap-1"
                     >
-                      <Trash2 size={12} /> Siparişi sil
+                      <Trash2 size={12} /> {t('orders.deleteOrder')}
                     </button>
                   </div>
                 </div>
@@ -380,10 +380,9 @@ export default function OrdersPage() {
                 <AlertTriangle size={20} className="text-error" />
               </div>
               <div className="flex-1">
-                <h3 className="font-headline font-black text-lg text-on-surface">Siparişi sil</h3>
+                <h3 className="font-headline font-black text-lg text-on-surface">{t('orders.deleteOrder')}</h3>
                 <p className="text-sm text-on-surface-variant mt-1.5">
-                  <span className="font-mono font-bold text-on-surface">{confirmDelete.order_number}</span> numaralı sipariş
-                  kalıcı olarak silinecek. Bu işlem geri alınamaz.
+                  <span className="font-mono font-bold text-on-surface">{confirmDelete.order_number}</span> {t('orders.deleteOrderConfirm')}
                 </p>
               </div>
             </div>
@@ -393,7 +392,7 @@ export default function OrdersPage() {
                 disabled={deleting}
                 className="px-4 py-2.5 rounded-xl text-sm font-bold text-on-surface-variant hover:bg-surface-container-high disabled:opacity-50"
               >
-                Vazgeç
+                {t('common.cancel')}
               </button>
               <button
                 onClick={handleDelete}
@@ -401,7 +400,7 @@ export default function OrdersPage() {
                 className="px-5 py-2.5 rounded-xl bg-error text-white text-sm font-bold hover:opacity-90 disabled:opacity-50 inline-flex items-center gap-2"
               >
                 {deleting ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                {deleting ? 'Siliniyor...' : 'Evet, sil'}
+                {deleting ? t('orders.deleting') : t('orders.confirmDelete')}
               </button>
             </div>
           </div>

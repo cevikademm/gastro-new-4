@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useEquipmentStore, CATEGORIES, type EquipmentItem } from '../../stores/equipmentStore';
 import { useProjectStore, type ProductItem } from '../../stores/projectStore';
 import {
-  ArrowLeft, Search, X, Plus, Check, Package, PencilLine,
+  ArrowLeft, Search, X, Plus, Minus, Check, Package, PencilLine,
   Refrigerator, Flame, Droplets, Microwave, Waves, Table, Zap,
   ChevronLeft, ChevronRight, ArrowUpDown,
 } from 'lucide-react';
@@ -100,24 +101,34 @@ const PER_PAGE = 24;
 
 type SortKey = 'default' | 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc' | 'kw-desc' | 'cat';
 
-const SORT_OPTIONS: { value: SortKey; label: string }[] = [
-  { value: 'default', label: 'Önerilen sıralama' },
-  { value: 'name-asc', label: 'İsim (A → Z)' },
-  { value: 'name-desc', label: 'İsim (Z → A)' },
-  { value: 'price-asc', label: 'Fiyat (artan)' },
-  { value: 'price-desc', label: 'Fiyat (azalan)' },
-  { value: 'kw-desc', label: 'Güç (yüksek → düşük)' },
-  { value: 'cat', label: 'Kategoriye göre' },
+const SORT_OPTIONS: { value: SortKey; labelKey: string }[] = [
+  { value: 'default', labelKey: 'product.sort.recommended' },
+  { value: 'name-asc', labelKey: 'product.sort.nameAsc' },
+  { value: 'name-desc', labelKey: 'product.sort.nameDesc' },
+  { value: 'price-asc', labelKey: 'product.sort.priceAsc' },
+  { value: 'price-desc', labelKey: 'product.sort.priceDesc' },
+  { value: 'kw-desc', labelKey: 'product.sort.powerDesc' },
+  { value: 'cat', labelKey: 'product.sort.byCategory' },
 ];
 
 export default function SelectProductPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { projectId } = useParams();
 
   // Stabil referanslar — selector loop riski yok
   const allItems = useEquipmentStore((s) => s.allItems);
   const addProductToProject = useProjectStore((s) => s.addProductToProject);
+  const removeProductFromProject = useProjectStore((s) => s.removeProductFromProject);
   const project = useProjectStore((s) => s.projects.find((p) => p.id === projectId));
+
+  // Projede o üründen kaç adet var (code === katalog id) — CANLI sayaç. Böylece
+  // yanlışlıkla fazla eklenen ürün kartta görünür ve "−" ile azaltılabilir.
+  const countByCode = useMemo(() => {
+    const m: Record<string, number> = {};
+    for (const p of project?.products ?? []) m[p.code] = (m[p.code] || 0) + 1;
+    return m;
+  }, [project?.products]);
 
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('');
@@ -193,15 +204,33 @@ export default function SelectProductPage() {
 
   const resetPage = () => setPage(1);
 
+  const flashToast = (msg: string) => {
+    setToast(msg);
+    window.clearTimeout((flashToast as any)._t);
+    (flashToast as any)._t = window.setTimeout(() => setToast(null), 1800);
+  };
+
   const handleAdd = (item: EquipmentItem) => {
     if (!projectId) return;
     // project.products'a yaz (code = katalog id). Ürünler + Teklif anında gösterir;
     // tasarım (2D/3D) açılışında reconcileProductsIntoDesign bunu odaya yerleştirir.
     addProductToProject(projectId, toProductItem(item));
     setAddedCounts((prev) => ({ ...prev, [item.id]: (prev[item.id] || 0) + 1 }));
-    setToast(`${item.name} eklendi`);
-    window.clearTimeout((handleAdd as any)._t);
-    (handleAdd as any)._t = window.setTimeout(() => setToast(null), 1800);
+    flashToast(t('product.addedToast', { name: item.name }));
+  };
+
+  // Yanlışlıkla fazla eklenen ürünü GERİ AL: o koda ait SON eklenen ürünü çıkar.
+  const handleRemoveOne = (item: EquipmentItem) => {
+    if (!projectId || !project) return;
+    const matches = project.products.filter((p) => p.code === item.id);
+    if (matches.length === 0) return;
+    removeProductFromProject(projectId, matches[matches.length - 1].id);
+    setAddedCounts((prev) => {
+      const next = { ...prev };
+      if (next[item.id]) next[item.id] = Math.max(0, next[item.id] - 1);
+      return next;
+    });
+    flashToast(t('product.removedToast', { name: item.name }));
   };
 
   const formatPrice = (p: number) =>
@@ -210,9 +239,9 @@ export default function SelectProductPage() {
   if (!project) {
     return (
       <div className="max-w-3xl mx-auto w-full text-center py-20">
-        <p className="text-on-surface-variant">Proje bulunamadı</p>
+        <p className="text-on-surface-variant">{t('project.notFound')}</p>
         <Link to="/projects" className="text-primary font-medium hover:underline mt-4 inline-block">
-          Projelere dön
+          {t('project.backToProjects')}
         </Link>
       </div>
     );
@@ -225,16 +254,16 @@ export default function SelectProductPage() {
         onClick={() => navigate(`/projects/${projectId}`)}
         className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium"
       >
-        <ArrowLeft size={18} /> {project.name} projesine geri dön
+        <ArrowLeft size={18} /> {t('project.backToProject', { name: project.name })}
       </button>
 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="font-headline text-2xl md:text-3xl font-black text-on-surface tracking-tight">
-            Ürün Ekle
+            {t('product.addProduct')}
           </h1>
           <p className="text-on-surface-variant mt-1 text-sm">
-            <span className="font-bold text-primary">{project.name}</span> projesine katalogdan ürün seçin
+            <span className="font-bold text-primary">{project.name}</span> {t('product.selectFromCatalogSuffix')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -242,13 +271,13 @@ export default function SelectProductPage() {
             to={`/projects/${projectId}/products/new`}
             className="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-container-high text-on-surface-variant px-4 py-2.5 rounded-lg font-bold text-sm transition-colors"
           >
-            <PencilLine size={16} /> Manuel ekle
+            <PencilLine size={16} /> {t('product.manualAdd')}
           </Link>
           <button
             onClick={() => navigate(`/projects/${projectId}`)}
             className="flex items-center gap-2 brushed-metal text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg hover:opacity-90 transition-all"
           >
-            <Check size={16} /> Bitir
+            <Check size={16} /> {t('product.finish')}
             {totalAdded > 0 && (
               <span className="bg-white/25 px-1.5 rounded-full text-[11px]">{totalAdded}</span>
             )}
@@ -264,7 +293,7 @@ export default function SelectProductPage() {
             type="text"
             value={query}
             onChange={(e) => { setQuery(e.target.value); resetPage(); }}
-            placeholder="Ürün adı, kod, marka ile ara..."
+            placeholder={t('product.searchByNameCodeBrand')}
             className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 pl-10 pr-10 text-sm focus:ring-2 focus:ring-primary outline-none"
           />
           {query && (
@@ -284,7 +313,7 @@ export default function SelectProductPage() {
             className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 pl-9 pr-8 text-sm font-medium focus:ring-2 focus:ring-primary outline-none appearance-none cursor-pointer"
           >
             {SORT_OPTIONS.map((o) => (
-              <option key={o.value} value={o.value}>{o.label}</option>
+              <option key={o.value} value={o.value}>{t(o.labelKey)}</option>
             ))}
           </select>
         </div>
@@ -298,7 +327,7 @@ export default function SelectProductPage() {
             !category ? 'bg-primary text-white shadow-md' : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
           }`}
         >
-          Tümü ({allItems.length.toLocaleString()})
+          {t('product.allWithCount', { count: allItems.length.toLocaleString() })}
         </button>
         {CATEGORIES.filter((c) => c.count > 0).map((cat) => {
           const Icon = iconMap[cat.icon] || Package;
@@ -322,14 +351,14 @@ export default function SelectProductPage() {
       {/* Alt aralık filtresi */}
       {subranges.length > 0 && (
         <div className="flex flex-wrap gap-1.5">
-          <span className="text-xs text-on-surface-variant font-medium self-center mr-1">Alt grup:</span>
+          <span className="text-xs text-on-surface-variant font-medium self-center mr-1">{t('product.subGroup')}</span>
           <button
             onClick={() => { setSubrange(''); resetPage(); }}
             className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
               !subrange ? 'bg-primary/10 text-primary border border-primary/30' : 'bg-surface-container-highest text-on-surface-variant hover:bg-surface-container-high'
             }`}
           >
-            Tümü
+            {t('common.all')}
           </button>
           {subranges.map((sub) => (
             <button
@@ -346,20 +375,20 @@ export default function SelectProductPage() {
       )}
 
       <p className="text-xs text-on-surface-variant">
-        {filtered.length.toLocaleString()} ürün bulundu
+        {t('product.productsFoundCount', { count: filtered.length.toLocaleString() })}
       </p>
 
       {/* Ürün grid */}
       {pageItems.length === 0 ? (
         <div className="py-16 text-center">
           <Package size={48} className="mx-auto text-on-surface-variant/20 mb-4" />
-          <h3 className="text-lg font-bold text-on-surface-variant mb-1">Sonuç bulunamadı</h3>
-          <p className="text-sm text-on-surface-variant/60">Farklı bir arama veya filtre deneyin.</p>
+          <h3 className="text-lg font-bold text-on-surface-variant mb-1">{t('product.noResults')}</h3>
+          <p className="text-sm text-on-surface-variant/60">{t('product.tryDifferent')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
           {pageItems.map((item) => {
-            const added = addedCounts[item.id] || 0;
+            const added = countByCode[item.id] || 0;
             return (
               <div
                 key={item.id}
@@ -381,20 +410,34 @@ export default function SelectProductPage() {
                       <span className="text-[10px] text-on-surface-variant">{item.kw} kW</span>
                     </div>
                   )}
-                  <button
-                    onClick={() => handleAdd(item)}
-                    className={`mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold transition-all ${
-                      added > 0
-                        ? 'bg-emerald-500 text-white hover:bg-emerald-600'
-                        : 'bg-primary/10 text-primary hover:bg-primary hover:text-white'
-                    }`}
-                  >
-                    {added > 0 ? (
-                      <><Check size={14} /> Eklendi{added > 1 ? ` (${added})` : ''}</>
-                    ) : (
-                      <><Plus size={14} /> Ekle</>
-                    )}
-                  </button>
+                  {added > 0 ? (
+                    <div className="mt-2 flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleRemoveOne(item)}
+                        title={t('product.removeOneTitle')}
+                        className="flex items-center justify-center w-9 h-9 shrink-0 rounded-lg bg-surface-container-highest text-on-surface-variant hover:bg-rose-100 hover:text-rose-600 transition-all"
+                      >
+                        <Minus size={15} />
+                      </button>
+                      <div className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold bg-emerald-500 text-white">
+                        <Check size={14} /> {t('product.pcsCount', { count: added })}
+                      </div>
+                      <button
+                        onClick={() => handleAdd(item)}
+                        title={t('product.addOneMoreTitle')}
+                        className="flex items-center justify-center w-9 h-9 shrink-0 rounded-lg bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
+                      >
+                        <Plus size={15} />
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleAdd(item)}
+                      className="mt-2 w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-bold bg-primary/10 text-primary hover:bg-primary hover:text-white transition-all"
+                    >
+                      <Plus size={14} /> {t('product.add')}
+                    </button>
+                  )}
                 </div>
               </div>
             );
@@ -409,7 +452,7 @@ export default function SelectProductPage() {
             <span className="font-bold text-on-surface">
               {((safePage - 1) * PER_PAGE) + 1}-{Math.min(safePage * PER_PAGE, filtered.length)}
             </span>{' '}
-            / {filtered.length.toLocaleString()} ürün
+            {t('product.slashOfTotalProducts', { count: filtered.length.toLocaleString() })}
           </p>
           <div className="flex items-center gap-1">
             <button

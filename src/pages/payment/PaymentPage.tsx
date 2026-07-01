@@ -99,7 +99,7 @@ function CheckoutForm({ plan, paymentMethod, onSuccess, onCancel }: { plan: type
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-xl font-black text-slate-800">{t(plan.nameKey)} Plan</h2>
+            <h2 className="text-xl font-black text-slate-800">{t('payment.planSuffix', '{{name}} Plan', { name: t(plan.nameKey) })}</h2>
             <p className="text-slate-500 text-sm mt-0.5">€{plan.price} · {t('payment.oneTimePayment')}</p>
           </div>
           <button onClick={onCancel} className="p-2 text-slate-400 hover:text-slate-600 rounded-full">
@@ -157,7 +157,7 @@ function CheckoutForm({ plan, paymentMethod, onSuccess, onCancel }: { plan: type
 
           {paymentMethod === 'sepa' && (
             <div>
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">IBAN</label>
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">{t('payment.ibanLabel', 'IBAN')}</label>
               <input type="text" placeholder="DE89 3704 0044 0532 0130 00" className="w-full border border-slate-200 rounded-lg px-4 py-3 text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" />
             </div>
           )}

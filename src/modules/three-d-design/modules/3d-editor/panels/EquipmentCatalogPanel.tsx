@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useMemo, useRef, useState, type FC, type ReactNode, type CSSProperties } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Search, Star, X, ChevronRight, ChevronLeft, Box, Upload, Loader2 } from 'lucide-react';
 import {
   CATEGORIES,
@@ -74,6 +75,7 @@ export default function EquipmentCatalogPanel({
   onToggleOpen,
   side = 'right',
 }: EquipmentCatalogPanelProps) {
+  const { t } = useTranslation();
   const productItems = useEquipmentStore((s) => s.allItems);
   const favorites = useEquipmentStore((s) => s.favorites);
   const toggleFavorite = useEquipmentStore((s) => s.toggleFavorite);
@@ -104,7 +106,7 @@ export default function EquipmentCatalogPanel({
         sub: '',
         fam: '',
         img: '',
-        brand: 'Yüklenen',
+        brand: t('design3d.catalog.uploadedBrand'),
         l: entry.dimensionsMm.width,
         w: entry.dimensionsMm.depth,
         h: String(entry.dimensionsMm.height),
@@ -117,7 +119,7 @@ export default function EquipmentCatalogPanel({
     } catch (err) {
       console.error('[customGlb] import failed', err);
       // eslint-disable-next-line no-alert
-      alert(`GLB yüklenemedi: ${err instanceof Error ? err.message : String(err)}`);
+      alert(t('design3d.catalog.uploadFailed', { err: err instanceof Error ? err.message : String(err) }));
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = '';
@@ -212,7 +214,7 @@ export default function EquipmentCatalogPanel({
     >
       <header className="flex items-center gap-1 px-4 py-3 border-b border-slate-100">
         {open && (
-          <h3 className="text-[12px] font-semibold text-slate-800 truncate">Ekipman Kataloğu</h3>
+          <h3 className="text-[12px] font-semibold text-slate-800 truncate">{t('design3d.catalog.title')}</h3>
         )}
         <div className="ml-auto flex items-center gap-1">
           {open && (
@@ -220,18 +222,18 @@ export default function EquipmentCatalogPanel({
               type="button"
               onClick={() => fileRef.current?.click()}
               disabled={uploading}
-              title="Kendi 3D modelini yükle (.glb / .gltf)"
+              title={t('design3d.catalog.uploadTitle')}
               className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-xl text-[11px] font-semibold bg-brand-red text-white shadow-sm hover:brightness-110 disabled:opacity-50 transition"
             >
               {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
-              GLB Yükle
+              {t('design3d.catalog.upload')}
             </button>
           )}
           <button
             type="button"
             onClick={onToggleOpen}
             className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
-            aria-label={open ? 'Daralt' : 'Genişlet'}
+            aria-label={open ? t('design3d.catalog.collapse') : t('design3d.catalog.expand')}
           >
             {open ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
           </button>
@@ -254,7 +256,7 @@ export default function EquipmentCatalogPanel({
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Ara… (örn. fritöz)"
+                placeholder={t('design3d.catalog.searchPlaceholder')}
                 className="w-full pl-8 pr-7 h-8 rounded-lg border border-slate-200 text-[11px] outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
               />
               {search && (
@@ -279,12 +281,12 @@ export default function EquipmentCatalogPanel({
                   ].join(' ')}
                 >
                   <Star size={10} fill={favOnly ? 'currentColor' : 'none'} />
-                  Favori {favorites.length > 0 && `(${favorites.length})`}
+                  {t('design3d.catalog.favorites')} {favorites.length > 0 && `(${favorites.length})`}
                 </button>
                 <button
                   type="button"
                   onClick={() => setGlbOnly((v) => !v)}
-                  title="Sadece sistemde GLB / 3D modeli olan ürünleri göster"
+                  title={t('design3d.catalog.glbOnlyTitle')}
                   className={[
                     'inline-flex items-center gap-1 text-[11px] font-medium px-2.5 h-7 rounded-full border transition',
                     glbOnly
@@ -306,7 +308,7 @@ export default function EquipmentCatalogPanel({
           <div className="px-4 py-3 border-b border-slate-100">
             <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
               <CategoryChip
-                label="Tümü"
+                label={t('common.all')}
                 active={category === ''}
                 onClick={() => setCategory('')}
               />
@@ -327,7 +329,7 @@ export default function EquipmentCatalogPanel({
           <div className="flex-1 overflow-y-auto p-3">
             {filtered.length === 0 ? (
               <p className="text-[11px] text-slate-400 px-2 py-6 text-center">
-                Eşleşen ürün bulunamadı.
+                {t('design3d.catalog.noResults')}
               </p>
             ) : (
               <ul className="space-y-1.5">
@@ -369,7 +371,7 @@ export default function EquipmentCatalogPanel({
                             'p-1.5 rounded-lg transition',
                             fav ? 'text-amber-500' : 'text-slate-300 hover:bg-slate-100 hover:text-amber-400',
                           ].join(' ')}
-                          aria-label={fav ? 'Favoriden çıkar' : 'Favoriye ekle'}
+                          aria-label={fav ? t('design3d.catalog.unfav') : t('design3d.catalog.fav')}
                         >
                           <Star size={12} fill={fav ? 'currentColor' : 'none'} />
                         </button>
@@ -394,6 +396,7 @@ export default function EquipmentCatalogPanel({
  * "3D" kırmızı etiketi her 3D modelli üründe kalır.
  */
 function Thumb({ item, glb }: { item: EquipmentItem; glb: boolean }) {
+  const { t } = useTranslation();
   const glbUrl = useMemo(
     () => (!item.img && glb ? getCatalogEntry(item.id)?.glbUrl ?? null : null),
     [item.img, item.id, glb],
@@ -413,7 +416,7 @@ function Thumb({ item, glb }: { item: EquipmentItem; glb: boolean }) {
       {glb && (
         <span
           className="absolute top-0.5 left-0.5 z-10 inline-flex items-center rounded-full px-1.5 py-0.5 text-[8px] font-bold uppercase bg-brand-red text-white shadow-sm leading-none"
-          title="Sistemde 3D modeli (GLB) var"
+          title={t('design3d.catalog.glbBadgeTitle')}
         >
           3D
         </span>

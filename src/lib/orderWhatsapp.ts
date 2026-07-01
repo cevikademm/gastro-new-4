@@ -7,6 +7,7 @@
  *   localStorage '2mc-wa-sent' ile çift-gönderim koruması (force ile atlanır → manuel tekrar).
  */
 import { supabase } from './supabase';
+import i18n from '../i18n';
 
 /** Hem orderStore.Order hem adminStore.AdminOrder bu yapıyı karşılar. */
 export interface OrderLike {
@@ -58,33 +59,33 @@ export function buildOrderMessage(order: OrderLike): string {
 
   // Not "Teklif Talebi" içeriyorsa müşteri sipariş değil TEKLİF istemiştir.
   const isQuote = /teklif talebi/i.test(order.notes || '');
-  lines.push(isQuote ? '📝 *TEKLİF TALEBİ — 2MC Gastro*' : '🧾 *YENİ SİPARİŞ — 2MC Gastro*');
-  lines.push(`No: ${order.order_number}`);
-  lines.push(`Tarih: ${date}`);
+  lines.push(isQuote ? i18n.t('order.wa.quoteTitle') : i18n.t('order.wa.orderTitle'));
+  lines.push(i18n.t('order.wa.number', { n: order.order_number }));
+  lines.push(i18n.t('order.wa.date', { date }));
   lines.push('');
 
-  lines.push('👤 *Müşteri*');
+  lines.push(i18n.t('order.wa.customer'));
   if (c.name) lines.push(c.name);
   if (c.company) lines.push(c.company);
   if (c.address) lines.push(c.address);
-  if (c.phone) lines.push(`Tel: ${c.phone}`);
+  if (c.phone) lines.push(i18n.t('order.wa.phone', { phone: c.phone }));
   if (!c.name && !c.address && !c.phone && c.raw) lines.push(c.raw);
   if (!c.name && !c.address && !c.phone && !c.raw) lines.push('—');
   lines.push('');
 
-  lines.push(`📦 *Ürünler (${order.total_items})*`);
+  lines.push(i18n.t('order.wa.items', { n: order.total_items }));
   for (const it of order.items || []) {
     const lineTotal = fmtPrice((it.price || 0) * (it.quantity || 1));
     lines.push(`• ${it.quantity}× ${it.name}${it.product_id ? ` (${it.product_id})` : ''} — ${lineTotal}`);
   }
   lines.push('');
 
-  lines.push(`Ara toplam: ${fmtPrice(sub)}`);
-  lines.push(`KDV (%19): ${fmtPrice(sub * 0.19)}`);
-  lines.push(`*TOPLAM: ${fmtPrice(sub * 1.19)}*`);
+  lines.push(i18n.t('order.wa.subtotal', { v: fmtPrice(sub) }));
+  lines.push(i18n.t('order.wa.vat', { v: fmtPrice(sub * 0.19) }));
+  lines.push(i18n.t('order.wa.total', { v: fmtPrice(sub * 1.19) }));
   if (c.kargo) {
     lines.push('');
-    lines.push(`🚚 Kargo: ${c.kargo}`);
+    lines.push(i18n.t('order.wa.shipping', { v: c.kargo }));
   }
   return lines.join('\n');
 }

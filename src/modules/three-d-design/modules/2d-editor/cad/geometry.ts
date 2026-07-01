@@ -11,6 +11,7 @@ import {
   closestPointOnSegment,
   distance2,
   EPSILON,
+  rotate2,
   scale2,
   sub2,
 } from '../../../core/math';
@@ -96,6 +97,62 @@ export function resizeEdgeLength(
   const newB: Vec2 = { x: a.x + dir.x * ratio, y: a.y + dir.y * ratio };
   const out = [...points];
   out[bIdx] = newB;
+  return out;
+}
+
+/**
+ * Interior corner angle (degrees, 0..180) between the two walls meeting at
+ * polygon vertex `cornerIndex` — i.e. the angle of the wedge formed by the
+ * previous and next edges. A square room reads 90° at every corner.
+ */
+export function cornerAngleDeg(
+  points: ReadonlyArray<Vec2>,
+  cornerIndex: number,
+): number {
+  const n = points.length;
+  if (n < 3) return 0;
+  const cur = points[cornerIndex];
+  const prev = points[(cornerIndex - 1 + n) % n];
+  const next = points[(cornerIndex + 1) % n];
+  const u = sub2(prev, cur);
+  const w = sub2(next, cur);
+  const lu = Math.hypot(u.x, u.y);
+  const lw = Math.hypot(w.x, w.y);
+  if (lu < EPSILON || lw < EPSILON) return 0;
+  const cos = Math.max(-1, Math.min(1, (u.x * w.x + u.y * w.y) / (lu * lw)));
+  return (Math.acos(cos) * 180) / Math.PI;
+}
+
+/**
+ * Set the corner angle (degrees) at polygon vertex `cornerIndex` by rotating
+ * the NEXT vertex about the corner: the previous wall stays fixed, the next
+ * wall swings to the target angle, and BOTH wall lengths are preserved. The
+ * current turn side (sign) is kept so the polygon doesn't flip inside-out.
+ * The editor commits via `moveVertex(nextVertexId, newPoint)` — every wall
+ * sharing that vertex follows automatically.
+ */
+export function setCornerAngle(
+  points: ReadonlyArray<Vec2>,
+  cornerIndex: number,
+  targetDeg: number,
+): Vec2[] {
+  const n = points.length;
+  const out = [...points];
+  if (n < 3) return out;
+  const cur = points[cornerIndex];
+  const prev = points[(cornerIndex - 1 + n) % n];
+  const nextIdx = (cornerIndex + 1) % n;
+  const next = points[nextIdx];
+  const u = sub2(prev, cur);
+  const w = sub2(next, cur);
+  const lu = Math.hypot(u.x, u.y);
+  const lw = Math.hypot(w.x, w.y);
+  if (lu < EPSILON || lw < EPSILON) return out;
+  const target = Math.max(1, Math.min(179, targetDeg)) * (Math.PI / 180);
+  // Keep the side the next wall currently sits (sign of the u→w cross product).
+  const sign = u.x * w.y - u.y * w.x >= 0 ? 1 : -1;
+  const dir = rotate2({ x: u.x / lu, y: u.y / lu }, sign * target);
+  out[nextIdx] = { x: cur.x + dir.x * lw, y: cur.y + dir.y * lw };
   return out;
 }
 

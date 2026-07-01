@@ -9,6 +9,7 @@
 //
 // SQL: supabase/migrations/018_error_reports.sql · Yardımcı: lib/errorReport.ts
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../stores/authStore';
 import {
   captureScreenshot, uploadScreenshot, makeReportId, persistReport,
@@ -20,10 +21,10 @@ import {
 const WA_GREEN = '#25D366';
 const WA_GREEN_DARK = '#128C7E';
 
-const SEVERITIES: Array<{ key: ErrorSeverity; label: string; color: string }> = [
-  { key: 'low', label: 'Düşük', color: '#16A34A' },
-  { key: 'normal', label: 'Normal', color: '#F59E0B' },
-  { key: 'high', label: 'Yüksek/Acil', color: '#EF4444' },
+const SEVERITIES: Array<{ key: ErrorSeverity; labelKey: string; color: string }> = [
+  { key: 'low', labelKey: 'admin.errorReport.sevLow', color: '#16A34A' },
+  { key: 'normal', labelKey: 'admin.errorReport.sevNormal', color: '#F59E0B' },
+  { key: 'high', labelKey: 'admin.errorReport.sevHigh', color: '#EF4444' },
 ];
 
 function WhatsAppGlyph({ size = 28, color = '#fff' }: { size?: number; color?: string }) {
@@ -49,6 +50,7 @@ type Meta = ReturnType<typeof collectMeta>;
 type Toast = { type: 'ok' | 'warn'; text: string } | null;
 
 export default function ErrorReportWidget() {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const isAdmin = user?.role === 'admin';
 
@@ -94,8 +96,8 @@ export default function ErrorReportWidget() {
     setScreenshot(shot);
     setCapturing(false);
     setOpen(true);
-    if (!shot) showToast('warn', 'Otomatik ekran görüntüsü alınamadı. Manuel ekleyebilirsiniz.');
-  }, [open, capturing, showToast]);
+    if (!shot) showToast('warn', t('admin.errorReport.autoShotFail'));
+  }, [open, capturing, showToast, t]);
 
   const handleRecapture = useCallback(async () => {
     setOpen(false);
@@ -104,8 +106,8 @@ export default function ErrorReportWidget() {
     setScreenshot(shot);
     setMeta(collectMeta());
     setOpen(true);
-    if (!shot) showToast('warn', 'Ekran görüntüsü alınamadı.');
-  }, [showToast]);
+    if (!shot) showToast('warn', t('admin.errorReport.shotFail'));
+  }, [showToast, t]);
 
   const handleFilePick = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

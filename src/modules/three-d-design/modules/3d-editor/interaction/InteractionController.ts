@@ -23,6 +23,7 @@ import * as THREE from 'three';
 import { MM_TO_THREE, THREE_TO_MM } from '../../../core/to3d';
 import type { SceneManager } from '../scene/SceneManager';
 import { useProjectStore } from '../../../store';
+import { removeEquipmentEverywhere } from '../../../../../lib/designDelete';
 import { obbCenterFromMinCorner } from './placement';
 import { resolveEquipmentDrag } from './resolveDrag';
 import { flipEquipPlacement } from '../../../core/renderSpace';
@@ -275,7 +276,8 @@ export class InteractionController {
       e.preventDefault();
     }
     if (e.key === 'Delete' || e.key === 'Backspace') {
-      useProjectStore.getState().removeEquipment(equipmentId);
+      // Tasarımdan + (proje modunda) teklif listesinden kaldır. Otomatik kaydedilir.
+      removeEquipmentEverywhere(equipmentId);
       this.manager.remove(this.selectedRoot);
       this.clearSelection();
       e.preventDefault();

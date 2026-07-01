@@ -3,11 +3,11 @@ import { useTranslation } from 'react-i18next';
 import { Send, HelpCircle, ChevronDown, ChevronUp, MessageSquare, Phone, Mail } from 'lucide-react';
 
 const faqData = [
-  { q: 'Nasıl yeni proje oluşturabilirim?', a: 'Sol menüden "Projeler" sayfasına gidin ve "Yeni Proje" butonuna tıklayın. Proje adı, alan ve müşteri bilgilerini girerek projenizi oluşturabilirsiniz.' },
-  { q: 'BOM\'u nasıl dışa aktarırım?', a: 'Malzeme Listesi sayfasında "PDF Olarak Dışa Aktar" veya "CSV Olarak Dışa Aktar" butonlarını kullanabilirsiniz.' },
-  { q: 'Ekipmanı plana nasıl eklerim?', a: 'Ekipman kataloğundan istediğiniz ekipmanı bulun ve "Plana Ekle" butonuna tıklayın. Ardından Tasarım Stüdyosu\'nda ekipmanı yerleştirebilirsiniz.' },
-  { q: 'Dil ayarlarını nasıl değiştiririm?', a: 'Ayarlar > Dil ve Bölge bölümünden istediğiniz dili seçebilirsiniz. Türkçe, İngilizce ve Almanca desteklenmektedir.' },
-  { q: 'Teknik destek nasıl alabilirim?', a: 'Bu sayfadaki formu kullanarak destek bileti oluşturabilir veya doğrudan support@2mcgastro.com adresine e-posta gönderebilirsiniz.' },
+  { qKey: 'faq.q1', aKey: 'faq.a1' },
+  { qKey: 'faq.q2', aKey: 'faq.a2' },
+  { qKey: 'faq.q3', aKey: 'faq.a3' },
+  { qKey: 'faq.q4', aKey: 'faq.a4' },
+  { qKey: 'faq.q5', aKey: 'faq.a5' },
 ];
 
 export default function SupportPage() {
@@ -28,7 +28,7 @@ export default function SupportPage() {
     <div className="max-w-5xl mx-auto w-full space-y-8 py-8 px-4 sm:px-6">
       <div className="reveal">
         <h1 className="font-headline text-3xl sm:text-4xl font-black text-on-surface tracking-tight">{t('support.title')}</h1>
-        <p className="text-on-surface-variant text-sm mt-1.5">Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.</p>
+        <p className="text-on-surface-variant text-sm mt-1.5">{t('support.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -77,12 +77,12 @@ export default function SupportPage() {
                 const open = openFaq === i;
                 return (
                   <div key={i} className={`border rounded-xl overflow-hidden transition-colors ${open ? 'border-primary/30 bg-primary-fixed/40' : 'border-outline-variant/40 hover:border-outline-variant'}`}>
-                    <button onClick={() => setOpenFaq(open ? null : i)} className="w-full flex items-center justify-between p-4 text-left">
-                      <span className="text-sm font-medium text-on-surface pr-4">{faq.q}</span>
+                    <button type="button" onClick={() => setOpenFaq(open ? null : i)} className="w-full flex items-center justify-between p-4 text-left">
+                      <span className="text-sm font-medium text-on-surface pr-4">{t(faq.qKey)}</span>
                       {open ? <ChevronUp size={16} className="text-primary shrink-0" /> : <ChevronDown size={16} className="text-on-surface-variant shrink-0" />}
                     </button>
                     {open && (
-                      <div className="px-4 pb-4 text-sm text-on-surface-variant leading-relaxed">{faq.a}</div>
+                      <div className="px-4 pb-4 text-sm text-on-surface-variant leading-relaxed">{t(faq.aKey)}</div>
                     )}
                   </div>
                 );
@@ -95,7 +95,7 @@ export default function SupportPage() {
           <div className="bg-gradient-to-br from-[var(--c-navy-deep)] to-[var(--c-navy)] p-6 rounded-2xl text-white shadow-[0_12px_32px_-12px_rgba(15,36,64,0.4)]">
             <MessageSquare size={26} className="mb-4 text-[var(--c-clay-soft)]" strokeWidth={1.5} />
             <h3 className="font-headline font-bold text-lg mb-1">{t('support.contactUs')}</h3>
-            <p className="text-white/60 text-xs mb-5 leading-relaxed">Pazartesi–Cuma · 09:00–18:00 CET</p>
+            <p className="text-white/60 text-xs mb-5 leading-relaxed">{t('support.businessHours')}</p>
             <div className="space-y-3 text-sm border-t border-white/10 pt-4">
               <a href="mailto:support@2mcgastro.com" className="flex items-center gap-3 text-white/85 hover:text-white transition-colors">
                 <Mail size={14} className="text-[var(--c-clay-soft)]" /> support@2mcgastro.com
@@ -108,7 +108,7 @@ export default function SupportPage() {
           <div className="bg-surface-container-low p-6 rounded-2xl border border-outline-variant/40">
             <HelpCircle size={22} className="text-primary mb-3" strokeWidth={1.5} />
             <h3 className="font-headline font-bold text-sm text-on-surface mb-2">{t('docs.title')}</h3>
-            <p className="text-xs text-on-surface-variant leading-relaxed">Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.</p>
+            <p className="text-xs text-on-surface-variant leading-relaxed">{t('support.docsCardDesc')}</p>
           </div>
         </div>
       </div>

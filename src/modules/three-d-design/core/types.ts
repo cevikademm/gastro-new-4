@@ -150,6 +150,30 @@ export interface Equipment {
   locked?: boolean;
 }
 
+// ── Render (kaydedilmiş 3B görüntü) ─────────────────────────────────────────
+/**
+ * Sahneden alınan yüksek kaliteli bir render/ekran görüntüsü. Görüntü verisi
+ * Supabase Storage'a yüklenir ve burada yalnızca KÜÇÜK metadata (URL) tutulur;
+ * dokümanın JSONB kalıcılığını şişirmemek için base64 gömmekten kaçınılır.
+ * `renders` dokümanın parçası olduğundan hem Supabase'e kaydedilir hem de
+ * `.json` export/import ile birlikte taşınır ("proje dosyasının içinde").
+ */
+export interface ProjectRender {
+  id: string;
+  /** Herkese açık Storage URL'i (upload başarısızsa `data:` URL'ine düşer). */
+  url: string;
+  /** Storage yolu — silme için (upload başarılıysa). */
+  path?: string;
+  width: number;
+  height: number;
+  /** ISO oluşturma zamanı. */
+  createdAt: string;
+  /** İsteğe bağlı kullanıcı notu. */
+  label?: string;
+  /** Yalnızca Storage upload başarısız olduğunda: küçültülmüş jpeg data URL. */
+  fallbackDataUrl?: string;
+}
+
 // ── Project document ───────────────────────────────────────────────────────
 export type AnyEntity = Vertex | Wall | Opening | Room | Equipment;
 
@@ -164,6 +188,8 @@ export interface ProjectDocument {
   equipment: Record<EquipmentId, Equipment>;
   /** Display / iteration order. Contains every entity id once. */
   order: EntityId[];
+  /** Sahneden alınan kaydedilmiş renderlar (opsiyonel — eski dokümanlarla uyumlu). */
+  renders?: ProjectRender[];
   createdAt: string;
   updatedAt: string;
 }

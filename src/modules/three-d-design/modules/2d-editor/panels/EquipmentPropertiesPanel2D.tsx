@@ -11,6 +11,7 @@
 import { useTranslation } from 'react-i18next';
 import { Trash2, RotateCw, RotateCcw, RefreshCw, X, Layers as OverlapIcon } from 'lucide-react';
 import { useProjectStore } from '../../../store';
+import { removeEquipmentEverywhere } from '../../../../../lib/designDelete';
 import type { Equipment, EquipmentId } from '../../../core/types';
 import { deterministicHex } from '../../../lib/equipmentColor';
 
@@ -23,7 +24,6 @@ export default function EquipmentPropertiesPanel2D({ equipmentId, onClose }: Pro
   const { t } = useTranslation();
   const project = useProjectStore((s) => s.project);
   const update = useProjectStore((s) => s.update);
-  const removeEquipment = useProjectStore((s) => s.removeEquipment);
 
   const eq = equipmentId
     ? (project.equipment[equipmentId as EquipmentId] as Equipment | undefined)
@@ -36,8 +36,9 @@ export default function EquipmentPropertiesPanel2D({ equipmentId, onClose }: Pro
       if (e) e.rotation += (deg * Math.PI) / 180;
     });
 
+  // Ürünü tasarımdan + (proje modunda) teklif listesinden kaldır. Otomatik kaydedilir.
   const handleDelete = () => {
-    removeEquipment(eq.id);
+    removeEquipmentEverywhere(eq.id);
     onClose();
   };
 

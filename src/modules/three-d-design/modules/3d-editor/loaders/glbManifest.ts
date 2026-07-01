@@ -19,9 +19,9 @@ import type { EquipmentCategory } from '../../../core/types';
 export interface GlbManifestEntry {
   url: string;
   filename: string;
-  label: string;
+  labelKey: string; // Changed to translation key
   productId?: string;
-  category: EquipmentCategory;
+  categoryKey: string; // Changed to translation key
   dimensionsMm?: { width: number; depth: number; height: number };
   /** Yetkili tarafından eklenen "sistem ekipmanı" mı (true) yoksa dekoratif/marka asset mi (false). */
   isEquipment?: boolean;
@@ -31,41 +31,41 @@ export const GLB_MANIFEST: ReadonlyArray<GlbManifestEntry> = [
   {
     url: '/models/2mc-logo.glb',
     filename: '2mc-logo.glb',
-    label: '2MC Logo',
-    category: 'other',
+    labelKey: 'glb.label.2mcLogo',
+    categoryKey: 'glb.category.other',
     dimensionsMm: { width: 600, depth: 100, height: 600 },
     isEquipment: false,
   },
   {
     url: '/models/Meshy_AI_Commercial_Planetary__0411175135_texture.glb',
     filename: 'Meshy_AI_Commercial_Planetary__0411175135_texture.glb',
-    label: 'Commercial Planetary Mixer (Meshy)',
-    category: 'preparation',
+    labelKey: 'glb.label.commercialPlanetaryMixer',
+    categoryKey: 'glb.category.preparation',
     dimensionsMm: { width: 800, depth: 700, height: 1400 },
     isEquipment: true,
   },
   {
     url: '/models/Meshy_AI_Rainbow_Bottles_in_a__0411175104_texture.glb',
     filename: 'Meshy_AI_Rainbow_Bottles_in_a__0411175104_texture.glb',
-    label: 'Bottle Display (Meshy)',
-    category: 'storage',
+    labelKey: 'glb.label.bottleDisplay',
+    categoryKey: 'glb.category.storage',
     dimensionsMm: { width: 1200, depth: 400, height: 1800 },
     isEquipment: true,
   },
   {
     url: '/models/Meshy_AI_ddd_0411175109_texture.glb',
     filename: 'Meshy_AI_ddd_0411175109_texture.glb',
-    label: 'Generic Asset (Meshy)',
-    category: 'other',
+    labelKey: 'glb.label.genericAsset',
+    categoryKey: 'glb.category.other',
     dimensionsMm: { width: 600, depth: 600, height: 600 },
     isEquipment: true,
   },
   {
     url: '/models/PSB-202MI-2V.glb',
     filename: 'PSB-202MI-2V.glb',
-    label: 'Planetary Spiral Mixer 20L (PSB-202MI/2V)',
-    productId: 'PSB-202MI/2V',
-    category: 'preparation',
+    labelKey: 'glb.label.planetarySpiralMixer',
+    productId: 'PSB-202MI/2V', // This is a product ID, not a label
+    categoryKey: 'glb.category.preparation',
     isEquipment: true,
   },
 ];

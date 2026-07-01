@@ -81,8 +81,33 @@ export async function meshyStep(req: MeshyGenerateRequest): Promise<Product3DMod
 }
 
 /**
+ * Meshy kuyruğu dolu (429 NoMorePendingTasks) ya da geçici sunucu hatası →
+ * tekrar denenebilir. Bunlar "gerçek hata" değil; bir slot boşalınca geçer.
+ */
+const RETRIABLE_MESHY_RE = /\b429\b|NoMorePendingTasks|Too Many Requests|\b502\b|\b503\b/i;
+function isRetriableMeshyError(err: unknown): boolean {
+  const m = err instanceof Error ? err.message : String(err);
+  return RETRIABLE_MESHY_RE.test(m);
+}
+
+/** UI'da "Bekliyor" göstermek için sentetik satır (henüz DB kaydı yokken). */
+function queuedRow(req: MeshyGenerateRequest): Product3DModel {
+  const now = new Date().toISOString();
+  return {
+    id: req.productKey, product_key: req.productKey, name: req.name,
+    source_image_url: req.imageUrl, meshy_task_id: null, stage: null,
+    status: 'pending', progress: 0, error: null,
+    glb_url: null, usdz_url: null, thumbnail_url: null,
+    created_at: now, updated_at: now, finished_at: null,
+  };
+}
+
+/**
  * Polling helper: 'done' veya 'error' olana kadar her intervalMs'te bir çağırır.
  * onUpdate her güncellemede tetiklenir (UI için).
+ *
+ * 429 NoMorePendingTasks (Meshy plan kuyruk limiti) bir HATA olarak değil,
+ * "kuyruk dolu" olarak ele alınır: bir slot boşalana kadar beklenip tekrar denenir.
  */
 export async function meshyGenerate(
   req: MeshyGenerateRequest,
@@ -90,19 +115,33 @@ export async function meshyGenerate(
   options: { intervalMs?: number; timeoutMs?: number } = {},
 ): Promise<Product3DModel> {
   const interval = options.intervalMs ?? 8000;
-  const timeout = options.timeoutMs ?? 8 * 60 * 1000;
+  const timeout = options.timeoutMs ?? 12 * 60 * 1000;
   const startedAt = Date.now();
 
-  let row = await meshyStep(req);
+  // Tek adım + kuyruk-dolu (429) durumunda otomatik bekle-tekrar dene.
+  const step = async (): Promise<Product3DModel> => {
+    while (true) {
+      try {
+        return await meshyStep(req);
+      } catch (err) {
+        if (!isRetriableMeshyError(err) || Date.now() - startedAt > timeout) throw err;
+        // Meshy kuyruğu dolu — UI'da "Bekliyor" göster, biraz bekle, tekrar dene.
+        onUpdate?.(queuedRow(req));
+        await new Promise((r) => setTimeout(r, interval));
+      }
+    }
+  };
+
+  let row = await step();
   onUpdate?.(row);
   if (row.status === 'done' || row.status === 'error') return row;
 
   while (true) {
     if (Date.now() - startedAt > timeout) {
-      throw new Error('MeshAI üretim zaman aşımı (8dk)');
+      throw new Error('MeshAI üretim zaman aşımı (12dk)');
     }
     await new Promise((r) => setTimeout(r, interval));
-    row = await meshyStep(req);
+    row = await step();
     onUpdate?.(row);
     if (row.status === 'done' || row.status === 'error') return row;
   }

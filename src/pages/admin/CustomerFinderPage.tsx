@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import {
   Users, Search, MapPin, Phone, Globe, Star, Mail, Download, Loader2, Filter,
   X, Trash2, FileSpreadsheet, FileText, Send, StickyNote, CheckSquare, Square,
-  SlidersHorizontal, ArrowUpDown, History, MessageSquare, MessageCircle,
+  SlidersHorizontal, ArrowUpDown, History, MessageSquare, MessageCircle, Database,
 } from 'lucide-react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -18,19 +20,21 @@ import {
 
 const STATUS_FLOW: LeadStatus[] = ['yeni', 'arandi', 'ilgilendi', 'musteri', 'olumsuz'];
 
-const STATUS_META: Record<LeadStatus, { label: string; cls: string }> = {
-  yeni:      { label: 'Yeni',      cls: 'bg-info-container text-on-info-container border-info/20' },
-  arandi:    { label: 'Arandı',    cls: 'bg-warning-container text-on-warning-container border-warning/20' },
-  ilgilendi: { label: 'İlgilendi', cls: 'bg-primary-fixed text-primary border-primary/20' },
-  musteri:   { label: 'Müşteri',   cls: 'bg-success-container text-on-success-container border-success/20' },
-  olumsuz:   { label: 'Olumsuz',   cls: 'bg-error-container text-error border-error/20' },
+const STATUS_META: Record<LeadStatus, { labelKey: string; cls: string }> = {
+  yeni:      { labelKey: 'customerFinder.status.yeni',      cls: 'bg-info-container text-on-info-container border-info/20' },
+  arandi:    { labelKey: 'customerFinder.status.arandi',    cls: 'bg-warning-container text-on-warning-container border-warning/20' },
+  ilgilendi: { labelKey: 'customerFinder.status.ilgilendi', cls: 'bg-primary-fixed text-primary border-primary/20' },
+  musteri:   { labelKey: 'customerFinder.status.musteri',   cls: 'bg-success-container text-on-success-container border-success/20' },
+  olumsuz:   { labelKey: 'customerFinder.status.olumsuz',   cls: 'bg-error-container text-error border-error/20' },
 };
+const statusLabel = (s: LeadStatus): string => i18n.t(STATUS_META[s]?.labelKey || s);
 
-const MAIL_META: Record<MailStatus, { label: string; cls: string }> = {
-  gonderilmedi: { label: '—',           cls: 'text-on-surface-variant' },
-  gonderildi:   { label: 'Gönderildi',  cls: 'text-success' },
-  yanit_geldi:  { label: 'Yanıt geldi', cls: 'text-primary' },
+const MAIL_META: Record<MailStatus, { labelKey: string; cls: string }> = {
+  gonderilmedi: { labelKey: 'customerFinder.mailStatus.gonderilmedi', cls: 'text-on-surface-variant' },
+  gonderildi:   { labelKey: 'customerFinder.mailStatus.gonderildi',   cls: 'text-success' },
+  yanit_geldi:  { labelKey: 'customerFinder.mailStatus.yanit_geldi',  cls: 'text-primary' },
 };
+const mailLabel = (s: MailStatus): string => i18n.t(MAIL_META[s]?.labelKey || '');
 
 // İşletmeyi Google kategorisine göre basit bir türe sınıflandırır (Restoran,
 // Otel, Berber...). Eşleşme yoksa ham kategoriyi etiket olarak gösterir.
@@ -40,31 +44,27 @@ function classifyKategori(kategori: string | null): { label: string; cls: string
   if (!k) return null;
   const has = (...xs: string[]) => xs.some((x) => k.includes(x));
   if (has('otel', 'hotel', 'pension', 'hostel', 'motel', 'konaklama', 'unterkunft'))
-    return { label: 'Otel', cls: 'bg-blue-100 text-blue-700 border-blue-200' };
+    return { label: i18n.t('customerFinder.kategori.otel'), cls: 'bg-blue-100 text-blue-700 border-blue-200' };
   if (has('berber', 'kuaför', 'kuafor', 'friseur', 'barber', 'hairdresser', 'coiffeur', 'saç'))
-    return { label: 'Berber / Kuaför', cls: 'bg-teal-100 text-teal-700 border-teal-200' };
+    return { label: i18n.t('customerFinder.kategori.berber'), cls: 'bg-teal-100 text-teal-700 border-teal-200' };
   if (has('pastane', 'fırın', 'firin', 'bakery', 'bäckerei', 'baeckerei', 'konditorei', 'patisserie', 'tatlı', 'tatli', 'börek', 'borek'))
-    return { label: 'Fırın / Pastane', cls: 'bg-pink-100 text-pink-700 border-pink-200' };
+    return { label: i18n.t('customerFinder.kategori.firin'), cls: 'bg-pink-100 text-pink-700 border-pink-200' };
   if (has('kafe', 'café', 'cafe', 'kahve', 'coffee', 'bistro'))
-    return { label: 'Kafe', cls: 'bg-amber-100 text-amber-800 border-amber-200' };
+    return { label: i18n.t('customerFinder.kategori.kafe'), cls: 'bg-amber-100 text-amber-800 border-amber-200' };
   if (has('restoran', 'restaurant', 'lokanta', 'imbiss', 'pizzeria', 'pizza', 'döner', 'doner', 'kebap', 'kebab', 'burger', 'steakhouse', 'sushi', 'fast food', 'gaststätte', 'gaststatte', 'trattoria', 'ristorante'))
-    return { label: 'Restoran', cls: 'bg-orange-100 text-orange-700 border-orange-200' };
+    return { label: i18n.t('customerFinder.kategori.restoran'), cls: 'bg-orange-100 text-orange-700 border-orange-200' };
   if (has('bar', 'pub', 'kneipe', 'biergarten', 'cocktail', 'lounge', 'meyhane'))
-    return { label: 'Bar', cls: 'bg-purple-100 text-purple-700 border-purple-200' };
+    return { label: i18n.t('customerFinder.kategori.bar'), cls: 'bg-purple-100 text-purple-700 border-purple-200' };
   if (has('market', 'supermarkt', 'supermarket', 'bakkal', 'grocery', 'lebensmittel', 'şarküteri', 'sarkuteri', 'manav', 'kasap', 'metzgerei', 'butcher'))
-    return { label: 'Market / Gıda', cls: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
+    return { label: i18n.t('customerFinder.kategori.market'), cls: 'bg-emerald-100 text-emerald-700 border-emerald-200' };
   if (has('catering', 'büfe', 'bufe', 'buffet', 'kantin', 'mensa'))
-    return { label: 'Catering / Büfe', cls: 'bg-cyan-100 text-cyan-700 border-cyan-200' };
+    return { label: i18n.t('customerFinder.kategori.catering'), cls: 'bg-cyan-100 text-cyan-700 border-cyan-200' };
   // Eşleşme yok → ham kategoriyi tür olarak göster
   return { label: kategori as string, cls: 'bg-slate-100 text-slate-600 border-slate-200' };
 }
 
-const DEFAULT_MAIL_SUBJECT = '2MC Gastro — Profesyonel mutfak ekipmanları';
-const DEFAULT_MAIL_BODY =
-  `Merhaba {{isim}},\n\n` +
-  `2MC Gastro olarak endüstriyel mutfak ekipmanlarında 10.000+ ürünlük katalogumuzla işletmenize özel çözümler sunuyoruz.\n\n` +
-  `Dilerseniz size özel bir teklif hazırlayabiliriz. Detaylar için bu e-postayı yanıtlamanız yeterli.\n\n` +
-  `Saygılarımızla,\n2MC Gastro`;
+const DEFAULT_MAIL_SUBJECT = i18n.t('customerFinder.mailTpl.general.subject.tr');
+const DEFAULT_MAIL_BODY = i18n.t('customerFinder.mailTpl.general.body.tr');
 
 // Diller — taslaklar 7 dilde hazır (varsayılan: Almanca). Yer tutucular
 // ({{isim}}, {{kategori}}, {{adres}}) her dilde otomatik dolar.
@@ -293,9 +293,71 @@ function exportRows(leads: CustomerLead[]) {
   }));
 }
 
+// Taşınabilir SQL dışa aktarım — tüm kayıtları başka bir Supabase projesine
+// (ör. canlı) import etmek / yedeklemek için. place_id UNIQUE olduğundan
+// ON CONFLICT ile tekrar çalıştırmak güvenli (mükerrer eklemez).
+const SQL_COLS = [
+  'place_id', 'isim', 'kategori', 'adres', 'telefon', 'email', 'website', 'place_url',
+  'puan', 'yorum_sayisi', 'lat', 'lng', 'durum', 'mail_durumu', 'mail_sent_at',
+  'whatsapp_durumu', 'whatsapp_sent_at', 'notlar', 'created_at',
+] as const;
+
+function sqlLiteral(v: unknown): string {
+  if (v === null || v === undefined || v === '') return 'NULL';
+  if (typeof v === 'number') return Number.isFinite(v) ? String(v) : 'NULL';
+  return `'${String(v).replace(/'/g, "''")}'`;
+}
+
+function leadsToSQL(leads: CustomerLead[]): string {
+  if (!leads.length) return '-- kayıt yok\n';
+  const header = `INSERT INTO customer_leads (${SQL_COLS.join(', ')}) VALUES`;
+  const rows = leads.map(
+    (l) => `  (${SQL_COLS.map((c) => sqlLiteral((l as unknown as Record<string, unknown>)[c])).join(', ')})`,
+  );
+  return `-- customer_leads dışa aktarım (${leads.length} kayıt)\n${header}\n${rows.join(',\n')}\nON CONFLICT (place_id) DO NOTHING;\n`;
+}
+
+// ─── Konum (ülke/şehir) yardımcıları — satır gruplama + sekmeler için ───
+const COUNTRY_FLAGS: Record<string, string> = {
+  almanya: '🇩🇪', deutschland: '🇩🇪', germany: '🇩🇪',
+  hollanda: '🇳🇱', netherlands: '🇳🇱', nederland: '🇳🇱',
+  'türkiye': '🇹🇷', turkiye: '🇹🇷', turkey: '🇹🇷',
+  avusturya: '🇦🇹', 'österreich': '🇦🇹', austria: '🇦🇹',
+  fransa: '🇫🇷', france: '🇫🇷',
+  'belçika': '🇧🇪', belgien: '🇧🇪', belgium: '🇧🇪',
+  'isviçre': '🇨🇭', schweiz: '🇨🇭', switzerland: '🇨🇭',
+  italya: '🇮🇹', italien: '🇮🇹', italy: '🇮🇹',
+  ispanya: '🇪🇸', spanien: '🇪🇸', spain: '🇪🇸',
+};
+const flagOf = (ulke: string): string => COUNTRY_FLAGS[(ulke || '').toLowerCase().trim()] || '🌍';
+
+/** Adresten (fallback) ülke + şehir çıkarır: "…, 51143 Porz, Almanya" → {Almanya, Porz}. */
+function cityFromAdres(adres: string | null): { ulke: string; sehir: string } {
+  const parts = (adres || '').split(',').map((x) => x.trim()).filter(Boolean);
+  if (!parts.length) return { ulke: '', sehir: '' };
+  const ulke = parts[parts.length - 1] || '';
+  let sehir = parts.length >= 2 ? parts[parts.length - 2] : '';
+  sehir = sehir
+    .replace(/^\d{4}\s+[A-Z]{2}\b\s*/, '')        // NL posta kodu: "1101 CJ "
+    .replace(/^[A-Z]{0,2}-?\s?\d{3,6}\b\s*/, '')  // DE "51143 ", B "B-1000 "
+    .trim();
+  return { ulke, sehir };
+}
+
+/** Bir lead'in arama ülke/şehri — önce arama kaydı (search_id), yoksa adresten türet. */
+function leadLoc(
+  l: CustomerLead,
+  searchMap: Record<string, { ulke: string; sehir: string }>,
+): { ulke: string; sehir: string } {
+  const s = l.search_id ? searchMap[l.search_id] : null;
+  if (s && (s.ulke || s.sehir)) return s;
+  return cityFromAdres(l.adres);
+}
+const locKey = (loc: { ulke: string; sehir: string }) => `${loc.ulke}||${loc.sehir}`;
+
 export default function CustomerFinderPage() {
   const {
-    leads, mailLog, loading, searching, sending, error, lastSearch,
+    leads, searches, mailLog, loading, searching, sending, error, lastSearch,
     runSearch, fetchLeads, fetchReviews, updateLeadStatus, updateLeadNote, markWhatsapp, sendMail, fetchMailLog, deleteLeads,
   } = useCustomerFinderStore();
 
@@ -314,6 +376,7 @@ export default function CustomerFinderPage() {
   const [statusFilter, setStatusFilter] = useState<'all' | LeadStatus>('all');
   const [mailFilter, setMailFilter] = useState<'all' | MailStatus>('all');
   const [categoryFilter, setCategoryFilter] = useState('all');
+  const [locationFilter, setLocationFilter] = useState<string>('all'); // 'all' | `${ulke}||${sehir}`
   const [fHasEmail, setFHasEmail] = useState(false);
   const [fHasPhone, setFHasPhone] = useState(false);
   const [fHasWeb, setFHasWeb] = useState(false);
@@ -344,12 +407,33 @@ export default function CustomerFinderPage() {
     return Array.from(set).sort((a, b) => a.localeCompare(b, 'tr'));
   }, [leads]);
 
+  // search_id → {ulke, sehir} (arama kayıtlarından)
+  const searchMap = useMemo(() => {
+    const m: Record<string, { ulke: string; sehir: string }> = {};
+    for (const s of searches) m[s.id] = { ulke: (s.ulke || '').trim(), sehir: (s.sehir || '').trim() };
+    return m;
+  }, [searches]);
+
+  // Konum sekmeleri — hangi ülke/şehirlerde arama yapılmış (adet ile)
+  const locations = useMemo(() => {
+    const m = new Map<string, { ulke: string; sehir: string; count: number }>();
+    for (const l of leads) {
+      const loc = leadLoc(l, searchMap);
+      if (!loc.ulke && !loc.sehir) continue;
+      const key = locKey(loc);
+      const e = m.get(key) || { ulke: loc.ulke, sehir: loc.sehir, count: 0 };
+      e.count++; m.set(key, e);
+    }
+    return Array.from(m.entries()).map(([key, v]) => ({ key, ...v })).sort((a, b) => b.count - a.count);
+  }, [leads, searchMap]);
+
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const rows = leads.filter((l) => {
       if (statusFilter !== 'all' && l.durum !== statusFilter) return false;
       if (mailFilter !== 'all' && l.mail_durumu !== mailFilter) return false;
       if (categoryFilter !== 'all' && l.kategori !== categoryFilter) return false;
+      if (locationFilter !== 'all' && locKey(leadLoc(l, searchMap)) !== locationFilter) return false;
       if (fHasEmail && !l.email) return false;
       if (fHasPhone && !l.telefon) return false;
       if (fHasWeb && !l.website) return false;
@@ -374,15 +458,15 @@ export default function CustomerFinderPage() {
         default: return (b.created_at ?? '').localeCompare(a.created_at ?? '');
       }
     });
-  }, [leads, search, statusFilter, mailFilter, categoryFilter, fHasEmail, fHasPhone, fHasWeb, fMinPuan, fMinYorum, sortBy]);
+  }, [leads, search, statusFilter, mailFilter, categoryFilter, locationFilter, searchMap, fHasEmail, fHasPhone, fHasWeb, fMinPuan, fMinYorum, sortBy]);
 
   const activeFilters =
     (statusFilter !== 'all' ? 1 : 0) + (mailFilter !== 'all' ? 1 : 0) +
-    (categoryFilter !== 'all' ? 1 : 0) + (fHasEmail ? 1 : 0) + (fHasPhone ? 1 : 0) +
+    (categoryFilter !== 'all' ? 1 : 0) + (locationFilter !== 'all' ? 1 : 0) + (fHasEmail ? 1 : 0) + (fHasPhone ? 1 : 0) +
     (fHasWeb ? 1 : 0) + (fMinPuan > 0 ? 1 : 0) + (fMinYorum > 0 ? 1 : 0) + (search ? 1 : 0);
 
   function clearFilters() {
-    setSearch(''); setStatusFilter('all'); setMailFilter('all'); setCategoryFilter('all');
+    setSearch(''); setStatusFilter('all'); setMailFilter('all'); setCategoryFilter('all'); setLocationFilter('all');
     setFHasEmail(false); setFHasPhone(false); setFHasWeb(false);
     setFMinPuan(0); setFMinYorum(0); setSortBy('recent');
   }
@@ -425,21 +509,27 @@ export default function CustomerFinderPage() {
     await runSearch(params);
   }
 
-  function downloadCSV() {
-    const csv = Papa.unparse(exportRows(filtered));
-    const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' });
+  // Dışa aktarımlar TÜM kayıtları verir (ekrandaki filtre görünümünü değil).
+  function downloadFile(content: BlobPart, mime: string, ext: string) {
+    const blob = new Blob([content], { type: mime });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `musteriler-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.download = `musteriler-${new Date().toISOString().slice(0, 10)}.${ext}`;
     a.click();
     URL.revokeObjectURL(url);
   }
+  function downloadCSV() {
+    downloadFile('﻿' + Papa.unparse(exportRows(leads)), 'text/csv;charset=utf-8;', 'csv');
+  }
   function downloadXLSX() {
-    const ws = XLSX.utils.json_to_sheet(exportRows(filtered));
+    const ws = XLSX.utils.json_to_sheet(exportRows(leads));
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Müşteriler');
     XLSX.writeFile(wb, `musteriler-${new Date().toISOString().slice(0, 10)}.xlsx`);
+  }
+  function downloadSQL() {
+    downloadFile(leadsToSQL(leads), 'text/plain;charset=utf-8;', 'sql');
   }
 
   async function handleDeleteSelected() {
@@ -648,16 +738,45 @@ export default function CustomerFinderPage() {
               </button>
             </>
           )}
-          <button onClick={downloadCSV} disabled={!filtered.length}
+          <button onClick={downloadCSV} disabled={!leads.length} title={`Tüm ${leads.length} kaydı CSV olarak indir`}
             className="px-3 py-2 rounded-lg border border-outline-variant/20 text-xs font-bold inline-flex items-center gap-1.5 hover:bg-surface-container-low disabled:opacity-40">
             <FileText size={14} /> CSV
           </button>
-          <button onClick={downloadXLSX} disabled={!filtered.length}
+          <button onClick={downloadXLSX} disabled={!leads.length} title={`Tüm ${leads.length} kaydı Excel olarak indir`}
             className="px-3 py-2 rounded-lg border border-outline-variant/20 text-xs font-bold inline-flex items-center gap-1.5 hover:bg-surface-container-low disabled:opacity-40">
             <FileSpreadsheet size={14} /> Excel
           </button>
+          <button onClick={downloadSQL} disabled={!leads.length} title="Tüm kayıtları SQL olarak indir (yedek / başka projeye/canlıya import)"
+            className="px-3 py-2 rounded-lg border border-outline-variant/20 text-xs font-bold inline-flex items-center gap-1.5 hover:bg-surface-container-low disabled:opacity-40">
+            <Database size={14} /> SQL (tümü)
+          </button>
         </div>
       </div>
+
+      {/* Konum sekmeleri — hangi ülke/şehirde arandığı; tıklayınca o gruba filtreler */}
+      {locations.length > 0 && (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1">
+          <span className="shrink-0 text-[11px] font-bold uppercase tracking-wider text-on-surface-variant mr-1">Konum</span>
+          <button
+            onClick={() => setLocationFilter('all')}
+            className={`shrink-0 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${locationFilter === 'all' ? 'bg-primary text-white border-primary' : 'bg-surface-container-lowest text-on-surface-variant border-outline-variant/20 hover:border-primary/40'}`}
+          >
+            Tümü ({leads.length})
+          </button>
+          {locations.map((loc) => (
+            <button
+              key={loc.key}
+              onClick={() => setLocationFilter((v) => (v === loc.key ? 'all' : loc.key))}
+              title={`${loc.ulke}${loc.sehir ? ' — ' + loc.sehir : ''}`}
+              className={`shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold border transition-colors ${locationFilter === loc.key ? 'bg-primary text-white border-primary' : 'bg-surface-container-lowest text-on-surface border-outline-variant/20 hover:border-primary/40'}`}
+            >
+              <span>{flagOf(loc.ulke)}</span>
+              <span>{loc.sehir || loc.ulke}</span>
+              <span className={locationFilter === loc.key ? 'text-white/70' : 'text-on-surface-variant'}>({loc.count})</span>
+            </button>
+          ))}
+        </div>
+      )}
 
       {/* Tablo */}
       <div className="bg-surface-container-lowest rounded-2xl border border-outline-variant/10 overflow-hidden">
@@ -681,6 +800,8 @@ export default function CustomerFinderPage() {
                     </button>
                   </th>
                   <th className="px-4 py-3">İşletme</th>
+                  <th className="px-4 py-3">Ülke</th>
+                  <th className="px-4 py-3">Şehir</th>
                   <th className="px-4 py-3">İletişim</th>
                   <th className="px-4 py-3">Puan</th>
                   <th className="px-4 py-3">Durum</th>
@@ -691,6 +812,7 @@ export default function CustomerFinderPage() {
               <tbody className="divide-y divide-outline-variant/10">
                 {filtered.map((l) => {
                   const tur = classifyKategori(l.kategori);
+                  const loc = leadLoc(l, searchMap);
                   return (
                   <tr key={l.id} className="hover:bg-surface-container-low transition-colors">
                     <td className="px-3 py-3">
@@ -711,6 +833,18 @@ export default function CustomerFinderPage() {
                         )}
                         {l.adres && <span className="inline-flex items-center gap-0.5"><MapPin size={11} /> {l.adres}</span>}
                       </div>
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {loc.ulke ? (
+                        <span className="inline-flex items-center gap-1 text-xs font-medium text-on-surface">
+                          <span className="text-sm">{flagOf(loc.ulke)}</span> {loc.ulke}
+                        </span>
+                      ) : <span className="text-xs text-on-surface-variant">—</span>}
+                    </td>
+                    <td className="px-4 py-3 whitespace-nowrap">
+                      {loc.sehir
+                        ? <span className="text-xs font-bold text-on-surface">{loc.sehir}</span>
+                        : <span className="text-xs text-on-surface-variant">—</span>}
                     </td>
                     <td className="px-4 py-3 space-y-0.5">
                       {l.telefon && (

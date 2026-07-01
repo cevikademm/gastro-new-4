@@ -2,15 +2,27 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProjectStore, type Project } from '../../stores/projectStore';
-import { Plus, Search, Filter, ChevronRight, Trash2 } from 'lucide-react';
+import { Plus, Search, Filter, ChevronRight, Trash2, Pencil, Check, X } from 'lucide-react';
 import { EmptyState, EmptyProjectsIllustration } from '../../components/illustrations/EmptyState';
 
 export default function ProjectListPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { projects, deleteProject } = useProjectStore();
+  const { projects, deleteProject, updateProject } = useProjectStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+
+  // Satır-içi proje adı düzenleme (kalem → yaz → kaydet)
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState('');
+  const startEdit = (p: Project) => { setEditingId(p.id); setEditName(p.name); };
+  const cancelEdit = () => { setEditingId(null); setEditName(''); };
+  const saveEdit = (id: string) => {
+    const name = editName.trim();
+    if (name) updateProject(id, { name });
+    setEditingId(null);
+    setEditName('');
+  };
 
   const filtered = projects.filter((p) => {
     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || p.clientName.toLowerCase().includes(search.toLowerCase());
@@ -44,7 +56,7 @@ export default function ProjectListPage() {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 reveal">
         <div>
           <h1 className="font-headline text-3xl sm:text-4xl font-black text-on-surface tracking-tight">{t('projects.title')}</h1>
-          <p className="text-on-surface-variant text-sm mt-1.5">Tüm projelerinizi tek panelden yönetin, durumlarını takip edin.</p>
+          <p className="text-on-surface-variant text-sm mt-1.5">{t('projects.listSubtitle')}</p>
         </div>
         <Link to="/projects/new" className="inline-flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-xl font-bold shadow-lg text-sm">
           <Plus size={18} /> {t('projects.newProject')}
@@ -89,11 +101,33 @@ export default function ProjectListPage() {
             <tbody className="divide-y divide-outline-variant/10">
               {filtered.map((project) => (
                 <tr key={project.id} className="group hover:bg-surface-container-high transition-colors cursor-pointer" onDoubleClick={() => navigate(`/projects/${project.id}`)}>
-                  <td className="px-6 py-5">
-                    <Link to={`/projects/${project.id}`} className="block">
-                      <div className="font-bold text-on-surface hover:text-primary transition-colors">{project.name}</div>
-                      <div className="text-xs text-on-surface-variant mt-1">{typeLabels[project.type]} | {project.area} m²</div>
-                    </Link>
+                  <td className="px-6 py-5" title={t('projects.openHint', 'Girmek için çift tıklayın')}>
+                    {editingId === project.id ? (
+                      <div className="flex items-center gap-2" onDoubleClick={(e) => e.stopPropagation()}>
+                        <input
+                          autoFocus
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') saveEdit(project.id);
+                            if (e.key === 'Escape') cancelEdit();
+                          }}
+                          className="flex-1 min-w-0 bg-surface-container-lowest border border-primary/40 rounded-lg px-3 py-1.5 text-sm font-bold text-on-surface focus:ring-2 focus:ring-primary/20 outline-none"
+                        />
+                        <button onClick={(e) => { e.stopPropagation(); saveEdit(project.id); }} title={t('common.save', 'Kaydet')} className="p-1.5 rounded-md text-emerald-600 hover:bg-emerald-50 shrink-0">
+                          <Check size={16} />
+                        </button>
+                        <button onClick={(e) => { e.stopPropagation(); cancelEdit(); }} title={t('common.cancel', 'İptal')} className="p-1.5 rounded-md text-on-surface-variant hover:bg-surface-container-high shrink-0">
+                          <X size={16} />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="font-bold text-on-surface group-hover:text-primary transition-colors">{project.name}</div>
+                        <div className="text-xs text-on-surface-variant mt-1">{typeLabels[project.type]} | {project.area} m²</div>
+                      </>
+                    )}
                   </td>
                   <td className="px-6 py-5 text-sm font-medium">{project.lead}</td>
                   <td className="px-6 py-5">
@@ -109,10 +143,13 @@ export default function ProjectListPage() {
                   </td>
                   <td className="px-6 py-5 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <button onClick={() => deleteProject(project.id)} className="p-1.5 text-on-surface-variant hover:text-error opacity-0 group-hover:opacity-100 transition-all rounded-md hover:bg-error-container">
+                      <button onClick={(e) => { e.stopPropagation(); startEdit(project); }} title={t('projects.renameHint', 'Proje adını düzenle')} className="p-1.5 text-on-surface-variant hover:text-primary opacity-0 group-hover:opacity-100 transition-all rounded-md hover:bg-primary/10">
+                        <Pencil size={15} />
+                      </button>
+                      <button onClick={(e) => { e.stopPropagation(); deleteProject(project.id); }} className="p-1.5 text-on-surface-variant hover:text-error opacity-0 group-hover:opacity-100 transition-all rounded-md hover:bg-error-container">
                         <Trash2 size={16} />
                       </button>
-                      <Link to={`/projects/${project.id}`}>
+                      <Link to={`/projects/${project.id}`} onClick={(e) => e.stopPropagation()} title={t('projects.open', 'Aç')}>
                         <ChevronRight size={20} className="text-outline-variant group-hover:text-primary transition-colors" />
                       </Link>
                     </div>
@@ -125,7 +162,7 @@ export default function ProjectListPage() {
                     <EmptyState
                       illustration={<EmptyProjectsIllustration />}
                       title={t('common.noData')}
-                      description={search || statusFilter !== 'all' ? 'Filtreleri değiştirerek tekrar deneyin.' : 'Yeni bir proje oluşturarak başlayın.'}
+                      description={search || statusFilter !== 'all' ? t('projects.emptyFiltered') : t('projects.emptyStart')}
                     />
                   </td>
                 </tr>

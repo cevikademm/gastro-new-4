@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Boxes, Undo2, Redo2, Upload, Loader2, X, Layers, AlertTriangle,
   Save, Download, FileUp, Check, CloudOff,
@@ -29,6 +30,7 @@ import {
   STANDALONE_KEY,
 } from '../../lib/gastroDesignSync';
 import { reconcileProductsIntoDesign, type ProductLike } from '../../lib/designProductSync';
+import { setActiveDesignProjectKey } from '../../lib/designDelete';
 import { useProjectStore as useDiamondProjectStore } from '../../stores/projectStore';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'local' | 'error';
@@ -95,6 +97,7 @@ function fitViewportToBounds(
 }
 
 export default function ThreeDDesignPage() {
+  const { t } = useTranslation();
   const mode = useProjectStore((s) => s.view.mode);
   const setMode = useProjectStore((s) => s.setMode);
   const undo = useProjectStore((s) => s.undo);
@@ -134,6 +137,9 @@ export default function ThreeDDesignPage() {
     let cancelled = false;
     hydratedRef.current = false;
     reconciledKeyRef.current = null;
+    // Silme yardımcısı (Delete tuşu dâhil) aktif projeyi bilsin → teklif satırını
+    // da kaldırabilsin. Standalone'da STANDALONE_KEY olur, teklif tarafı atlanır.
+    setActiveDesignProjectKey(projectKey);
     loadBestDesign(projectKey)
       .then((res) => {
         if (cancelled) return;
@@ -220,14 +226,14 @@ export default function ThreeDDesignPage() {
       const text = await file.text();
       const doc = JSON.parse(text) as ProjectDocument;
       if (!doc || typeof doc !== 'object' || !('order' in doc)) {
-        throw new Error('Geçersiz 3D tasarım dosyası');
+        throw new Error(t('design3d.invalidDesignFile'));
       }
       loadProject(doc);
       saveDesignLocal(doc, projectKey);
       void syncDesignProject(doc, projectKey);
     } catch (err) {
       // eslint-disable-next-line no-alert
-      alert(`JSON içe aktarılamadı: ${err instanceof Error ? err.message : String(err)}`);
+      alert(t('design3d.jsonImportFailed', { message: err instanceof Error ? err.message : String(err) }));
     } finally {
       if (jsonInputRef.current) jsonInputRef.current.value = '';
     }
@@ -243,19 +249,19 @@ export default function ThreeDDesignPage() {
   const onCadPick = async (file: File | null) => {
     if (!file) return;
     setImporting(true);
-    setImportStatus('Hazırlanıyor…');
+    setImportStatus(t('design3d.preparing'));
     try {
       const a = await analyzeCadFile(file, (msg) => setImportStatus(msg));
       if (a.totalEntities === 0) {
         // eslint-disable-next-line no-alert
-        alert(`${file.name}: İçe aktarılabilir geometri bulunamadı (LINE/POLYLINE bekleniyor).`);
+        alert(t('design3d.noImportableGeometry', { filename: file.name }));
         return;
       }
       setAnalysis(a);
     } catch (err) {
       console.error('CAD analysis error:', err);
       // eslint-disable-next-line no-alert
-      alert(`İçe aktarma hatası: ${err instanceof Error ? err.message : String(err)}`);
+      alert(t('design3d.importError', { message: err instanceof Error ? err.message : String(err) }));
     } finally {
       setImporting(false);
       setImportStatus('');
@@ -282,26 +288,26 @@ export default function ThreeDDesignPage() {
           <div className="w-8 h-8 rounded-xl bg-brand-red/10 text-brand-red flex items-center justify-center shrink-0">
             <Boxes size={16} />
           </div>
-          <h1 className="text-[12px] font-semibold text-slate-800 truncate">3D Design</h1>
+          <h1 className="text-[12px] font-semibold text-slate-800 truncate">{t('design3d.pageTitle')}</h1>
           <span className="text-[12px] text-slate-400 truncate">· {projectName}</span>
           {importing && (
             <span className="ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium bg-brand-red/10 text-brand-red">
               <Loader2 size={12} className="animate-spin" />
-              {importStatus || 'İçe aktarılıyor…'}
+              {importStatus || t('design3d.importing')}
             </span>
           )}
           <SaveStatusBadge status={saveStatus} />
         </div>
 
         <div className="flex items-center gap-1">
-          <ToolbarButton onClick={() => void onManualSave()} title="Supabase'e kaydet">
+          <ToolbarButton onClick={() => void onManualSave()} title={t('design3d.saveToSupabase')}>
             <Save size={14} />
-            <span className="text-[11px]">Kaydet</span>
+            <span className="text-[11px]">{t('common.save')}</span>
           </ToolbarButton>
-          <ToolbarButton onClick={onExportJson} title="Çizimi .json olarak indir (yedek)">
+          <ToolbarButton onClick={onExportJson} title={t('design3d.exportJsonTitle')}>
             <Download size={14} />
           </ToolbarButton>
-          <ToolbarButton onClick={() => jsonInputRef.current?.click()} title="Yedek .json dosyasından geri yükle">
+          <ToolbarButton onClick={() => jsonInputRef.current?.click()} title={t('design3d.importJsonTitle')}>
             <FileUp size={14} />
           </ToolbarButton>
           <input
@@ -312,17 +318,17 @@ export default function ThreeDDesignPage() {
             onChange={(e) => void onImportJson(e.target.files?.[0] ?? null)}
           />
           <div className="w-px h-5 bg-slate-200 mx-1.5" />
-          <ToolbarButton onClick={undo} disabled={!canUndo} title="Geri al (Ctrl+Z)">
+          <ToolbarButton onClick={undo} disabled={!canUndo} title={t('design3d.undo')}>
             <Undo2 size={14} />
           </ToolbarButton>
-          <ToolbarButton onClick={redo} disabled={!canRedo} title="Yinele (Ctrl+Y)">
+          <ToolbarButton onClick={redo} disabled={!canRedo} title={t('design3d.redo')}>
             <Redo2 size={14} />
           </ToolbarButton>
           <div className="w-px h-5 bg-slate-200 mx-1.5" />
           <ToolbarButton
             onClick={() => cadInputRef.current?.click()}
             disabled={importing}
-            title="CAD dosyası içe aktar (DXF, DWG, DWT)"
+            title={t('design3d.importCadTitle')}
           >
             {importing ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
             <span className="text-[11px]">CAD</span>
@@ -367,7 +373,7 @@ export default function ThreeDDesignPage() {
                   : 'h-7 px-3 rounded-lg text-[12px] font-medium text-slate-500 hover:text-slate-700 transition'
               }
             >
-              Split
+              {t('design3d.splitView')}
             </button>
           </div>
         </div>
@@ -375,11 +381,11 @@ export default function ThreeDDesignPage() {
 
       <div ref={editorAreaRef} className="flex-1 min-h-0">
         {tab === '2d' && <Editor2D />}
-        {tab === '3d' && <Editor3D />}
+        {tab === '3d' && <Editor3D projectKey={projectKey} />}
         {tab === 'split' && (
           <div className="grid grid-cols-2 h-full">
             <div className="border-r border-slate-200/70"><Editor2D /></div>
-            <Editor3D />
+            <Editor3D projectKey={projectKey} />
           </div>
         )}
       </div>
@@ -404,12 +410,13 @@ export default function ThreeDDesignPage() {
 // ────────────────────────────────────────────────────────────────────────────
 
 function SaveStatusBadge({ status }: { status: SaveStatus }) {
+  const { t } = useTranslation();
   if (status === 'idle') return null;
   if (status === 'saving') {
     return (
       <span className="ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-slate-100 text-slate-500">
         <Loader2 size={12} className="animate-spin" />
-        Kaydediliyor…
+        {t('common.saving')}
       </span>
     );
   }
@@ -417,7 +424,7 @@ function SaveStatusBadge({ status }: { status: SaveStatus }) {
     return (
       <span className="ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-emerald-50 text-emerald-600 border border-emerald-100">
         <Check size={12} />
-        Kaydedildi
+        {t('design3d.savedBadge')}
       </span>
     );
   }
@@ -425,10 +432,10 @@ function SaveStatusBadge({ status }: { status: SaveStatus }) {
   return (
     <span
       className="ml-2 inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium bg-amber-50 text-amber-600 border border-amber-100"
-      title="Buluta kaydedilemedi — değişiklik bu cihazda (localStorage) güvende. Bağlantı gelince tekrar deneyin."
+      title={t('design3d.localOnlyTitle')}
     >
       <CloudOff size={12} />
-      Yalnızca bu cihazda
+      {t('design3d.localOnly')}
     </span>
   );
 }
@@ -445,6 +452,7 @@ interface CadImportDialogProps {
 }
 
 function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDialogProps) {
+  const { t } = useTranslation();
   // Pre-select wall-likely layers if any; otherwise pre-select top-3 by segment count
   const initialSelection = useMemo<Set<string>>(() => {
     if (analysis.suggestedLayers.length > 0) {
@@ -512,10 +520,10 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
       if (result.wallIds.length === 0) {
         const skipped = result.skippedShort;
         const hint = skipped > 0
-          ? `Tüm ${skipped} segment "Min. Çizgi" filtresinin altında kaldı. Birim seçimini değiştir (örn. mm → metre) ya da Min. Çizgi'yi 0 yap.`
-          : 'Seçili katmanlarda LINE/POLYLINE bulunamadı.';
+          ? t('design3d.allSegmentsBelowMin', { count: skipped })
+          : t('design3d.noLinesInSelectedLayers');
         // eslint-disable-next-line no-alert
-        alert(`İçe aktarılabilir çizgi bulunamadı.\n\n${hint}`);
+        alert(`${t('design3d.noImportableLines')}\n\n${hint}`);
         setBusy(false);
         return;
       }
@@ -523,7 +531,7 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
     } catch (err) {
       console.error(err);
       // eslint-disable-next-line no-alert
-      alert(`İçe aktarma hatası: ${err instanceof Error ? err.message : String(err)}`);
+      alert(t('design3d.importError', { message: err instanceof Error ? err.message : String(err) }));
       setBusy(false);
     }
   };
@@ -541,9 +549,9 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
               <Layers size={18} />
             </span>
             <div>
-              <h2 className="text-[14px] font-semibold text-slate-800">CAD İçe Aktarma — Katman Seçimi</h2>
+              <h2 className="text-[14px] font-semibold text-slate-800">{t('design3d.cadImportTitle')}</h2>
               <p className="text-[11px] text-slate-400">
-                {analysis.filename} · {analysis.kind.toUpperCase()} · {analysis.layers.length} katman · {totalSegments.toLocaleString('tr-TR')} segment
+                {analysis.filename} · {analysis.kind.toUpperCase()} · {t('design3d.layersSegmentsSummary', { layers: analysis.layers.length, segments: totalSegments.toLocaleString('tr-TR') })}
               </p>
             </div>
           </div>
@@ -556,21 +564,21 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
         <div className="px-6 py-4 border-b border-slate-100 grid grid-cols-3 gap-4">
           <div>
             <label className="block text-[10px] font-semibold uppercase text-slate-400 tracking-wider mb-2">
-              Birim {unit === analysis.guessedUnit && <span className="text-emerald-600 normal-case">· otomatik</span>}
+              {t('design3d.unit')} {unit === analysis.guessedUnit && <span className="text-emerald-600 normal-case">· {t('design3d.auto')}</span>}
             </label>
             <select
               value={unit}
               onChange={(e) => setUnit(e.target.value as any)}
               className="w-full h-8 bg-white border border-slate-200 rounded-lg px-2 text-[11px] outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
             >
-              <option value="mm">Milimetre (mm)</option>
-              <option value="cm">Santimetre (cm)</option>
-              <option value="m">Metre (m)</option>
-              <option value="inch">İnç (inch)</option>
+              <option value="mm">{t('design3d.unitMm')}</option>
+              <option value="cm">{t('design3d.unitCm')}</option>
+              <option value="m">{t('design3d.unitM')}</option>
+              <option value="inch">{t('design3d.unitInch')}</option>
             </select>
             {boundsSpan > 0 && (
               <p className="text-[9px] text-slate-400 mt-1">
-                Çizim alanı: {boundsSpan.toFixed(1)} {unit} →{' '}
+                {t('design3d.drawingArea')}: {boundsSpan.toFixed(1)} {unit} →{' '}
                 <span className="font-semibold text-slate-600">
                   {(boundsSpan * unitScale / 1000).toFixed(1)} m
                 </span>
@@ -579,7 +587,7 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
           </div>
           <div>
             <label className="block text-[10px] font-semibold uppercase text-slate-400 tracking-wider mb-2">
-              Duvar Kalınlığı: {thicknessMm}mm
+              {t('design3d.wallThickness', { value: thicknessMm })}
             </label>
             <input
               type="range"
@@ -593,7 +601,7 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
           </div>
           <div>
             <label className="block text-[10px] font-semibold uppercase text-slate-400 tracking-wider mb-2">
-              Min. Çizgi: {minSegmentMm}mm
+              {t('design3d.minLine', { value: minSegmentMm })}
             </label>
             <input
               type="range"
@@ -609,7 +617,7 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
 
         {/* Konumlandırma */}
         <div className="px-6 py-3 border-b border-slate-100 flex flex-wrap items-center gap-x-4 gap-y-2 bg-slate-50/60">
-          <span className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">Konumlandırma</span>
+          <span className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">{t('design3d.positioning')}</span>
 
           <label className="flex items-center gap-1.5 text-[11px] cursor-pointer">
             <input
@@ -618,12 +626,12 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
               onChange={(e) => setNormalizeOrigin(e.target.checked)}
               className="h-4 w-4 rounded accent-[#931315]"
             />
-            <span className="font-medium text-slate-700">Origin'e taşı</span>
-            <span className="text-[10px] text-slate-400">(planı 0,0'a hizala)</span>
+            <span className="font-medium text-slate-700">{t('design3d.moveToOrigin')}</span>
+            <span className="text-[10px] text-slate-400">{t('design3d.moveToOriginHint')}</span>
           </label>
 
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-semibold text-slate-400">Döndür:</span>
+            <span className="text-[10px] font-semibold text-slate-400">{t('design3d.rotateLabel')}</span>
             {[0, 90, 180, 270].map((deg) => (
               <button
                 key={deg}
@@ -641,14 +649,14 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
           </div>
 
           <div className="flex items-center gap-1">
-            <span className="text-[10px] font-semibold text-slate-400">Yansıt:</span>
+            <span className="text-[10px] font-semibold text-slate-400">{t('design3d.mirrorLabel')}</span>
             <button
               type="button"
               onClick={() => setMirrorY((v) => !v)}
               className={`h-7 px-2.5 text-[11px] font-medium rounded-lg transition ${
                 mirrorY ? 'bg-brand-red text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
-              title="X ekseninde yansıt (sol-sağ)"
+              title={t('design3d.mirrorXTitle')}
             >
               ⇆ X
             </button>
@@ -658,7 +666,7 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
               className={`h-7 px-2.5 text-[11px] font-medium rounded-lg transition ${
                 mirrorX ? 'bg-brand-red text-white shadow-sm' : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
               }`}
-              title="Y ekseninde yansıt (üst-alt)"
+              title={t('design3d.mirrorYTitle')}
             >
               ⇅ Y
             </button>
@@ -668,19 +676,19 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
         {/* Suggested-layer hint */}
         {analysis.suggestedLayers.length > 0 ? (
           <div className="px-6 py-2.5 bg-emerald-50 border-b border-emerald-100 text-[11px] text-emerald-800 flex items-center gap-2">
-            <span className="font-semibold">Otomatik tespit:</span>
+            <span className="font-semibold">{t('design3d.autoDetect')}</span>
             <span>
-              {analysis.suggestedLayers.length} duvar katmanı bulundu — varsayılan olarak işaretlendi.
+              {t('design3d.wallLayersFound', { count: analysis.suggestedLayers.length })}
             </span>
             <button onClick={selectSuggested} className="ml-auto font-semibold underline">
-              Sadece bunları seç
+              {t('design3d.selectOnlyThese')}
             </button>
           </div>
         ) : (
           <div className="px-6 py-2.5 bg-amber-50 border-b border-amber-100 text-[11px] text-amber-800 flex items-center gap-2">
             <AlertTriangle size={12} />
             <span>
-              Otomatik duvar katmanı tespit edilemedi. En çok segment içeren ilk 3 katman ön seçili — sadece duvar layer'larını seçtiğinden emin ol.
+              {t('design3d.noWallLayerDetected')}
             </span>
           </div>
         )}
@@ -688,12 +696,12 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
         {/* Layer list */}
         <div className="px-6 py-3 flex items-center justify-between border-b border-slate-100">
           <div className="text-[10px] font-semibold uppercase text-slate-400 tracking-wider">
-            Katmanlar ({selected.size}/{analysis.layers.length} seçili · {selectedSegments.toLocaleString('tr-TR')} segment)
+            {t('design3d.layersHeader', { selected: selected.size, total: analysis.layers.length, segments: selectedSegments.toLocaleString('tr-TR') })}
           </div>
           <div className="flex gap-2 text-[11px]">
-            <button onClick={selectAll} className="text-brand-red font-semibold hover:underline">Tümü</button>
+            <button onClick={selectAll} className="text-brand-red font-semibold hover:underline">{t('common.all')}</button>
             <span className="text-slate-300">·</span>
-            <button onClick={selectNone} className="text-slate-500 font-semibold hover:underline">Hiçbiri</button>
+            <button onClick={selectNone} className="text-slate-500 font-semibold hover:underline">{t('design3d.selectNone')}</button>
           </div>
         </div>
         <div className="flex-1 overflow-y-auto px-2 py-1 min-h-0">
@@ -718,12 +726,12 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
                     <span className="font-mono text-[11px] font-semibold text-slate-800 truncate">{layer.name}</span>
                     {isSuggested && (
                       <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[9px] font-semibold uppercase bg-emerald-100 text-emerald-700">
-                        Duvar
+                        {t('design3d.wallBadge')}
                       </span>
                     )}
                   </div>
                   <div className="text-[10px] text-slate-400 mt-0.5">
-                    {layer.entityCount} entity · {layer.segmentCount.toLocaleString('tr-TR')} segment
+                    {t('design3d.entitySegmentLine', { entities: layer.entityCount, segments: layer.segmentCount.toLocaleString('tr-TR') })}
                   </div>
                 </div>
                 <div className="w-24 h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -740,11 +748,11 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
         {/* Footer */}
         <div className="px-6 py-3 border-t border-slate-100 flex justify-between items-center bg-slate-50/60">
           <p className="text-[10px] text-slate-400">
-            İpucu: Hatching/mobilya çizgilerini elemek için "Min. Çizgi" değerini artır.
+            {t('design3d.minLineTip')}
           </p>
           <div className="flex gap-2">
             <button onClick={onClose} className="inline-flex items-center justify-center gap-1.5 h-8 px-4 rounded-xl text-[11px] font-medium bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 transition">
-              İptal
+              {t('common.cancel')}
             </button>
             <button
               onClick={handleImport}
@@ -752,7 +760,7 @@ function CadImportDialog({ analysis, update, onClose, onComplete }: CadImportDia
               className="inline-flex items-center justify-center gap-1.5 h-8 px-5 rounded-xl text-[11px] font-semibold bg-brand-red text-white shadow-sm hover:brightness-110 disabled:opacity-50 disabled:cursor-not-allowed transition"
             >
               {busy ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
-              İçe Aktar ({selected.size} katman)
+              {t('design3d.importCount', { count: selected.size })}
             </button>
           </div>
         </div>

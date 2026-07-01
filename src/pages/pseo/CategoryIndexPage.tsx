@@ -1,4 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { MapPin, TrendingUp } from 'lucide-react';
 import SEO from '../../components/SEO';
 import { CATEGORIES, getCategory } from '../../content/pseo/categories';
@@ -6,6 +7,7 @@ import { CITIES } from '../../content/pseo/segments';
 import { breadcrumbSchema } from '../../lib/seo';
 
 export default function CategoryIndexPage() {
+  const { t } = useTranslation();
   const { category: catSlug } = useParams<{ category?: string }>();
 
   // /kategori (hepsi) veya /kategori/:slug (tek kategori)
@@ -25,10 +27,10 @@ export default function CategoryIndexPage() {
 
         <header className="mb-10">
           <h1 className="text-4xl font-bold tracking-tight text-slate-900">
-            Ekipman Kategorileri
+            {t('pseo.equipmentCategories')}
           </h1>
           <p className="mt-2 text-slate-600">
-            Profesyonel endüstriyel mutfak ekipmanı kategorilerimiz.
+            {t('pseo.equipmentCategoriesSubtitle')}
           </p>
         </header>
 
@@ -45,7 +47,7 @@ export default function CategoryIndexPage() {
               <p className="mt-2 text-sm text-slate-600">{c.shortDesc}</p>
               <div className="mt-4 inline-flex items-center gap-1 text-xs font-semibold text-brand-red">
                 <TrendingUp size={14} />
-                €{c.priceFrom.toLocaleString('tr-TR')}'den başlayan
+                {t('pseo.startingFrom', { price: `€${c.priceFrom.toLocaleString('tr-TR')}` })}
               </div>
             </Link>
           ))}
@@ -79,13 +81,13 @@ export default function CategoryIndexPage() {
           <p className="mt-4 text-lg text-slate-600 max-w-2xl">{category.longDesc}</p>
           <div className="mt-4 inline-flex items-center gap-2 text-sm text-brand-red font-semibold">
             <TrendingUp size={16} />
-            Fiyat: €{category.priceFrom.toLocaleString('tr-TR')} - €{category.priceTo.toLocaleString('tr-TR')}
+            {t('pseo.priceLabel')}: €{category.priceFrom.toLocaleString('tr-TR')} - €{category.priceTo.toLocaleString('tr-TR')}
           </div>
         </div>
       </section>
 
       <section className="max-w-7xl mx-auto px-4 py-16">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Şehir Bazında Fiyatlar</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">{t('pseo.pricesByCity')}</h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {CITIES.map((c) => (
             <Link

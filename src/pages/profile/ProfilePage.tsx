@@ -34,13 +34,13 @@ export default function ProfilePage() {
   const handleChangePassword = async () => {
     setPwMsg(null);
     const { current, newPass, confirm } = passwordForm;
-    if (!current) return setPwMsg({ type: 'err', text: 'Mevcut şifrenizi girin.' });
-    if (newPass.length < 8) return setPwMsg({ type: 'err', text: 'Yeni şifre en az 8 karakter olmalı.' });
-    if (newPass !== confirm) return setPwMsg({ type: 'err', text: 'Yeni şifreler eşleşmiyor.' });
-    if (newPass === current) return setPwMsg({ type: 'err', text: 'Yeni şifre mevcut şifreden farklı olmalı.' });
+    if (!current) return setPwMsg({ type: 'err', text: t('profile.pwEnterCurrent') });
+    if (newPass.length < 8) return setPwMsg({ type: 'err', text: t('profile.pwMinLength') });
+    if (newPass !== confirm) return setPwMsg({ type: 'err', text: t('profile.pwNoMatch') });
+    if (newPass === current) return setPwMsg({ type: 'err', text: t('profile.pwSameAsCurrent') });
     setPwBusy('change');
     const r = await changePasswordWithCurrent(current, newPass);
-    if (!r.success) { setPwBusy(null); return setPwMsg({ type: 'err', text: r.error || 'Şifre değiştirilemedi.' }); }
+    if (!r.success) { setPwBusy(null); return setPwMsg({ type: 'err', text: r.error || t('profile.pwChangeFailed') }); }
     // Güvenlik: şifre değişince diğer cihazlardaki oturumları da kapat
     const r2 = await logoutOtherSessions();
     setPwBusy(null);
@@ -48,8 +48,8 @@ export default function ProfilePage() {
     setPwMsg({
       type: 'ok',
       text: r2.success
-        ? 'Şifreniz değiştirildi ve diğer cihazlardaki oturumlar kapatıldı.'
-        : 'Şifreniz değiştirildi.',
+        ? t('profile.pwChangedAndOthersLoggedOut')
+        : t('profile.pwChanged'),
     });
   };
 
@@ -59,15 +59,15 @@ export default function ProfilePage() {
     const r = await logoutOtherSessions();
     setPwBusy(null);
     setPwMsg(r.success
-      ? { type: 'ok', text: 'Bu cihaz hariç tüm oturumlar kapatıldı.' }
-      : { type: 'err', text: r.error || 'İşlem başarısız oldu.' });
+      ? { type: 'ok', text: t('profile.othersLoggedOut') }
+      : { type: 'err', text: r.error || t('common.operationFailed') });
   };
 
   return (
     <div className="max-w-3xl mx-auto w-full space-y-6 py-8 px-4 sm:px-6">
       <div className="reveal">
         <h1 className="font-headline text-3xl sm:text-4xl font-black text-on-surface tracking-tight">{t('profile.title')}</h1>
-        <p className="text-on-surface-variant text-sm mt-1.5">Hesabınızı, kişisel bilgilerinizi ve güvenlik ayarlarınızı yönetin.</p>
+        <p className="text-on-surface-variant text-sm mt-1.5">{t('profile.subtitle')}</p>
       </div>
 
       <div className="reveal reveal-delay-1 bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_rgba(15,36,64,0.04),0_8px_24px_-12px_rgba(15,36,64,0.06)] p-6 sm:p-8 border border-outline-variant/40 space-y-6">
@@ -104,7 +104,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="flex justify-end gap-3">
-          {saved && <span className="text-emerald-600 text-sm font-medium self-center">Kaydedildi!</span>}
+          {saved && <span className="text-emerald-600 text-sm font-medium self-center">{t('common.saved')}</span>}
           <button onClick={handleSave} className="flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:opacity-90 transition-all">
             <Save size={18} /> {t('profile.updateProfile')}
           </button>
@@ -147,11 +147,11 @@ export default function ProfilePage() {
           <button
             onClick={handleLogoutOthers}
             disabled={pwBusy !== null}
-            title="Başka bir cihazda açık kalan oturumları kapatır (bu cihaz açık kalır)"
+            title={t('profile.logoutOthersTooltip')}
             className="flex items-center gap-2 border border-outline-variant/50 text-on-surface-variant hover:text-brand-red hover:border-brand-red/30 px-5 py-3 rounded-lg font-bold text-sm transition-colors disabled:opacity-50"
           >
             {pwBusy === 'others' ? <Loader2 size={18} className="animate-spin" /> : <LogOut size={18} />}
-            Diğer cihazlardan çıkış yap
+            {t('profile.logoutOthers')}
           </button>
         </div>
       </div>

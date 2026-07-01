@@ -43,6 +43,13 @@ export interface CatalogEntry {
    * (yerleştirmede örneğe kopyalanır; örnek bazında panelden değiştirilebilir).
    */
   allowOverlap?: boolean;
+  /**
+   * `true` ise bu GLB Y-up authoring'dedir (ör. MeshAI/Meshy çıktısı) ve Z-up
+   * sahnemizde yan yatık gelir → dik durması için varsayılan +90° X eğimi
+   * uygulanır (kullanıcı eğimi henüz değiştirmediyse). Statik katalog GLB'leri
+   * Z-up authored olduğundan bunu KULLANMAZ.
+   */
+  needsUprightTilt?: boolean;
 }
 
 // ── Default catalog ────────────────────────────────────────────────────────

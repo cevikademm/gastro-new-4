@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useState } from 'react';
 import { X, Mail, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { submitLead, type LeadSource } from '../lib/leadCapture';
 
 type Props = {
@@ -8,9 +9,6 @@ type Props = {
   onClose: () => void;
   onSuccess?: () => void;
   source: LeadSource;
-  title?: string;
-  description?: string;
-  cta?: string;
 };
 
 export default function LeadCaptureModal({
@@ -18,10 +16,8 @@ export default function LeadCaptureModal({
   onClose,
   onSuccess,
   source,
-  title = 'Devam etmek için email adresinizi girin',
-  description = 'Profesyonel içerikler, yeni ürünler ve özel fırsatlar için.',
-  cta = 'Devam Et',
 }: Props) {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -33,7 +29,7 @@ export default function LeadCaptureModal({
     e.preventDefault();
     setError(null);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Geçerli bir email adresi girin.');
+      setError(t('leadCapture.validation.invalidEmail'));
       return;
     }
     setLoading(true);
@@ -41,9 +37,9 @@ export default function LeadCaptureModal({
       await submitLead(email, source);
       setDone(true);
       onSuccess?.();
-      setTimeout(onClose, 1200);
+      setTimeout(onClose, 1500); // Biraz daha uzun gösterelim
     } catch {
-      setError('Bir sorun oluştu, tekrar deneyin.');
+      setError(t('leadCapture.error.generic'));
     } finally {
       setLoading(false);
     }
@@ -61,45 +57,45 @@ export default function LeadCaptureModal({
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-slate-400 hover:text-slate-700"
-          aria-label="Kapat"
+          aria-label={t('common.close')}
         >
           <X size={20} />
         </button>
 
         {done ? (
           <div className="text-center py-6">
-            <CheckCircle2 className="mx-auto text-green-500 mb-3" size={48} />
-            <h3 className="text-xl font-bold text-slate-900">Teşekkürler!</h3>
-            <p className="mt-2 text-slate-600">Email adresiniz kaydedildi.</p>
+            <CheckCircle2 className="mx-auto text-success mb-3" size={48} />
+            <h3 className="text-xl font-bold text-on-surface">{t('leadCapture.success.title')}</h3>
+            <p className="mt-2 text-on-surface-variant">{t('leadCapture.success.message')}</p>
           </div>
         ) : (
           <>
-            <div className="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mb-4">
-              <Mail className="text-[#DC2626]" size={24} />
+            <div className="w-12 h-12 bg-error-container rounded-xl flex items-center justify-center mb-4">
+              <Mail className="text-error" size={24} />
             </div>
-            <h3 className="text-xl font-bold text-slate-900">{title}</h3>
-            <p className="mt-2 text-sm text-slate-600">{description}</p>
+            <h3 className="text-xl font-bold text-on-surface">{t('leadCapture.title')}</h3>
+            <p className="mt-2 text-sm text-on-surface-variant">{t('leadCapture.description')}</p>
 
             <form onSubmit={handleSubmit} className="mt-5">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="email@sirketiniz.com"
-                className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:outline-none focus:border-[#DC2626] focus:ring-2 focus:ring-red-100"
+                placeholder={t('leadCapture.placeholder.email')}
+                className="w-full px-4 py-3 border border-outline-variant/50 rounded-xl focus:outline-none focus:border-primary/40 focus:ring-2 focus:ring-primary/15"
                 autoFocus
                 required
               />
-              {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+              {error && <p className="mt-2 text-sm text-error">{error}</p>}
               <button
                 type="submit"
                 disabled={loading}
-                className="mt-3 w-full py-3 bg-[#DC2626] text-white rounded-xl font-bold hover:bg-[#991B1B] disabled:opacity-50 transition"
+                className="mt-3 w-full py-3 bg-primary text-white rounded-xl font-bold hover:bg-primary-container disabled:opacity-50 transition"
               >
-                {loading ? 'Gönderiliyor…' : cta}
+                {loading ? t('common.sending') : t('leadCapture.cta')}
               </button>
-              <p className="mt-3 text-xs text-slate-400 text-center">
-                Email adresinizi spam için kullanmıyoruz. İstediğiniz zaman çıkabilirsiniz.
+              <p className="mt-3 text-xs text-on-surface-variant text-center">
+                {t('leadCapture.disclaimer')}
               </p>
             </form>
           </>

@@ -89,13 +89,19 @@ export const useHandiStore = create<HandiState>((set, get) => ({
         query = query.or(
           `name.ilike.%${filters.search}%,id.ilike.%${filters.search}%,category_name.ilike.%${filters.search}%`,
         );
+      } else {
+        // Yalnızca gezinirken görselsiz ürünleri gizle; aramada hepsi çıksın (migration 029).
+        query = query.eq('has_image', true);
       }
       if (filters.category) query = query.eq('category_name', filters.category);
       if (filters.inStockOnly) query = query.gt('stock', 0);
       if (filters.minPrice > 0) query = query.gte('price', filters.minPrice);
       if (filters.maxPrice > 0) query = query.lte('price', filters.maxPrice);
 
-      query = query.order(filters.sortBy, { ascending: filters.sortOrder === 'asc' });
+      // Önce €1500–€5000 bandı (sort_rank=0), küçük/ucuz ürünler sona (migration 028).
+      query = query
+        .order('sort_rank', { ascending: true })
+        .order(filters.sortBy, { ascending: filters.sortOrder === 'asc' });
       query = query.range(from, to);
 
       const { data, error, count } = await query;

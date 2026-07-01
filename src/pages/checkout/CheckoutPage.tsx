@@ -29,17 +29,17 @@ interface ContactForm {
   country: string;
 }
 
-interface ShippingOption {
+interface ShippingOptionDef {
   id: string;
-  label: string;
-  eta: string;
+  labelKey: string;
+  etaKey: string;
   price: number;
 }
 
-const SHIPPING_OPTIONS: ShippingOption[] = [
-  { id: 'standard', label: 'Standart Kargo', eta: '3-5 iş günü', price: 0 },
-  { id: 'express',  label: 'Hızlı Teslimat',  eta: '1-2 iş günü', price: 49 },
-  { id: 'pallet',   label: 'Palet Kurulum',   eta: '5-7 iş günü', price: 199 },
+const SHIPPING_OPTIONS: ShippingOptionDef[] = [
+  { id: 'standard', labelKey: 'checkout.shipStandard', etaKey: 'checkout.shipStandardEta', price: 0 },
+  { id: 'express',  labelKey: 'checkout.shipExpress',  etaKey: 'checkout.shipExpressEta',  price: 49 },
+  { id: 'pallet',   labelKey: 'checkout.shipPallet',   etaKey: 'checkout.shipPalletEta',   price: 199 },
 ];
 
 /* ─── Stripe Payment Element form (mounted with a live clientSecret) ─── */
@@ -129,7 +129,7 @@ export default function CheckoutPage() {
   const [step, setStep] = useState<Step>(1);
   const [contact, setContact] = useState<ContactForm>({
     email: user?.email || '', firstName: '', lastName: '', phone: '',
-    company: user?.company || '', address: '', city: '', postal: '', country: 'Türkiye',
+    company: user?.company || '', address: '', city: '', postal: '', country: t('checkout.defaultCountry', 'Türkiye'),
   });
   const [shipping, setShipping] = useState<string>('standard');
 
@@ -173,11 +173,11 @@ export default function CheckoutPage() {
 
       const shipOpt = SHIPPING_OPTIONS.find((o) => o.id === shipping);
       const notes = [
-        `Teslimat: ${contact.firstName} ${contact.lastName}`,
+        `${t('checkout.notesDelivery', 'Teslimat')}: ${contact.firstName} ${contact.lastName}`,
         `${contact.address}, ${contact.postal} ${contact.city}, ${contact.country}`,
-        `Tel: ${contact.phone}`,
-        contact.company ? `Firma: ${contact.company}` : '',
-        `Kargo: ${shipOpt?.label ?? shipping}`,
+        `${t('checkout.notesPhone', 'Tel')}: ${contact.phone}`,
+        contact.company ? `${t('checkout.notesCompany', 'Firma')}: ${contact.company}` : '',
+        `${t('checkout.notesShipping', 'Kargo')}: ${shipOpt ? t(shipOpt.labelKey) : shipping}`,
       ].filter(Boolean).join(' | ');
 
       // total_price stays the goods subtotal (app convention; VAT + shipping
@@ -258,11 +258,14 @@ export default function CheckoutPage() {
             {t('checkout.successDesc', 'Onay e-postası {{email}} adresine gönderildi.', { email: contact.email })}
           </p>
           <div className="mt-6 p-4 bg-slate-50 rounded-xl text-left">
-            <p className="text-xs text-slate-500">Sipariş No</p>
+            <p className="text-xs text-slate-500">{t('checkout.orderNo', 'Sipariş No')}</p>
             <p className="font-mono font-bold text-slate-900">{orderNumber}</p>
-            <p className="text-xs text-slate-500 mt-3">Tahmini Teslimat</p>
+            <p className="text-xs text-slate-500 mt-3">{t('checkout.estDelivery', 'Tahmini Teslimat')}</p>
             <p className="font-semibold text-slate-900">
-              {SHIPPING_OPTIONS.find((o) => o.id === shipping)?.eta}
+              {(() => {
+                const opt = SHIPPING_OPTIONS.find((o) => o.id === shipping);
+                return opt ? t(opt.etaKey) : '';
+              })()}
             </p>
           </div>
           <div className="mt-6 flex gap-3">
@@ -332,21 +335,21 @@ export default function CheckoutPage() {
                     {t('checkout.contactTitle', 'İletişim ve Teslimat')}
                   </h2>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <Field icon={Mail} label="E-posta" value={contact.email}
+                    <Field icon={Mail} label={t('checkout.fieldEmail', 'E-posta')} value={contact.email}
                       onChange={(v) => setContact({ ...contact, email: v })} type="email" full autoComplete="email" />
-                    <Field icon={User} label="Ad" value={contact.firstName}
+                    <Field icon={User} label={t('checkout.fieldFirstName', 'Ad')} value={contact.firstName}
                       onChange={(v) => setContact({ ...contact, firstName: v })} autoComplete="given-name" />
-                    <Field icon={User} label="Soyad" value={contact.lastName}
+                    <Field icon={User} label={t('checkout.fieldLastName', 'Soyad')} value={contact.lastName}
                       onChange={(v) => setContact({ ...contact, lastName: v })} autoComplete="family-name" />
-                    <Field icon={Phone} label="Telefon" value={contact.phone}
+                    <Field icon={Phone} label={t('checkout.fieldPhone', 'Telefon')} value={contact.phone}
                       onChange={(v) => setContact({ ...contact, phone: v })} autoComplete="tel" />
-                    <Field icon={Building2} label="Firma (ops.)" value={contact.company}
+                    <Field icon={Building2} label={t('checkout.fieldCompany', 'Firma (ops.)')} value={contact.company}
                       onChange={(v) => setContact({ ...contact, company: v })} autoComplete="organization" />
-                    <Field icon={MapPin} label="Adres" value={contact.address}
+                    <Field icon={MapPin} label={t('checkout.fieldAddress', 'Adres')} value={contact.address}
                       onChange={(v) => setContact({ ...contact, address: v })} full autoComplete="street-address" />
-                    <Field label="Şehir" value={contact.city}
+                    <Field label={t('checkout.fieldCity', 'Şehir')} value={contact.city}
                       onChange={(v) => setContact({ ...contact, city: v })} autoComplete="address-level2" />
-                    <Field label="Posta Kodu" value={contact.postal}
+                    <Field label={t('checkout.fieldPostal', 'Posta Kodu')} value={contact.postal}
                       onChange={(v) => setContact({ ...contact, postal: v })} autoComplete="postal-code" />
                   </div>
                 </motion.div>
@@ -366,13 +369,13 @@ export default function CheckoutPage() {
                       <input type="radio" name="ship" checked={shipping === opt.id}
                         onChange={() => setShipping(opt.id)} className="accent-brand-red" />
                       <div className="flex-1">
-                        <p className="font-semibold text-slate-900">{opt.label}</p>
+                        <p className="font-semibold text-slate-900">{t(opt.labelKey)}</p>
                         <p className="text-xs text-slate-500 flex items-center gap-1">
-                          <Clock size={12} /> {opt.eta}
+                          <Clock size={12} /> {t(opt.etaKey)}
                         </p>
                       </div>
                       <p className="font-bold text-slate-900">
-                        {opt.price === 0 ? 'Ücretsiz' : `${opt.price} €`}
+                        {opt.price === 0 ? t('checkout.free', 'Ücretsiz') : `${opt.price} €`}
                       </p>
                     </label>
                   ))}
@@ -443,7 +446,7 @@ export default function CheckoutPage() {
                 onClick={() => step > 1 ? setStep((step - 1) as Step) : navigate('/cart')}
                 className="h-12 px-6 rounded-xl border border-slate-200 font-semibold text-slate-700 flex items-center gap-2 hover:bg-white"
               >
-                <ChevronLeft size={18} /> {step === 1 ? 'Sepete Dön' : 'Geri'}
+                <ChevronLeft size={18} /> {step === 1 ? t('checkout.backToCart', 'Sepete Dön') : t('common.back', 'Geri')}
               </button>
               {step < 3 && (
                 <button
@@ -482,11 +485,11 @@ export default function CheckoutPage() {
                 ))}
               </div>
               <div className="border-t border-slate-100 mt-4 pt-4 space-y-2 text-sm">
-                <Row label="Ara Toplam" value={`${subtotal.toLocaleString('tr-TR')} €`} />
-                <Row label="Kargo" value={shippingCost === 0 ? 'Ücretsiz' : `${shippingCost} €`} />
-                <Row label="KDV (%20)" value={`${tax.toLocaleString('tr-TR')} €`} />
+                <Row label={t('checkout.subtotal', 'Ara Toplam')} value={`${subtotal.toLocaleString('tr-TR')} €`} />
+                <Row label={t('checkout.shippingLabel', 'Kargo')} value={shippingCost === 0 ? t('checkout.free', 'Ücretsiz') : `${shippingCost} €`} />
+                <Row label={t('checkout.vat', 'KDV (%20)')} value={`${tax.toLocaleString('tr-TR')} €`} />
                 <div className="pt-2 mt-2 border-t border-slate-100 flex justify-between">
-                  <span className="font-bold text-slate-900">Toplam</span>
+                  <span className="font-bold text-slate-900">{t('checkout.total', 'Toplam')}</span>
                   <span className="font-black text-lg text-slate-900">{total.toLocaleString('tr-TR')} €</span>
                 </div>
               </div>

@@ -245,6 +245,7 @@ function WallLabel({ a, b, zoom, wallIndex, onLengthChange }: {
   a: Point; b: Point; zoom: number; wallIndex: number;
   onLengthChange?: (wallIndex: number, newLengthCm: number) => void;
 }) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [inputVal, setInputVal] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
@@ -310,7 +311,7 @@ function WallLabel({ a, b, zoom, wallIndex, onLengthChange }: {
       </text>
       {onLengthChange && (
         <text textAnchor="middle" y={16} fontSize={Math.min(6, 6 / zoom)} fill="#3b82f6" fontFamily="sans-serif" opacity={0.7}>
-          tiklayip degistir
+          {t('design.clickToChange')}
         </text>
       )}
     </g>
@@ -423,7 +424,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
       selectedItemId: selectedId,
       canvasState: { notes, description, pricePerM2, tasks, zoom, panOffset: { x: panOffset.x, y: panOffset.y } },
     });
-    alert('Tasarım başarıyla kaydedildi!');
+    alert(t('design.savedSuccess'));
   };
 
   const canvasWrapRef = useRef<HTMLDivElement>(null);
@@ -1128,11 +1129,11 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
               <ArrowLeft size={20} />
             </Link>
             <div className="flex flex-col">
-              <span className="text-[10px] uppercase tracking-widest text-[#43474e] font-bold">Proje Durumu</span>
+              <span className="text-[10px] uppercase tracking-widest text-[#43474e] font-bold">{t('design.projectStatus')}</span>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-[#ffb783] shadow-[0_0_8px_#ffb783]"></span>
                 <span className="text-sm font-semibold text-[#002045] truncate max-w-[200px]">
-                  {id ? `${project?.name || 'Düzenleniyor'}` : 'Yeni Mutfak Tasarımı'}
+                  {id ? `${project?.name || t('design.editing')}` : t('design.newKitchenDesign')}
                 </span>
               </div>
             </div>
@@ -1154,8 +1155,8 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
             <div className="w-[1px] h-6 bg-[#d9e3f9] mx-1 hidden md:block" />
 
             <div className="flex items-center gap-1">
-              <button onClick={undo} className="p-2 text-[#43474e] hover:bg-[#dee8ff] rounded-lg transition-colors" title="Geri Al"><Undo2 size={18} /></button>
-              <button onClick={redo} className="p-2 text-[#43474e] hover:bg-[#dee8ff] rounded-lg transition-colors" title="İleri Al"><Redo2 size={18} /></button>
+              <button onClick={undo} className="p-2 text-[#43474e] hover:bg-[#dee8ff] rounded-lg transition-colors" title={t('common.undo')}><Undo2 size={18} /></button>
+              <button onClick={redo} className="p-2 text-[#43474e] hover:bg-[#dee8ff] rounded-lg transition-colors" title={t('common.redo')}><Redo2 size={18} /></button>
             </div>
 
             <div className="w-[1px] h-6 bg-[#d9e3f9] mx-1 hidden md:block" />
@@ -1164,7 +1165,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
               onClick={saveProject}
               className="bg-[#d5e0f7] text-[#002045] px-4 md:px-6 py-2 rounded-lg text-xs font-bold hover:bg-[#002045] hover:text-white transition-all active:scale-95 uppercase tracking-wider shadow-sm"
             >
-              {id ? 'Güncelle' : 'Kaydet'}
+              {id ? t('common.update') : t('common.save')}
             </button>
           </div>
         </div>
@@ -1181,7 +1182,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                 activeTool === 'select' ? 'bg-[#ffb783] text-[#371800] shadow-lg' : 'text-white/70 hover:bg-white/10'
               }`}
               onClick={() => { setActiveTool('select'); cancelDrawingRoom(); }}
-              title="Seç / Taşı (V)"
+              title={t('design.toolSelect')}
             >
               <MousePointer2 size={22} />
             </button>
@@ -1190,7 +1191,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                 activeTool === 'pan' ? 'bg-[#ffb783] text-[#371800] shadow-lg' : 'text-white/70 hover:bg-white/10'
               }`}
               onClick={() => { setActiveTool('pan'); cancelDrawingRoom(); }}
-              title="Kaydır (H)"
+              title={t('design.toolPan')}
             >
               <Hand size={22} />
             </button>

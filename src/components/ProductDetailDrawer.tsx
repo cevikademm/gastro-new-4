@@ -52,7 +52,7 @@ function MiniCard({ item, onClick }: { item: EquipmentItem; onClick: () => void 
         {item.img ? <img src={item.img} alt={item.name} loading="lazy" className="max-h-full max-w-full object-contain" /> : <Package size={22} className="text-slate-300" />}
       </div>
       <div className="p-2">
-        <p className="text-[10px] font-bold text-slate-700 line-clamp-2 leading-tight h-7">{item.name}</p>
+        <p className="text-[10px] font-bold text-slate-700 line-clamp-2 leading-tight h-7">{item.name?.trim() || item.id}</p>
         <p className="text-[11px] font-black text-[#0F2440] mt-1">{item.price > 0 ? `€${item.price.toLocaleString('de-DE')}` : '—'}</p>
       </div>
     </button>

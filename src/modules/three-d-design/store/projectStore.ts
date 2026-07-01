@@ -60,6 +60,14 @@ export interface ViewState {
   pan2d: { x: number; y: number };
   snapGrid: number;
   showGrid: boolean;
+  /**
+   * Render/görünüm için gizlenmiş duvar id'leri. Bir GÖRÜNÜM durumudur (undo'suz,
+   * grid toggle gibi): geniş açılı render alırken önü kapayan duvarları geçici
+   * olarak görünmez yapmak için. v1'de kalıcı değildir (reload'da sıfırlanır).
+   */
+  hiddenWallIds: string[];
+  /** 3B'de tıklanarak seçilen duvar (undo'suz, panel vurgusu için). */
+  selectedWallId: string | null;
 }
 
 export interface ProjectSlice {
@@ -120,6 +128,12 @@ export interface ProjectSlice {
   setPan2d: (pan: { x: number; y: number }) => void;
   setSnapGrid: (mm: number) => void;
   toggleGrid: () => void;
+
+  // ── Duvar görünürlüğü / seçimi (NOT tracked) ─────────────────────────
+  setWallHidden: (id: WallId, hidden: boolean) => void;
+  toggleWallHidden: (id: WallId) => void;
+  showAllWalls: () => void;
+  selectWall: (id: WallId | null) => void;
 }
 
 export type ProjectStore = ProjectSlice &
@@ -187,6 +201,8 @@ export const useProjectStore = create<ProjectStore>(
           pan2d: { x: 0, y: 0 },
           snapGrid: 50,
           showGrid: true,
+          hiddenWallIds: [],
+          selectedWallId: null,
         },
 
         // ── Document ────────────────────────────────────────────────
@@ -392,6 +408,53 @@ export const useProjectStore = create<ProjectStore>(
         toggleGrid: () => {
           get().withoutHistory(() =>
             set((s) => ({ view: { ...s.view, showGrid: !s.view.showGrid } })),
+          );
+        },
+
+        // ── Duvar görünürlüğü / seçimi (NOT tracked) ────────────────
+        setWallHidden: (id, hidden) => {
+          get().withoutHistory(() =>
+            set((s) => {
+              const has = s.view.hiddenWallIds.includes(id);
+              if (hidden === has) return {} as Partial<ProjectStore>;
+              return {
+                view: {
+                  ...s.view,
+                  hiddenWallIds: hidden
+                    ? [...s.view.hiddenWallIds, id]
+                    : s.view.hiddenWallIds.filter((x) => x !== id),
+                },
+              };
+            }),
+          );
+        },
+        toggleWallHidden: (id) => {
+          get().withoutHistory(() =>
+            set((s) => {
+              const has = s.view.hiddenWallIds.includes(id);
+              return {
+                view: {
+                  ...s.view,
+                  hiddenWallIds: has
+                    ? s.view.hiddenWallIds.filter((x) => x !== id)
+                    : [...s.view.hiddenWallIds, id],
+                },
+              };
+            }),
+          );
+        },
+        showAllWalls: () => {
+          get().withoutHistory(() =>
+            set((s) =>
+              s.view.hiddenWallIds.length === 0
+                ? ({} as Partial<ProjectStore>)
+                : { view: { ...s.view, hiddenWallIds: [] } },
+            ),
+          );
+        },
+        selectWall: (id) => {
+          get().withoutHistory(() =>
+            set((s) => ({ view: { ...s.view, selectedWallId: id } })),
           );
         },
       });

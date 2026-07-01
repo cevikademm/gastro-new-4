@@ -1,4 +1,14 @@
 import type { EquipmentItem } from '../stores/equipmentStore';
+import i18n from '../i18n';
+
+/**
+ * Bir alt-grup / sanal grup id'sini kullanıcıya gösterilen (çevrilmiş) etikete
+ * çevirir. i18n `categoryTaxonomy.<id>` anahtarı varsa onu, yoksa kod içindeki
+ * ham (Türkçe) etiketi döndürür — böylece anahtar eksikse bile UI bozulmaz.
+ */
+function tLabel(id: string, fallback: string): string {
+  return i18n.t(`categoryTaxonomy.${id}`, { defaultValue: fallback });
+}
 
 /**
  * Ürün taksonomisi — Combisteel tarzı iki seviyeli kategori menüsü için
@@ -15,8 +25,9 @@ import type { EquipmentItem } from '../stores/equipmentStore';
  * ile tek biçime indirgenir; tüm regex'ler bu normalize edilmiş (aksansız,
  * ae/oe/ue) biçim üzerinde yazılmıştır.
  *
- * Etiketler Almanca (site Almanca pazara dönük). 15 dile çeviri sonradan
- * i18n anahtarlarıyla yapılabilir.
+ * Etiketler i18n ile 15 dile çevrilir: `SubGroup.label` kod içinde Türkçe
+ * kaynak (fallback) tutulur; kullanıcıya gösterilen ad `getSubGroupsFor` /
+ * `subGroupLabel` içinde `categoryTaxonomy.<id>` anahtarıyla çözülür.
  */
 
 /* ─── Tipler ─── */
@@ -120,134 +131,134 @@ const g = (id: string, label: string, re: RegExp): SubGroup => ({ id, label, re 
 export const SUBGROUPS: Record<string, SubGroup[]> = {
   // ── Pişirme / Kochstelle ──
   cooking: [
-    g('serie-900-plus', 'Serie 900+', /900\s*\+/),
-    g('serie-900', 'Serie 900', /\b900\b/),
-    g('serie-700-plus', 'Serie 700+ Maxima', /700\s*\+|maxima/),
-    g('serie-700', 'Serie 700 Optima', /optima|\b700\b/),
-    g('serie-600', 'Serie 600', /\b600\b|snack 600|pro 600/),
+    g('serie-900-plus', 'Seri 900+', /900\s*\+/),
+    g('serie-900', 'Seri 900', /\b900\b/),
+    g('serie-700-plus', 'Seri 700+ Maxima', /700\s*\+|maxima/),
+    g('serie-700', 'Seri 700 Optima', /optima|\b700\b/),
+    g('serie-600', 'Seri 600', /\b600\b|snack 600|pro 600/),
     g('modular-alpha', 'Modular Alpha 650', /alpha ?650|modular alpha/),
-    g('kombidaempfer', 'Kombidämpfer', /kombid|combi ?steam/),
-    g('oefen', 'Öfen', /konvekt|convect|backofen|\bofen\b|oefen|furnace|durchlaufoef|durchlaufof|regenerat|\boven\b/),
-    g('friteusen', 'Friteusen', /frit|fryer|frituur/),
-    g('grillgeraete', 'Grillgeräte', /grill|bbq|barbecue|salamander|teppanyaki|panini|kebab|gyros|haehnchen|lavastein|vapor|chinaherd|crep|wafel|waffel|waffle|bakplaat/),
-    g('mikrowellen', 'Mikrowellen', /mikrowell|microwave|magnetron/),
-    g('kessel-pfannen', 'Kochkessel & Bratpfannen', /kochkessel|kippbrat|bratpfanne|\bpfanne|pannen|nudelkocher|reiskocher|sous.?vide|vacuum cook|dampfgar|steam cook|\bherd|kookplaat|induction|inductie|kochplatt|kookunit|kooktafel/),
-    g('warmegeraete', 'Wärmegeräte & Bain-marie', /bain.?marie|waermebr|warmhalt|speisenwarm|food warmer|toaster|hot.?dog|waermeschr|warme vitrin|warmhoud/),
+    g('kombidaempfer', 'Kombi Buharlı Fırınlar', /kombid|combi ?steam/),
+    g('oefen', 'Fırınlar', /konvekt|convect|backofen|\bofen\b|oefen|furnace|durchlaufoef|durchlaufof|regenerat|\boven\b/),
+    g('friteusen', 'Fritözler', /frit|fryer|frituur/),
+    g('grillgeraete', 'Izgara Cihazları', /grill|bbq|barbecue|salamander|teppanyaki|panini|kebab|gyros|haehnchen|lavastein|vapor|chinaherd|crep|wafel|waffel|waffle|bakplaat/),
+    g('mikrowellen', 'Mikrodalgalar', /mikrowell|microwave|magnetron/),
+    g('kessel-pfannen', 'Pişirme Kazanları ve Tavaları', /kochkessel|kippbrat|bratpfanne|\bpfanne|pannen|nudelkocher|reiskocher|sous.?vide|vacuum cook|dampfgar|steam cook|\bherd|kookplaat|induction|inductie|kochplatt|kookunit|kooktafel/),
+    g('warmegeraete', 'Sıcak Tutma ve Benmari', /bain.?marie|waermebr|warmhalt|speisenwarm|food warmer|toaster|hot.?dog|waermeschr|warme vitrin|warmhoud/),
   ],
 
   // ── Kühlung / Soğutma ──
   cooling: [
-    g('salatkuehlung', 'Salatkühlung', /salad|salat|saladett/),
-    g('vitrinen', 'Vitrinen', /vitrin|vetrin|showcase|display|panorama|gondel/),
-    g('kuehlhaeuser', 'Kühlhäuser & Zellen', /zelle|kuehlhaus|cold.?room|freezing room|vriescel|koelcel|kuehlzell/),
-    g('kuehltheken', 'Kühltheken', /theke|theken|counter/),
-    g('kuehltische', 'Kühltische & Werkbänke', /kuehltisch|gefriertisch|khl- und gefrier|werkbank|koelwerkbank|refrigeration & freezing|unterbau|wandkuehl|wandkoel|insteek|gekoelde/),
-    g('kuehlschraenke', 'Kühl- & Gefrierschränke', /schrank|schraenke|cabinet|koelkast|vrieskast|vrijstaande|gefrieschr|gefrierschr|kuehlschr|flaschenk|wein|wine|minibar|bottle cool|barkoeler|fridge|glasdeur|lagerschr|lagerbox|boxen/),
-    g('eiswuerfel', 'Eiswürfelbereiter', /eiswuerfel|ice ?machine|ijsblok|ice ?cube|schilferijs|crushed|crasheis/),
-    g('schockfroster', 'Schockfroster', /schockfrost|blast|schnellab|rap.?cool|froster/),
-    g('getraenke', 'Getränkekühlung', /springbrunnen|wasserkuehler|getraenkedespender|dispenser|granita|sorbet|fontaine/),
-    g('truhen', 'Gefriertruhen', /truhe|vrieskist|chest freezer|gefriertruh/),
+    g('salatkuehlung', 'Salata Soğutucuları', /salad|salat|saladett/),
+    g('vitrinen', 'Vitrinler', /vitrin|vetrin|showcase|display|panorama|gondel/),
+    g('kuehlhaeuser', 'Soğuk Odalar ve Hücreler', /zelle|kuehlhaus|cold.?room|freezing room|vriescel|koelcel|kuehlzell/),
+    g('kuehltheken', 'Soğutmalı Tezgahlar', /theke|theken|counter/),
+    g('kuehltische', 'Soğutmalı Tezgahlar ve Çalışma Bankoları', /kuehltisch|gefriertisch|khl- und gefrier|werkbank|koelwerkbank|refrigeration & freezing|unterbau|wandkuehl|wandkoel|insteek|gekoelde/),
+    g('kuehlschraenke', 'Buzdolapları ve Derin Dondurucular', /schrank|schraenke|cabinet|koelkast|vrieskast|vrijstaande|gefrieschr|gefrierschr|kuehlschr|flaschenk|wein|wine|minibar|bottle cool|barkoeler|fridge|glasdeur|lagerschr|lagerbox|boxen/),
+    g('eiswuerfel', 'Buz Makineleri', /eiswuerfel|ice ?machine|ijsblok|ice ?cube|schilferijs|crushed|crasheis/),
+    g('schockfroster', 'Şoklama Dondurucuları', /schockfrost|blast|schnellab|rap.?cool|froster/),
+    g('getraenke', 'İçecek Soğutucuları', /springbrunnen|wasserkuehler|getraenkedespender|dispenser|granita|sorbet|fontaine/),
+    g('truhen', 'Sandık Tipi Dondurucular', /truhe|vrieskist|chest freezer|gefriertruh/),
   ],
 
   // ── Pizza & Pasta ──
   pizza_pasta: [
-    g('pizzaoefen', 'Pizzaöfen', /pizzaoef|pizzaof|pizza ?of|pizza ?oven|holzbackof|holzback|durchlaufoef|durchlaufof|\bofen\b|gasbrenner|kamin/),
-    g('teigkneter', 'Teigknetmaschinen', /spiralteig|knetmasch|kneter|knead|spiral ?(mixer|teig)|planeten|deegmeng|teigmisch/),
-    g('teigausroller', 'Teigausroller', /teigwalze|teigausroll|sheeter|teigroll|deegroll|dough sheeter|teigpletter|pletter/),
-    g('teigportionierer', 'Teigportionierer', /portionier|abrund|divider|moulder|teig.?former|pizza.?former/),
-    g('nudelmaschinen', 'Nudelmaschinen', /nudel|pasta ?mach|pastamasch/),
-    g('pizza-zubehoer', 'Pizza-Zubehör', /zubeh|accessoir|pizzawerkbank|pizzavorbereit|mozzarella|warmeplatt|schep|schaufel|pizzaschneider|pizza/),
+    g('pizzaoefen', 'Pizza Fırınları', /pizzaoef|pizzaof|pizza ?of|pizza ?oven|holzbackof|holzback|durchlaufoef|durchlaufof|\bofen\b|gasbrenner|kamin/),
+    g('teigkneter', 'Hamur Yoğurma Makineleri', /spiralteig|knetmasch|kneter|knead|spiral ?(mixer|teig)|planeten|deegmeng|teigmisch/),
+    g('teigausroller', 'Hamur Açma Makineleri', /teigwalze|teigausroll|sheeter|teigroll|deegroll|dough sheeter|teigpletter|pletter/),
+    g('teigportionierer', 'Hamur Porsiyonlama Makineleri', /portionier|abrund|divider|moulder|teig.?former|pizza.?former/),
+    g('nudelmaschinen', 'Makarna Makineleri', /nudel|pasta ?mach|pastamasch/),
+    g('pizza-zubehoer', 'Pizza Aksesuarları', /zubeh|accessoir|pizzawerkbank|pizzavorbereit|mozzarella|warmeplatt|schep|schaufel|pizzaschneider|pizza/),
   ],
 
   // ── Ventilation ──
   ventilation: [
-    g('wandhauben', 'Wandhauben', /wandhaube|wall hood|afzuigkap|schuinmodel|doosmodel|inductiemodel|kappen/),
-    g('zentralhauben', 'Zentralhauben', /zentralhaube|central hood|inselhaube/),
-    g('absaugeinheiten', 'Absaugeinheiten', /absaug|extraction|filtern|filter|abluft|zuluft|ventilator/),
-    g('haube-zubehoer', 'Zubehör & Regler', /regler|schaltkasten|beleucht|drehzahl|eletrisch|licht/),
+    g('wandhauben', 'Duvar Tipi Davlumbazlar', /wandhaube|wall hood|afzuigkap|schuinmodel|doosmodel|inductiemodel|kappen/),
+    g('zentralhauben', 'Merkez Tipi Davlumbazlar', /zentralhaube|central hood|inselhaube/),
+    g('absaugeinheiten', 'Emiş Üniteleri', /absaug|extraction|filtern|filter|abluft|zuluft|ventilator/),
+    g('haube-zubehoer', 'Aksesuarlar ve Kumandalar', /regler|schaltkasten|beleucht|drehzahl|eletrisch|licht/),
   ],
 
   // ── Edelstahl / Hazırlık & Hijyen ──
   prep_hygiene: [
-    g('arbeitstische', 'Arbeitstische', /arbeitstisch|edelstahltisch|werktafel|werkblad|\btisch|ablageti|cupboard table|tables with|tables without|chef tisch|chef table|eckedelstahl|eckarbeit|90 ?° ?angle|kooktafel|onderstel|consoles/),
-    g('spuelbecken', 'Spülbecken & Armaturen', /spuelbecken|spoeltafel|spoelbak|waschbecken|wasbak|\bsink|\bbecken|ausguss|handwasch|armatur|brause|pendelbr|faucet|spray|ablauf|rinne/),
-    g('regale', 'Regale', /regal|rekwerk|wandschap|wandregal|\bshelf|shelves|etagere|\brek\b|stelling|rooster|spijlen/),
-    g('schraenke', 'Schränke', /schrank|schraenke|cupboard|cabinet|kast/),
-    g('abfall-hygiene', 'Abfall & Hygiene', /abfall|afval|waste|\bbin\b|insekt|ozon|trockner|hygiene|storage|muell|papier|uitschep/),
+    g('arbeitstische', 'Çalışma Tezgahları', /arbeitstisch|edelstahltisch|werktafel|werkblad|\btisch|ablageti|cupboard table|tables with|tables without|chef tisch|chef table|eckedelstahl|eckarbeit|90 ?° ?angle|kooktafel|onderstel|consoles/),
+    g('spuelbecken', 'Evyeler ve Bataryalar', /spuelbecken|spoeltafel|spoelbak|waschbecken|wasbak|\bsink|\bbecken|ausguss|handwasch|armatur|brause|pendelbr|faucet|spray|ablauf|rinne/),
+    g('regale', 'Raflar', /regal|rekwerk|wandschap|wandregal|\bshelf|shelves|etagere|\brek\b|stelling|rooster|spijlen/),
+    g('schraenke', 'Dolaplar', /schrank|schraenke|cupboard|cabinet|kast/),
+    g('abfall-hygiene', 'Atık ve Hijyen', /abfall|afval|waste|\bbin\b|insekt|ozon|trockner|hygiene|storage|muell|papier|uitschep/),
   ],
 
   // ── Bulaşık Yıkama ──
   dishwash: [
-    g('hauben-spuelmaschinen', 'Haubenspülmaschinen', /\bhood|haube|durchschub/),
-    g('korbtransport', 'Korbtransportmaschinen', /korbtransport|traction|transport/),
-    g('geschirrspueler', 'Geschirrspülmaschinen', /geschirr|dishwash|spuelmasch|spuhlmasch|vaatwas|topf|spuel.?masch/),
-    g('glaeserspueler', 'Gläserspülmaschinen', /glaeser|\bglas|glasswash/),
-    g('dishwash-zubehoer', 'Körbe & Zubehör', /\bkorb|korv|zubeh|wasserenth|osmose|polier|enthaert|input|auslauf|zulauf/),
+    g('hauben-spuelmaschinen', 'Giyotin Tipi Bulaşık Makineleri', /\bhood|haube|durchschub/),
+    g('korbtransport', 'Konveyörlü Bulaşık Makineleri', /korbtransport|traction|transport/),
+    g('geschirrspueler', 'Tabak Yıkama Makineleri', /geschirr|dishwash|spuelmasch|spuhlmasch|vaatwas|topf|spuel.?masch/),
+    g('glaeserspueler', 'Bardak Yıkama Makineleri', /glaeser|\bglas|glasswash/),
+    g('dishwash-zubehoer', 'Sepetler ve Aksesuarlar', /\bkorb|korv|zubeh|wasserenth|osmose|polier|enthaert|input|auslauf|zulauf/),
   ],
 
   // ── Self Servis & Büfe ──
   self_service: [
-    g('drop-in', 'Drop-In', /drop.?in|armonia/),
-    g('modulare-self', 'Modulare Self-Service', /modulare self|self.?service|self service/),
-    g('buffets', 'Buffets & Inseln', /buffet|insel|salatbar|salad|uitgifte/),
-    g('self-vitrinen', 'Vitrinen', /vitrin|vetrin|tapas|sushi/),
+    g('drop-in', 'Ankastre Üniteler', /drop.?in|armonia/),
+    g('modulare-self', 'Modüler Self Servis', /modulare self|self.?service|self service/),
+    g('buffets', 'Büfeler ve Adalar', /buffet|insel|salatbar|salad|uitgifte/),
+    g('self-vitrinen', 'Vitrinler', /vitrin|vetrin|tapas|sushi/),
   ],
 
   // ── Dinamik Hazırlık ──
   dynamic_prep: [
-    g('vakuummaschinen', 'Vakuummaschinen', /vakuum|vacu|beutel|verpack|folie/),
-    g('fleischwoelfe', 'Fleischwölfe', /fleischwolf|meat mincer|\bwolf|wurstfuell|knochensaeg|fleischmix|fleisch-?muerb|fleisch|gehaktmolen|vleesmolen/),
-    g('schneidemaschinen', 'Schneidemaschinen', /aufschnitt|slicer|gemueseschneid|schneider|cutter|hack|\bsaege|gemuesew|snijmachine/),
-    g('mixer', 'Mixer & Rührgeräte', /mixer|stabmix|ruehrmix|whisk|diving|blender|menger/),
-    g('dynamic-kleingeraete', 'Kleingeräte', /waage|schaeler|reibe|presse|zentrifug|muerber|reinigungsmasch|sterilisator|messer|muschel/),
+    g('vakuummaschinen', 'Vakum Makineleri', /vakuum|vacu|beutel|verpack|folie/),
+    g('fleischwoelfe', 'Kıyma Makineleri', /fleischwolf|meat mincer|\bwolf|wurstfuell|knochensaeg|fleischmix|fleisch-?muerb|fleisch|gehaktmolen|vleesmolen/),
+    g('schneidemaschinen', 'Dilimleme Makineleri', /aufschnitt|slicer|gemueseschneid|schneider|cutter|hack|\bsaege|gemuesew|snijmachine/),
+    g('mixer', 'Mikserler ve Çırpıcılar', /mixer|stabmix|ruehrmix|whisk|diving|blender|menger/),
+    g('dynamic-kleingeraete', 'Küçük Cihazlar', /waage|schaeler|reibe|presse|zentrifug|muerber|reinigungsmasch|sterilisator|messer|muschel/),
   ],
 
   // ── Pastane & Fırıncılık ──
   bakery: [
-    g('baeckereioefen', 'Bäckereiöfen', /baeckerei|\bofen|oefen|drehbar/),
-    g('gaerschraenke', 'Gärschränke', /gaer|proof/),
-    g('bakery-moebel', 'Edelstahlmöbel', /moebel|edelstahl/),
+    g('baeckereioefen', 'Pastane Fırınları', /baeckerei|\bofen|oefen|drehbar/),
+    g('gaerschraenke', 'Mayalama Dolapları', /gaer|proof/),
+    g('bakery-moebel', 'Paslanmaz Çelik Mobilyalar', /moebel|edelstahl/),
   ],
 
   // ── Pişir & Soğut ──
   cook_chill: [
-    g('cc-kombidaempfer', 'Kombidämpfer', /kombid|combi/),
-    g('cc-schockfroster', 'Schockfroster', /schockfrost|blast/),
-    g('cc-zubehoer', 'Zubehör & Wagen', /accessoir|zubeh|hordenwagen|option/),
+    g('cc-kombidaempfer', 'Kombi Buharlı Fırınlar', /kombid|combi/),
+    g('cc-schockfroster', 'Şoklama Dondurucuları', /schockfrost|blast/),
+    g('cc-zubehoer', 'Aksesuarlar ve Arabalar', /accessoir|zubeh|hordenwagen|option/),
   ],
 
   // ── Kahve & Çay ──
   coffee_tea: [
-    g('kaffeemaschinen', 'Kaffeemaschinen', /kaffee|koffie|coffee|espresso|percolator|muehle/),
-    g('crepes-waffeln', 'Crêpes & Waffeln', /crep|crepe|waffel|waffle|wafel/),
-    g('saefte-mixer', 'Säfte & Mixer', /zitrus|citrus|mixer|presse|zentrifug|crasheis/),
-    g('coffee-vitrinen', 'Vitrinen', /vitrin|panorama|waermevet/),
+    g('kaffeemaschinen', 'Kahve Makineleri', /kaffee|koffie|coffee|espresso|percolator|muehle/),
+    g('crepes-waffeln', 'Krep ve Waffle', /crep|crepe|waffel|waffle|wafel/),
+    g('saefte-mixer', 'Meyve Sıkacakları ve Mikserler', /zitrus|citrus|mixer|presse|zentrifug|crasheis/),
+    g('coffee-vitrinen', 'Vitrinler', /vitrin|panorama|waermevet/),
   ],
 
   // ── Dondurma ──
   ice_cream: [
-    g('ice-theken', 'Eiscreme-Theken & Vitrinen', /theke|vitrin/),
-    g('ice-maschinen', 'Eismaschinen & Turbinen', /turbine|maschine|pasteur|sahne|schilferijs/),
-    g('ice-zubehoer', 'Behälter & Zubehör', /behaelter|lagerung|waffel|wafel/),
+    g('ice-theken', 'Dondurma Tezgahları ve Vitrinleri', /theke|vitrin/),
+    g('ice-maschinen', 'Dondurma Makineleri ve Türbinleri', /turbine|maschine|pasteur|sahne|schilferijs/),
+    g('ice-zubehoer', 'Kaplar ve Aksesuarlar', /behaelter|lagerung|waffel|wafel/),
   ],
 
   // ── Çamaşırhane ──
   laundry: [
-    g('waschmaschinen', 'Waschmaschinen', /wasch|lave-linge|laundry|schleuder/),
-    g('trockner', 'Trockner', /trockner|dryer|rotation/),
-    g('mangel-buegeln', 'Mangel & Bügeln', /mangel|buegel|iron/),
+    g('waschmaschinen', 'Çamaşır Makineleri', /wasch|lave-linge|laundry|schleuder/),
+    g('trockner', 'Kurutma Makineleri', /trockner|dryer|rotation/),
+    g('mangel-buegeln', 'Silindir ve Ütü', /mangel|buegel|iron/),
   ],
 
   // ── Araçlar & GN Kaplar ──
   trolley_gn: [
-    g('gn-behaelter', 'GN Behälter', /gn |gastronorm|behaelter|container/),
-    g('wagen', 'Wagen', /wagen|trolley|chariot|halter/),
+    g('gn-behaelter', 'GN Kaplar', /gn |gastronorm|behaelter|container/),
+    g('wagen', 'Arabalar', /wagen|trolley|chariot|halter/),
   ],
 
   // ── Konaklama & Temizlik ──
   hospitality: [
-    g('room-service', 'Room Service & Wagen', /room|zimmer|wagen|chariot|service/),
-    g('fruehstueck', 'Frühstücksdienst', /fruehstueck|fruehst|breakfast/),
+    g('room-service', 'Oda Servisi ve Arabaları', /room|zimmer|wagen|chariot|service/),
+    g('fruehstueck', 'Kahvaltı Servisi', /fruehstueck|fruehst|breakfast/),
   ],
 };
 
@@ -339,10 +350,10 @@ export function getSubGroupsFor(catId: string, items: EquipmentItem[]): SubGroup
   if (!idx) return [];
   const out: SubGroupCount[] = defined
     .filter((sg) => (idx.subGroups.get(sg.id) || 0) > 0)
-    .map((sg) => ({ id: sg.id, label: sg.label, count: idx.subGroups.get(sg.id) || 0 }));
+    .map((sg) => ({ id: sg.id, label: tLabel(sg.id, sg.label), count: idx.subGroups.get(sg.id) || 0 }));
   const assigned = out.reduce((s, r) => s + r.count, 0);
   const other = idx.count - assigned;
-  if (other > 0) out.push({ id: OTHER_SUBGROUP, label: 'Sonstige', count: other });
+  if (other > 0) out.push({ id: OTHER_SUBGROUP, label: tLabel(OTHER_SUBGROUP, 'Diğer'), count: other });
   return out;
 }
 
@@ -353,8 +364,9 @@ export function getCategoryCount(catId: string, items: EquipmentItem[]): number 
 
 /** Alt-grup id → temiz etiket (deep-link başlığı için). */
 export function subGroupLabel(catId: string, subId: string): string {
-  if (subId === OTHER_SUBGROUP) return 'Sonstige';
-  return SUBGROUPS[catId]?.find((sg) => sg.id === subId)?.label || subId;
+  if (subId === OTHER_SUBGROUP) return tLabel(OTHER_SUBGROUP, 'Diğer');
+  const fallback = SUBGROUPS[catId]?.find((sg) => sg.id === subId)?.label || subId;
+  return tLabel(subId, fallback);
 }
 
 /* ─── Uyumlu aksesuar eşleştirme (ürün detay sayfası) ─── */

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { useHandiStore, type HandiProduct } from '../../stores/handiStore';
 import { useProductDetailStore } from '../../stores/productDetailStore';
@@ -7,6 +8,7 @@ import { useProjectStore } from '../../stores/projectStore';
 import { useEquipmentStore } from '../../stores/equipmentStore';
 import ProductCard from '../../components/catalog/ProductCard';
 import CategoryFilterPanel from '../../components/CategoryFilterPanel';
+import { formatDims } from '../../lib/dims';
 import {
   Search, X, ChevronLeft, ChevronRight, Package,
   Loader2, RotateCcw, Clock, CheckCircle2, MapPin,
@@ -69,6 +71,7 @@ function toCompareItem(p: HandiProduct): CompareItem {
 }
 
 export default function HendiPage() {
+  const { t } = useTranslation();
   const {
     products, categories, filters, currentPage, itemsPerPage, totalCount,
     isLoading, error, fetchProducts, fetchCategories, setFilter, resetFilters, setPage,
@@ -125,10 +128,10 @@ export default function HendiPage() {
               <Package size={28} className="text-white" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-headline font-black text-white tracking-tight">HENDI Katalog</h1>
+              <h1 className="text-2xl md:text-3xl font-headline font-black text-white tracking-tight">{t('handi.catalogTitle', { brand: 'HENDI' })}</h1>
               <p className="text-white/70 text-sm mt-1">
                 <span className="bg-white/20 rounded-full px-2.5 py-0.5 text-white font-bold text-xs mr-2">{totalCount.toLocaleString()}</span>
-                ürün
+                {t('common.products')}
               </p>
             </div>
           </div>
@@ -138,7 +141,7 @@ export default function HendiPage() {
               type="text"
               value={filters.search}
               onChange={(e) => setFilter('search', e.target.value)}
-              placeholder="Ürün, kod veya kategori ara…"
+              placeholder={t('handi.searchPlaceholder')}
               className="w-full bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl py-3 pl-11 pr-10 text-sm text-white placeholder-white/50 focus:bg-white/25 focus:ring-2 focus:ring-white/30 outline-none transition-all"
             />
             {filters.search && (
@@ -154,15 +157,15 @@ export default function HendiPage() {
           onClick={() => setFilter('inStockOnly', !filters.inStockOnly)}
           className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filters.inStockOnly ? 'bg-red-50 text-[#DC2626] border-red-200' : 'bg-white text-slate-600 border-slate-200 hover:border-red-200'}`}
         >
-          <Package size={14} /> Stokta
+          <Package size={14} /> {t('handi.inStock')}
         </button>
         {hasActiveFilters && (
           <button onClick={resetFilters} className="flex items-center gap-1 px-3 py-2 text-xs text-red-500 hover:text-red-700 font-medium transition-colors">
-            <RotateCcw size={12} /> Temizle
+            <RotateCcw size={12} /> {t('common.clear')}
           </button>
         )}
         <span className="ml-auto text-xs text-slate-400 font-medium">
-          {totalCount.toLocaleString()} ürün
+          {t('handi.productCount', { count: totalCount.toLocaleString() })}
         </span>
       </div>
 
@@ -177,20 +180,20 @@ export default function HendiPage() {
       {isLoading && (
         <div className="flex items-center justify-center py-16">
           <Loader2 size={24} className="animate-spin text-[#DC2626] mr-2" />
-          <span className="text-sm text-slate-500">Yükleniyor…</span>
+          <span className="text-sm text-slate-500">{t('common.loading')}</span>
         </div>
       )}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-700">
-          Hata: {error}
-          <button onClick={fetchProducts} className="ml-3 underline font-bold">Tekrar dene</button>
+          {t('common.error')}: {error}
+          <button onClick={fetchProducts} className="ml-3 underline font-bold">{t('common.retry')}</button>
         </div>
       )}
       {!isLoading && !error && products.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Package size={40} className="text-slate-300 mb-3" />
-          <p className="text-sm font-bold text-slate-600">Ürün bulunamadı</p>
-          <p className="text-xs text-slate-400 mt-1 max-w-sm">Filtreleri değiştirin ya da katalog verisi henüz yüklenmemiş olabilir.</p>
+          <p className="text-sm font-bold text-slate-600">{t('product.noResults')}</p>
+          <p className="text-xs text-slate-400 mt-1 max-w-sm">{t('catalog.emptyHint')}</p>
         </div>
       )}
 
@@ -201,13 +204,14 @@ export default function HendiPage() {
             <ProductCard
               key={item.id}
               brand={item.brand || 'HENDI'}
-              code={item.ean || item.id}
+              code={(item.ean && /^\d{6,14}$/.test(item.ean)) ? item.ean : item.id}
               name={item.name}
+              description={item.description || undefined}
               subtitle={item.category_name || undefined}
-              dims={item.length_mm && item.width_mm && item.height_mm ? `${item.length_mm}×${item.width_mm}×${item.height_mm} mm` : undefined}
+              dims={formatDims(item.length_mm, item.width_mm, item.height_mm)}
               price={item.price}
               imageUrl={item.image_url || ''}
-              badges={{ stock: (item.stock ?? 0) > 0 ? 'Stokta' : undefined }}
+              badges={{ stock: (item.stock ?? 0) > 0 ? t('handi.inStock') : undefined }}
               inCompare={isComparing(`handi-${item.id}`)}
               cartProduct={toCartItem(item)}
               formatPrice={fmtPrice}
@@ -234,8 +238,8 @@ export default function HendiPage() {
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md max-h-[80vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <div>
-                <h2 className="text-base font-headline font-black text-slate-800">Projeye Ekle</h2>
-                <p className="text-xs text-slate-500 mt-0.5">Hangi projeye eklensin?</p>
+                <h2 className="text-base font-headline font-black text-slate-800">{t('catalog.addToProject')}</h2>
+                <p className="text-xs text-slate-500 mt-0.5">{t('diamond.whichProject')}</p>
               </div>
               <button onClick={() => setProjectModalItem(null)} className="p-1.5 rounded-full hover:bg-slate-100 text-slate-500"><X size={18} /></button>
             </div>
@@ -244,7 +248,7 @@ export default function HendiPage() {
                 <div>
                   <div className="flex items-center gap-1.5 mb-2">
                     <Clock size={13} className="text-[#DC2626]" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#DC2626]">Devam Eden</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[#DC2626]">{t('diamond.ongoing')}</span>
                   </div>
                   <div className="space-y-2">
                     {activeProjects.map((p) => (
@@ -266,7 +270,7 @@ export default function HendiPage() {
                 <div>
                   <div className="flex items-center gap-1.5 mb-2">
                     <CheckCircle2 size={13} className="text-slate-400" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Tamamlanan</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">{t('diamond.completed')}</span>
                   </div>
                   <div className="space-y-2">
                     {completedProjects.map((p) => (
@@ -280,7 +284,7 @@ export default function HendiPage() {
               {projects.length === 0 && (
                 <div className="py-10 text-center">
                   <Package size={36} className="mx-auto text-slate-200 mb-3" />
-                  <p className="text-sm font-bold text-slate-500">Henüz proje yok</p>
+                  <p className="text-sm font-bold text-slate-500">{t('catalog.noProjects')}</p>
                 </div>
               )}
             </div>

@@ -25,6 +25,15 @@ export interface MailLogEntry {
   created_at: string;
 }
 
+/** Bir arama kaydı (customer_searches) — ülke/şehir gruplaması + sekmeler için. */
+export interface CustomerSearch {
+  id: string;
+  ulke: string | null;
+  sehir: string | null;
+  kategori: string | null;
+  created_at: string;
+}
+
 export interface CustomerLead {
   id: string;
   search_id: string | null;
@@ -70,6 +79,7 @@ export interface SendMailResult {
 
 interface CustomerFinderState {
   leads: CustomerLead[];
+  searches: CustomerSearch[];
   mailLog: MailLogEntry[];
   loading: boolean;
   searching: boolean;
@@ -109,6 +119,7 @@ function fillTemplate(tpl: string, lead: CustomerLead): string {
 
 export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => ({
   leads: [],
+  searches: [],
   mailLog: [],
   loading: false,
   searching: false,
@@ -150,7 +161,16 @@ export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => 
       set({ loading: false, error: error.message });
       return;
     }
-    set({ leads: (data || []) as CustomerLead[], loading: false });
+    // Aramaların ülke/şehir bilgisini de çek (satır gruplama + sekmeler için).
+    let searches: CustomerSearch[] = [];
+    try {
+      const { data: sData } = await supabase
+        .from('customer_searches')
+        .select('id, ulke, sehir, kategori, created_at')
+        .order('created_at', { ascending: false });
+      searches = (sData || []) as CustomerSearch[];
+    } catch { /* aramalar alınamazsa gruplama adresten türetilir */ }
+    set({ leads: (data || []) as CustomerLead[], searches, loading: false });
   },
 
   fetchReviews: async (leadId, placeUrl, max = 10) => {

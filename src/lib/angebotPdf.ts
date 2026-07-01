@@ -14,6 +14,7 @@ import { jsPDF } from 'jspdf';
 import { ensurePdfFont } from './pdfFont';
 import { loadImageWithSize, fitContain, type LoadedImage } from './pdfImage';
 import { COMPANY_INFO } from './companyInfo';
+import i18n from '../i18n';
 
 const PW = 210;
 const PH = 297;

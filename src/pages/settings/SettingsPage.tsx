@@ -41,7 +41,7 @@ export default function SettingsPage() {
     <div className="max-w-5xl mx-auto w-full space-y-6 py-8 px-4 sm:px-6">
       <div>
         <h1 className="font-headline text-3xl sm:text-4xl font-black text-on-surface tracking-tight">{t('settings.title')}</h1>
-        <p className="text-on-surface-variant text-sm mt-1.5">Hesap, dil, bildirim ve görünüm ayarlarınızı buradan yönetebilirsiniz.</p>
+        <p className="text-on-surface-variant text-sm mt-1.5">{t('settings.subtitle')}</p>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
@@ -230,12 +230,13 @@ export default function SettingsPage() {
 }
 
 function BannerSettings() {
+  const { t } = useTranslation();
   const { slides, intervalMs, updateSlide, addSlide, removeSlide, moveSlide, setIntervalMs, resetToDefaults } = useBannerStore();
 
   const handleImageUpload = (id: string, file: File | null) => {
     if (!file) return;
     if (file.size > 4 * 1024 * 1024) {
-      alert('Görsel 4MB\'tan büyük olamaz.');
+      alert(t('settings.bannerImageTooLarge'));
       return;
     }
     const reader = new FileReader();
@@ -247,9 +248,9 @@ function BannerSettings() {
     <div className="space-y-6">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">Banner Yönetimi</h2>
+          <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs flex items-center gap-2 pb-3 mb-5 border-b border-outline-variant/40">{t('settings.banners')}</h2>
           <p className="text-xs text-on-surface-variant mt-1">
-            Karşılama sayfasının üst banner alanındaki slaytları düzenleyin. Değişiklikler anında kaydedilir.
+            {t('settings.bannerDescription')}
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -257,21 +258,21 @@ function BannerSettings() {
             onClick={addSlide}
             className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-bold hover:opacity-90"
           >
-            <Plus size={16} /> Slayt Ekle
+            <Plus size={16} /> {t('settings.addSlide')}
           </button>
           <button
             onClick={() => {
-              if (confirm('Tüm slaytlar varsayılana dönecek. Emin misiniz?')) resetToDefaults();
+              if (confirm(t('settings.resetSlidesConfirm'))) resetToDefaults();
             }}
             className="flex items-center gap-2 bg-surface-container-highest px-4 py-2 rounded-lg text-sm font-medium hover:bg-surface-container-high"
           >
-            <RotateCcw size={16} /> Sıfırla
+            <RotateCcw size={16} /> {t('common.reset')}
           </button>
         </div>
       </div>
 
       <div className="flex items-center gap-3 px-4 py-3 bg-surface-container-high/30 rounded-xl border border-outline-variant/10">
-        <label className="text-xs font-bold uppercase text-on-surface-variant">Otomatik geçiş (sn)</label>
+        <label className="text-xs font-bold uppercase text-on-surface-variant">{t('settings.autoSlideInterval')}</label>
         <input
           type="number"
           min={2}
@@ -306,25 +307,25 @@ function BannerSettings() {
                 <input
                   value={slide.eyebrow}
                   onChange={(e) => updateSlide(slide.id, { eyebrow: e.target.value })}
-                  placeholder="Eyebrow (örn: 01 / EQUIPMENT)"
+                  placeholder={t('settings.bannerEyebrowPlaceholder')}
                   className="bg-surface-container-highest rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-primary outline-none"
                 />
                 <input
                   value={slide.title}
                   onChange={(e) => updateSlide(slide.id, { title: e.target.value })}
-                  placeholder="Başlık"
+                  placeholder={t('settings.bannerTitlePlaceholder')}
                   className="bg-surface-container-highest rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-primary outline-none"
                 />
                 <input
                   value={slide.subtitle}
                   onChange={(e) => updateSlide(slide.id, { subtitle: e.target.value })}
-                  placeholder="Alt başlık"
+                  placeholder={t('settings.bannerSubtitlePlaceholder')}
                   className="md:col-span-2 bg-surface-container-highest rounded-lg py-2 px-3 text-sm focus:ring-2 focus:ring-primary outline-none"
                 />
                 <input
                   value={slide.gradient}
                   onChange={(e) => updateSlide(slide.id, { gradient: e.target.value })}
-                  placeholder="CSS gradient (görsel yoksa kullanılır)"
+                  placeholder={t('settings.bannerGradientPlaceholder')}
                   className="md:col-span-2 bg-surface-container-highest rounded-lg py-2 px-3 text-xs font-mono focus:ring-2 focus:ring-primary outline-none"
                 />
               </div>
@@ -335,7 +336,7 @@ function BannerSettings() {
                   onClick={() => moveSlide(slide.id, -1)}
                   disabled={idx === 0}
                   className="p-2 rounded-lg hover:bg-surface-container-highest disabled:opacity-30"
-                  title="Yukarı"
+                  title={t('common.moveUp')}
                 >
                   <ArrowUp size={14} />
                 </button>
@@ -343,16 +344,16 @@ function BannerSettings() {
                   onClick={() => moveSlide(slide.id, 1)}
                   disabled={idx === slides.length - 1}
                   className="p-2 rounded-lg hover:bg-surface-container-highest disabled:opacity-30"
-                  title="Aşağı"
+                  title={t('common.moveDown')}
                 >
                   <ArrowDown size={14} />
                 </button>
                 <button
                   onClick={() => {
-                    if (confirm('Bu slaytı silmek istediğinize emin misiniz?')) removeSlide(slide.id);
+                    if (confirm(t('settings.deleteSlideConfirm'))) removeSlide(slide.id);
                   }}
                   className="p-2 rounded-lg hover:bg-red-500/10 text-red-500"
-                  title="Sil"
+                  title={t('common.delete')}
                 >
                   <Trash2 size={14} />
                 </button>
@@ -366,7 +367,7 @@ function BannerSettings() {
                   checked={slide.enabled}
                   onChange={(e) => updateSlide(slide.id, { enabled: e.target.checked })}
                 />
-                Görünür
+                {t('settings.bannerVisible')}
               </label>
 
               <div className="flex items-center gap-2">
@@ -375,12 +376,12 @@ function BannerSettings() {
                     onClick={() => updateSlide(slide.id, { image: undefined })}
                     className="text-xs text-red-500 font-medium hover:underline"
                   >
-                    Görseli kaldır
+                    {t('settings.bannerRemoveImage')}
                   </button>
                 )}
                 <label className="flex items-center gap-2 bg-surface-container-highest hover:bg-surface-container-high px-3 py-2 rounded-lg text-xs font-bold cursor-pointer">
                   <Upload size={14} />
-                  {slide.image ? 'Görseli değiştir' : 'Görsel yükle'}
+                  {slide.image ? t('settings.bannerChangeImage') : t('settings.bannerUploadImage')}
                   <input
                     type="file"
                     accept="image/*"
@@ -395,8 +396,7 @@ function BannerSettings() {
       </div>
 
       <p className="text-xs text-on-surface-variant">
-        İpucu: Banner görselleri için <strong>820×312 px</strong> oranı önerilir. Yüklenen görseller tarayıcıda saklanır
-        (localStorage). Canva'da hazırladığınız tasarımları PNG/JPG olarak indirip buradan yükleyebilirsiniz.
+        {t('settings.bannerTipBefore')}<strong>{t('settings.bannerTipDimension')}</strong>{t('settings.bannerTipAfter')}
       </p>
     </div>
   );

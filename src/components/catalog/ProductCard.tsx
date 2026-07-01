@@ -9,6 +9,7 @@
 import { useState } from 'react';
 import { Package, GitCompareArrows, Zap, MapPin, Box } from 'lucide-react';
 import CartQuantityButton from '../CartQuantityButton';
+import { htmlToText } from '../../lib/htmlText';
 import type { EquipmentItem } from '../../stores/equipmentStore';
 
 export interface ProductCardBadges {
@@ -29,6 +30,8 @@ export interface ProductCardProps {
   code?: string;
   codeMono?: boolean;
   name: string;
+  /** Ürünün uzun/açıklayıcı adı (kod + kısa ad yanında tekilleştirir). HTML olabilir. */
+  description?: string | null;
   /** Gri alt satır: family / marka / kategori. */
   subtitle?: string;
   price: number | null;
@@ -85,13 +88,17 @@ function CardImage({ src, alt }: { src?: string; alt: string }) {
 }
 
 export default function ProductCard({
-  brand, code, codeMono = true, name, subtitle, price, pricePromo,
+  brand, code, codeMono = true, name, description, subtitle, price, pricePromo,
   kw, dims, imageUrl, badges, has3D, inCompare, cartProduct, formatPrice,
   onOpenDetail, onToggleCompare, onFloorPlan, on3D,
   floorPlanTitle = 'Kat Planına Ekle', compareTitle = 'Karşılaştır',
 }: ProductCardProps) {
   const hasPromo = (pricePromo ?? 0) > 0;
   const hasBadge = !!(badges?.new || badges?.deal || badges?.promo || badges?.stock);
+
+  // Uzun ad — HTML'den arındır; kısa adla aynıysa gösterme (tekrar olmasın).
+  const descText = description ? htmlToText(description).trim() : '';
+  const showDesc = !!descText && descText.toLowerCase() !== (name || '').trim().toLowerCase();
 
   return (
     <div
@@ -145,7 +152,8 @@ export default function ProductCard({
             )}
           </div>
         )}
-        <h3 className="text-[11px] font-bold text-on-surface mt-1 line-clamp-2 leading-snug min-h-[2rem]">{name}</h3>
+        <h3 className="text-[11px] font-bold text-on-surface mt-1 line-clamp-2 leading-snug min-h-[2rem]">{name?.trim() || code || subtitle || brand || 'Ürün'}</h3>
+        {showDesc && <p className="text-[9px] text-slate-500 font-medium mt-0.5 line-clamp-2 leading-snug" title={descText}>{descText}</p>}
         {subtitle && <p className="text-[10px] text-slate-400 font-medium mt-0.5 truncate">{subtitle}</p>}
         {dims && <p className="text-[9px] text-slate-500 font-medium mt-0.5 truncate">{dims}</p>}
 

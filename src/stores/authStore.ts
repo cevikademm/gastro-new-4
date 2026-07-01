@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import i18n from '../i18n';
 import { supabase } from '../lib/supabase';
+import { useOrderStore } from './orderStore';
 
 export interface User {
   id: string;
@@ -100,13 +102,13 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         if (!supabase) {
           set({ isLoading: false });
-          return { success: false, error: 'Supabase yapılandırılmamış' };
+          return { success: false, error: i18n.t('common.error.supabaseNotConfigured') };
         }
 
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error || !data.user) {
           set({ isLoading: false });
-          return { success: false, error: 'Geçersiz e-posta veya şifre' };
+          return { success: false, error: i18n.t('auth.invalidCredentials') };
         }
 
         const profile = await fetchProfile(data.user.id);
@@ -136,7 +138,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         if (!supabase) {
           set({ isLoading: false });
-          return { success: false, error: 'Supabase yapılandırılmamış' };
+          return { success: false, error: i18n.t('common.error.supabaseNotConfigured') };
         }
 
         const { data: authData, error } = await supabase.auth.signUp({
@@ -173,6 +175,8 @@ export const useAuthStore = create<AuthState>()(
       logout: () => {
         if (supabase) supabase.auth.signOut();
         set({ user: null, isAuthenticated: false, pendingApproval: false });
+        // Paylaşılan cihazda başka kullanıcının siparişleri sızmasın.
+        try { useOrderStore.getState().reset(); } catch { /* ignore */ }
       },
 
       updateProfile: (data) => {
@@ -182,7 +186,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       changePassword: async (newPassword) => {
-        if (!supabase) return { success: false, error: 'Supabase yapılandırılmamış' };
+        if (!supabase) return { success: false, error: i18n.t('common.error.supabaseNotConfigured') };
         const { error } = await supabase.auth.updateUser({ password: newPassword });
         if (error) return { success: false, error: error.message };
         return { success: true };
@@ -217,7 +221,10 @@ export const useAuthStore = create<AuthState>()(
 
         const { data: { session } } = await supabase.auth.getSession();
         if (!session?.user) {
-          set({ isLoading: false });
+          // Geçerli oturum yok (süresi dolmuş / iptal edilmiş) → kaydedilmiş "girişli"
+          // durumu temizle. Aksi halde panel girişli görünür ama DB sorguları RLS'e
+          // takılıp boş döner ("hayalet admin"). Böylece login'e yönlendirilir.
+          set({ isLoading: false, user: null, isAuthenticated: false });
           return;
         }
 
@@ -243,3 +250,21 @@ export const useAuthStore = create<AuthState>()(
     }
   )
 );
+
+// Supabase oturumu iptal edilirse (ör. şifre değişti / başka cihazdan "diğer
+// oturumları kapat" / token süresi doldu) uygulama state'ini anında temizle.
+// Aksi halde kaydedilmiş "admin" durumu kalır, panel açık görünür ama RLS
+// sorguları boş döner ("hayalet admin"). Böylece login'e yönlendirilir.
+if (supabase) {
+  supabase.auth.onAuthStateChange((event) => {
+    if (event === 'SIGNED_OUT') {
+      const st = useAuthStore.getState();
+      if (st.isAuthenticated || st.user) {
+        useAuthStore.setState({ user: null, isAuthenticated: false, pendingApproval: false });
+      }
+      // Oturum her kapandığında (token süresi doldu / başka cihazdan çıkış)
+      // yerel sipariş listesini de temizle — kullanıcı yalnız kendi verisini görsün.
+      try { useOrderStore.getState().reset(); } catch { /* ignore */ }
+    }
+  });
+}

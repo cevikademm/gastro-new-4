@@ -18,6 +18,7 @@
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Stage, Layer, Line } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type Konva from 'konva';
@@ -54,6 +55,8 @@ import {
   polygonToEdges,
   mToMm,
   resizeEdgeLength,
+  cornerAngleDeg,
+  setCornerAngle,
   shouldClosePolygon,
 } from './cad/geometry';
 import { useEditor2DState } from './state/editorState';
@@ -61,6 +64,7 @@ import { useEditor2DState } from './state/editorState';
 import GridLayer from './render/GridLayer';
 import WallLayer from './render/WallLayer';
 import DimensionLayer from './render/DimensionLayer';
+import AngleLayer from './render/AngleLayer';
 import DraftLayer from './render/DraftLayer';
 import VertexHandlesLayer from './render/VertexHandlesLayer';
 import OpeningsLayer from './render/OpeningsLayer';
@@ -75,6 +79,7 @@ import { getCatalogEntry } from '../3d-editor/loaders/equipmentCatalog';
 import { defaultMountFor, defaultZForMount, containFloorItem, obbCenterFromMinCorner } from '../3d-editor/interaction/placement';
 import { resolveEquipmentDrag } from '../3d-editor/interaction/resolveDrag';
 import type { EquipmentItem } from '../../../../stores/equipmentStore';
+import { removeEquipmentEverywhere } from '../../../../lib/designDelete';
 
 // ── Constants ────────────────────────────────────────────────────────────────
 const VERTEX_MERGE_PX = 15;
@@ -100,6 +105,7 @@ interface DesignStudio2DProps {
 }
 
 export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
+  const { t } = useTranslation();
   // ── Store wiring ─────────────────────────────────────────────────────────
   const project = useProjectStore((s) => s.project);
   const moveVertex = useProjectStore((s) => s.moveVertex);
@@ -115,7 +121,6 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   const addEquipment = useProjectStore((s) => s.addEquipment);
   const updateEquipment = useProjectStore((s) => s.updateEquipment);
   const dissolveVertex = useProjectStore((s) => s.dissolveVertex);
-  const removeEquipment = useProjectStore((s) => s.removeEquipment);
   const undo = useProjectStore((s) => s.undo);
   const redo = useProjectStore((s) => s.redo);
   const canUndo = useProjectStore((s) => s.canUndo());
@@ -578,6 +583,29 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
     setEditingEdge(null);
   };
 
+  // ── Corner angle editing — rotates the next wall about the corner ────────
+  const [editingAngle, setEditingAngle] = useState<{ index: number; valueDeg: string } | null>(null);
+  const beginEditAngle = (index: number) => {
+    if (!activeRoom) return;
+    setEditingEdge(null);
+    setEditingAngle({ index, valueDeg: String(Math.round(cornerAngleDeg(livePoints, index))) });
+    selectVertex(index);
+  };
+  const commitEditAngle = (override?: number) => {
+    if (!editingAngle || !activeRoom) return;
+    const deg = override ?? Number.parseFloat(editingAngle.valueDeg.replace(',', '.'));
+    if (!Number.isFinite(deg)) {
+      setEditingAngle(null);
+      return;
+    }
+    // Rotate the next wall about this corner to the target angle, keeping both
+    // wall lengths; move just the next vertex (every wall sharing it follows).
+    const newPoints = setCornerAngle(activeRoom.points, editingAngle.index, deg);
+    const nextIndex = (editingAngle.index + 1) % activeRoom.vertexIds.length;
+    moveVertex(activeRoom.vertexIds[nextIndex], newPoints[nextIndex]);
+    setEditingAngle(null);
+  };
+
   // Length-edit input for the selected loose wall (single edge a→b).
   const [editingWallLen, setEditingWallLen] = useState<string | null>(null);
   const beginEditWallLen = () => {
@@ -625,6 +653,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         if (draftPoints.length > 0) cancelDraft();
         setEditingEdge(null);
         setEditingWallLen(null);
+        setEditingAngle(null);
         if (selectedWallId) selectWall(null);
         if (armedProduct) setArmedProduct(null);
         if (selectedEquipmentId) setSelectedEquipmentId(null);
@@ -636,7 +665,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         if (vid) {
           const ok = dissolveVertex(vid);
           if (ok) selectVertex(null);
-          else flashHint('Bu köşe silinemez (odada en az 3 kenar kalmalı). Tüm odayı silmek için içine tıklayıp Delete\'e basın.');
+          else flashHint(t('design3d.hint.vertexNotDeletable'));
         }
         e.preventDefault();
         return;
@@ -650,12 +679,13 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         if (endVid) ok = dissolveVertex(endVid);
         if (!ok && startVid) ok = dissolveVertex(startVid);
         if (ok) selectEdge(null);
-        else flashHint('Bu çizgi tek başına silinemez (odada en az 3 kenar kalmalı). Tüm odayı silmek için içine tıklayıp Delete\'e basın.');
+        else flashHint(t('design3d.hint.edgeNotDeletable'));
         e.preventDefault();
         return;
       }
       if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEquipmentId) {
-        removeEquipment(selectedEquipmentId);
+        // Tasarımdan + (proje modunda) teklif listesinden kaldır. Otomatik kaydedilir.
+        removeEquipmentEverywhere(selectedEquipmentId);
         setSelectedEquipmentId(null);
         e.preventDefault();
         return;
@@ -730,7 +760,6 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
     undo,
     armedProduct,
     selectedEquipmentId,
-    removeEquipment,
     project,
     updateEquipment,
     selectedVertex,
@@ -746,6 +775,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
     selectedOpeningId,
     removeOpening,
     selectOpening,
+    t,
   ]);
 
   // ── Equipment drag (2D) — 3D ile ORTAK çözücü (snap + çakışma + clamp) ─────
@@ -885,6 +915,12 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
                 scale={scale}
                 onEdgeClick={(i) => beginEditEdge(i)}
               />
+              <AngleLayer
+                points={livePoints}
+                scale={scale}
+                selectedIndex={selectedVertex}
+                onCornerClick={tool === 'select' ? (i) => beginEditAngle(i) : undefined}
+              />
             </>
           )}
         </Layer>
@@ -1005,7 +1041,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
       {/* Armed-product hint */}
       {armedProduct && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium bg-brand-red text-white shadow-lg shadow-slate-900/10 pointer-events-none">
-          {armedProduct.name} · plana tıkla (Shift = çoklu · Esc = iptal)
+          {armedProduct.name} · {t('design3d.armed.hint2d')}
         </div>
       )}
 
@@ -1018,34 +1054,34 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
 
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5">
-        <ToolBtn active={tool === 'select'} onClick={() => setTool('select')} title="Select (V)">
+        <ToolBtn active={tool === 'select'} onClick={() => setTool('select')} title={t('design3d.tool.select')}>
           <MousePointer2 size={14} />
         </ToolBtn>
-        <ToolBtn active={tool === 'draw-room'} onClick={() => setTool('draw-room')} title="Oda çiz (R)">
+        <ToolBtn active={tool === 'draw-room'} onClick={() => setTool('draw-room')} title={t('design3d.tool.drawRoom')}>
           <PenTool size={14} />
         </ToolBtn>
-        <ToolBtn active={tool === 'draw-wall'} onClick={() => setTool('draw-wall')} title="Duvar çiz (W) — oda içine ek bölme">
+        <ToolBtn active={tool === 'draw-wall'} onClick={() => setTool('draw-wall')} title={t('design3d.tool.drawWall')}>
           <Slash size={14} />
         </ToolBtn>
-        <ToolBtn active={tool === 'pan'} onClick={() => setTool('pan')} title="Pan (H veya Space)">
+        <ToolBtn active={tool === 'pan'} onClick={() => setTool('pan')} title={t('design3d.tool.pan')}>
           <Hand size={14} />
         </ToolBtn>
         <Sep />
         <ToolBtn
           active={catalogOpen || !!armedProduct}
           onClick={() => setCatalogOpen((v) => !v)}
-          title="Ürün ekle — kataloğu aç, ürüne tıkla, plana bırak"
+          title={t('design3d.tool.addProduct')}
         >
           <Package size={14} />
         </ToolBtn>
         <Sep />
-        <ToolBtn onClick={() => setScale(Math.min(MAX_SCALE, scale * WHEEL_ZOOM_FACTOR))} title="Zoom in">
+        <ToolBtn onClick={() => setScale(Math.min(MAX_SCALE, scale * WHEEL_ZOOM_FACTOR))} title={t('design3d.tool.zoomIn')}>
           <Plus size={14} />
         </ToolBtn>
-        <ToolBtn onClick={() => setScale(Math.max(MIN_SCALE, scale / WHEEL_ZOOM_FACTOR))} title="Zoom out">
+        <ToolBtn onClick={() => setScale(Math.max(MIN_SCALE, scale / WHEEL_ZOOM_FACTOR))} title={t('design3d.tool.zoomOut')}>
           <Minus size={14} />
         </ToolBtn>
-        <ToolBtn onClick={fitToContent} title="Fit to content">
+        <ToolBtn onClick={fitToContent} title={t('design3d.tool.fitToContent')}>
           <Maximize2 size={14} />
         </ToolBtn>
         <Sep />
@@ -1057,7 +1093,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
             removeRoom(activeRoom.id as RoomId);
             selectRoom(null);
           }}
-          title="Seçili odayı sil (yalnız bu oda) · Delete"
+          title={t('design3d.tool.deleteRoom')}
         >
           <Trash2 size={14} />
         </ToolBtn>
@@ -1074,7 +1110,7 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
             setSelectedEquipmentId(null);
             setArmedProduct(null);
           }}
-          title="Tümünü Temizle — tüm çizimi sil (Ctrl+Z geri alır)"
+          title={t('design3d.tool.clearAll')}
         >
           <Eraser size={14} />
         </ToolBtn>
@@ -1082,15 +1118,15 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
 
       {/* Zoom HUD sits above the scale bar so they don't overlap. */}
       <div className="absolute bottom-20 left-3 px-2 py-1 bg-white/90 border border-slate-200 rounded text-[11px] font-mono text-slate-500">
-        {(scale * 1000).toFixed(2)} px/m · grid 10cm/1m
+        {t('design3d.hud.gridScale2d', { px: (scale * 1000).toFixed(2) })}
         {tool === 'draw-room' && draftPoints.length > 0 && (
           <span className="ml-2 text-blue-600">
-            başlangıca tıkla — kapat · Enter — bitir · Esc — iptal
+            {t('design3d.hint.drawRoom')}
           </span>
         )}
         {tool === 'draw-wall' && (
           <span className="ml-2 text-blue-600">
-            tıkla → segment ekle · Esc — biti̇r
+            {t('design3d.hint.drawWall')}
           </span>
         )}
       </div>
@@ -1101,14 +1137,14 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
           disabled={!canUndo}
           className="px-2 h-7 bg-white border border-slate-200 rounded text-[11px] font-medium text-slate-600 disabled:text-slate-300"
         >
-          Undo
+          {t('design3d.tool.undo')}
         </button>
         <button
           onClick={redo}
           disabled={!canRedo}
           className="px-2 h-7 bg-white border border-slate-200 rounded text-[11px] font-medium text-slate-600 disabled:text-slate-300"
         >
-          Redo
+          {t('design3d.tool.redo')}
         </button>
       </div>
 
@@ -1125,6 +1161,20 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
           onChange={(v) => setEditingEdge({ ...editingEdge, valueM: v })}
           onCommit={commitEditEdge}
           onCancel={() => setEditingEdge(null)}
+        />
+      )}
+
+      {editingAngle && activeRoom && livePoints.length >= 3 && livePoints[editingAngle.index] && (
+        <AngleInput
+          screen={{
+            x: livePoints[editingAngle.index].x * scale + offsetX,
+            y: livePoints[editingAngle.index].y * scale + offsetY,
+          }}
+          value={editingAngle.valueDeg}
+          onChange={(v) => setEditingAngle({ ...editingAngle, valueDeg: v })}
+          onCommit={() => commitEditAngle()}
+          onSnap90={() => commitEditAngle(90)}
+          onCancel={() => setEditingAngle(null)}
         />
       )}
 
@@ -1219,6 +1269,7 @@ function SelectedWallActions({
   onEditLength: () => void;
   onDelete: () => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       style={{ left: midScreen.x, top: midScreen.y }}
@@ -1228,7 +1279,7 @@ function SelectedWallActions({
         type="button"
         onClick={onEditLength}
         className="inline-flex items-center gap-1 px-1.5 h-6 rounded hover:bg-blue-50 text-blue-700"
-        title="Uzunluğu düzenle"
+        title={t('design3d.wall.editLength')}
       >
         <Pencil size={11} />
         <span className="tabular-nums">{lengthM.toFixed(2)} m</span>
@@ -1238,7 +1289,7 @@ function SelectedWallActions({
         type="button"
         onClick={onDelete}
         className="inline-flex items-center justify-center w-6 h-6 rounded text-rose-500 hover:bg-rose-50"
-        title="Sil (Delete)"
+        title={t('design3d.wall.delete')}
       >
         <Trash2 size={11} />
       </button>
@@ -1281,6 +1332,61 @@ function EdgeLengthInput({
         className="w-16 text-xs px-1 py-0.5 outline-none"
       />
       <span className="text-[10px] text-slate-500">m</span>
+    </div>
+  );
+}
+
+function AngleInput({
+  screen,
+  value,
+  onChange,
+  onCommit,
+  onSnap90,
+  onCancel,
+}: {
+  screen: { x: number; y: number };
+  value: string;
+  onChange: (v: string) => void;
+  onCommit: () => void;
+  onSnap90: () => void;
+  onCancel: () => void;
+}) {
+  const { t } = useTranslation();
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  useEffect(() => {
+    inputRef.current?.focus();
+    inputRef.current?.select();
+  }, []);
+  return (
+    <div
+      style={{ left: screen.x, top: screen.y }}
+      className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-1 bg-white border-2 border-blue-500 rounded shadow"
+    >
+      <input
+        ref={inputRef}
+        value={value}
+        inputMode="decimal"
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter') onCommit();
+          if (e.key === 'Escape') onCancel();
+        }}
+        onBlur={onCommit}
+        className="w-12 text-xs px-1 py-0.5 outline-none"
+      />
+      <span className="text-[10px] text-slate-500">°</span>
+      {/* onMouseDown+preventDefault keeps input focus so onBlur doesn't fire first */}
+      <button
+        type="button"
+        onMouseDown={(e) => {
+          e.preventDefault();
+          onSnap90();
+        }}
+        className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium"
+        title={t('design3d.angle.set90')}
+      >
+        90°
+      </button>
     </div>
   );
 }

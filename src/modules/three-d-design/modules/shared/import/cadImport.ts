@@ -13,6 +13,7 @@ import {
   type DxfImportResult,
 } from './dxfImport';
 import type { ProjectDocument, Vec2 } from '../../../core';
+import i18n from '@/i18n';
 
 export type CadFileKind = 'dxf' | 'dwg';
 
@@ -42,15 +43,15 @@ async function dwgBufferToDxfText(
   buffer: ArrayBuffer,
   onProgress?: (msg: string) => void,
 ): Promise<string> {
-  onProgress?.('DWG motoru yükleniyor…');
+  onProgress?.(i18n.t('design3d.cad.loadingEngine'));
   const mod = await import('@mlightcad/libredwg-web');
   const { LibreDwg } = mod as unknown as {
     LibreDwg: { create: () => Promise<{ dwg_write_dxf: (b: ArrayBuffer) => Uint8Array | null }> };
   };
-  onProgress?.('DWG → DXF dönüştürülüyor…');
+  onProgress?.(i18n.t('design3d.cad.converting'));
   const lib = await LibreDwg.create();
   const dxfBytes = lib.dwg_write_dxf(buffer);
-  if (!dxfBytes) throw new Error('DWG → DXF dönüşümü başarısız (dosya bozuk veya desteklenmeyen sürüm).');
+  if (!dxfBytes) throw new Error(i18n.t('design3d.cad.convertFailed'));
   return new TextDecoder('utf-8').decode(dxfBytes);
 }
 
@@ -61,10 +62,15 @@ export async function readCadFileToDxfText(
 ): Promise<{ kind: CadFileKind; dxfText: string }> {
   const kind = detectCadKind(file.name);
   if (!kind) {
-    throw new Error(`Desteklenmeyen CAD formatı: ${file.name}. Desteklenenler: ${SUPPORTED_CAD_EXTENSIONS.join(', ')}`);
+    throw new Error(
+      i18n.t('design3d.cad.unsupportedFormat', {
+        name: file.name,
+        list: SUPPORTED_CAD_EXTENSIONS.join(', '),
+      }),
+    );
   }
   if (kind === 'dxf') {
-    onProgress?.('DXF okunuyor…');
+    onProgress?.(i18n.t('design3d.cad.readingDxf'));
     return { kind, dxfText: await file.text() };
   }
   const buf = await file.arrayBuffer();
@@ -82,7 +88,7 @@ export async function importCadFile(
   opts: CadImportOptions = {},
 ): Promise<CadImportResult> {
   const { kind, dxfText } = await readCadFileToDxfText(file, opts.onProgress);
-  opts.onProgress?.('Geometri ana alana ekleniyor…');
+  opts.onProgress?.(i18n.t('design3d.cad.addingGeometry'));
   let result: DxfImportResult = { wallIds: [], bounds: null, layersFound: [], skippedShort: 0 };
   storeUpdate((draft) => {
     result = importDxfIntoDraft(draft, dxfText, opts);
@@ -138,7 +144,7 @@ export async function analyzeCadFile(
   onProgress?: (msg: string) => void,
 ): Promise<CadAnalysis> {
   const { kind, dxfText } = await readCadFileToDxfText(file, onProgress);
-  onProgress?.('Katmanlar analiz ediliyor…');
+  onProgress?.(i18n.t('design3d.cad.analyzingLayers'));
   const { layers, totalEntities, bounds } = analyzeDxf(dxfText);
   const suggestedLayers = detectWallLayers(layers.map((l) => l.name));
   const guessedUnit = guessUnitFromBounds(bounds);

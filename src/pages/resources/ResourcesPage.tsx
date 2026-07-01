@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { FileDown, CheckCircle2, Lock } from 'lucide-react';
 import SEO from '../../components/SEO';
@@ -8,6 +9,7 @@ import { sendEmail } from '../../lib/email';
 import { breadcrumbSchema, organizationSchema } from '../../lib/seo';
 
 export default function ResourcesPage() {
+  const { t } = useTranslation();
   const [active, setActive] = useState<LeadMagnet | null>(null);
   const [email, setEmail] = useState('');
   const [sending, setSending] = useState(false);
@@ -27,7 +29,7 @@ export default function ResourcesPage() {
       });
       setDone(true);
     } catch (e: any) {
-      setErr('Bir hata oluştu. Lütfen tekrar deneyin.');
+      setErr(t('resources.errorGeneric'));
     } finally {
       setSending(false);
     }
@@ -49,10 +51,10 @@ export default function ResourcesPage() {
 
       <header className="mb-10">
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight text-slate-900">
-          Ücretsiz Rehberler & Şablonlar
+          {t('resources.title')}
         </h1>
         <p className="mt-3 text-lg text-slate-600 max-w-2xl">
-          Endüstriyel mutfak kurulumunda size yıllarca hizmet edecek uzman kaynaklar — hepsi ücretsiz.
+          {t('resources.subtitle')}
         </p>
       </header>
 
@@ -60,7 +62,7 @@ export default function ResourcesPage() {
         {LEAD_MAGNETS.map((m) => (
           <div key={m.slug} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col">
             <div className="flex items-center gap-2 text-xs text-slate-500 mb-3">
-              <FileDown size={14} /> {m.pages} sayfa · PDF
+              <FileDown size={14} /> {t('resources.pagesBadge', { pages: m.pages })}
             </div>
             <h3 className="text-lg font-bold text-slate-900 mb-2">{m.title}</h3>
             <p className="text-sm text-slate-600 mb-4">{m.description}</p>
@@ -75,7 +77,7 @@ export default function ResourcesPage() {
               onClick={() => { setActive(m); setDone(false); setErr(''); }}
               className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#DC2626] text-white rounded-lg font-semibold hover:bg-[#991B1B]"
             >
-              <Lock size={14} /> Ücretsiz İndir
+              <Lock size={14} /> {t('resources.downloadFree')}
             </button>
           </div>
         ))}
@@ -93,28 +95,28 @@ export default function ResourcesPage() {
             {done ? (
               <div className="text-center py-6">
                 <CheckCircle2 className="text-emerald-600 mx-auto mb-3" size={48} />
-                <h3 className="text-xl font-bold mb-2">E-postanıza gönderildi!</h3>
+                <h3 className="text-xl font-bold mb-2">{t('resources.sentTitle')}</h3>
                 <p className="text-slate-600 text-sm mb-5">
-                  İndirme bağlantısı <strong>{email}</strong> adresine iletildi. Birkaç dakika içinde gelmezse spam klasörünü kontrol edin.
+                  {t('resources.sentBodyBefore')} <strong>{email}</strong> {t('resources.sentBodyAfter')}
                 </p>
                 <a
                   href={active.downloadUrl}
                   download
                   className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#DC2626] text-white rounded-lg font-semibold"
                 >
-                  <FileDown size={16} /> Şimdi de indir
+                  <FileDown size={16} /> {t('resources.downloadNow')}
                 </a>
               </div>
             ) : (
               <>
-                <div className="text-xs text-[#DC2626] font-semibold mb-1">Ücretsiz İndir</div>
+                <div className="text-xs text-[#DC2626] font-semibold mb-1">{t('resources.downloadFree')}</div>
                 <h3 className="text-xl font-bold mb-2">{active.title}</h3>
                 <p className="text-slate-600 text-sm mb-5">
-                  E-posta adresinizi girin; PDF indirme bağlantısını size hemen gönderelim.
+                  {t('resources.modalPrompt')}
                 </p>
                 <input
                   type="email"
-                  placeholder="ornek@sirket.com"
+                  placeholder={t('resources.emailPlaceholder')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && submit()}
@@ -126,10 +128,10 @@ export default function ResourcesPage() {
                   disabled={sending || !email.includes('@')}
                   className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-[#DC2626] text-white rounded-lg font-semibold hover:bg-[#991B1B] disabled:opacity-50"
                 >
-                  {sending ? 'Gönderiliyor…' : 'PDF\'i Gönder'}
+                  {sending ? t('resources.sending') : t('resources.sendPdf')}
                 </button>
                 <p className="text-[11px] text-slate-400 text-center mt-3">
-                  Spam yok. İstediğiniz zaman abonelikten çıkabilirsiniz.
+                  {t('resources.privacyNote')}
                 </p>
               </>
             )}

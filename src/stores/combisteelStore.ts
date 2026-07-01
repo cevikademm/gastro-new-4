@@ -95,6 +95,9 @@ export const useCombisteelStore = create<CombisteelState>((set, get) => ({
         query = query.or(
           `title.ilike.%${filters.search}%,sku.ilike.%${filters.search}%,description.ilike.%${filters.search}%`
         );
+      } else {
+        // Yalnızca gezinirken görselsiz ürünleri gizle; aramada hepsi çıksın (migration 029).
+        query = query.eq('has_image', true);
       }
       if (filters.category) {
         query = query.eq('category_name', filters.category);
@@ -112,7 +115,10 @@ export const useCombisteelStore = create<CombisteelState>((set, get) => ({
         query = query.lte('price', filters.maxPrice);
       }
 
-      query = query.order(filters.sortBy, { ascending: filters.sortOrder === 'asc' });
+      // Önce €1500–€5000 bandı (sort_rank=0), küçük/ucuz ürünler sona (migration 028).
+      query = query
+        .order('sort_rank', { ascending: true })
+        .order(filters.sortBy, { ascending: filters.sortOrder === 'asc' });
       query = query.range(from, to);
 
       const { data, error, count } = await query;

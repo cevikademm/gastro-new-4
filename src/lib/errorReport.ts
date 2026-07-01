@@ -5,6 +5,7 @@
 // parse edebilen bakımlı fork (klasik html2canvas bunlarda hata fırlatıyordu).
 import html2canvas from 'html2canvas-pro';
 import { supabase } from './supabase';
+import i18n from '../i18n';
 
 // WhatsApp mesaj başlığındaki proje adı.
 const APP_NAME = '2MC Gastro';
@@ -186,10 +187,14 @@ export async function uploadScreenshot(
   }
 }
 
-const SEVERITY_LABEL: Record<ErrorSeverity, string> = {
-  low: 'Düşük',
-  normal: 'Normal',
-  high: 'Yüksek / Acil',
+// Önem etiketleri — dil değişimini yansıtsın diye çağrı anında çözülür.
+const severityLabel = (s: ErrorSeverity): string => {
+  switch (s) {
+    case 'low': return i18n.t('errorReports.severity.low');
+    case 'high': return i18n.t('errorReports.severity.high');
+    case 'normal':
+    default: return i18n.t('errorReports.severity.normal');
+  }
 };
 
 /**
@@ -205,22 +210,27 @@ export function buildWhatsAppText(
     catch { return rec.created_at || ''; }
   })();
   const screenshotLine = rec.screenshot_url
-    ? `🖼️ Ekran görüntüsü: ${rec.screenshot_url}`
+    ? i18n.t('errorReports.wa.screenshotUrl', { url: rec.screenshot_url })
     : attached
-      ? '🖼️ Ekran görüntüsü bu mesaja dosya olarak eklendi.'
+      ? i18n.t('errorReports.wa.attached')
       : copied
-        ? '🖼️ Ekran görüntüsü panoya kopyalandı — sohbete Ctrl+V ile yapıştırın.'
-        : '🖼️ Ekran görüntüsü cihaza indirildi — 📎 ile iliştirin.';
+        ? i18n.t('errorReports.wa.copied')
+        : i18n.t('errorReports.wa.downloaded');
   const lines = [
-    `🚨 *HATA BİLDİRİMİ — ${APP_NAME}*`,
-    `👤 Bildiren: ${rec.reporter_name || '—'}${rec.reporter_role ? ` (${rec.reporter_role})` : ''}`,
+    i18n.t('errorReports.wa.title', { appName: APP_NAME }),
+    i18n.t('errorReports.wa.reporter', {
+      name: rec.reporter_name || '—',
+      role: rec.reporter_role ? ` (${rec.reporter_role})` : '',
+    }),
     `🕒 ${dt}`,
-    `📍 Sayfa: ${rec.page_path || '—'}`,
+    i18n.t('errorReports.wa.page', { path: rec.page_path || '—' }),
     rec.page_url ? `🔗 ${rec.page_url}` : null,
     `🖥️ ${rec.screen_size || '—'}`,
-    `⚠️ Önem: ${SEVERITY_LABEL[(rec.severity as ErrorSeverity)] || rec.severity || 'Normal'}`,
+    i18n.t('errorReports.wa.severity', {
+      severity: severityLabel(rec.severity as ErrorSeverity) || rec.severity || i18n.t('errorReports.severity.normal'),
+    }),
     '',
-    '📝 *Açıklama:*',
+    i18n.t('errorReports.wa.descriptionHeader'),
     rec.description || '—',
     '',
     screenshotLine,

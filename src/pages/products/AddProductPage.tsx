@@ -7,21 +7,22 @@ import {
   Flame, Droplets, Refrigerator, Table, Microwave, Waves, Package
 } from 'lucide-react';
 
+// labelKey → çeviri anahtarı (render sırasında t() ile çözülür)
 const CATEGORY_OPTIONS = [
-  { value: 'cooking', label: 'Pişirme', icon: Flame, color: '#ef4444' },
-  { value: 'cold', label: 'Soğutma', icon: Refrigerator, color: '#3b82f6' },
-  { value: 'cleaning', label: 'Temizlik', icon: Droplets, color: '#06b6d4' },
-  { value: 'neutral', label: 'Nötr', icon: Table, color: '#6b7280' },
-  { value: 'other', label: 'Diğer', icon: Package, color: '#8b5cf6' },
+  { value: 'cooking', labelKey: 'product.category.cooking', icon: Flame, color: '#ef4444' },
+  { value: 'cold', labelKey: 'product.category.cold', icon: Refrigerator, color: '#3b82f6' },
+  { value: 'cleaning', labelKey: 'product.category.cleaning', icon: Droplets, color: '#06b6d4' },
+  { value: 'neutral', labelKey: 'product.category.neutral', icon: Table, color: '#6b7280' },
+  { value: 'other', labelKey: 'product.category.other', icon: Package, color: '#8b5cf6' },
 ];
 
 const ICON_OPTIONS = [
-  { value: 'microwave', label: 'Fırın', icon: Microwave },
-  { value: 'flame', label: 'Ocak/Izgara', icon: Flame },
-  { value: 'refrigerator', label: 'Soğutucu', icon: Refrigerator },
-  { value: 'droplets', label: 'Bulaşık M.', icon: Droplets },
-  { value: 'waves', label: 'Evye', icon: Waves },
-  { value: 'table', label: 'Tezgah', icon: Table },
+  { value: 'microwave', labelKey: 'product.planIcon.oven', icon: Microwave },
+  { value: 'flame', labelKey: 'product.planIcon.stoveGrill', icon: Flame },
+  { value: 'refrigerator', labelKey: 'product.planIcon.cooler', icon: Refrigerator },
+  { value: 'droplets', labelKey: 'product.planIcon.dishwasher', icon: Droplets },
+  { value: 'waves', labelKey: 'product.planIcon.sink', icon: Waves },
+  { value: 'table', labelKey: 'product.planIcon.counter', icon: Table },
 ];
 
 export default function AddProductPage() {
@@ -62,7 +63,7 @@ export default function AddProductPage() {
   const handleImageUpload = (file: File) => {
     if (!file.type.startsWith('image/')) return;
     if (file.size > 5 * 1024 * 1024) {
-      alert('Maksimum dosya boyutu 5MB');
+      alert(t('product.maxFileSize'));
       return;
     }
 
@@ -96,8 +97,8 @@ export default function AddProductPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
-    if (!form.name) { setFormError('Ürün adı zorunludur.'); return; }
-    if (!projectId) { setFormError('Proje bulunamadı.'); return; }
+    if (!form.name) { setFormError(t('product.nameRequired')); return; }
+    if (!projectId) { setFormError(t('project.notFound')); return; }
 
     addProductToProject(projectId, {
       name: form.name,
@@ -125,7 +126,7 @@ export default function AddProductPage() {
   if (!project) {
     return (
       <div className="max-w-3xl mx-auto w-full text-center py-20">
-        <p className="text-on-surface-variant">Proje bulunamadı</p>
+        <p className="text-on-surface-variant">{t('project.notFound')}</p>
       </div>
     );
   }
@@ -133,13 +134,13 @@ export default function AddProductPage() {
   return (
     <div className="max-w-4xl mx-auto w-full space-y-5 pb-24 md:pb-0">
       <button onClick={() => navigate(`/projects/${projectId}`)} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium">
-        <ArrowLeft size={18} /> {project.name} projesine geri dön
+        <ArrowLeft size={18} /> {t('project.backToProject', { name: project.name })}
       </button>
 
       <div>
-        <h1 className="font-headline text-2xl md:text-3xl font-black text-on-surface tracking-tight">Yeni Ürün Ekle</h1>
+        <h1 className="font-headline text-2xl md:text-3xl font-black text-on-surface tracking-tight">{t('product.addNewProduct')}</h1>
         <p className="text-on-surface-variant mt-1 text-sm">
-          <span className="font-bold text-primary">{project.name}</span> projesine ürün ekleyin
+          <span className="font-bold text-primary">{project.name}</span> {t('product.addProductToProjectSuffix')}
         </p>
       </div>
 
@@ -152,7 +153,7 @@ export default function AddProductPage() {
       <form onSubmit={handleSubmit} className="space-y-5">
         {/* Image Upload */}
         <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/10">
-          <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">Ürün Görseli</h2>
+          <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">{t('product.productImage')}</h2>
 
           {imagePreview ? (
             <div className="relative w-full max-w-md mx-auto">
@@ -179,8 +180,8 @@ export default function AddProductPage() {
                 <Upload size={28} className="text-slate-400" />
               </div>
               <div className="text-center">
-                <p className="text-sm font-bold text-slate-600">Görsel yüklemek için tıklayın veya sürükleyin</p>
-                <p className="text-xs text-slate-400 mt-1">PNG, JPG, WEBP (maks. 5MB)</p>
+                <p className="text-sm font-bold text-slate-600">{t('product.uploadImageHint')}</p>
+                <p className="text-xs text-slate-400 mt-1">{t('product.imageFormatsHint')}</p>
               </div>
             </div>
           )}
@@ -196,39 +197,39 @@ export default function AddProductPage() {
 
         {/* Basic Info */}
         <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/10">
-          <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">Temel Bilgiler</h2>
+          <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">{t('product.basicInfo')}</h2>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Ürün Adı *</label>
-              <input name="name" value={form.name} onChange={handleChange} required placeholder="ör: Konveksiyonlu Fırın Pro" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.productNameRequired')}</label>
+              <input name="name" value={form.name} onChange={handleChange} required placeholder={t('product.productNamePlaceholder')} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Ürün Kodu</label>
-              <input name="code" value={form.code} onChange={handleChange} placeholder="ör: VF-OVN-601-EL" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.productCode')}</label>
+              <input name="code" value={form.code} onChange={handleChange} placeholder={t('product.codePlaceholder')} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Marka</label>
-              <input name="brand" value={form.brand} onChange={handleChange} placeholder="ör: 2MC" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('common.brand')}</label>
+              <input name="brand" value={form.brand} onChange={handleChange} placeholder={t('product.brandPlaceholder')} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Seri</label>
-              <input name="series" value={form.series} onChange={handleChange} placeholder="ör: 70er" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.series')}</label>
+              <input name="series" value={form.series} onChange={handleChange} placeholder={t('product.seriesPlaceholder')} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
           </div>
 
           <div className="mt-5">
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Açıklama</label>
-            <textarea name="description" value={form.description} onChange={handleChange} rows={2} placeholder="Ürün hakkında kısa açıklama..." className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none resize-none" />
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.description')}</label>
+            <textarea name="description" value={form.description} onChange={handleChange} rows={2} placeholder={t('product.descriptionPlaceholder')} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none resize-none" />
           </div>
         </div>
 
         {/* Category & Icon */}
         <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/10">
-          <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">Kategori ve İkon</h2>
+          <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">{t('product.categoryAndIcon')}</h2>
 
           <div className="mb-5">
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Kategori *</label>
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">{t('product.categoryRequired')}</label>
             <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
               {CATEGORY_OPTIONS.map((cat) => {
                 const Icon = cat.icon;
@@ -243,7 +244,7 @@ export default function AddProductPage() {
                     }`}
                   >
                     <Icon size={20} style={{ color: cat.color }} />
-                    <span className={`text-[10px] font-bold ${isSelected ? 'text-primary' : 'text-slate-500'}`}>{cat.label}</span>
+                    <span className={`text-[10px] font-bold ${isSelected ? 'text-primary' : 'text-slate-500'}`}>{t(cat.labelKey)}</span>
                   </button>
                 );
               })}
@@ -251,7 +252,7 @@ export default function AddProductPage() {
           </div>
 
           <div>
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">Plan İkonu</label>
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-2">{t('product.planIconLabel')}</label>
             <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
               {ICON_OPTIONS.map((opt) => {
                 const Icon = opt.icon;
@@ -266,7 +267,7 @@ export default function AddProductPage() {
                     }`}
                   >
                     <Icon size={18} className={isSelected ? 'text-primary' : 'text-slate-400'} />
-                    <span className={`text-[9px] font-bold ${isSelected ? 'text-primary' : 'text-slate-400'}`}>{opt.label}</span>
+                    <span className={`text-[9px] font-bold ${isSelected ? 'text-primary' : 'text-slate-400'}`}>{t(opt.labelKey)}</span>
                   </button>
                 );
               })}
@@ -276,55 +277,55 @@ export default function AddProductPage() {
 
         {/* Dimensions & Technical */}
         <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/10">
-          <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">Teknik Özellikler</h2>
+          <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">{t('product.technicalSpecs')}</h2>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Genişlik (cm)</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.widthCm')}</label>
               <input name="width" type="number" value={form.width} onChange={handleChange} placeholder="80" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Yükseklik (cm)</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.heightCm')}</label>
               <input name="height" type="number" value={form.height} onChange={handleChange} placeholder="70" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Derinlik (cm)</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.depthCm')}</label>
               <input name="depth" type="number" value={form.depth} onChange={handleChange} placeholder="85" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Güç (kW)</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.powerKw')}</label>
               <input name="kw" type="number" step="0.1" value={form.kw} onChange={handleChange} placeholder="12.0" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Enerji Tipi</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.energyType')}</label>
               <select name="powerType" value={form.powerType} onChange={handleChange} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none">
-                <option value="electric">Elektrik</option>
-                <option value="gas">Doğalgaz</option>
-                <option value="none">Yok (Pasif)</option>
+                <option value="electric">{t('product.energyElectric')}</option>
+                <option value="gas">{t('product.energyGas')}</option>
+                <option value="none">{t('product.energyNone')}</option>
               </select>
             </div>
             <div>
-              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Fiyat (€)</label>
+              <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.priceEuro')}</label>
               <input name="price" type="number" value={form.price} onChange={handleChange} placeholder="7800" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
             </div>
           </div>
 
           <div className="mt-5">
-            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">Özellikler (virgülle ayırın)</label>
-            <input name="features" value={form.features} onChange={handleChange} placeholder="ör: Buhar enjeksiyonu, Dokunmatik ekran, Otomatik programlar" className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
+            <label className="block text-xs font-bold text-on-surface-variant uppercase tracking-wider mb-1.5">{t('product.featuresLabel')}</label>
+            <input name="features" value={form.features} onChange={handleChange} placeholder={t('product.featuresPlaceholder')} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
           </div>
         </div>
 
         {/* Desktop Actions */}
         <div className="hidden md:flex justify-end gap-4">
           <button type="button" onClick={() => navigate(`/projects/${projectId}`)} className="px-6 py-3 text-sm font-medium text-on-surface-variant hover:bg-surface-container-high rounded-lg transition-colors">
-            İptal
+            {t('common.cancel')}
           </button>
           <button type="submit" className="flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:opacity-90 transition-all">
-            <Save size={18} /> Ürünü Kaydet
+            <Save size={18} /> {t('product.saveProduct')}
           </button>
         </div>
       </form>
@@ -332,12 +333,12 @@ export default function AddProductPage() {
       {/* Mobile Sticky Bottom Actions */}
       <div className="fixed md:hidden bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 px-4 py-3 flex gap-3 shadow-lg">
         <button type="button" onClick={() => navigate(`/projects/${projectId}`)} className="flex-1 py-3 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-colors">
-          İptal
+          {t('common.cancel')}
         </button>
         <button
           type="button"
           onClick={() => {
-            if (!form.name) { setFormError('Ürün adı zorunludur.'); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+            if (!form.name) { setFormError(t('product.nameRequired')); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
             setFormError('');
             if (!projectId) return;
             addProductToProject(projectId, {
@@ -363,7 +364,7 @@ export default function AddProductPage() {
           }}
           className="flex-1 flex items-center justify-center gap-2 brushed-metal text-white py-3 rounded-xl font-bold shadow-lg hover:opacity-90 transition-all"
         >
-          <Save size={18} /> Ürünü Kaydet
+          <Save size={18} /> {t('product.saveProduct')}
         </button>
       </div>
     </div>

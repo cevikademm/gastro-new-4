@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Heart, ShoppingCart, Check, ArrowRight } from 'lucide-react';
 import { useEquipmentStore } from '../../stores/equipmentStore';
 import { useCartStore } from '../../stores/cartStore';
 
 export default function FavoritesPage() {
+  const { t } = useTranslation();
   const favorites = useEquipmentStore((s) => s.favorites);
   const getFavoriteItems = useEquipmentStore((s) => s.getFavoriteItems);
   const toggleFavorite = useEquipmentStore((s) => s.toggleFavorite);
@@ -17,16 +19,16 @@ export default function FavoritesPage() {
       <div className="mb-8 flex flex-col gap-2 border-b border-slate-200 pb-6">
         <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase">
           <Heart size={13} className="fill-brand-red text-brand-red" />
-          Favoriler
+          {t('favorites.eyebrow')}
         </span>
         <h1 className="font-display text-2xl sm:text-3xl font-bold text-[#0F2440] tracking-tight">
-          Gemerkte Geräte
+          {t('favorites.title')}
           {items.length > 0 && (
             <span className="ml-2 align-middle text-sm font-bold text-slate-400">({items.length})</span>
           )}
         </h1>
         <p className="text-sm text-slate-500">
-          Deine gemerkten Produkte — direkt ins Angebot legen oder Projekt anfragen.
+          {t('favorites.subtitle')}
         </p>
       </div>
 
@@ -36,14 +38,14 @@ export default function FavoritesPage() {
             <Heart size={22} className="text-slate-300" />
           </span>
           <div>
-            <p className="font-display text-lg font-bold text-[#0F2440]">Noch keine Favoriten</p>
-            <p className="mt-1 text-sm text-slate-500">Markiere Geräte mit dem Herz, um sie hier zu sammeln.</p>
+            <p className="font-display text-lg font-bold text-[#0F2440]">{t('favorites.emptyTitle')}</p>
+            <p className="mt-1 text-sm text-slate-500">{t('favorites.emptyHint')}</p>
           </div>
           <Link
             to="/kategori"
             className="mt-2 inline-flex items-center gap-2 rounded-xl bg-brand-red px-6 py-3 text-[11px] font-bold uppercase tracking-[0.16em] text-white transition-all hover:bg-[#B91C1C]"
           >
-            Produkte entdecken
+            {t('favorites.discoverProducts')}
             <ArrowRight size={14} />
           </Link>
         </div>
@@ -58,7 +60,7 @@ export default function FavoritesPage() {
               >
                 <button
                   onClick={() => toggleFavorite(prod.id)}
-                  aria-label="Favori kaldır"
+                  aria-label={t('favorites.removeFavorite')}
                   className="absolute right-2 top-2 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-white/90 border border-slate-200 text-brand-red shadow-sm transition-all hover:bg-brand-red hover:text-white"
                 >
                   <Heart size={14} className="fill-current" />
@@ -80,7 +82,7 @@ export default function FavoritesPage() {
                     <span className="text-[9px] font-bold uppercase tracking-wider text-slate-400">{prod.brand}</span>
                   </div>
                   <h3 className="mb-2 min-h-[32px] text-[12px] sm:text-[13px] font-bold leading-snug text-[#0F2440] line-clamp-2 group-hover:text-brand-red transition-colors">
-                    {prod.name}
+                    {prod.name?.trim() || prod.sub || prod.fam || prod.id}
                   </h3>
 
                   <div className="mt-auto">
@@ -88,7 +90,7 @@ export default function FavoritesPage() {
                       <span className="font-display text-lg font-black text-[#0F2440]">
                         € {prod.price.toLocaleString('de-DE')}
                       </span>
-                      <span className="text-[9px] font-medium text-slate-400">net</span>
+                      <span className="text-[9px] font-medium text-slate-400">{t('common.net')}</span>
                     </div>
                     <button
                       onClick={() => (added ? removeItem(prod.id) : addItem(prod))}
@@ -99,7 +101,7 @@ export default function FavoritesPage() {
                       }`}
                     >
                       {added ? <Check size={12} /> : <ShoppingCart size={12} />}
-                      {added ? 'Im Angebot' : 'Zum Angebot'}
+                      {added ? t('favorites.inOffer') : t('favorites.addToOffer')}
                     </button>
                   </div>
                 </div>

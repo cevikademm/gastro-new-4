@@ -4,6 +4,7 @@
  */
 
 import React, { useEffect, useMemo, useState, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   ArrowRight,
@@ -119,13 +120,13 @@ const CONCEPTS = [
 ];
 
 const CATALOG_CATEGORIES = [
-  { id: "all", name: "Tüm Ürünler" },
-  { id: "cooking", name: "Pişirme Ekipmanı" },
-  { id: "cooling", name: "Soğutma Grubu" },
-  { id: "dishwash", name: "Bulaşık Yıkama" },
-  { id: "pizza_pasta", name: "Pizza & Pasta" },
-  { id: "prep_hygiene", name: "Paslanmaz Hazırlık" },
-  { id: "dynamic_prep", name: "Dinamik Hazırlık" }
+  { id: "all", nameKey: "landing.master.catalog.categories.all" },
+  { id: "cooking", nameKey: "landing.master.catalog.categories.cooking" },
+  { id: "cooling", nameKey: "landing.master.catalog.categories.cooling" },
+  { id: "dishwash", nameKey: "landing.master.catalog.categories.dishwash" },
+  { id: "pizza_pasta", nameKey: "landing.master.catalog.categories.pizzaPasta" },
+  { id: "prep_hygiene", nameKey: "landing.master.catalog.categories.prepHygiene" },
+  { id: "dynamic_prep", nameKey: "landing.master.catalog.categories.dynamicPrep" }
 ];
 
 const PROJECT_PACKAGES = [
@@ -175,34 +176,34 @@ const SALES_PROOF = [
 
 const APPLIANCE_TABS: Array<{
   id: 'mixer' | 'ice';
-  label: string;
-  title: string;
-  desc: string;
+  labelKey: string;
+  titleKey: string;
+  descKey: string;
   image: string;
-  normalLabel: string;
-  cutawayLabel: string;
+  normalLabelKey: string;
+  cutawayLabelKey: string;
   normalModel: ModelKey;
   cutawayModel: ModelKey;
 }> = [
   {
     id: 'mixer',
-    label: 'Mikser',
-    title: 'Spiral Mikser Baugruppen-Analyse',
-    desc: 'Spiral mikserin dış gövdesini ve parçalı mekanizma görünümünü aynı eksende karşılaştırın.',
+    labelKey: 'landing.master.inspection.appliances.mixer.label',
+    titleKey: 'landing.master.inspection.appliances.mixer.title',
+    descKey: 'landing.master.inspection.appliances.mixer.desc',
     image: '/landing/products/spiral-mixer.webp',
-    normalLabel: 'Mikser Normal',
-    cutawayLabel: 'Mikser Parçalı',
+    normalLabelKey: 'landing.master.inspection.appliances.mixer.normalLabel',
+    cutawayLabelKey: 'landing.master.inspection.appliances.mixer.cutawayLabel',
     normalModel: 'mixerNormal',
     cutawayModel: 'mixerCutaway',
   },
   {
     id: 'ice',
-    label: 'Buz Makinesi',
-    title: 'Buz Makinesi İç Yapı Analizi',
-    desc: 'Buz/soğutma cihazının normal gövdesini ve kesitli iç bileşenlerini sürükleyerek inceleyin.',
+    labelKey: 'landing.master.inspection.appliances.ice.label',
+    titleKey: 'landing.master.inspection.appliances.ice.title',
+    descKey: 'landing.master.inspection.appliances.ice.desc',
     image: '/landing/products/ice-maker.webp',
-    normalLabel: 'Buz Makinesi Normal',
-    cutawayLabel: 'Buz Makinesi Parçalı',
+    normalLabelKey: 'landing.master.inspection.appliances.ice.normalLabel',
+    cutawayLabelKey: 'landing.master.inspection.appliances.ice.cutawayLabel',
     normalModel: 'iceNormal',
     cutawayModel: 'iceCutaway',
   },
@@ -389,6 +390,7 @@ const LANDING_PRODUCTS: EquipmentItem[] = [
 ];
 
 export function LandingPage() {
+  const { t } = useTranslation();
   const [showOverlay] = useState(false);
 
   // Cart integration
@@ -723,14 +725,14 @@ export function LandingPage() {
   const handleRfqSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (cartItems.length === 0) {
-      setFormMsg({ text: "Bitte fügen Sie mindestens ein Gerät zur Angebotsliste hinzu.", isSuccess: false });
+      setFormMsg({ text: t('landing.master.quote.form.errorNoItems'), isSuccess: false });
       return;
     }
     if (!projectName || !projectSegment || (!contactPhone && !contactEmail)) {
-      setFormMsg({ text: "Bitte füllen Sie Firma/Projekt, Segment und mindestens eine Kontaktmöglichkeit aus.", isSuccess: false });
+      setFormMsg({ text: t('landing.master.quote.form.errorMissingFields'), isSuccess: false });
       return;
     }
-    setFormMsg({ text: `Danke. Die B2B-Anfrage für "${projectName}" wurde vorbereitet. Unser Team aus Köln meldet sich innerhalb von 24 Stunden.`, isSuccess: true });
+    setFormMsg({ text: t('landing.master.quote.form.success', { name: projectName }), isSuccess: true });
     setTimeout(() => {
       setProjectName("");
       setContactPhone("");
@@ -821,7 +823,7 @@ export function LandingPage() {
                   type="button"
                   onClick={goToPreviousSlide}
                   className="pointer-events-auto grid h-9 w-9 place-items-center rounded-full border border-white/65 bg-white/55 text-[#0F2440] shadow-[0_16px_34px_-24px_rgba(15,36,64,0.8)] backdrop-blur-md transition-all duration-300 hover:-translate-x-0.5 hover:border-white hover:bg-white/90 hover:text-brand-red focus-visible:bg-white sm:h-11 sm:w-11"
-                  aria-label="Vorheriger Banner"
+                  aria-label={t('landing.master.hero.prevBanner')}
                 >
                   <ChevronLeft size={18} strokeWidth={2.4} />
                 </button>
@@ -829,7 +831,7 @@ export function LandingPage() {
                   type="button"
                   onClick={goToNextSlide}
                   className="pointer-events-auto grid h-9 w-9 place-items-center rounded-full border border-white/65 bg-white/55 text-[#0F2440] shadow-[0_16px_34px_-24px_rgba(15,36,64,0.8)] backdrop-blur-md transition-all duration-300 hover:translate-x-0.5 hover:border-white hover:bg-white/90 hover:text-brand-red focus-visible:bg-white sm:h-11 sm:w-11"
-                  aria-label="Nächster Banner"
+                  aria-label={t('landing.master.hero.nextBanner')}
                 >
                   <ChevronRight size={18} strokeWidth={2.4} />
                 </button>
@@ -843,7 +845,7 @@ export function LandingPage() {
                       key={idx}
                       onClick={() => setCurrentSlide(idx)}
                       className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === idx ? "w-8 bg-brand-red shadow-[0_0_10px_rgba(220,38,38,0.6)]" : "w-2 bg-white/60 hover:bg-white"}`}
-                      aria-label={`Banner ${idx + 1}: ${banner.alt}`}
+                      aria-label={t('landing.master.hero.bannerDot', { index: idx + 1, alt: banner.alt })}
                     />
                   ))}
                 </div>
@@ -870,15 +872,15 @@ export function LandingPage() {
                 <div>
                   <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[9px] tracking-[0.3em] uppercase mb-2">
                     <span className="w-6 h-px bg-brand-red" />
-                    ONLINE SHOP
+                    {t('landing.master.catalog.eyebrow')}
                   </span>
                   <h2 className="text-2xl md:text-3xl font-display font-bold text-[#0F2440] tracking-tight">
-                    Top Produkte für <span className="text-brand-red">dein Projekt</span>
+                    {t('landing.master.catalog.headingLead')} <span className="text-brand-red">{t('landing.master.catalog.headingAccent')}</span>
                   </h2>
-                  <p className="mt-1 text-xs text-slate-500">Bestseller direkt in die Angebotsliste legen, Leasingrate sehen und Projektpreis anfordern.</p>
+                  <p className="mt-1 text-xs text-slate-500">{t('landing.master.catalog.subtitle')}</p>
                 </div>
                 <a href="/magaza" className="text-xs font-bold uppercase tracking-[0.2em] text-[#0F2440] hover:text-brand-red transition-all cursor-pointer">
-                  ALLE PRODUKTE ANSEHEN &gt;
+                  {t('landing.master.catalog.viewAll')} &gt;
                 </a>
               </div>
 
@@ -891,14 +893,14 @@ export function LandingPage() {
                       type="search"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Modell, SKU suchen..."
+                      placeholder={t('landing.master.catalog.searchPlaceholder')}
                       className="w-full bg-slate-50 border border-slate-200 rounded-lg py-2 pl-3 pr-8 text-[10px] outline-none focus:border-brand-red transition-colors"
                     />
                   </div>
 
                   <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between items-center">
-                    <span>Kategorien</span>
-                    <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[9px]">{filteredProducts.length} Geräte</span>
+                    <span>{t('landing.master.catalog.categoriesLabel')}</span>
+                    <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[9px]">{t('landing.master.catalog.devicesCount', { count: filteredProducts.length })}</span>
                   </div>
 
                   <div
@@ -911,15 +913,19 @@ export function LandingPage() {
                         onClick={() => setSelectedCategory(cat.id)}
                         className={`shrink-0 lg:shrink lg:w-full snap-start whitespace-nowrap text-left text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer ${selectedCategory === cat.id ? "bg-brand-red/10 border border-brand-red/25 text-brand-red" : "border border-slate-200 lg:border-transparent text-slate-600 hover:bg-slate-50"}`}
                       >
-                        {cat.name}
+                        {t(cat.nameKey)}
                       </button>
                     ))}
                   </div>
 
                   <div className="hidden lg:block border-t border-slate-100 pt-3 mt-3">
-                    <h4 className="text-[10px] font-bold text-[#0F2440] mb-2 uppercase tracking-wider">Techniker-Notizen</h4>
+                    <h4 className="text-[10px] font-bold text-[#0F2440] mb-2 uppercase tracking-wider">{t('landing.master.catalog.technicianNotes')}</h4>
                     <ul className="space-y-1.5 text-[10px] text-slate-500">
-                      {["B2B Spezifikationen original", "Direkte Kompatibilität geprüft", "Ein-Klick-Projekt hinzufügen"].map((item) => (
+                      {[
+                        t('landing.master.catalog.notes.specs'),
+                        t('landing.master.catalog.notes.compatibility'),
+                        t('landing.master.catalog.notes.oneClick'),
+                      ].map((item) => (
                         <li key={item} className="flex items-center gap-2">
                           <BadgeCheck size={11} className="text-brand-red shrink-0" />
                           {item}
@@ -931,10 +937,10 @@ export function LandingPage() {
                   <div className="mt-3 lg:mt-auto rounded-xl bg-[#0F2440] p-3 text-white overflow-hidden relative border border-white/10">
                     <div className="absolute inset-x-0 top-0 h-1 bg-brand-red" />
                     <Headphones size={14} className="text-brand-red mb-1" />
-                    <h4 className="font-display text-[13px] font-black leading-tight">Nicht sicher, ne lazım?</h4>
-                    <p className="mt-1 text-[9px] leading-relaxed text-white/65">Gönderin kat planını, uzmanlarımız en verimli cihazları seçsin.</p>
+                    <h4 className="font-display text-[13px] font-black leading-tight">{t('landing.master.catalog.advisorCard.title')}</h4>
+                    <p className="mt-1 text-[9px] leading-relaxed text-white/65">{t('landing.master.catalog.advisorCard.desc')}</p>
                     <a href="#quote" className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[8px] font-bold uppercase tracking-[0.16em] text-[#0F2440] transition-all hover:bg-brand-red hover:text-white">
-                      Danışman Sor
+                      {t('landing.master.catalog.advisorCard.cta')}
                       <PhoneCall size={11} />
                     </a>
                   </div>
@@ -958,7 +964,7 @@ export function LandingPage() {
                              {/* Bestseller Badge */}
                              {prod.price > 3000 && (
 	                               <span className="absolute top-1.5 right-1.5 bg-brand-red text-white px-1.5 py-0.5 rounded text-[7px] font-bold uppercase tracking-wider shadow-[0_2px_4px_rgba(220,38,38,0.2)]">
-                                 TOP
+                                 {t('landing.master.catalog.card.topBadge')}
                                </span>
                              )}
                              
@@ -972,16 +978,16 @@ export function LandingPage() {
 	                                 <span className="text-[8px] font-bold text-brand-red uppercase tracking-[0.18em]">{prod.sub}</span>
 	                                 <span className="flex items-center gap-0.5 text-[8px] text-emerald-600 font-bold">
                                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />
-                                   STOKTA
+                                   {t('common.inStock')}
                                  </span>
                                </div>
 	                               <h3 className="text-[12px] sm:text-[13px] font-bold text-[#0F2440] leading-snug line-clamp-2 mb-2 min-h-[32px] group-hover:text-brand-red transition-colors">{prod.name}</h3>
                                
                                <div className="mt-2 flex items-baseline gap-1.5">
                                  <span className="text-xl sm:text-2xl font-display font-black text-[#0F2440] leading-tight">€ {prod.price.toLocaleString("de-DE")}</span>
-                                 <span className="text-[9px] font-medium text-slate-400">net</span>
+                                 <span className="text-[9px] font-medium text-slate-400">{t('landing.master.catalog.card.net')}</span>
                                </div>
-                               <div className="mt-1 text-[9px] font-bold text-slate-500">Leasing <span className="text-brand-red">€ {Math.round((prod.price * 1.15) / 60)}/Ay</span></div>
+                               <div className="mt-1 text-[9px] font-bold text-slate-500">{t('landing.master.catalog.card.leasing')} <span className="text-brand-red">{t('landing.master.catalog.card.perMonth', { amount: Math.round((prod.price * 1.15) / 60) })}</span></div>
                              </div>
  
                              <button
@@ -995,7 +1001,7 @@ export function LandingPage() {
 			                              className={`w-full py-2.5 rounded-lg text-[9px] font-bold tracking-[0.1em] uppercase transition-colors cursor-pointer border inline-flex items-center justify-center gap-1.5 ${added ? "bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200" : "bg-brand-red border-brand-red text-white hover:bg-[#B91C1C]"}`}
                             >
                               {added && <BadgeCheck size={12} />}
-                              {added ? "IM ANGEBOT" : "ZUM ANGEBOT"}
+                              {added ? t('landing.master.catalog.card.inQuote') : t('landing.master.catalog.card.addToQuote')}
                             </button>
                            </div>
 
@@ -1018,19 +1024,19 @@ export function LandingPage() {
                 {/* Left Side: Text and Statistics */}
                 <div className="lg:col-span-5 xl:col-span-4 text-left flex flex-col justify-center">
                   <span className="inline-flex items-center gap-2 text-brand-red font-black text-[11px] tracking-[0.3em] uppercase mb-4">
-                    KI KÜCHENPLANER
+                    {t('landing.master.planner.eyebrow')}
                     <Sparkles size={14} className="text-brand-red" />
                   </span>
                   <h2 className="text-4xl md:text-[3.35rem] font-display font-bold text-[#0F2440] tracking-tight leading-[1.05] mb-5">
-                    Gestalte deine <span className="text-brand-red">eigene Küche</span>.
+                    {t('landing.master.planner.headingLead')} <span className="text-brand-red">{t('landing.master.planner.headingAccent')}</span>.
                   </h2>
                   <p className="text-slate-600 text-sm md:text-base leading-relaxed mb-8 max-w-md">
-                    In wenigen Minuten – automatisch, präzise und ganz nach deinen Bedürfnissen.
+                    {t('landing.master.planner.subtitle')}
                   </p>
 
                   <div>
                     <a href="#chatbotSection" className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-brand-red hover:bg-[#B91C1C] text-white text-[11px] font-black tracking-[0.18em] rounded-xl uppercase transition-all shadow-[0_12px_24px_-10px_rgba(220,38,38,0.6)] hover:-translate-y-0.5">
-                      JETZT KÜCHE PLANEN
+                      {t('landing.master.planner.cta')}
                       <ArrowRight size={15} />
                     </a>
                   </div>
@@ -1076,7 +1082,7 @@ export function LandingPage() {
                               : 'text-slate-600 hover:text-[#0F2440]'
                           }`}
                         >
-                          {tab.label}
+                          {t(tab.labelKey)}
                         </button>
                       ))}
                     </div>
@@ -1084,9 +1090,9 @@ export function LandingPage() {
                     {/* 3D view mode tabs */}
                     <div className="bg-slate-100 p-1 rounded-xl border border-slate-200 flex gap-1">
                       {[
-                        { id: "normal", label: "Dış Gövde" },
-                        { id: "cutaway", label: "Kesit Analiz" },
-                        { id: "compare", label: "Karşılaştır" }
+                        { id: "normal", label: t('landing.master.inspection.viewMode.normal') },
+                        { id: "cutaway", label: t('landing.master.inspection.viewMode.cutaway') },
+                        { id: "compare", label: t('landing.master.inspection.viewMode.compare') }
                       ].map((mode) => (
                         <button
                           key={mode.id}
@@ -1108,7 +1114,7 @@ export function LandingPage() {
                       <React.Suspense fallback={
                         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-white">
                           <div className="w-8 h-8 border-t-2 border-brand-red rounded-full animate-spin" />
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Yükleniyor...</span>
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{t('common.loading')}</span>
                         </div>
                       }>
                         {viewMode === "compare" ? (
@@ -1148,8 +1154,8 @@ export function LandingPage() {
                                 ↔
                               </div>
                             </div>
-                            <span className="absolute bottom-5 left-5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-700 z-30 uppercase tracking-widest">{appliance.normalLabel}</span>
-                            <span className="absolute bottom-5 right-5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold text-brand-red z-30 uppercase tracking-widest">{appliance.cutawayLabel}</span>
+                            <span className="absolute bottom-5 left-5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold text-slate-700 z-30 uppercase tracking-widest">{t(appliance.normalLabelKey)}</span>
+                            <span className="absolute bottom-5 right-5 bg-white border border-slate-200 px-3 py-1.5 rounded-lg text-[10px] font-bold text-brand-red z-30 uppercase tracking-widest">{t(appliance.cutawayLabelKey)}</span>
                           </>
                         ) : viewMode === "normal" ? (
                           <KitchenModelViewer model={appliance.normalModel} autoRotate transparent className="w-full h-full scale-[0.9] translate-y-[8%]" />
@@ -1161,7 +1167,7 @@ export function LandingPage() {
                       <div className="absolute inset-0 flex items-center justify-center bg-white">
                         <img
                           src={appliance.image}
-                          alt={appliance.normalLabel}
+                          alt={t(appliance.normalLabelKey)}
                           className="h-full w-full object-contain p-6"
                           loading="lazy"
                         />
@@ -1174,15 +1180,15 @@ export function LandingPage() {
                 <div className="text-left order-1">
                   <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
                     <span className="w-6 h-px bg-brand-red" />
-                    3D MUTFAK TEKNOLOJİSİ
+                    {t('landing.master.inspection.eyebrow')}
                   </span>
                   <h2 className="lp-h2 font-display font-bold text-[#0F2440] tracking-tight mb-4">
-                    Ürünlerin <span className="text-brand-red">3D Görünen Penceresi</span>
+                    {t('landing.master.inspection.headingLead')} <span className="text-brand-red">{t('landing.master.inspection.headingAccent')}</span>
                   </h2>
-                  <p className="mb-8 text-xs text-slate-500">Mutfak aletlerini satın almadan önce her bileyenine kadar 3D olarak milimetrik inceleyin.</p>
-                  <h3 className="text-2xl font-bold text-[#0F2440] mb-6">{appliance.title}</h3>
+                  <p className="mb-8 text-xs text-slate-500">{t('landing.master.inspection.subtitle')}</p>
+                  <h3 className="text-2xl font-bold text-[#0F2440] mb-6">{t(appliance.titleKey)}</h3>
                   <p className="text-slate-600 text-sm leading-relaxed mb-8">
-                    {appliance.desc} Gelişmiş bilye yatağı, güç aktarım mekanizmaları ve motor yapısını katman katman analiz edin.
+                    {t(appliance.descKey)} {t('landing.master.inspection.descSuffix')}
                   </p>
 
                   <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
@@ -1194,36 +1200,36 @@ export function LandingPage() {
                       </colgroup>
                       <thead>
                         <tr className="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold text-[10px] sm:text-xs">
-                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">Bauteil</th>
-                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">Wert</th>
-                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">Teknik Rapor</th>
+                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">{t('landing.master.inspection.table.colComponent')}</th>
+                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">{t('landing.master.inspection.table.colValue')}</th>
+                          <th className="px-2.5 py-2.5 sm:py-4 text-left uppercase tracking-wider sm:px-5">{t('landing.master.inspection.table.colReport')}</th>
                         </tr>
                       </thead>
                       <tbody className="text-[10px] leading-snug text-slate-600 sm:text-xs sm:leading-normal">
                         <tr className="border-b border-slate-100">
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Edelstahlgehäuse</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">{t('landing.master.inspection.table.housing.component')}</td>
                           <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">AISI 304 (V2A)</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">100% Rostfrei</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">{t('landing.master.inspection.table.housing.report')}</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Antriebswelle</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Gehärteter Stahl</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">Verschleißarm</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">{t('landing.master.inspection.table.shaft.component')}</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">{t('landing.master.inspection.table.shaft.value')}</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">{t('landing.master.inspection.table.shaft.report')}</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Motor</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">2,2 kW, iki Geschwindigkeiten</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">Thermischer Schutz gegen Überlast und Überhitzung.</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">{t('landing.master.inspection.table.motor.component')}</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">{t('landing.master.inspection.table.motor.value')}</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-emerald-600 sm:px-5">{t('landing.master.inspection.table.motor.report')}</td>
                         </tr>
                         <tr className="border-b border-slate-100">
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Sicherheit</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Schutzgitter-Endschalter</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Schaltkreis nach CE-Anforderung verriegelt.</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">{t('landing.master.inspection.table.safety.component')}</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">{t('landing.master.inspection.table.safety.value')}</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">{t('landing.master.inspection.table.safety.report')}</td>
                         </tr>
                         <tr>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">Servis</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Verschraubtes Gehäuse</td>
-                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">Abnehmbare Serviceplatte für Riemen und Kette.</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 font-bold text-[#0F2440] sm:px-5">{t('landing.master.inspection.table.service.component')}</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">{t('landing.master.inspection.table.service.value')}</td>
+                          <td className="break-words px-2.5 py-2.5 sm:py-4 sm:px-5">{t('landing.master.inspection.table.service.report')}</td>
                         </tr>
                       </tbody>
                     </table>
@@ -1257,10 +1263,10 @@ export function LandingPage() {
               <div className="max-w-2xl mb-16 text-left">
                 <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
                   <span className="w-6 h-px bg-brand-red" />
-                  FINANZIERUNG
+                  {t('landing.master.leasing.eyebrow')}
                 </span>
                 <h2 className="lp-h2 font-display font-bold text-[#0F2440] tracking-tight">
-                  Finanzierung in <span className="text-brand-red">Echtzeit</span>
+                  {t('landing.master.leasing.headingLead')} <span className="text-brand-red">{t('landing.master.leasing.headingAccent')}</span>
                 </h2>
               </div>
 
@@ -1268,10 +1274,10 @@ export function LandingPage() {
 
                 {/* Form calculator */}
                 <div className="bg-white border border-slate-200 rounded-3xl p-8 shadow-[0_12px_36px_-12px_rgba(15,36,64,0.08)] flex flex-col text-left">
-                  <h3 className="text-xl font-bold text-[#0F2440] mb-8">Dein Projekt. Deine Finanzierung.</h3>
+                  <h3 className="text-xl font-bold text-[#0F2440] mb-8">{t('landing.master.leasing.calcTitle')}</h3>
 
                   <div className="mb-6">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Projektwert</label>
+                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">{t('landing.master.leasing.projectValue')}</label>
                     <input
                       type="range"
                       min="10000"

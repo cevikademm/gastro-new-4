@@ -1,14 +1,14 @@
 import type React from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { Check, X, Sparkles, Calculator, MessageCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import SEO from '../../components/SEO';
 import { getCompetitor } from '../../content/compare/competitors';
 import { breadcrumbSchema, faqSchema, organizationSchema } from '../../lib/seo';
 
 const TWO_MC = {
   name: '2MC Gastro',
-  origin: 'Almanya (Köln) + Türkiye',
-  monthlyTraffic: 'büyüyor',
+  originKey: 'compare.twoMcOrigin',
   productCount: 10000,
   brands: ['Diamond', 'CombiSteel', '50+ marka'],
   hasDesignTool: true,
@@ -18,48 +18,49 @@ const TWO_MC = {
   pricing: 'mid' as const,
 };
 
-const PRICING_LABEL: Record<'low' | 'mid' | 'premium', string> = {
-  low: 'Düşük',
-  mid: 'Orta',
-  premium: 'Premium',
+const PRICING_LABEL_KEY: Record<'low' | 'mid' | 'premium', string> = {
+  low: 'compare.pricingLow',
+  mid: 'compare.pricingMid',
+  premium: 'compare.pricingPremium',
 };
 
 export default function CompareDetailPage() {
+  const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const c = slug ? getCompetitor(slug) : undefined;
   if (!c) return <Navigate to="/compare" replace />;
 
-  const title = `2MC Gastro vs ${c.name} — Hangisi Daha İyi? (2026 Karşılaştırma)`;
-  const description = `${c.name} ile 2MC Gastro'yu yan yana karşılaştırın: ürün sayısı, 3D tasarım, kurulum, fiyat ve daha fazlası. Hangisi sizin için doğru?`;
+  const title = t('compare.detailSeoTitle', '2MC Gastro vs {{name}} — Hangisi Daha İyi? (2026 Karşılaştırma)', { name: c.name });
+  const description = t('compare.detailSeoDesc', "{{name}} ile 2MC Gastro'yu yan yana karşılaştırın: ürün sayısı, 3D tasarım, kurulum, fiyat ve daha fazlası. Hangisi sizin için doğru?", { name: c.name });
 
   const faqs = [
     {
-      question: `2MC Gastro ${c.name}'dan daha ucuz mu?`,
-      answer: `2MC Gastro orta segment fiyatlandırma sunar. ${c.name} ${PRICING_LABEL[c.pricing].toLowerCase()} segmentte konumlanır. 2MC Gastro fiyat farkını anahtar teslim kurulum, 3D tasarım ve HACCP danışmanlığı ile dengeler.`,
+      question: t('compare.faqPriceQ', "2MC Gastro {{name}}'dan daha ucuz mu?", { name: c.name }),
+      answer: t('compare.faqPriceA', '2MC Gastro orta segment fiyatlandırma sunar. {{name}} {{pricing}} segmentte konumlanır. 2MC Gastro fiyat farkını anahtar teslim kurulum, 3D tasarım ve HACCP danışmanlığı ile dengeler.', { name: c.name, pricing: t(PRICING_LABEL_KEY[c.pricing]).toLowerCase() }),
     },
     {
-      question: `${c.name} 3D mutfak tasarım sunuyor mu?`,
+      question: t('compare.faqDesignQ', '{{name}} 3D mutfak tasarım sunuyor mu?', { name: c.name }),
       answer: c.hasDesignTool
-        ? `Evet, ${c.name} sınırlı bir 3D tasarım aracı sunar. 2MC Gastro ise tam özellikli ücretsiz 3D stüdyo sağlar — sürükle bırak, gerçek zamanlı malzeme listesi ve PDF teklif çıktısı.`
-        : `Hayır, ${c.name} 3D tasarım aracı sunmaz. 2MC Gastro ücretsiz 3D mutfak stüdyosu, gerçek zamanlı BOM ve HACCP uyumlu yerleşim planı sağlar.`,
+        ? t('compare.faqDesignAYes', 'Evet, {{name}} sınırlı bir 3D tasarım aracı sunar. 2MC Gastro ise tam özellikli ücretsiz 3D stüdyo sağlar — sürükle bırak, gerçek zamanlı malzeme listesi ve PDF teklif çıktısı.', { name: c.name })
+        : t('compare.faqDesignANo', 'Hayır, {{name}} 3D tasarım aracı sunmaz. 2MC Gastro ücretsiz 3D mutfak stüdyosu, gerçek zamanlı BOM ve HACCP uyumlu yerleşim planı sağlar.', { name: c.name }),
     },
     {
-      question: `${c.name}'dan satın aldığımda kurulum hizmeti dahil mi?`,
+      question: t('compare.faqInstallQ', "{{name}}'dan satın aldığımda kurulum hizmeti dahil mi?", { name: c.name }),
       answer: c.hasInstallation
-        ? `${c.name} bazı bölgelerde kurulum hizmeti sunar. 2MC Gastro tüm Avrupa'da nakliye, kurulum, eğitim ve servis garantisi sağlayan tam anahtar teslim çözüm sunar.`
-        : `${c.name} genellikle yalnızca ürün satışı yapar; kurulum müşteriye bırakılır. 2MC Gastro nakliye, kurulum, eğitim ve servis garantisi içeren tam anahtar teslim hizmet sunar.`,
+        ? t('compare.faqInstallAYes', "{{name}} bazı bölgelerde kurulum hizmeti sunar. 2MC Gastro tüm Avrupa'da nakliye, kurulum, eğitim ve servis garantisi sağlayan tam anahtar teslim çözüm sunar.", { name: c.name })
+        : t('compare.faqInstallANo', '{{name}} genellikle yalnızca ürün satışı yapar; kurulum müşteriye bırakılır. 2MC Gastro nakliye, kurulum, eğitim ve servis garantisi içeren tam anahtar teslim hizmet sunar.', { name: c.name }),
     },
     {
-      question: `Hangi platform Türk işletmeler için daha uygun?`,
-      answer: `2MC Gastro Türkçe arayüz, Türk satış ekibi ve Türkiye'ye özel finansman seçenekleriyle Türk işletmeler için optimize edilmiştir. ${c.name} Türk pazarına özel destek sunmaz.`,
+      question: t('compare.faqTurkishQ', 'Hangi platform Türk işletmeler için daha uygun?'),
+      answer: t('compare.faqTurkishA', "2MC Gastro Türkçe arayüz, Türk satış ekibi ve Türkiye'ye özel finansman seçenekleriyle Türk işletmeler için optimize edilmiştir. {{name}} Türk pazarına özel destek sunmaz.", { name: c.name }),
     },
     {
-      question: `${c.name}'da AI satış asistanı var mı?`,
-      answer: `Hayır. 2MC Gastro, işletme tipinize ve kapasitenize göre kişiselleştirilmiş ürün önerileri sunan AI satış asistanına sahip pazardaki tek platformdur.`,
+      question: t('compare.faqAiQ', "{{name}}'da AI satış asistanı var mı?", { name: c.name }),
+      answer: t('compare.faqAiA', 'Hayır. 2MC Gastro, işletme tipinize ve kapasitenize göre kişiselleştirilmiş ürün önerileri sunan AI satış asistanına sahip pazardaki tek platformdur.'),
     },
     {
-      question: 'Hangi platformun ürün çeşitliliği daha geniş?',
-      answer: `${c.name} ${c.productCount.toLocaleString('tr-TR')}+ ürün listeler. 2MC Gastro 10.000+ premium ürün ile odaklı bir katalog sunar — Diamond ve CombiSteel ana markalar olarak. Geniş katalog yerine özenle seçilmiş, kanıtlanmış ekipmanlar.`,
+      question: t('compare.faqVarietyQ', 'Hangi platformun ürün çeşitliliği daha geniş?'),
+      answer: t('compare.faqVarietyA', '{{name}} {{count}}+ ürün listeler. 2MC Gastro 10.000+ premium ürün ile odaklı bir katalog sunar — Diamond ve CombiSteel ana markalar olarak. Geniş katalog yerine özenle seçilmiş, kanıtlanmış ekipmanlar.', { name: c.name, count: c.productCount.toLocaleString('tr-TR') }),
     },
   ];
 
@@ -92,9 +93,9 @@ export default function CompareDetailPage() {
         jsonLd={[
           organizationSchema(),
           breadcrumbSchema([
-            { name: 'Ana Sayfa', url: '/' },
-            { name: 'Karşılaştırma', url: '/compare' },
-            { name: `vs ${c.name}`, url: `/compare/${c.slug}` },
+            { name: t('compare.homeCrumb', 'Ana Sayfa'), url: '/' },
+            { name: t('compare.breadcrumb', 'Karşılaştırma'), url: '/compare' },
+            { name: `${t('compare.vs', 'vs')} ${c.name}`, url: `/compare/${c.slug}` },
           ]),
           faqSchema(faqs),
         ]}
@@ -103,17 +104,17 @@ export default function CompareDetailPage() {
       <section className="bg-gradient-to-br from-red-50 via-white to-rose-50 border-b border-slate-200">
         <div className="max-w-5xl mx-auto px-4 py-16">
           <nav className="text-xs text-slate-500 mb-4">
-            <Link to="/" className="hover:text-[#DC2626]">Ana Sayfa</Link>
+            <Link to="/" className="hover:text-[#DC2626]">{t('compare.homeCrumb', 'Ana Sayfa')}</Link>
             {' / '}
-            <Link to="/compare" className="hover:text-[#DC2626]">Karşılaştırma</Link>
+            <Link to="/compare" className="hover:text-[#DC2626]">{t('compare.breadcrumb', 'Karşılaştırma')}</Link>
             {' / '}
-            <span className="text-slate-700">vs {c.name}</span>
+            <span className="text-slate-700">{t('compare.vs', 'vs')} {c.name}</span>
           </nav>
           <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 leading-tight">
-            2MC Gastro <span className="text-slate-400">vs</span> {c.name}
+            2MC Gastro <span className="text-slate-400">{t('compare.vs', 'vs')}</span> {c.name}
           </h1>
           <p className="mt-4 text-lg text-slate-600 max-w-2xl">
-            İki platformu yan yana inceleyin — fiyat, ürün, hizmet ve teknoloji. Hangisi sizin işletmeniz için doğru karar?
+            {t('compare.detailIntro', 'İki platformu yan yana inceleyin — fiyat, ürün, hizmet ve teknoloji. Hangisi sizin işletmeniz için doğru karar?')}
           </p>
         </div>
       </section>
@@ -125,39 +126,39 @@ export default function CompareDetailPage() {
             <div className="text-lg font-bold text-[#DC2626]">2MC Gastro</div>
             <div className="text-lg font-bold text-slate-700">{c.name}</div>
           </div>
-          <Row label="Köken" a={TWO_MC.origin} b={`${c.origin} (${c.founded})`} />
-          <Row label="Ürün sayısı" a={`${TWO_MC.productCount.toLocaleString('tr-TR')}+`} b={`${c.productCount.toLocaleString('tr-TR')}+`} />
-          <Row label="Fiyat segmenti" a={PRICING_LABEL[TWO_MC.pricing]} b={PRICING_LABEL[c.pricing]} />
+          <Row label={t('compare.rowOrigin', 'Köken')} a={t(TWO_MC.originKey)} b={`${c.origin} (${c.founded})`} />
+          <Row label={t('compare.rowProductCount', 'Ürün sayısı')} a={`${TWO_MC.productCount.toLocaleString('tr-TR')}+`} b={`${c.productCount.toLocaleString('tr-TR')}+`} />
+          <Row label={t('compare.rowPricingSegment', 'Fiyat segmenti')} a={t(PRICING_LABEL_KEY[TWO_MC.pricing])} b={t(PRICING_LABEL_KEY[c.pricing])} />
           <Row
-            label="3D Tasarım Stüdyosu"
+            label={t('compare.rowDesignStudio', '3D Tasarım Stüdyosu')}
             a={<Bool v={TWO_MC.hasDesignTool} />}
             b={<Bool v={c.hasDesignTool} />}
             highlight={!c.hasDesignTool ? 'a' : undefined}
           />
           <Row
-            label="ROI Hesaplayıcı"
+            label={t('compare.rowRoiCalc', 'ROI Hesaplayıcı')}
             a={<Bool v={TWO_MC.hasROICalc} />}
             b={<Bool v={c.hasROICalc} />}
             highlight={!c.hasROICalc ? 'a' : undefined}
           />
           <Row
-            label="Anahtar teslim kurulum"
+            label={t('compare.rowTurnkeyInstall', 'Anahtar teslim kurulum')}
             a={<Bool v={TWO_MC.hasInstallation} />}
             b={<Bool v={c.hasInstallation} />}
           />
           <Row
-            label="Çoklu dil desteği"
-            a={<>13+ dil</>}
-            b={c.hasMultiLang ? <>Var</> : <>Sınırlı</>}
+            label={t('compare.rowMultiLang', 'Çoklu dil desteği')}
+            a={<>{t('compare.multiLangValue', '13+ dil')}</>}
+            b={c.hasMultiLang ? <>{t('compare.available', 'Var')}</> : <>{t('compare.limited', 'Sınırlı')}</>}
           />
-          <Row label="AI satış asistanı" a={<Check className="text-emerald-600" size={18} />} b={<X className="text-slate-300" size={18} />} highlight="a" />
-          <Row label="HACCP danışmanlığı" a={<Check className="text-emerald-600" size={18} />} b={<X className="text-slate-300" size={18} />} highlight="a" />
+          <Row label={t('compare.rowAiAssistant', 'AI satış asistanı')} a={<Check className="text-emerald-600" size={18} />} b={<X className="text-slate-300" size={18} />} highlight="a" />
+          <Row label={t('compare.rowHaccp', 'HACCP danışmanlığı')} a={<Check className="text-emerald-600" size={18} />} b={<X className="text-slate-300" size={18} />} highlight="a" />
         </div>
       </section>
 
       <section className="max-w-5xl mx-auto px-4 py-12 grid grid-cols-1 sm:grid-cols-2 gap-6">
         <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6">
-          <h3 className="font-bold text-emerald-900 mb-3">{c.name} — Güçlü Yönler</h3>
+          <h3 className="font-bold text-emerald-900 mb-3">{t('compare.strengthsTitle', '{{name}} — Güçlü Yönler', { name: c.name })}</h3>
           <ul className="space-y-2">
             {c.strengths.map((s, i) => (
               <li key={i} className="text-sm text-emerald-900 flex gap-2">
@@ -167,7 +168,7 @@ export default function CompareDetailPage() {
           </ul>
         </div>
         <div className="bg-amber-50 border border-amber-200 rounded-2xl p-6">
-          <h3 className="font-bold text-amber-900 mb-3">{c.name} — Eksikler</h3>
+          <h3 className="font-bold text-amber-900 mb-3">{t('compare.weaknessesTitle', '{{name}} — Eksikler', { name: c.name })}</h3>
           <ul className="space-y-2">
             {c.weaknesses.map((s, i) => (
               <li key={i} className="text-sm text-amber-900 flex gap-2">

@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
 import { supabase } from '../lib/supabase';
 import { sendOrderWhatsapp } from '../lib/orderWhatsapp';
 
@@ -35,6 +34,9 @@ interface OrderState {
   createOrder: (items: OrderItem[], totalPrice: number, totalItems: number, notes?: string) => Promise<Order | null>;
   deleteOrder: (id: string) => Promise<boolean>;
   getOrderById: (id: string) => Order | undefined;
+  /** Oturum kapanınca çağrılır — paylaşılan cihazda başka kullanıcının
+   *  siparişleri görünmesin diye yerel listeyi temizler. */
+  reset: () => void;
 }
 
 function getUserId(): string | null {
@@ -67,8 +69,10 @@ function generateOrderNumber(): string {
   return `ORD-${date}-${rand}`;
 }
 
+// NOT: Sipariş listesi KALICI (persist) DEĞİLDİR. OrdersPage her açılışta
+// fetchOrders() ile RLS-filtreli sunucu verisini çeker. Böylece paylaşılan
+// cihazda önceki kullanıcının siparişleri localStorage'da sızmaz.
 export const useOrderStore = create<OrderState>()(
-  persist(
     (set, get) => ({
       orders: [],
       loading: false,
@@ -113,7 +117,10 @@ export const useOrderStore = create<OrderState>()(
           updated_at: now,
         };
 
-        // Try Supabase first
+        // Supabase yapılandırılmışsa: sipariş MUTLAKA DB'ye yazılmalı.
+        // Aksi halde yalnız tarayıcıda kalan "hayalet" sipariş admin panelinde
+        // asla görünmez. Bu yüzden insert başarısızsa hata verip null döneriz;
+        // sahte yerel sipariş ÜRETMEYİZ.
         if (supabase) {
           try {
             const { data, error } = await supabase
@@ -138,13 +145,16 @@ export const useOrderStore = create<OrderState>()(
               try { void sendOrderWhatsapp(order); } catch { /* bildirim hatası yutulur */ }
               return order;
             }
-            console.warn('Supabase insert failed, falling back to local:', error?.message);
+            console.warn('Supabase order insert failed:', error?.message);
           } catch (err) {
-            console.warn('Supabase insert error, falling back to local:', err);
+            console.warn('Supabase order insert error:', err);
           }
+          // DB'ye yazılamadı → siparişi kaybetme, kullanıcıya net hata göster.
+          set({ error: 'Sipariş kaydedilemedi, lütfen tekrar deneyin.' });
+          return null;
         }
 
-        // Fallback: local-only order
+        // Supabase hiç yapılandırılmamışsa (yalnız dev): yerel sipariş.
         const localOrder: Order = {
           ...orderBase,
           id: crypto.randomUUID(),
@@ -181,12 +191,13 @@ export const useOrderStore = create<OrderState>()(
       },
 
       getOrderById: (id) => get().orders.find((o) => o.id === id),
-    }),
-    {
-      name: '2mc-orders',
-      partialize: (state) => ({ orders: state.orders }),
-    }
-  )
+
+      reset: () => {
+        // Eski persist sürümünden kalmış olabilecek yerel önbelleği de temizle.
+        try { localStorage.removeItem('2mc-orders'); } catch { /* ignore */ }
+        set({ orders: [], error: null });
+      },
+    })
 );
 
 // Export user info helper for OrdersPage

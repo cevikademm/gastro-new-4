@@ -60,7 +60,7 @@ export default function ProductDetailPage() {
           if (active) setRelated((rel || []) as DiamondProduct[]);
         }
       } catch (e: any) {
-        if (active) setError(e.message || 'Yüklenemedi');
+        if (active) setError(e.message || t('common.loadFailed', 'Yüklenemedi'));
       } finally {
         if (active) setLoading(false);
       }
@@ -116,14 +116,14 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-slate-50 pb-32 lg:pb-8">
       <SEO
         title={`${product.name} — ${product.product_family_name}`}
-        description={(product as any).description_short || `${product.name}. Diamond kalitesinde profesyonel endüstriyel mutfak ekipmanı. 2MC Gastro güvencesiyle.`}
+        description={(product as any).description_short || t('product.seoDescription', '{{name}}. Diamond kalitesinde profesyonel endüstriyel mutfak ekipmanı. 2MC Gastro güvencesiyle.', { name: product.name })}
         image={product.image_big || undefined}
         type="product"
         jsonLd={[
           breadcrumbSchema([
-            { name: 'Ana Sayfa', url: '/' },
+            { name: t('nav.home', 'Anasayfa'), url: '/' },
             { name: 'Diamond', url: '/diamond' },
-            { name: product.product_family_name || 'Ürünler', url: '/diamond' },
+            { name: product.product_family_name || t('product.breadcrumbProducts', 'Ürünler'), url: '/diamond' },
             { name: product.name, url: `/product/${product.id}` },
           ]),
           productSchema({
@@ -172,12 +172,12 @@ export default function ProductDetailPage() {
               )}
               {product.is_new && (
                 <span className="absolute top-4 left-4 bg-emerald-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  YENİ
+                  {t('product.badgeNewCaps', 'YENİ')}
                 </span>
               )}
               {hasPromo && (
                 <span className="absolute top-4 right-4 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full">
-                  İNDİRİM
+                  {t('product.badgeDiscount', 'İNDİRİM')}
                 </span>
               )}
             </div>
@@ -208,14 +208,14 @@ export default function ProductDetailPage() {
                   {product.product_family_name}
                 </p>
                 <h1 className="text-2xl font-bold text-slate-900 mt-1">{product.name}</h1>
-                <p className="text-xs text-slate-400 mt-1">SKU: {product.id}</p>
+                <p className="text-xs text-slate-400 mt-1">{t('product.sku', 'SKU')}: {product.id}</p>
               </div>
               <button
                 onClick={() => setFav((v) => !v)}
                 className={`p-2 rounded-full border transition ${
                   fav ? 'bg-red-50 border-red-200 text-red-500' : 'border-slate-200 text-slate-400 hover:text-red-500'
                 }`}
-                aria-label="favorite"
+                aria-label={t('product.favorite', 'Favori')}
               >
                 <Heart size={18} fill={fav ? 'currentColor' : 'none'} />
               </button>
@@ -226,7 +226,7 @@ export default function ProductDetailPage() {
               <div className="flex text-amber-400">
                 {[1, 2, 3, 4, 5].map((s) => <Star key={s} size={14} fill="currentColor" />)}
               </div>
-              <span className="text-xs text-slate-500">4.8 (24 {t('product.reviews', 'yorum')})</span>
+              <span className="text-xs text-slate-500">{t('product.ratingSummary', '{{rating}} ({{count}} yorum)', { rating: 4.8, count: 24 })}</span>
             </div>
 
             {/* Price */}
@@ -241,7 +241,7 @@ export default function ProductDetailPage() {
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 mt-1">KDV dahil · Ücretsiz kargo</p>
+              <p className="text-xs text-slate-500 mt-1">{t('product.vatFreeShipping', 'KDV dahil · Ücretsiz kargo')}</p>
             </div>
 
             {/* Stock */}
@@ -316,9 +316,9 @@ export default function ProductDetailPage() {
 
           {/* Trust badges */}
           <div className="bg-white rounded-2xl p-4 shadow-sm grid grid-cols-3 gap-2 text-center">
-            <div><div className="text-xs font-bold text-slate-900">Ücretsiz</div><div className="text-[10px] text-slate-500">Kargo</div></div>
-            <div><div className="text-xs font-bold text-slate-900">30 Gün</div><div className="text-[10px] text-slate-500">İade</div></div>
-            <div><div className="text-xs font-bold text-slate-900">24/7</div><div className="text-[10px] text-slate-500">Destek</div></div>
+            <div><div className="text-xs font-bold text-slate-900">{t('product.trustFreeTitle', 'Ücretsiz')}</div><div className="text-[10px] text-slate-500">{t('product.trustFreeSub', 'Kargo')}</div></div>
+            <div><div className="text-xs font-bold text-slate-900">{t('product.trustReturnTitle', '30 Gün')}</div><div className="text-[10px] text-slate-500">{t('product.trustReturnSub', 'İade')}</div></div>
+            <div><div className="text-xs font-bold text-slate-900">{t('product.trustSupportTitle', '24/7')}</div><div className="text-[10px] text-slate-500">{t('nav.support', 'Destek')}</div></div>
           </div>
         </div>
       </div>
@@ -352,15 +352,15 @@ export default function ProductDetailPage() {
             {tab === 'tech' && (
               <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-3">
                 {([
-                  ['Güç', product.electric_power_kw ? `${product.electric_power_kw} kW` : null],
-                  ['Bağlantı', product.electric_connection],
-                  ['Uzunluk', product.length_mm ? `${product.length_mm} mm` : null],
-                  ['Genişlik', product.width_mm ? `${product.width_mm} mm` : null],
-                  ['Yükseklik', product.height_mm ? `${product.height_mm} mm` : null],
-                  ['Ağırlık', product.weight ? `${product.weight} ${product.weight_unit}` : null],
-                  ['Hacim', product.volume_m3 ? `${product.volume_m3} m³` : null],
-                  ['Buhar', product.vapor],
-                  ['Kategori', product.product_family_name],
+                  [t('product.power', 'Güç'), product.electric_power_kw ? `${product.electric_power_kw} kW` : null],
+                  [t('product.connection', 'Bağlantı'), product.electric_connection],
+                  [t('product.length', 'Uzunluk'), product.length_mm ? `${product.length_mm} mm` : null],
+                  [t('product.width', 'Genişlik'), product.width_mm ? `${product.width_mm} mm` : null],
+                  [t('product.height', 'Yükseklik'), product.height_mm ? `${product.height_mm} mm` : null],
+                  [t('product.weight', 'Ağırlık'), product.weight ? `${product.weight} ${product.weight_unit}` : null],
+                  [t('product.volume', 'Hacim'), product.volume_m3 ? `${product.volume_m3} m³` : null],
+                  [t('product.vapor', 'Buhar'), product.vapor],
+                  [t('product.category', 'Kategori'), product.product_family_name],
                 ] as [string, any][]).filter(([, v]) => v).map(([k, v]) => (
                   <div key={k} className="flex justify-between py-2 border-b border-slate-100">
                     <dt className="font-medium text-slate-500">{k}</dt>
@@ -386,9 +386,9 @@ export default function ProductDetailPage() {
       {/* Passendes Zubehör — bu sisteme/seriye uyumlu aksesuarlar (katalogda gizli) */}
       {accessories.length > 0 && (
         <div className="max-w-7xl mx-auto px-4 mt-8">
-          <h2 className="text-xl font-bold text-slate-900 mb-1">Passendes Zubehör</h2>
+          <h2 className="text-xl font-bold text-slate-900 mb-1">{t('product.compatibleAccessories', 'Uyumlu Aksesuarlar')}</h2>
           <p className="text-sm text-slate-500 mb-4">
-            Für dieses System passende Körbe, Teile &amp; GN-Zubehör
+            {t('product.compatibleAccessoriesDesc', 'Bu sisteme uygun sepetler, parçalar ve GN aksesuarları')}
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
             {accessories.map((a) => (
@@ -484,7 +484,7 @@ export default function ProductDetailPage() {
       <button
         onClick={() => navigate(-1)}
         className="hidden lg:block fixed top-24 left-4 z-30 p-2 bg-white rounded-full shadow-lg hover:bg-slate-50"
-        aria-label="back"
+        aria-label={t('common.back', 'Geri')}
       >
         <ArrowLeft size={20} />
       </button>

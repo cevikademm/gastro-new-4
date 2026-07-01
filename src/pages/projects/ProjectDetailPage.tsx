@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useProjectStore, type ProductItem } from '../../stores/projectStore';
@@ -15,6 +15,8 @@ import SafeModelViewer from '../../components/SafeModelViewer';
 import { buildAngebotPdf, type DocLine } from '../../lib/angebotPdf';
 import { designQuoteLines, quoteLinesFromDoc, type DesignQuoteLine } from '../../lib/designQuoteLines';
 import { loadBestDesign } from '../../lib/gastroDesignSync';
+import { removeQuoteItemEverywhere } from '../../lib/designDelete';
+import ConfirmDialog from '../../components/ConfirmDialog';
 
 // Kat planından placedItems okuma
 interface FloorPlanItem {
@@ -49,18 +51,45 @@ const ICON_MAP: Record<string, any> = {
   microwave: Microwave, waves: Waves, table: Table,
 };
 
-const CATEGORY_LABELS: Record<string, string> = {
-  cooking: 'Pişirme', cold: 'Soğutma', cleaning: 'Temizlik', neutral: 'Nötr', other: 'Diğer',
+const CATEGORY_LABEL_KEYS: Record<string, string> = {
+  cooking: 'projects.catCooking', cold: 'projects.catCold', cleaning: 'projects.catCleaning', neutral: 'projects.catNeutral', other: 'projects.catOther',
 };
 
 const CATEGORY_COLORS: Record<string, string> = {
   cooking: '#ef4444', cold: '#3b82f6', cleaning: '#06b6d4', neutral: '#6b7280', other: '#8b5cf6',
 };
 
-function QuoteTab({ project, floorItems, designLines }: { project: import('../../stores/projectStore').Project; floorItems: FloorPlanItem[]; designLines: DesignQuoteLine[] }) {
+function QuoteTab({ project, floorItems, designLines, onRemove }: { project: import('../../stores/projectStore').Project; floorItems: FloorPlanItem[]; designLines: DesignQuoteLine[]; onRemove?: (key: string) => void | Promise<void> }) {
+  const { t } = useTranslation();
   const { name, clientName, id } = project;
   // Nakliye oranı (% kontrolü) yalnızca adminlere görünür; PDF'te oran asla yazılmaz.
   const isAdmin = useAuthStore((s) => s.user?.role === 'admin');
+  // Satır silme yalnızca yöneticiye açık (teklif = para belgesi; müşteri görünümünde gizli).
+  const canEdit = isAdmin && !!onRemove;
+  // Sil sütunu varken tabloya dar bir kolon ekle.
+  const gridCols = canEdit ? '64px 1fr 80px 90px 60px 90px 36px' : '64px 1fr 80px 90px 60px 90px';
+  // Modern onay penceresi (native window.confirm yerine) — geri alınamaz silme.
+  const [pendingRemove, setPendingRemove] = useState<{ id: string; name: string } | null>(null);
+  const [removing, setRemoving] = useState(false);
+  // İyimser gizleme: onay verilir verilmez satır listeden düşsün (kalıcılık
+  // katmanlarının tazelenme gecikmesinden bağımsız → "silinmiyor" hissi olmasın).
+  const [removedKeys, setRemovedKeys] = useState<Set<string>>(() => new Set());
+  const askRemove = (row: { id: string; name: string }) => {
+    if (!onRemove) return;
+    setPendingRemove({ id: row.id, name: row.name });
+  };
+  const confirmRemove = async () => {
+    if (!pendingRemove || !onRemove) return;
+    const key = pendingRemove.id;
+    setRemovedKeys((prev) => new Set(prev).add(key)); // anında gizle
+    setRemoving(true);
+    try {
+      await onRemove(key);
+    } finally {
+      setRemoving(false);
+      setPendingRemove(null);
+    }
+  };
 
   // Teklif satırı = ProductItem + adet + "fiyat sorulacak".
   type QuoteRow = ProductItem & { qty: number; priceOnRequest: boolean };
@@ -105,7 +134,7 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
       qty: 1,
       priceOnRequest: false,
     }));
-  const products: QuoteRow[] = [...designRows, ...floorRows];
+  const products: QuoteRow[] = [...designRows, ...floorRows].filter((p) => !removedKeys.has(p.id));
   const quoteNo = `TKF-${id.slice(-6).toUpperCase()}-${new Date().getFullYear()}`;
   const subtotal = products.reduce((sum, p) => sum + (p.priceOnRequest ? 0 : p.price * p.qty), 0);
   // Nakliye gideri (Versandkosten) — net ara toplamın %'si. Teklif bazında
@@ -187,7 +216,7 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
       doc.save(`Angebot_${quoteNo}_${dateStr.replace(/\./g, '-')}.pdf`);
     } catch (err) {
       console.error('PDF export error:', err);
-      alert('Beim Erstellen der PDF ist ein Fehler aufgetreten.');
+      alert(t('projects.pdfExportError'));
     } finally {
       setExporting(false);
     }
@@ -198,14 +227,14 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
       {/* Action bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="font-headline font-black text-xl text-on-surface">Teklif Formu</h2>
-          <p className="text-sm text-on-surface-variant mt-0.5">{clientName || 'Müşteri'} — {name} <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded ml-1">{quoteNo}</span></p>
+          <h2 className="font-headline font-black text-xl text-on-surface">{t('projects.quoteForm')}</h2>
+          <p className="text-sm text-on-surface-variant mt-0.5">{clientName || t('projects.customer')} — {name} <span className="text-[10px] font-mono bg-slate-100 px-1.5 py-0.5 rounded ml-1">{quoteNo}</span></p>
         </div>
         <div className="flex items-center gap-3 self-start">
           {/* Nakliye (Versand) oranı — YALNIZCA ADMİN; forma + PDF'e canlı yansır (PDF'te oran yazılmaz). */}
           {isAdmin && (
             <div className="flex items-center gap-2 bg-surface-container-low border border-outline-variant/40 rounded-lg pl-3 pr-2 py-1.5">
-              <span className="text-xs font-bold text-on-surface-variant whitespace-nowrap">Nakliye</span>
+              <span className="text-xs font-bold text-on-surface-variant whitespace-nowrap">{t('projects.shipping')}</span>
               <div className="flex items-center bg-surface-container-lowest border border-outline-variant/40 rounded-md focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/15 transition-colors">
                 <input
                   type="number"
@@ -215,7 +244,7 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
                   value={shipRate}
                   onChange={(e) => setShip(Number(e.target.value))}
                   className="w-12 bg-transparent text-right text-sm font-bold text-on-surface px-2 py-1 outline-none"
-                  aria-label="Nakliye oranı (%)"
+                  aria-label={t('projects.shippingRate')}
                 />
                 <span className="text-sm font-bold text-on-surface-variant pr-2">%</span>
               </div>
@@ -227,7 +256,7 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
             disabled={exporting}
             className="flex items-center gap-2 bg-surface-container-low hover:bg-surface-container-high text-primary px-5 py-2.5 rounded-lg font-bold text-sm transition-all shadow-sm border border-primary/20 disabled:opacity-60"
           >
-            {exporting ? <><Loader2 size={16} className="animate-spin" /> Hazırlanıyor...</> : <><Download size={16} /> PDF İndir</>}
+            {exporting ? <><Loader2 size={16} className="animate-spin" /> {t('cart.preparing')}</> : <><Download size={16} /> {t('projects.downloadPdf')}</>}
           </button>
         </div>
       </div>
@@ -250,11 +279,11 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
             <img src="/logo-icon.png" alt="2MC" className="h-12 w-12 object-contain bg-white rounded-full p-1.5 shadow" />
             <div>
               <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-7 object-contain brightness-0 invert" />
-              <p className="text-white/70 text-[10px] mt-0.5">Professionelle Großküchentechnik</p>
+              <p className="text-white/70 text-[10px] mt-0.5">{t('projects.companyTagline')}</p>
             </div>
           </div>
           <div className="text-right text-white">
-            <p className="text-[10px] uppercase tracking-widest opacity-70 font-bold">Angebot-Nr.</p>
+            <p className="text-[10px] uppercase tracking-widest opacity-70 font-bold">{t('projects.quoteNoLabel')}</p>
             <p className="font-black text-lg font-mono">{quoteNo}</p>
             <p className="text-[10px] opacity-70 mt-0.5">{new Date().toLocaleDateString('de-DE')}</p>
           </div>
@@ -263,20 +292,20 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
         {/* Client info bar */}
         <div className="relative z-10 bg-slate-50 border-b border-slate-200 px-6 py-3 grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
           <div>
-            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Kunde</span>
+            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">{t('projects.customerLabel')}</span>
             <span className="font-bold text-slate-700">{clientName || '—'}</span>
           </div>
           <div>
-            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Projekt</span>
+            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">{t('projects.projectLabel')}</span>
             <span className="font-bold text-slate-700">{name}</span>
           </div>
           <div>
-            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Angebotsdatum</span>
+            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">{t('projects.quoteDate')}</span>
             <span className="font-bold text-slate-700">{new Date().toLocaleDateString('de-DE')}</span>
           </div>
           <div>
-            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">Gültigkeit</span>
-            <span className="font-bold text-slate-700">30 Tage</span>
+            <span className="font-bold text-slate-400 uppercase text-[9px] tracking-wider block">{t('projects.validity')}</span>
+            <span className="font-bold text-slate-700">{t('projects.validity30Days')}</span>
           </div>
         </div>
 
@@ -284,21 +313,22 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
         {products.length === 0 ? (
           <div className="relative z-10 py-20 text-center">
             <Package size={40} className="mx-auto text-slate-200 mb-3" />
-            <p className="text-slate-400 font-medium">Produkte für das Angebot hinzufügen</p>
+            <p className="text-slate-400 font-medium">{t('projects.addProductsForQuote')}</p>
             <Link to={`/projects/${project.id}/products/add`} className="text-primary text-sm font-bold hover:underline mt-2 inline-block">
-              Produkt hinzufügen →
+              {t('projects.addProductArrow')}
             </Link>
           </div>
         ) : (
           <div className="relative z-10">
             {/* Table header */}
-            <div className="hidden sm:grid px-6 py-2.5 bg-primary/5 border-b border-slate-200 text-[9px] font-black uppercase tracking-widest text-primary" style={{ gridTemplateColumns: '64px 1fr 80px 90px 60px 90px' }}>
-              <div>Bild</div>
-              <div>Produkt</div>
-              <div>Maße (cm)</div>
-              <div>Leistung / Typ</div>
-              <div className="text-center">Menge</div>
-              <div className="text-right">Preis</div>
+            <div className="hidden sm:grid px-6 py-2.5 bg-primary/5 border-b border-slate-200 text-[9px] font-black uppercase tracking-widest text-primary" style={{ gridTemplateColumns: gridCols }}>
+              <div>{t('projects.colImage')}</div>
+              <div>{t('common.product')}</div>
+              <div>{t('projects.colDimensions')}</div>
+              <div>{t('projects.colPowerType')}</div>
+              <div className="text-center">{t('common.quantity')}</div>
+              <div className="text-right">{t('common.price')}</div>
+              {canEdit && <div></div>}
             </div>
 
             <div className="divide-y divide-slate-100">
@@ -327,16 +357,26 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
                       </div>
                       <div className="text-right flex-shrink-0">
                         {prod.priceOnRequest ? (
-                          <p className="text-[11px] font-bold text-amber-600">Auf Anfrage</p>
+                          <p className="text-[11px] font-bold text-amber-600">{t('projects.onRequest')}</p>
                         ) : (
                           <p className="font-black text-base text-primary">{prod.price > 0 ? fmt(prod.price * prod.qty) : '—'}</p>
                         )}
-                        <p className="text-[9px] text-slate-400">Menge: {prod.qty}</p>
+                        <p className="text-[9px] text-slate-400">{t('projects.quantityLabel', { count: prod.qty })}</p>
+                        {canEdit && (
+                          <button
+                            type="button"
+                            onClick={() => askRemove(prod)}
+                            title={t('projects.removeFromQuote')}
+                            className="mt-2 inline-flex items-center gap-1 text-[10px] font-bold text-rose-600 hover:text-rose-700"
+                          >
+                            <Trash2 size={12} /> {t('common.delete')}
+                          </button>
+                        )}
                       </div>
                     </div>
 
                     {/* Desktop */}
-                    <div className="hidden sm:grid items-center gap-4" style={{ gridTemplateColumns: '64px 1fr 80px 90px 60px 90px' }}>
+                    <div className="hidden sm:grid items-center gap-4" style={{ gridTemplateColumns: gridCols }}>
                       <div className="w-14 h-14 rounded-lg border border-slate-200 bg-white flex items-center justify-center overflow-hidden shadow-sm">
                         {prod.imageData ? (
                           <img src={prod.imageData} alt={prod.name} className="w-full h-full object-contain p-1" />
@@ -349,7 +389,7 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
                         <p className="text-[10px] font-mono text-slate-400 mt-0.5">{prod.code}{prod.brand ? ` · ${prod.brand}` : ''}</p>
                         {prod.description && <p className="text-[10px] text-slate-400 mt-1 line-clamp-1">{prod.description}</p>}
                         {prod.imageData && prod.imageData.startsWith('http') && (
-                          <a href={prod.imageData} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline font-medium mt-0.5 inline-block">Produktbild ↗</a>
+                          <a href={prod.imageData} target="_blank" rel="noopener noreferrer" className="text-[10px] text-primary hover:underline font-medium mt-0.5 inline-block">{t('projects.productImageLink')}</a>
                         )}
                       </div>
                       <div className="text-sm text-slate-600">
@@ -364,13 +404,25 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
                       </div>
                       <div className="text-right">
                         {prod.priceOnRequest ? (
-                          <span className="text-xs font-bold text-amber-600">Auf Anfrage</span>
+                          <span className="text-xs font-bold text-amber-600">{t('projects.onRequest')}</span>
                         ) : prod.price > 0 ? (
                           <span className="font-black text-sm text-primary">{fmt(prod.price * prod.qty)}</span>
                         ) : (
                           <span className="text-slate-300 text-sm">—</span>
                         )}
                       </div>
+                      {canEdit && (
+                        <div className="text-right">
+                          <button
+                            type="button"
+                            onClick={() => askRemove(prod)}
+                            title={t('projects.removeFromQuoteFull')}
+                            className="p-1.5 rounded-lg text-slate-300 hover:text-rose-600 hover:bg-rose-50 transition"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -381,21 +433,21 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
             <div className="px-6 py-5 bg-slate-50 border-t border-slate-200">
               <div className="max-w-xs ml-auto space-y-2">
                 <div className="flex justify-between text-sm text-slate-600">
-                  <span>Zwischensumme</span>
+                  <span>{t('common.subtotal')}</span>
                   <span className="font-bold">{fmt(subtotal)}</span>
                 </div>
                 {shipRate > 0 && (
                   <div className="flex justify-between text-sm text-slate-600">
-                    <span>Versandkosten{isAdmin ? ` (${shipRate}%)` : ''}</span>
+                    <span>{t('projects.shippingCosts')}{isAdmin ? ` (${shipRate}%)` : ''}</span>
                     <span className="font-bold">{fmt(shipping)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm text-slate-600">
-                  <span>MwSt. (19%)</span>
+                  <span>{t('projects.vatWithRate')}</span>
                   <span className="font-bold">{fmt(vat)}</span>
                 </div>
                 <div className="flex justify-between items-center bg-primary rounded-xl px-4 py-3 mt-3">
-                  <span className="font-black text-sm text-white uppercase tracking-wide">Gesamtbetrag</span>
+                  <span className="font-black text-sm text-white uppercase tracking-wide">{t('projects.grandTotal')}</span>
                   <span className="font-black text-2xl text-white">{fmt(total)}</span>
                 </div>
               </div>
@@ -410,21 +462,41 @@ function QuoteTab({ project, floorItems, designLines }: { project: import('../..
             <span className="text-[10px] text-slate-400">2MC Gastro · info@2mcgastro.com</span>
           </div>
           <div className="text-[10px] text-slate-400 text-right">
-            Dieses Angebot ist 30 Tage gültig.<br />Preise verstehen sich zzgl. MwSt.
+            {t('projects.footerValidity')}<br />{t('projects.footerPricesExclVat')}
           </div>
         </div>
       </div>
 
       {/* Notes */}
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm p-5">
-        <h3 className="font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-3">Hinweise & Bedingungen</h3>
+        <h3 className="font-bold text-xs uppercase tracking-widest text-on-surface-variant mb-3">{t('projects.notesConditions')}</h3>
         <ul className="text-xs text-on-surface-variant space-y-1.5">
-          <li>• Dieses Angebot ist ab Erstellungsdatum 30 Tage gültig.</li>
-          <li>• Alle Preise verstehen sich zzgl. 19% MwSt.</li>
-          <li>• Die Lieferzeit beträgt 4–8 Wochen ab Bestelldatum.</li>
-          <li>• Montage und Inbetriebnahme werden separat berechnet.</li>
+          <li>• {t('projects.note1Validity')}</li>
+          <li>• {t('projects.note2Prices')}</li>
+          <li>• {t('projects.note3Delivery')}</li>
+          <li>• {t('projects.note4Installation')}</li>
         </ul>
       </div>
+
+      {/* Modern silme onayı (native window.confirm yerine) */}
+      <ConfirmDialog
+        open={!!pendingRemove}
+        tone="danger"
+        title={t('projects.removeFromQuoteTitle')}
+        description={
+          pendingRemove && (
+            <>
+              <span className="font-bold text-slate-700">“{pendingRemove.name}”</span> {t('projects.removeEverywhereDesc')}{' '}
+              <span className="font-semibold text-rose-600">{t('projects.cannotUndo')}</span>
+            </>
+          )
+        }
+        confirmLabel={t('projects.yesDelete')}
+        cancelLabel={t('projects.giveUp')}
+        busy={removing}
+        onConfirm={confirmRemove}
+        onCancel={() => { if (!removing) setPendingRemove(null); }}
+      />
     </div>
   );
 }
@@ -468,7 +540,7 @@ export default function ProjectDetailPage() {
     setMeshActiveKeys(keys);
     setMeshModalOpen(true);
 
-    await Promise.all(items.map(async (fi) => {
+    const processOne = async (fi: FloorPlanItem) => {
       const key = productKeyFor(fi.imageData, fi.equipmentId || fi.id);
       if (!key) return;
 
@@ -496,17 +568,38 @@ export default function ProjectDetailPage() {
           (row) => setMeshRow(row),
         );
       } catch (err) {
+        const raw = err instanceof Error ? err.message : 'Bilinmeyen hata';
+        const friendly = /NoMorePendingTasks|\b429\b/i.test(raw)
+          ? 'Meshy kuyruğu dolu (plan limiti). Diğer modeller bitince otomatik denenir — ya da meshy.ai planını yükseltin.'
+          : raw;
         setMeshRow({
           id: key, product_key: key, name: fi.name,
           source_image_url: imageUrl,
           meshy_task_id: null, status: 'error', progress: 0,
-          error: err instanceof Error ? err.message : 'Bilinmeyen hata',
+          error: friendly,
           glb_url: null, usdz_url: null, thumbnail_url: null,
           created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
           finished_at: null,
         });
       }
-    }));
+    };
+
+    // Meshy planı aynı anda sınırlı sayıda "pending" task'a izin verir (429 NoMorePendingTasks).
+    // Ücretsiz/başlangıç planında bu limit genelde 1'dir; hepsini birden ateşlersek çoğu 429 yer.
+    // Bu yüzden TEK TEK (sıralı) gönderiyoruz: aynı anda Meshy'de en fazla 1 task olur → 429 oluşmaz,
+    // her ürün sırayla üretilir. Plan yükseltilirse bu sayı artırılıp üretim hızlandırılabilir.
+    // (Ek güvence: meshyGenerate yine de 429'da kuyruk boşalana kadar bekleyip otomatik tekrar dener.)
+    const MESHY_CONCURRENCY = 1;
+    const queue = [...items];
+    const worker = async () => {
+      while (queue.length) {
+        const fi = queue.shift();
+        if (fi) await processOne(fi);
+      }
+    };
+    await Promise.all(
+      Array.from({ length: Math.min(MESHY_CONCURRENCY, items.length) }, worker),
+    );
   };
 
   useEffect(() => {
@@ -516,8 +609,38 @@ export default function ProjectDetailPage() {
 
   const project = projects.find(p => p.id === id);
 
+  // Teklif satırı silindiğinde türetilmiş listeleri (kat planı + tasarım) yeniden
+  // okumak için sayaç — silme kaynakları (localStorage/tasarım belgesi) React
+  // dışında değiştiğinden bu tick olmadan ekran güncellenmez.
+  const [refreshTick, setRefreshTick] = useState(0);
+
+  // Bir teklif satırını kaynağı ne olursa olsun HER YERDEN kaldır, sonra tazele.
+  const handleRemoveQuoteItem = useCallback(async (key: string) => {
+    if (!id) return;
+    await removeQuoteItemEverywhere(id, key);
+    setRefreshTick((t) => t + 1);
+  }, [id]);
+
+  // ── Ürünler sekmesi silme onayı (Teklif sekmesiyle aynı UX + iyimser gizleme) ──
+  const isAdmin = useAuthStore((s) => s.user?.role === 'admin');
+  const [pendingProductRemove, setPendingProductRemove] = useState<{ id: string; name: string } | null>(null);
+  const [productRemoving, setProductRemoving] = useState(false);
+  const [productRemovedKeys, setProductRemovedKeys] = useState<Set<string>>(() => new Set());
+  const confirmProductRemove = async () => {
+    if (!pendingProductRemove) return;
+    const key = pendingProductRemove.id;
+    setProductRemovedKeys((prev) => new Set(prev).add(key)); // anında gizle
+    setProductRemoving(true);
+    try {
+      await handleRemoveQuoteItem(key);
+    } finally {
+      setProductRemoving(false);
+      setPendingProductRemove(null);
+    }
+  };
+
   // Kat planındaki ürünleri oku
-  const floorItems = useMemo(() => id ? getFloorPlanItems(id) : [], [id, activeTab]);
+  const floorItems = useMemo(() => id ? getFloorPlanItems(id) : [], [id, activeTab, refreshTick]);
 
   // project.products → FloorPlanItem formatına çevir (AddProductPage'den eklenen ürünler)
   const storeProductItems: FloorPlanItem[] = useMemo(() => {
@@ -557,7 +680,7 @@ export default function ProjectDetailPage() {
       .then((res) => { if (!cancelled && res) setDesignLines(quoteLinesFromDoc(res.doc)); })
       .catch(() => { /* yoksay — yerel sürüm kalır */ });
     return () => { cancelled = true; };
-  }, [id, activeTab]);
+  }, [id, activeTab, refreshTick]);
 
   // ─── BİRLEŞİK ÜRÜN LİSTESİ ───
   // Ürünler sekmesi = Teklif sekmesi = AYNI küme:
@@ -643,7 +766,7 @@ export default function ProjectDetailPage() {
   return (
     <div className="max-w-6xl mx-auto w-full space-y-6">
       <button onClick={() => navigate('/projects')} className="flex items-center gap-2 text-on-surface-variant hover:text-primary transition-colors text-sm font-medium">
-        <ArrowLeft size={18} /> Projeler
+        <ArrowLeft size={18} /> {t('projects.title')}
       </button>
 
       {/* Header */}
@@ -654,7 +777,7 @@ export default function ProjectDetailPage() {
             <span className={`px-3 py-1 text-[10px] font-black uppercase rounded-full ${statusColors[p.status]}`}>
               {statusLabels[p.status] ?? p.status}
             </span>
-            <span className="text-sm text-on-surface-variant">{totalUnits} ürün</span>
+            <span className="text-sm text-on-surface-variant">{t('projects.productCount', { count: totalUnits })}</span>
             <span className="text-sm text-on-surface-variant">•</span>
             <span className="text-sm text-on-surface-variant">{p.area} m²</span>
           </div>
@@ -664,13 +787,13 @@ export default function ProjectDetailPage() {
             to={`/projects/${p.id}/products/add`}
             className="flex items-center gap-2 bg-surface-container-low hover:bg-surface-container-high text-primary px-4 py-2.5 rounded-lg font-bold text-sm transition-colors shadow-sm border border-primary/20"
           >
-            <Plus size={18} /> Ürün Ekle
+            <Plus size={18} /> {t('projects.addProduct')}
           </Link>
           <Link
             to={`/projects/${p.id}/design`}
             className="flex items-center gap-2 brushed-metal text-white px-5 py-2.5 rounded-lg font-bold text-sm shadow-lg hover:opacity-90 transition-all"
           >
-            <Boxes size={18} /> 3D Tasarım
+            <Boxes size={18} /> {t('projects.design3d')}
           </Link>
         </div>
       </div>
@@ -679,10 +802,10 @@ export default function ProjectDetailPage() {
       <div className="border-b border-outline-variant/20">
         <div className="flex gap-6">
           {[
-            { key: 'overview', label: 'Genel Bakış', icon: Building },
-            { key: 'products', label: `Ürünler (${totalUnits})`, icon: Package },
-            { key: 'quote', label: 'Teklif', icon: FileText },
-            { key: 'settings', label: 'Ayarlar', icon: Settings2 },
+            { key: 'overview', label: t('projects.tabOverview'), icon: Building },
+            { key: 'products', label: t('projects.tabProducts', { count: totalUnits }), icon: Package },
+            { key: 'quote', label: t('projects.tabQuote'), icon: FileText },
+            { key: 'settings', label: t('projects.tabSettings'), icon: Settings2 },
           ].map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.key;
@@ -708,59 +831,59 @@ export default function ProjectDetailPage() {
             {/* Stats cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 shadow-sm">
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Ürün Sayısı</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase">{t('projects.statProductCount')}</div>
                 <div className="text-2xl font-black text-primary mt-1">{totalUnits}</div>
               </div>
               <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 shadow-sm">
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Toplam Güç</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase">{t('projects.statTotalPower')}</div>
                 <div className="text-2xl font-black text-primary mt-1">{totalKW.toFixed(1)} <span className="text-sm">kW</span></div>
               </div>
               <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 shadow-sm">
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Toplam Fiyat</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase">{t('projects.statTotalPrice')}</div>
                 <div className="text-2xl font-black text-primary mt-1">€{totalPrice.toLocaleString()}</div>
               </div>
               <div className="bg-surface-container-lowest rounded-xl p-4 border border-outline-variant/10 shadow-sm">
-                <div className="text-[10px] font-bold text-slate-400 uppercase">Alan</div>
+                <div className="text-[10px] font-bold text-slate-400 uppercase">{t('projects.statArea')}</div>
                 <div className="text-2xl font-black text-primary mt-1">{p.area} <span className="text-sm">m²</span></div>
               </div>
             </div>
 
             {/* Details */}
             <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/10">
-              <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">Proje Detayları</h2>
+              <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">{t('projects.details')}</h2>
               <div className="grid grid-cols-2 gap-6">
                 <div className="flex items-start gap-3">
                   <Building size={18} className="text-on-surface-variant mt-0.5" />
                   <div>
-                    <div className="text-xs text-on-surface-variant font-bold uppercase">Proje Tipi</div>
+                    <div className="text-xs text-on-surface-variant font-bold uppercase">{t('projects.projectType')}</div>
                     <div className="text-sm font-medium mt-1 capitalize">{p.type}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Users size={18} className="text-on-surface-variant mt-0.5" />
                   <div>
-                    <div className="text-xs text-on-surface-variant font-bold uppercase">Sorumlu</div>
+                    <div className="text-xs text-on-surface-variant font-bold uppercase">{t('dashboard.lead')}</div>
                     <div className="text-sm font-medium mt-1">{p.lead || '-'}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Calendar size={18} className="text-on-surface-variant mt-0.5" />
                   <div>
-                    <div className="text-xs text-on-surface-variant font-bold uppercase">Teslim Tarihi</div>
+                    <div className="text-xs text-on-surface-variant font-bold uppercase">{t('projects.deadline')}</div>
                     <div className="text-sm font-medium mt-1">{p.deadline || '-'}</div>
                   </div>
                 </div>
                 <div className="flex items-start gap-3">
                   <Package size={18} className="text-on-surface-variant mt-0.5" />
                   <div>
-                    <div className="text-xs text-on-surface-variant font-bold uppercase">Müşteri</div>
+                    <div className="text-xs text-on-surface-variant font-bold uppercase">{t('projects.customer')}</div>
                     <div className="text-sm font-medium mt-1">{p.clientName || '-'}</div>
                   </div>
                 </div>
               </div>
               {p.notes && (
                 <div className="mt-4 pt-4 border-t border-outline-variant/10">
-                  <div className="text-xs text-on-surface-variant font-bold uppercase mb-1">Notlar</div>
+                  <div className="text-xs text-on-surface-variant font-bold uppercase mb-1">{t('projects.notes')}</div>
                   <p className="text-sm text-on-surface">{p.notes}</p>
                 </div>
               )}
@@ -768,7 +891,7 @@ export default function ProjectDetailPage() {
 
             {/* Progress */}
             <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/10">
-              <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">İlerleme</h2>
+              <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">{t('projects.progress')}</h2>
               <div className="w-full h-3 bg-surface-container rounded-full overflow-hidden">
                 <div className="bg-primary h-full rounded-full transition-all" style={{ width: `${p.progress}%` }} />
               </div>
@@ -784,15 +907,15 @@ export default function ProjectDetailPage() {
           <div className="space-y-6">
             <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/10">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider">Ürünler</h2>
-                <button onClick={() => setActiveTab('products')} className="text-xs text-primary font-bold hover:underline">Tümü →</button>
+                <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider">{t('projects.productsHeading')}</h2>
+                <button onClick={() => setActiveTab('products')} className="text-xs text-primary font-bold hover:underline">{t('projects.viewAll')}</button>
               </div>
               {unifiedItems.length === 0 ? (
                 <div className="text-center py-8">
                   <Package size={32} className="mx-auto text-slate-300 mb-2" />
-                  <p className="text-xs text-slate-400">Henüz ürün eklenmedi</p>
+                  <p className="text-xs text-slate-400">{t('projects.noProductsYet')}</p>
                   <Link to={`/projects/${p.id}/products/add`} className="text-xs text-primary font-bold hover:underline mt-2 inline-block">
-                    Ürün ekle →
+                    {t('projects.addProductArrow')}
                   </Link>
                 </div>
               ) : (
@@ -828,24 +951,24 @@ export default function ProjectDetailPage() {
         <div className="space-y-4">
           <div className="flex justify-between items-center flex-wrap gap-3">
             <p className="text-sm text-on-surface-variant">
-              {totalUnits} ürün
-              {selected3D.size > 0 && <span className="ml-2 text-primary font-bold">• {selected3D.size} seçili</span>}
+              {t('projects.productCount', { count: totalUnits })}
+              {selected3D.size > 0 && <span className="ml-2 text-primary font-bold">{t('projects.selectedCount', { count: selected3D.size })}</span>}
             </p>
             <div className="flex items-center gap-2">
               <button
                 onClick={startMeshGeneration}
                 disabled={selected3D.size === 0}
                 className="flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm shadow-lg transition-all bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                title="Seçilen ürünlerden MeshAI ile 3D model üret"
+                title={t('projects.meshGenerateTitle')}
               >
-                <Sparkles size={16} /> 3D Modelle (MeshAI)
+                <Sparkles size={16} /> {t('projects.model3dMeshAI')}
                 {selected3D.size > 0 && <span className="bg-white/25 px-1.5 rounded-full text-[10px]">{selected3D.size}</span>}
               </button>
               <Link
                 to={`/projects/${p.id}/design`}
                 className="flex items-center gap-2 brushed-metal text-white px-4 py-2 rounded-lg font-bold text-sm shadow-lg hover:opacity-90 transition-all"
               >
-                <Boxes size={16} /> 3D Tasarıma Git
+                <Boxes size={16} /> {t('projects.goToDesign3d')}
               </Link>
             </div>
           </div>
@@ -853,29 +976,30 @@ export default function ProjectDetailPage() {
           {unifiedItems.length === 0 ? (
             <div className="bg-surface-container-lowest rounded-xl shadow-sm p-16 text-center border border-outline-variant/10">
               <Package size={48} className="mx-auto text-slate-200 mb-4" />
-              <h3 className="font-bold text-lg text-slate-500 mb-2">Henüz ürün eklenmedi</h3>
-              <p className="text-sm text-slate-400 mb-6">Ürün Ekle butonu veya kat planından ürün ekleyebilirsiniz.</p>
+              <h3 className="font-bold text-lg text-slate-500 mb-2">{t('projects.noProductsAdded')}</h3>
+              <p className="text-sm text-slate-400 mb-6">{t('projects.addProductHint')}</p>
               <div className="flex items-center justify-center gap-3">
                 <Link
                   to={`/projects/${p.id}/products/add`}
                   className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:opacity-90 transition-all"
                 >
-                  <Plus size={18} /> Ürün Ekle
+                  <Plus size={18} /> {t('projects.addProduct')}
                 </Link>
                 <Link
                   to={`/projects/${p.id}/design`}
                   className="inline-flex items-center gap-2 brushed-metal text-white px-6 py-3 rounded-lg font-bold shadow-lg hover:opacity-90 transition-all"
                 >
-                  <Boxes size={18} /> 3D Tasarım
+                  <Boxes size={18} /> {t('projects.design3dShort')}
                 </Link>
               </div>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-              {unifiedItems.map((fi) => {
+              {unifiedItems.filter((fi) => !productRemovedKeys.has(fi.equipmentId || fi.id)).map((fi) => {
                 const Icon = ICON_MAP[fi.icon] || Package;
                 const catColor = CATEGORY_COLORS[fi.category] || '#6b7280';
-                const catLabel = CATEGORY_LABELS[fi.category] || fi.category || 'Diğer';
+                const catLabelKey = CATEGORY_LABEL_KEYS[fi.category];
+                const catLabel = catLabelKey ? t(catLabelKey) : (fi.category || t('projects.catOther'));
                 const meshKey = productKeyFor(fi.imageData, fi.equipmentId || fi.id);
                 const meshRow = meshRows[meshKey];
                 const has3D = meshRow?.status === 'done' && !!meshRow.glb_url;
@@ -937,6 +1061,19 @@ export default function ProjectDetailPage() {
                           ? <><span>•</span><span className="font-bold text-amber-600">Fiyat sorulacak</span></>
                           : (fi.price || 0) > 0 && <><span>•</span><span className="font-bold text-primary">€{(fi.price || 0).toLocaleString()}</span></>}
                       </div>
+
+                      {isAdmin && (
+                        <div className="mt-3 pt-3 border-t border-slate-100 flex justify-end">
+                          <button
+                            type="button"
+                            onClick={() => setPendingProductRemove({ id: fi.equipmentId || fi.id, name: fi.name })}
+                            title="Ürünü projeden kaldır (tasarım + kat planı + teklif)"
+                            className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 hover:text-rose-600 transition-colors"
+                          >
+                            <Trash2 size={13} /> Sil
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 );
@@ -948,7 +1085,7 @@ export default function ProjectDetailPage() {
 
       {/* Quote Tab */}
       {activeTab === 'quote' && (
-        <QuoteTab project={p} floorItems={allItems} designLines={designLines} />
+        <QuoteTab project={p} floorItems={allItems} designLines={designLines} onRemove={handleRemoveQuoteItem} />
       )}
 
       {/* Settings Tab */}
@@ -1162,6 +1299,27 @@ export default function ProjectDetailPage() {
           </div>
         </div>
       )}
+
+      {/* Ürünler sekmesi — modern silme onayı */}
+      <ConfirmDialog
+        open={!!pendingProductRemove}
+        tone="danger"
+        title="Ürünü projeden kaldır?"
+        description={
+          pendingProductRemove && (
+            <>
+              <span className="font-bold text-slate-700">“{pendingProductRemove.name}”</span> tasarımdan,
+              kat planından ve teklif listesinden kalıcı olarak silinecek.{' '}
+              <span className="font-semibold text-rose-600">Bu işlem geri alınamaz.</span>
+            </>
+          )
+        }
+        confirmLabel="Evet, sil"
+        cancelLabel="Vazgeç"
+        busy={productRemoving}
+        onConfirm={confirmProductRemove}
+        onCancel={() => { if (!productRemoving) setPendingProductRemove(null); }}
+      />
     </div>
   );
 }

@@ -7,6 +7,11 @@
 import type { EquipmentItem } from '../stores/equipmentStore';
 import { has3DModel } from '../components/Model3DViewer';
 import { parseGallery } from './diamondAdapter';
+import { hasHtml, htmlToText, htmlToLines } from './htmlText';
+import i18n from '../i18n';
+
+/** HTML açıklamayı temiz metne çevirir (düz metni olduğu gibi bırakır). */
+const cleanDesc = (s: string): string => (hasHtml(s) ? htmlToText(s) : s || '');
 
 export type ProductSource = 'diamond' | 'combisteel' | 'handi';
 
@@ -70,6 +75,12 @@ export const fmtPrice = (p: number | null): string =>
   p && p > 0 ? `€${p.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` : '—';
 
 /**
+ * Geçerli EAN mi? Bazı EAN'ler Excel'de bilimsel gösterime bozulmuş ("8,71137E+12");
+ * yalnız 6–14 rakamdan oluşan değerleri geçerli say, bozukları gizle.
+ */
+export const isValidEan = (v: unknown): boolean => /^\d{6,14}$/.test(String(v ?? '').trim());
+
+/**
  * Stok durumu — B2B katalog mantığı: stok BİLİNMİYORSA (null/boş) ürün sipariş
  * edilebilir sayılır (mağaza gridi de her ürünü "STOKTA" gösterir). Yalnızca
  * stok AÇIKÇA 0 ise "stok yok" denir.
@@ -94,12 +105,13 @@ const dimRow = (key: DimRow['key'], mm: number | null): DimRow | null =>
 const weightRow = (kg: number | null): DimRow | null =>
   kg != null ? { key: 'weight', value: `${kg} kg` } : null;
 
-/** Serbest metin açıklamayı madde listesine böler (Diamond `desc`'i satır-bazlı). */
+/**
+ * Serbest metin/HTML açıklamayı temiz madde listesine böler.
+ * HTML içeriyorsa (CombiSteel long_description gibi) etiketler sökülür, blok
+ * etiketleri satıra çevrilir; düz metin ise satır-bazlı bölünür.
+ */
 function splitFeatures(desc: string): string[] {
-  return (desc || '')
-    .split(/\r?\n/)
-    .map((s) => s.replace(/^[•\-*•·]\s*/, '').trim())
-    .filter(Boolean);
+  return htmlToLines(desc);
 }
 
 /** "1530/2010" gibi string yükseklikten ilk sayıyı çıkarır. */
@@ -149,24 +161,24 @@ export function normalizeRow(source: ProductSource, r: any): VM {
     const kw = n(r.electric_power_kw);
     const price = n(r.price_catalog) ?? n(r.price_display);
     const specs: SpecRow[] = [];
-    if (r.electric_power_kw) specs.push({ label: 'Güç', value: `${r.electric_power_kw} kW` });
-    if (r.electric_connection) specs.push({ label: 'Bağlantı', value: String(r.electric_connection) });
-    if (r.electric_connection_2) specs.push({ label: 'Bağlantı 2', value: String(r.electric_connection_2) });
-    if (r.kcal_power) specs.push({ label: 'Isıl güç', value: `${r.kcal_power} kcal/h` });
-    if (r.horse_power) specs.push({ label: 'Motor gücü', value: `${r.horse_power} HP` });
-    if (r.vapor) specs.push({ label: 'Buhar', value: String(r.vapor) });
-    if (r.volume_m3) specs.push({ label: 'Hacim', value: `${r.volume_m3} m³` });
-    if (r.product_range_id) specs.push({ label: 'Seri', value: String(r.product_range_id) });
-    if (r.product_family_name) specs.push({ label: 'Ürün ailesi', value: String(r.product_family_name) });
-    if (r.page_catalog_number) specs.push({ label: 'Katalog sayfası', value: String(r.page_catalog_number) });
-    const desc = r.description_tech_spec || '';
+    if (r.electric_power_kw) specs.push({ label: i18n.t('product.spec.power'), value: `${r.electric_power_kw} kW` });
+    if (r.electric_connection) specs.push({ label: i18n.t('product.spec.connection'), value: String(r.electric_connection) });
+    if (r.electric_connection_2) specs.push({ label: i18n.t('product.spec.connection2'), value: String(r.electric_connection_2) });
+    if (r.kcal_power) specs.push({ label: i18n.t('product.spec.thermalPower'), value: `${r.kcal_power} kcal/h` });
+    if (r.horse_power) specs.push({ label: i18n.t('product.spec.motorPower'), value: `${r.horse_power} HP` });
+    if (r.vapor) specs.push({ label: i18n.t('product.spec.vapor'), value: String(r.vapor) });
+    if (r.volume_m3) specs.push({ label: i18n.t('product.spec.volume'), value: `${r.volume_m3} m³` });
+    if (r.product_range_id) specs.push({ label: i18n.t('product.spec.series'), value: String(r.product_range_id) });
+    if (r.product_family_name) specs.push({ label: i18n.t('product.spec.family'), value: String(r.product_family_name) });
+    if (r.page_catalog_number) specs.push({ label: i18n.t('product.spec.catalogPage'), value: String(r.page_catalog_number) });
+    const desc = cleanDesc(r.description_tech_spec || '');
     const stk = computeStock(r.stock);
     const badges: Badge[] = [];
     if (r.is_new) badges.push('new');
     if (r.is_good_deal) badges.push('deal');
     return {
       source, id: r.id, displayId: String(r.id), brand: 'Diamond', name: r.name || r.id, desc,
-      features: splitFeatures(desc), popupInfo: r.popup_info || null, images,
+      features: splitFeatures(desc), popupInfo: r.popup_info ? cleanDesc(String(r.popup_info)) : null, images,
       price, promo: realPromo(price, n(r.price_promo)),
       inStock: stk.inStock, stockQty: stk.stockQty,
       deliveryDays: n(r.supplier_delivery_delay) ?? n(r.days_to_restock_avg),
@@ -195,9 +207,9 @@ export function normalizeRow(source: ProductSource, r: any): VM {
       .filter((s: any) => s?.name && s?.value)
       .slice(0, 40)
       .map((s: any) => ({ label: String(s.name), value: `${s.value}${s.unit ? ' ' + s.unit : ''}` }));
-    if (r.product_type) specs.push({ label: 'Tip', value: String(r.product_type) });
-    if (r.ean) specs.push({ label: 'EAN', value: String(r.ean) });
-    const desc = r.long_description || r.description || '';
+    if (r.product_type) specs.push({ label: i18n.t('product.spec.type'), value: String(r.product_type) });
+    if (isValidEan(r.ean)) specs.push({ label: 'EAN', value: String(r.ean) });
+    const desc = cleanDesc(r.long_description || r.description || '');
     const cartId = r.sku || r.id;
     const price = n(r.price);
     const stk = computeStock(r.stock);
@@ -226,13 +238,13 @@ export function normalizeRow(source: ProductSource, r: any): VM {
   // handi
   const images = Array.from(new Set([r.image_url].filter(Boolean)));
   const specs: SpecRow[] = [];
-  if (r.sub_category) specs.push({ label: 'Alt kategori', value: String(r.sub_category) });
-  if (r.colour) specs.push({ label: 'Renk', value: String(r.colour) });
-  if (r.material) specs.push({ label: 'Malzeme', value: String(r.material) });
-  if (r.status) specs.push({ label: 'Durum', value: String(r.status) });
-  if (r.product_group_id) specs.push({ label: 'Ürün grubu', value: String(r.product_group_id) });
-  if (r.ean) specs.push({ label: 'EAN', value: String(r.ean) });
-  const desc = r.description || r.short_desc || '';
+  if (r.sub_category) specs.push({ label: i18n.t('product.spec.subCategory'), value: String(r.sub_category) });
+  if (r.colour) specs.push({ label: i18n.t('product.spec.colour'), value: String(r.colour) });
+  if (r.material) specs.push({ label: i18n.t('product.spec.material'), value: String(r.material) });
+  if (r.status) specs.push({ label: i18n.t('product.spec.status'), value: String(r.status) });
+  if (r.product_group_id) specs.push({ label: i18n.t('product.spec.group'), value: String(r.product_group_id) });
+  if (isValidEan(r.ean)) specs.push({ label: 'EAN', value: String(r.ean) });
+  const desc = cleanDesc(r.description || r.short_desc || '');
   const price = n(r.price);
   const stk = computeStock(r.stock);
   return {
@@ -266,13 +278,13 @@ export function vmFromEquipment(item: EquipmentItem): VM {
   const price = item.price > 0 ? item.price : null;
   const kw = Number(item.kw) > 0 ? Number(item.kw) : null;
   const specs: SpecRow[] = [];
-  if (kw) specs.push({ label: 'Güç', value: `${kw} kW` });
-  if (item.line) specs.push({ label: 'Seri', value: item.line });
-  if (item.sub) specs.push({ label: 'Grup', value: item.sub });
-  if (item.fam && item.fam !== item.sub) specs.push({ label: 'Aile', value: item.fam });
+  if (kw) specs.push({ label: i18n.t('product.spec.power'), value: `${kw} kW` });
+  if (item.line) specs.push({ label: i18n.t('product.spec.series'), value: item.line });
+  if (item.sub) specs.push({ label: i18n.t('product.spec.subGroup'), value: item.sub });
+  if (item.fam && item.fam !== item.sub) specs.push({ label: i18n.t('product.spec.family2'), value: item.fam });
   return {
     source, id: item.id, displayId, brand: item.brand || source,
-    name: item.name, desc: item.desc || '', features: splitFeatures(item.desc || ''),
+    name: item.name || item.id, desc: cleanDesc(item.desc || ''), features: splitFeatures(item.desc || ''),
     popupInfo: null, images: [item.img].filter(Boolean),
     price, promo: null,
     inStock: true, stockQty: null, deliveryDays: null,

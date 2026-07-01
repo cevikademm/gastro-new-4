@@ -1,5 +1,7 @@
 import type React from 'react';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 import {
   Package, Search, Filter, CheckCircle, Clock, Truck, XCircle,
   Box, StickyNote, ChevronDown, X, Loader2, MessageCircle, FileText, Check,
@@ -10,13 +12,16 @@ import { downloadOrderPdf } from '../../lib/orderPdf';
 
 const STATUS_FLOW: AdminOrderStatus[] = ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'];
 
-const STATUS_META: Record<AdminOrderStatus, { label: string; icon: any; cls: string }> = {
-  pending:   { label: 'Beklemede',   icon: Clock,       cls: 'bg-warning-container text-on-warning-container border-warning/20' },
-  confirmed: { label: 'Onaylandı',   icon: CheckCircle, cls: 'bg-info-container text-on-info-container border-info/20' },
-  shipped:   { label: 'Kargoda',     icon: Truck,       cls: 'bg-primary-fixed text-primary border-primary/20' },
-  delivered: { label: 'Teslim edildi', icon: Box,       cls: 'bg-success-container text-on-success-container border-success/20' },
-  cancelled: { label: 'İptal edildi',  icon: XCircle,   cls: 'bg-error-container text-error border-error/20' },
+const STATUS_META: Record<AdminOrderStatus, { icon: any; cls: string }> = {
+  pending:   { icon: Clock,       cls: 'bg-warning-container text-on-warning-container border-warning/20' },
+  confirmed: { icon: CheckCircle, cls: 'bg-info-container text-on-info-container border-info/20' },
+  shipped:   { icon: Truck,       cls: 'bg-primary-fixed text-primary border-primary/20' },
+  delivered: { icon: Box,         cls: 'bg-success-container text-on-success-container border-success/20' },
+  cancelled: { icon: XCircle,     cls: 'bg-error-container text-error border-error/20' },
 };
+
+// STATUS_META is module-level; resolve human labels via i18n at use time (keys stay stable).
+const statusLabel = (s: AdminOrderStatus) => i18n.t(`orders.status.${s}`);
 
 function fmtMoney(n: number) {
   return new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(n || 0);
@@ -27,6 +32,7 @@ function fmtDate(s: string) {
 }
 
 export default function AdminOrdersPage() {
+  const { t } = useTranslation();
   const { orders, ordersLoading, error, fetchAllOrders, updateOrderStatus, addOrderNote, updateOrderTracking } = useAdminStore();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | AdminOrderStatus>('all');
@@ -60,15 +66,15 @@ export default function AdminOrdersPage() {
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-3xl font-black font-headline text-primary tracking-tight flex items-center gap-2">
-            <Package size={28} /> Yönetici — Siparişler
+            <Package size={28} /> {t('orders.adminTitle')}
           </h1>
-          <p className="text-on-surface-variant mt-1">Tüm siparişleri görüntüle, durum değiştir, not ekle.</p>
+          <p className="text-on-surface-variant mt-1">{t('orders.adminDesc')}</p>
         </div>
         <button
           onClick={fetchAllOrders}
           className="px-4 py-2 text-sm font-bold rounded-lg border border-outline-variant/20 hover:bg-surface-container-low"
         >
-          Yenile
+          {t('common.refresh')}
         </button>
       </header>
 
@@ -88,7 +94,7 @@ export default function AdminOrdersPage() {
               : 'bg-surface-container-lowest text-on-surface border-outline-variant/20 hover:bg-surface-container-low'
           }`}
         >
-          Tümü · {stats.all}
+          {t('common.all')} · {stats.all}
         </button>
         {STATUS_FLOW.map((s) => {
           const meta = STATUS_META[s];
@@ -102,7 +108,7 @@ export default function AdminOrdersPage() {
                 active ? 'bg-primary text-white border-primary' : `${meta.cls} hover:opacity-80`
               }`}
             >
-              <Icon size={13} /> {meta.label} · {stats[s] || 0}
+              <Icon size={13} /> {statusLabel(s)} · {stats[s] || 0}
             </button>
           );
         })}
@@ -114,7 +120,7 @@ export default function AdminOrdersPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Sipariş no, müşteri, firma veya e-posta ara..."
+          placeholder={t('orders.searchPlaceholder')}
           className="w-full pl-10 pr-4 py-3 rounded-xl border border-outline-variant/20 bg-surface-container-lowest text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
         />
       </div>
@@ -124,23 +130,23 @@ export default function AdminOrdersPage() {
         {ordersLoading ? (
           <div className="p-12 text-center text-on-surface-variant">
             <Loader2 className="animate-spin mx-auto mb-2" />
-            Yükleniyor...
+            {t('common.loading')}
           </div>
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-on-surface-variant">
             <Filter size={32} className="mx-auto mb-2 opacity-40" />
-            Sipariş bulunamadı.
+            {t('orders.noOrders')}
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="bg-surface-container-low text-left text-xs font-bold uppercase tracking-wider text-on-surface-variant">
                 <tr>
-                  <th className="px-4 py-3">Sipariş No</th>
-                  <th className="px-4 py-3">Müşteri</th>
-                  <th className="px-4 py-3">Durum</th>
-                  <th className="px-4 py-3 text-right">Toplam</th>
-                  <th className="px-4 py-3">Tarih</th>
+                  <th className="px-4 py-3">{t('orders.orderNumber')}</th>
+                  <th className="px-4 py-3">{t('orders.customer')}</th>
+                  <th className="px-4 py-3">{t('common.status')}</th>
+                  <th className="px-4 py-3 text-right">{t('orders.total')}</th>
+                  <th className="px-4 py-3">{t('orders.date')}</th>
                   <th className="px-4 py-3"></th>
                 </tr>
               </thead>
@@ -157,7 +163,7 @@ export default function AdminOrdersPage() {
                       </td>
                       <td className="px-4 py-3">
                         <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-bold border ${meta.cls}`}>
-                          <Icon size={12} /> {meta.label}
+                          <Icon size={12} /> {statusLabel(o.status)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-right font-bold text-on-surface">{fmtMoney(o.total_price)}</td>
@@ -167,7 +173,7 @@ export default function AdminOrdersPage() {
                           onClick={() => setSelected(o)}
                           className="text-primary font-bold text-xs hover:underline"
                         >
-                          Aç
+                          {t('common.open')}
                         </button>
                       </td>
                     </tr>
@@ -211,6 +217,7 @@ function OrderDetailDrawer({
   onAddNote: (note: string) => Promise<void>;
   onSetTracking: (carrier: string, number: string) => Promise<void>;
 }) {
+  const { t } = useTranslation();
   const [note, setNote] = useState('');
   const [carrier, setCarrier] = useState(order.tracking_carrier || '');
   const [trackingNo, setTrackingNo] = useState(order.tracking_number || '');

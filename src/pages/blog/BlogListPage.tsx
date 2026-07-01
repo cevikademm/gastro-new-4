@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Search } from 'lucide-react';
 import SEO from '../../components/SEO';
 import NewsletterSignup from '../../components/NewsletterSignup';
@@ -8,6 +9,7 @@ import type { BlogPost } from '../../content/blog/posts';
 import { breadcrumbSchema, organizationSchema } from '../../lib/seo';
 
 export default function BlogListPage() {
+  const { t } = useTranslation();
   const [all, setAll] = useState<BlogPost[]>([]);
   useEffect(() => { loadAllPosts().then(setAll); }, []);
   const [query, setQuery] = useState('');
@@ -48,13 +50,13 @@ export default function BlogListPage() {
       <header className="mb-12 max-w-3xl reveal">
         <span className="inline-flex items-center gap-2 text-[var(--c-clay)] font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
           <span className="w-6 h-px bg-[var(--c-clay)]" />
-          EDİTORYAL · BİLGİ KÜTÜPHANESİ
+          {t('blog.eyebrow')}
         </span>
         <h1 className="font-headline text-4xl sm:text-5xl md:text-6xl font-black tracking-tight text-[var(--c-ink)] leading-[1.02]">
           Blog
         </h1>
         <p className="mt-4 text-[var(--c-muted)] max-w-2xl text-base leading-relaxed">
-          Endüstriyel mutfak dünyasından rehberler, karşılaştırmalar ve uzman görüşleri — kurulum, ekipman, HACCP ve işletme için.
+          {t('blog.intro')}
         </p>
       </header>
 
@@ -65,7 +67,7 @@ export default function BlogListPage() {
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Yazılarda ara…"
+            placeholder={t('blog.searchPlaceholder')}
             className="w-full pl-11 pr-4 py-3 bg-white border border-[var(--c-line)] rounded-xl text-sm text-[var(--c-ink)] placeholder:text-[var(--c-muted)] focus:outline-none focus:border-[var(--c-clay)] focus:ring-2 focus:ring-[var(--c-clay)]/15 transition-colors"
           />
         </div>
@@ -82,7 +84,7 @@ export default function BlogListPage() {
                     : 'bg-white text-[var(--c-muted)] border border-[var(--c-line)] hover:border-[var(--c-clay)]/60 hover:text-[var(--c-ink)]'
                 }`}
               >
-                {c === 'all' ? 'Tümü' : c}
+                {c === 'all' ? t('common.all') : c}
               </button>
             );
           })}
@@ -91,7 +93,7 @@ export default function BlogListPage() {
 
       {posts.length === 0 && (
         <div className="py-20 text-center text-[var(--c-muted)]">
-          Sonuç bulunamadı. Farklı bir arama deneyin.
+          {t('blog.noResults')}
         </div>
       )}
 
@@ -117,7 +119,7 @@ export default function BlogListPage() {
                   {post.category}
                 </span>
                 <span>·</span>
-                <span className="font-medium">{post.readingMinutes} dk okuma</span>
+                <span className="font-medium">{t('blog.readingMinutes', { count: post.readingMinutes })}</span>
               </div>
               <h2 className="font-headline text-lg font-bold text-[var(--c-ink)] group-hover:text-[var(--c-clay)] transition-colors line-clamp-2 leading-snug">
                 {post.title}

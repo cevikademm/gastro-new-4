@@ -23,8 +23,8 @@ type BusinessType = 'restaurant' | 'cafe' | 'hotel' | 'fastfood' | 'bakery' | 'c
 interface BusinessProfile {
   id: BusinessType;
   icon: any;
-  label: string;
-  desc: string;
+  labelKey: string;
+  descKey: string;
   // Renk (gradient)
   from: string;
   to: string;
@@ -50,7 +50,7 @@ interface BusinessProfile {
 
 const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
   restaurant: {
-    id: 'restaurant', icon: Utensils, label: 'Restoran', desc: 'Tam servis · À la carte',
+    id: 'restaurant', icon: Utensils, labelKey: 'catalog.businessRestaurant', descKey: 'planner.descRestaurant',
     from: 'from-amber-500', to: 'to-orange-600',
     areaPerGuest: 0.45, powerPerM2: 180,
     avgTicket: 28, daysOpen: 28, turnover: 2.2,
@@ -58,7 +58,7 @@ const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
     typicalItems: 18, minInvest: 80_000, maxInvest: 400_000, defaultGuests: 80,
   },
   cafe: {
-    id: 'cafe', icon: Coffee, label: 'Kafe / Bistro', desc: 'İçecek & hafif mönü',
+    id: 'cafe', icon: Coffee, labelKey: 'catalog.businessCafe', descKey: 'planner.descCafe',
     from: 'from-rose-500', to: 'to-brand-red',
     areaPerGuest: 0.30, powerPerM2: 120,
     avgTicket: 12, daysOpen: 30, turnover: 3.0,
@@ -66,7 +66,7 @@ const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
     typicalItems: 10, minInvest: 25_000, maxInvest: 120_000, defaultGuests: 50,
   },
   hotel: {
-    id: 'hotel', icon: Hotel, label: 'Otel', desc: 'Büyük ölçek · Kahvaltı & akşam',
+    id: 'hotel', icon: Hotel, labelKey: 'catalog.businessHotel', descKey: 'planner.descHotel',
     from: 'from-indigo-500', to: 'to-brand-red',
     areaPerGuest: 0.55, powerPerM2: 220,
     avgTicket: 22, daysOpen: 30, turnover: 1.8,
@@ -74,7 +74,7 @@ const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
     typicalItems: 28, minInvest: 150_000, maxInvest: 1_200_000, defaultGuests: 200,
   },
   fastfood: {
-    id: 'fastfood', icon: Pizza, label: 'Fast Food', desc: 'Yüksek sirkülasyon',
+    id: 'fastfood', icon: Pizza, labelKey: 'catalog.businessFastfood', descKey: 'planner.descFastfood',
     from: 'from-red-500', to: 'to-rose-600',
     areaPerGuest: 0.25, powerPerM2: 200,
     avgTicket: 10, daysOpen: 30, turnover: 4.5,
@@ -82,7 +82,7 @@ const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
     typicalItems: 14, minInvest: 40_000, maxInvest: 180_000, defaultGuests: 120,
   },
   bakery: {
-    id: 'bakery', icon: ChefHat, label: 'Pastane / Fırın', desc: 'Hamur işi · Tatlı',
+    id: 'bakery', icon: ChefHat, labelKey: 'catalog.businessBakery', descKey: 'planner.descBakery',
     from: 'from-fuchsia-500', to: 'to-brand-red',
     areaPerGuest: 0.20, powerPerM2: 250,
     avgTicket: 8, daysOpen: 28, turnover: 3.5,
@@ -90,7 +90,7 @@ const BUSINESS_PROFILES: Record<BusinessType, BusinessProfile> = {
     typicalItems: 12, minInvest: 35_000, maxInvest: 200_000, defaultGuests: 60,
   },
   catering: {
-    id: 'catering', icon: Store, label: 'Catering / Toplu', desc: 'Düğün, etkinlik, kurumsal',
+    id: 'catering', icon: Store, labelKey: 'catalog.businessCatering', descKey: 'planner.descCatering',
     from: 'from-emerald-500', to: 'to-teal-600',
     areaPerGuest: 0.70, powerPerM2: 260,
     avgTicket: 18, daysOpen: 22, turnover: 1.5,
@@ -196,18 +196,18 @@ export default function KitchenPlannerPage() {
 
   const feasibilityTone =
     feasibility >= 75 ? {
-      label: 'Güçlü', bar: 'bg-emerald-500',
+      label: t('planner.feasibilityStrong'), bar: 'bg-emerald-500',
       ring: 'ring-emerald-200', bgFrom: 'from-emerald-50', chipBg: 'bg-emerald-100', chipText: 'text-emerald-700',
     } :
     feasibility >= 50 ? {
-      label: 'Uygun', bar: 'bg-brand-red',
+      label: t('planner.feasibilityGood'), bar: 'bg-brand-red',
       ring: 'ring-red-200', bgFrom: 'from-red-50', chipBg: 'bg-red-100', chipText: 'text-brand-red',
     } :
     feasibility >= 30 ? {
-      label: 'Riskli', bar: 'bg-amber-500',
+      label: t('planner.feasibilityRisky'), bar: 'bg-amber-500',
       ring: 'ring-amber-200', bgFrom: 'from-amber-50', chipBg: 'bg-amber-100', chipText: 'text-amber-700',
     } : {
-      label: 'Zorlu', bar: 'bg-rose-500',
+      label: t('planner.feasibilityHard'), bar: 'bg-rose-500',
       ring: 'ring-rose-200', bgFrom: 'from-rose-50', chipBg: 'bg-rose-100', chipText: 'text-rose-700',
     };
 
@@ -226,7 +226,7 @@ export default function KitchenPlannerPage() {
     setStreamText('');
     setRecommendations([]);
     try {
-      const prompt = `Ben bir ${profile.label} işletmesi açıyorum.
+      const prompt = `Ben bir ${t(profile.labelKey)} işletmesi açıyorum.
 Mutfak alanı: ${calc.area} m² (${roomDim.wM}m × ${roomDim.hM}m)
 Günlük misafir: ${guests} · Ortalama sepet: €${avgTicket}
 Aylık ciro beklentisi: €${Math.round(calc.monthlyRevenue).toLocaleString('tr-TR')}
@@ -250,7 +250,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
       }
 
       const match = full.match(/\{[\s\S]*\}/);
-      if (!match) throw new Error('AI yanıtı ayrıştırılamadı');
+      if (!match) throw new Error(t('planner.aiParseError'));
       const parsed = JSON.parse(match[0]);
       const recs: Recommendation[] = parsed.items || [];
 
@@ -269,7 +269,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
 
       setRecommendations(recs);
     } catch (e: any) {
-      setError(e.message || 'Plan oluşturulamadı');
+      setError(e.message || t('planner.planFailed'));
     } finally {
       setLoading(false);
     }
@@ -304,22 +304,21 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
         {/* ═══════ HERO ═══════ */}
         <div className="text-center mb-6">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r from-red-100 to-red-100 text-brand-red text-xs font-bold mb-3">
-            <Sparkles size={14} /> AI DESTEKLİ · CANLI HESAPLAMA · RAKİPLERDE YOK
+            <Sparkles size={14} /> {t('planner.heroBadge')}
           </div>
           <h1 className="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">
-            Mutfağını <span className="bg-gradient-to-r from-brand-red via-[#c01d1d] to-[#991B1B] bg-clip-text text-transparent">AI ile Planla</span>
+            {t('planner.heroTitlePrefix')} <span className="bg-gradient-to-r from-brand-red via-[#c01d1d] to-[#991B1B] bg-clip-text text-transparent">{t('planner.heroTitleHighlight')}</span>
           </h1>
           <p className="text-slate-500 mt-2 max-w-2xl mx-auto">
-            İşletme tipini seç — alan, güç, gelir, geri dönüş ve ekipman bütçesi <span className="font-bold text-slate-700">anlık</span> hesaplansın.
-            Sonra AI'dan ekipman listesi al veya manuel çizime geç.
+            {t('planner.heroDescBefore')} <span className="font-bold text-slate-700">{t('planner.heroDescEmphasis')}</span> {t('planner.heroDescAfter')}
           </p>
         </div>
 
         {/* ═══════ 1) İŞLETME TİPİ — Büyük görsel kartlar ═══════ */}
         <section className="mb-6">
           <div className="flex items-baseline justify-between mb-3 px-1">
-            <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">1 · İşletme Tipi</h2>
-            <span className="text-[11px] text-slate-400">seçim anında tüm hesapları günceller</span>
+            <h2 className="text-sm font-bold tracking-wider uppercase text-slate-500">{t('planner.step1BusinessType')}</h2>
+            <span className="text-[11px] text-slate-400">{t('planner.step1Hint')}</span>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {BUSINESS_LIST.map((b) => {
@@ -347,15 +346,15 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                       <b.icon size={20} className={isActive ? 'text-white' : 'text-slate-600'} />
                     </div>
                     <p className={`font-black text-sm leading-tight ${isActive ? 'text-white' : 'text-slate-900'}`}>
-                      {b.label}
+                      {t(b.labelKey)}
                     </p>
                     <p className={`text-[10px] mt-0.5 leading-tight ${isActive ? 'text-white/85' : 'text-slate-500'}`}>
-                      {b.desc}
+                      {t(b.descKey)}
                     </p>
                     <div className={`mt-2 flex items-center gap-1 text-[10px] font-bold ${
                       isActive ? 'text-white/90' : 'text-slate-400'
                     }`}>
-                      <Target size={10} /> ~{b.typicalItems} ekipman
+                      <Target size={10} /> {t('planner.itemsApprox', { count: b.typicalItems })}
                     </div>
                   </div>
                 </motion.button>
@@ -374,22 +373,22 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
               <div className="flex items-center gap-2 mb-4">
                 <Calculator size={18} className="text-brand-red" />
-                <h3 className="font-black text-slate-900">2 · Kapasite & Finansal Parametreler</h3>
+                <h3 className="font-black text-slate-900">{t('planner.step2CapacityFinance')}</h3>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <ParamSlider
                   icon={Users}
-                  label="Günlük Misafir"
+                  label={t('planner.dailyGuests')}
                   value={guests}
                   onChange={setGuests}
                   min={10}
                   max={profile.id === 'hotel' || profile.id === 'catering' ? 2000 : 800}
-                  suffix=" kişi"
+                  suffix={t('planner.suffixPeople')}
                   tone="sky"
                 />
                 <ParamSlider
                   icon={Wallet}
-                  label="Ortalama Sepet"
+                  label={t('planner.avgTicket')}
                   value={avgTicket}
                   onChange={setAvgTicket}
                   min={3}
@@ -399,17 +398,17 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                 />
                 <ParamSlider
                   icon={Clock}
-                  label="Aylık Açık Gün"
+                  label={t('planner.daysOpen')}
                   value={daysOpen}
                   onChange={setDaysOpen}
                   min={1}
                   max={31}
-                  suffix=" gün"
+                  suffix={t('planner.suffixDays')}
                   tone="violet"
                 />
                 <ParamSlider
                   icon={TrendingUp}
-                  label="Toplam Yatırım"
+                  label={t('planner.totalInvestment')}
                   value={invest}
                   onChange={setInvest}
                   min={profile.minInvest}
@@ -426,7 +425,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                   <div className="flex items-center gap-2">
                     <ShoppingCart size={14} className="text-rose-500" />
                     <label className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
-                      Ekipman Bütçesi (AI için)
+                      {t('planner.equipmentBudgetLabel')}
                     </label>
                   </div>
                   <div className="flex items-baseline gap-2">
@@ -435,8 +434,8 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                       calc.budgetFit >= 0.85 && calc.budgetFit <= 1.2 ? 'bg-emerald-100 text-emerald-700' :
                       calc.budgetFit < 0.6 ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
                     }`}>
-                      {calc.budgetFit >= 0.85 && calc.budgetFit <= 1.2 ? 'İDEAL' :
-                       calc.budgetFit < 0.6 ? 'DÜŞÜK' : 'ÖNERİ ÜSTÜ'}
+                      {calc.budgetFit >= 0.85 && calc.budgetFit <= 1.2 ? t('planner.budgetIdeal') :
+                       calc.budgetFit < 0.6 ? t('planner.budgetLow') : t('planner.budgetOverRecommended')}
                     </span>
                   </div>
                 </div>
@@ -452,7 +451,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                 <div className="flex justify-between text-[10px] text-slate-400 mt-1">
                   <span>€5K</span>
                   <span className="text-emerald-600 font-bold">
-                    Önerilen: {fmtShort(calc.recommendedEqBudget)}
+                    {t('planner.recommendedLabel')} {fmtShort(calc.recommendedEqBudget)}
                   </span>
                   <span>{fmtShort(profile.maxInvest)}</span>
                 </div>
@@ -467,8 +466,8 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
               <div className="relative">
                 <div className="flex items-center justify-between mb-4">
                   <div>
-                    <p className="text-[10px] uppercase tracking-widest opacity-80 font-bold">Canlı Finansal Projeksiyon</p>
-                    <h3 className="text-xl font-black">{profile.label} · {guests} misafir/gün</h3>
+                    <p className="text-[10px] uppercase tracking-widest opacity-80 font-bold">{t('planner.liveFinancialProjection')}</p>
+                    <h3 className="text-xl font-black">{t(profile.labelKey)} · {t('planner.guestsPerDay', { count: guests })}</h3>
                   </div>
                   <AnimatePresence mode="wait">
                     <motion.div
@@ -477,7 +476,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                       animate={{ scale: 1, opacity: 1 }}
                       className="text-right"
                     >
-                      <div className="text-[10px] uppercase tracking-wider opacity-70 font-bold">Fizibilite</div>
+                      <div className="text-[10px] uppercase tracking-wider opacity-70 font-bold">{t('planner.feasibility')}</div>
                       <div className="text-2xl font-black">{feasibility}<span className="text-xs opacity-70">/100</span></div>
                       <div className="text-[10px] font-bold">{feasibilityTone.label}</div>
                     </motion.div>
@@ -486,17 +485,17 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
 
                 {/* 4 ana KPI */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  <KpiTile icon={Ruler}     label="Alan"        value={`${calc.area} m²`} />
-                  <KpiTile icon={Flame}     label="Kurulu Güç"  value={`${(calc.power/1000).toFixed(1)} kW`} />
-                  <KpiTile icon={TrendingUp} label="Aylık Ciro"  value={fmtShort(calc.monthlyRevenue)} />
-                  <KpiTile icon={Clock}     label="Geri Dönüş"
-                    value={isFinite(calc.paybackMonths) ? `${calc.paybackMonths.toFixed(1)} ay` : '—'} />
+                  <KpiTile icon={Ruler}     label={t('planner.kpiArea')}        value={`${calc.area} m²`} />
+                  <KpiTile icon={Flame}     label={t('planner.kpiInstalledPower')}  value={`${(calc.power/1000).toFixed(1)} kW`} />
+                  <KpiTile icon={TrendingUp} label={t('planner.kpiMonthlyRevenue')}  value={fmtShort(calc.monthlyRevenue)} />
+                  <KpiTile icon={Clock}     label={t('planner.kpiPayback')}
+                    value={isFinite(calc.paybackMonths) ? t('planner.monthsValue', { count: +calc.paybackMonths.toFixed(1) }) : '—'} />
                 </div>
 
                 {/* Kar/margin bar */}
                 <div className="mt-4 bg-white/10 rounded-lg p-3 backdrop-blur">
                   <div className="flex justify-between items-baseline text-xs mb-1.5">
-                    <span className="opacity-80">Aylık Net Kâr</span>
+                    <span className="opacity-80">{t('planner.monthlyNetProfit')}</span>
                     <span className="font-black text-lg">{fmtEur(calc.monthlyProfit)}</span>
                   </div>
                   <div className="relative h-2 bg-white/20 rounded-full overflow-hidden">
@@ -508,32 +507,32 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                     />
                   </div>
                   <div className="flex justify-between text-[10px] opacity-70 mt-1">
-                    <span>Marj: <span className="font-bold">{(calc.margin * 100).toFixed(1)}%</span></span>
-                    <span>Yıllık: {fmtShort(calc.yearlyRevenue)}</span>
+                    <span>{t('planner.marginLabel')} <span className="font-bold">{(calc.margin * 100).toFixed(1)}%</span></span>
+                    <span>{t('planner.yearlyLabel')} {fmtShort(calc.yearlyRevenue)}</span>
                   </div>
                 </div>
 
                 {/* Maliyet dağılım barı */}
                 <div className="mt-3">
                   <div className="flex text-[10px] font-bold uppercase tracking-wider opacity-80 mb-1 gap-4">
-                    <span>Maliyet Dağılımı</span>
+                    <span>{t('planner.costBreakdown')}</span>
                   </div>
                   <div className="flex h-6 rounded-md overflow-hidden ring-1 ring-white/20">
                     <div className="bg-red-400/90 flex items-center justify-center text-[10px] font-bold"
-                      style={{ width: `${profile.foodCostPct * 100}%` }} title="Gıda">
-                      {Math.round(profile.foodCostPct * 100)}% Gıda
+                      style={{ width: `${profile.foodCostPct * 100}%` }} title={t('planner.costFood')}>
+                      {Math.round(profile.foodCostPct * 100)}% {t('planner.costFood')}
                     </div>
                     <div className="bg-amber-400/90 flex items-center justify-center text-[10px] font-bold text-slate-900"
-                      style={{ width: `${profile.laborCostPct * 100}%` }} title="İşçilik">
-                      {Math.round(profile.laborCostPct * 100)}% İşçilik
+                      style={{ width: `${profile.laborCostPct * 100}%` }} title={t('planner.costLabor')}>
+                      {Math.round(profile.laborCostPct * 100)}% {t('planner.costLabor')}
                     </div>
                     <div className="bg-brand-red/90 flex items-center justify-center text-[10px] font-bold text-slate-900"
-                      style={{ width: `${profile.overheadPct * 100}%` }} title="Gider">
-                      {Math.round(profile.overheadPct * 100)}% Gider
+                      style={{ width: `${profile.overheadPct * 100}%` }} title={t('planner.costOverhead')}>
+                      {Math.round(profile.overheadPct * 100)}% {t('planner.costOverhead')}
                     </div>
                     <div className="bg-emerald-400/90 flex items-center justify-center text-[10px] font-bold text-slate-900"
-                      style={{ width: `${Math.max(0, calc.margin * 100)}%` }} title="Kâr">
-                      {Math.max(0, Math.round(calc.margin * 100))}% Kâr
+                      style={{ width: `${Math.max(0, calc.margin * 100)}%` }} title={t('planner.costProfit')}>
+                      {Math.max(0, Math.round(calc.margin * 100))}% {t('planner.costProfit')}
                     </div>
                   </div>
                 </div>
@@ -545,7 +544,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
               <div className="flex items-center justify-between mb-3 flex-wrap gap-3">
                 <div className="flex items-center gap-2">
                   <Bot size={18} className="text-brand-red" />
-                  <h3 className="font-black text-slate-900">3 · AI Ekipman Önerisi</h3>
+                  <h3 className="font-black text-slate-900">{t('planner.step3AiTitle')}</h3>
                 </div>
                 <div className="flex gap-2">
                   <button
@@ -553,7 +552,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                     onClick={openInDrawing}
                     className="h-10 px-4 rounded-xl border-2 border-slate-200 hover:border-brand-red text-slate-700 font-bold text-sm flex items-center gap-2 transition"
                   >
-                    <Pencil size={14} /> Manuel Çizime Geç
+                    <Pencil size={14} /> {t('planner.switchToManualDraw')}
                   </button>
                   <button
                     type="button"
@@ -562,7 +561,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                     className="h-10 px-5 rounded-xl bg-gradient-to-r from-brand-red to-brand-red text-white font-bold text-sm flex items-center gap-2 shadow-lg disabled:opacity-60 hover:shadow-xl transition"
                   >
                     {loading ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
-                    {loading ? 'AI düşünüyor...' : 'Ekipman Listesi Üret'}
+                    {loading ? t('planner.aiThinking') : t('planner.generateEquipmentList')}
                   </button>
                 </div>
               </div>
@@ -570,10 +569,10 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
               {loading && (
                 <div className="p-4 bg-gradient-to-br from-red-50 to-red-50 rounded-xl border border-red-100">
                   <div className="flex items-center gap-2 text-sm font-semibold text-brand-red mb-2">
-                    <Bot size={16} className="animate-pulse" /> AI ekipman listesi hazırlıyor...
+                    <Bot size={16} className="animate-pulse" /> {t('planner.aiPreparingList')}
                   </div>
                   <pre className="text-xs text-slate-600 whitespace-pre-wrap max-h-40 overflow-y-auto font-mono">
-                    {streamText || 'Sektör verisi analiz ediliyor...'}
+                    {streamText || t('planner.analyzingSectorData')}
                   </pre>
                 </div>
               )}
@@ -587,7 +586,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
               {!loading && recommendations.length === 0 && !error && (
                 <div className="text-center py-8 text-slate-400">
                   <Bot size={32} className="mx-auto mb-2 opacity-40" />
-                  <p className="text-sm">Parametreler hazır. AI sektörünüze özel ekipman listesi üretebilir.</p>
+                  <p className="text-sm">{t('planner.paramsReady')}</p>
                 </div>
               )}
 
@@ -595,12 +594,12 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                 <>
                   <div className="flex items-center justify-between mb-3 pb-3 border-b border-slate-100">
                     <div>
-                      <p className="font-bold text-slate-900">{recommendations.length} ürün önerildi</p>
+                      <p className="font-bold text-slate-900">{t('planner.productsRecommended', { count: recommendations.length })}</p>
                       <p className="text-xs text-slate-500">
-                        Toplam: <span className="font-bold">{fmtEur(totalCost)}</span>
+                        {t('planner.totalLabel')} <span className="font-bold">{fmtEur(totalCost)}</span>
                         {' · '}
                         <span className={totalCost > budget ? 'text-rose-600 font-bold' : 'text-emerald-600 font-bold'}>
-                          Bütçe {totalCost > budget ? 'aşıldı' : 'uygun'}
+                          {totalCost > budget ? t('planner.budgetExceeded') : t('planner.budgetFits')}
                         </span>
                       </p>
                     </div>
@@ -609,7 +608,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                       disabled={!recommendations.some((r) => r.matched_product)}
                       className="h-10 px-4 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm flex items-center gap-2 shadow disabled:opacity-50 transition"
                     >
-                      <ShoppingCart size={14} /> Sepete Ekle
+                      <ShoppingCart size={14} /> {t('cart.addToCart')}
                     </button>
                   </div>
                   <div className="space-y-2 max-h-96 overflow-y-auto pr-1">
@@ -633,7 +632,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                             <p className="font-bold text-slate-900 text-sm truncate">{rec.name}</p>
                             {rec.matched_product && (
                               <span className="inline-flex items-center gap-0.5 text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                <Zap size={8} /> Katalogda
+                                <Zap size={8} /> {t('planner.inCatalog')}
                               </span>
                             )}
                           </div>
@@ -665,8 +664,8 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
               <div className="flex items-center justify-between mb-3">
                 <div>
-                  <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Görsel Önizleme</p>
-                  <h3 className="font-black text-slate-900">Mutfak Alanı</h3>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">{t('planner.visualPreview')}</p>
+                  <h3 className="font-black text-slate-900">{t('planner.kitchenArea')}</h3>
                 </div>
                 <div className="text-right">
                   <p className="text-2xl font-black text-slate-900">{calc.area}<span className="text-sm text-slate-500 ml-1">m²</span></p>
@@ -749,10 +748,10 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                 </svg>
                 {/* Köşe etiketi */}
                 <div className="absolute top-2 left-2 bg-white/90 backdrop-blur rounded-md px-2 py-1 text-[10px] font-bold text-slate-700 shadow-sm">
-                  ÖLÇEK · TAHMİN
+                  {t('planner.scaleEstimate')}
                 </div>
                 <div className="absolute bottom-2 right-2 bg-gradient-to-r from-brand-red to-brand-red text-white rounded-md px-2 py-1 text-[10px] font-black shadow-sm">
-                  ~{profile.typicalItems} EKİPMAN
+                  {t('planner.equipmentBadge', { count: profile.typicalItems })}
                 </div>
               </div>
 
@@ -761,7 +760,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                 onClick={openInDrawing}
                 className="mt-3 w-full py-3 rounded-xl bg-brand-red text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#B91C1C] transition"
               >
-                <Pencil size={14} /> Manuel Çizime Aktar
+                <Pencil size={14} /> {t('planner.transferToManualDraw')}
                 <ChevronRight size={14} />
               </button>
             </div>
@@ -770,24 +769,24 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
             <div className="bg-white rounded-2xl p-5 shadow-sm border border-slate-200">
               <div className="flex items-center gap-2 mb-3">
                 <Info size={14} className="text-brand-red" />
-                <h4 className="font-black text-slate-900 text-sm">Sektör Karşılaştırma</h4>
+                <h4 className="font-black text-slate-900 text-sm">{t('planner.sectorComparison')}</h4>
               </div>
               <div className="space-y-2.5 text-xs">
-                <CompareRow label="Misafir başı alan"
+                <CompareRow label={t('planner.benchAreaPerGuest')}
                   current={`${profile.areaPerGuest} m²`}
-                  benchmark={`Ort: ${(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.areaPerGuest, 0) / BUSINESS_LIST.length).toFixed(2)} m²`} />
-                <CompareRow label="Masa devri / gün"
+                  benchmark={t('planner.benchAvgValue', { value: `${(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.areaPerGuest, 0) / BUSINESS_LIST.length).toFixed(2)} m²` })} />
+                <CompareRow label={t('planner.benchTableTurnover')}
                   current={`${profile.turnover}x`}
-                  benchmark={`Ort: ${(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.turnover, 0) / BUSINESS_LIST.length).toFixed(1)}x`} />
-                <CompareRow label="Gıda maliyeti"
+                  benchmark={t('planner.benchAvgValue', { value: `${(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.turnover, 0) / BUSINESS_LIST.length).toFixed(1)}x` })} />
+                <CompareRow label={t('planner.benchFoodCost')}
                   current={`${Math.round(profile.foodCostPct * 100)}%`}
-                  benchmark={`Ort: ${Math.round(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.foodCostPct, 0) / BUSINESS_LIST.length * 100)}%`} />
-                <CompareRow label="Net marj hedefi"
+                  benchmark={t('planner.benchAvgValue', { value: `${Math.round(Object.values(BUSINESS_PROFILES).reduce((s, p) => s + p.foodCostPct, 0) / BUSINESS_LIST.length * 100)}%` })} />
+                <CompareRow label={t('planner.benchNetMargin')}
                   current={`${(calc.margin * 100).toFixed(1)}%`}
-                  benchmark="Hedef: 20%+" />
-                <CompareRow label="Geri dönüş süresi"
-                  current={isFinite(calc.paybackYears) ? `${calc.paybackYears.toFixed(1)} yıl` : '—'}
-                  benchmark="İdeal: 2-3 yıl" />
+                  benchmark={t('planner.benchMarginTarget')} />
+                <CompareRow label={t('planner.benchPayback')}
+                  current={isFinite(calc.paybackYears) ? t('planner.yearsValue', { value: calc.paybackYears.toFixed(1) }) : '—'}
+                  benchmark={t('planner.benchIdealPayback')} />
               </div>
             </div>
 

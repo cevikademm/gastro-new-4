@@ -18,6 +18,7 @@ import CartQuantityButton from '../../components/CartQuantityButton';
 import ProductCard from '../../components/catalog/ProductCard';
 import Model3DViewer, { has3DModel } from '../../components/Model3DViewer';
 import CategoryFilterPanel from '../../components/CategoryFilterPanel';
+import { formatDims } from '../../lib/dims';
 import { useProductDetailStore } from '../../stores/productDetailStore';
 import { CategoryIcon } from '../../components/icons/CategoryIcon';
 import { EmptyState, EmptySearchIllustration } from '../../components/illustrations/EmptyState';
@@ -53,52 +54,57 @@ function ProductImage({ src, alt, className }: { src: string; alt: string; class
   );
 }
 
-// All column definitions matching Excel headers
-const ALL_COLUMNS: { key: keyof DiamondProduct | string; label: string; group: string }[] = [
-  { key: 'id', label: 'Ürün ID', group: 'Genel' },
-  { key: 'name', label: 'Ürün Adı', group: 'Genel' },
-  { key: 'description_tech_spec', label: 'Teknik Açıklama', group: 'Genel' },
-  { key: 'popup_info', label: 'Ek Bilgi', group: 'Genel' },
-  { key: 'currency', label: 'Para Birimi', group: 'Fiyat' },
-  { key: 'price_catalog', label: 'Katalog Fiyatı', group: 'Fiyat' },
-  { key: 'price_display', label: 'Görüntülenen Fiyat', group: 'Fiyat' },
-  { key: 'price_promo', label: 'Promosyon Fiyatı', group: 'Fiyat' },
-  { key: 'page_catalog_number', label: 'Katalog Sayfa No', group: 'Fiyat' },
-  { key: 'page_promo_number', label: 'Promo Sayfa No', group: 'Fiyat' },
-  { key: 'stock', label: 'Stok Miktarı', group: 'Stok' },
-  { key: 'restock_info', label: 'Yeniden Stoklama', group: 'Stok' },
-  { key: 'supplier_delivery_delay', label: 'Tedarikçi Teslimat (gün)', group: 'Stok' },
-  { key: 'days_to_restock_avg', label: 'Ort. Stoklama Süresi (gün)', group: 'Stok' },
-  { key: 'length_mm', label: 'Uzunluk (mm)', group: 'Boyut' },
-  { key: 'width_mm', label: 'Genişlik (mm)', group: 'Boyut' },
-  { key: 'height_mm', label: 'Yükseklik (mm)', group: 'Boyut' },
-  { key: 'volume_m3', label: 'Hacim (m³)', group: 'Boyut' },
-  { key: 'weight', label: 'Ağırlık', group: 'Boyut' },
-  { key: 'weight_unit', label: 'Ağırlık Birimi', group: 'Boyut' },
-  { key: 'electric_power_kw', label: 'Elektrik Gücü (kW)', group: 'Teknik' },
-  { key: 'electric_connection', label: 'Elektrik Bağlantı', group: 'Teknik' },
-  { key: 'electric_connection_2', label: 'Elektrik Bağlantı 2', group: 'Teknik' },
-  { key: 'vapor', label: 'Buhar', group: 'Teknik' },
-  { key: 'kcal_power', label: 'Kcal Gücü', group: 'Teknik' },
-  { key: 'horse_power', label: 'Beygir Gücü', group: 'Teknik' },
-  { key: 'product_category_id', label: 'Kategori ID', group: 'Kategori' },
-  { key: 'product_range_id', label: 'Ürün Grubu ID', group: 'Kategori' },
-  { key: 'product_subrange_id', label: 'Alt Grup ID', group: 'Kategori' },
-  { key: 'product_family_id', label: 'Ürün Ailesi ID', group: 'Kategori' },
-  { key: 'product_family_name', label: 'Ürün Ailesi Adı', group: 'Kategori' },
-  { key: 'product_subfamily_id', label: 'Alt Aile ID', group: 'Kategori' },
-  { key: 'product_line_id', label: 'Ürün Hattı ID', group: 'Kategori' },
-  { key: 'is_new', label: 'Yeni Ürün', group: 'Durum' },
-  { key: 'is_old', label: 'Eski Ürün', group: 'Durum' },
-  { key: 'is_good_deal', label: 'Kampanyalı', group: 'Durum' },
-  { key: 'product_type', label: 'Ürün Tipi', group: 'Durum' },
-  { key: 'has_accessories', label: 'Aksesuar Var', group: 'Durum' },
-  { key: 'replacement_product_id', label: 'Yedek Ürün ID', group: 'Durum' },
-  { key: 'image_big', label: 'Görsel (Büyük)', group: 'Medya' },
-  { key: 'image_thumb', label: 'Görsel (Küçük)', group: 'Medya' },
-  { key: 'image_gallery', label: 'Görsel (Galeri)', group: 'Medya' },
-  { key: 'image_full', label: 'Görsel (Full)', group: 'Medya' },
+// All column definitions matching Excel headers.
+// `labelKey` is resolved via t() inside the component so labels stay reactive to language.
+// `group` is a stable i18n key; the human label is rendered via t('diamond.colGroup.<group>').
+const ALL_COLUMNS: { key: keyof DiamondProduct | string; labelKey: string; group: string }[] = [
+  { key: 'id', labelKey: 'diamond.col.id', group: 'general' },
+  { key: 'name', labelKey: 'diamond.col.name', group: 'general' },
+  { key: 'description_tech_spec', labelKey: 'diamond.col.descriptionTechSpec', group: 'general' },
+  { key: 'popup_info', labelKey: 'diamond.col.popupInfo', group: 'general' },
+  { key: 'currency', labelKey: 'diamond.col.currency', group: 'price' },
+  { key: 'price_catalog', labelKey: 'diamond.col.priceCatalog', group: 'price' },
+  { key: 'price_display', labelKey: 'diamond.col.priceDisplay', group: 'price' },
+  { key: 'price_promo', labelKey: 'diamond.col.pricePromo', group: 'price' },
+  { key: 'page_catalog_number', labelKey: 'diamond.col.pageCatalogNumber', group: 'price' },
+  { key: 'page_promo_number', labelKey: 'diamond.col.pagePromoNumber', group: 'price' },
+  { key: 'stock', labelKey: 'diamond.col.stock', group: 'stock' },
+  { key: 'restock_info', labelKey: 'diamond.col.restockInfo', group: 'stock' },
+  { key: 'supplier_delivery_delay', labelKey: 'diamond.col.supplierDeliveryDelay', group: 'stock' },
+  { key: 'days_to_restock_avg', labelKey: 'diamond.col.daysToRestockAvg', group: 'stock' },
+  { key: 'length_mm', labelKey: 'diamond.col.lengthMm', group: 'size' },
+  { key: 'width_mm', labelKey: 'diamond.col.widthMm', group: 'size' },
+  { key: 'height_mm', labelKey: 'diamond.col.heightMm', group: 'size' },
+  { key: 'volume_m3', labelKey: 'diamond.col.volumeM3', group: 'size' },
+  { key: 'weight', labelKey: 'diamond.col.weight', group: 'size' },
+  { key: 'weight_unit', labelKey: 'diamond.col.weightUnit', group: 'size' },
+  { key: 'electric_power_kw', labelKey: 'diamond.col.electricPowerKw', group: 'technical' },
+  { key: 'electric_connection', labelKey: 'diamond.col.electricConnection', group: 'technical' },
+  { key: 'electric_connection_2', labelKey: 'diamond.col.electricConnection2', group: 'technical' },
+  { key: 'vapor', labelKey: 'diamond.col.vapor', group: 'technical' },
+  { key: 'kcal_power', labelKey: 'diamond.col.kcalPower', group: 'technical' },
+  { key: 'horse_power', labelKey: 'diamond.col.horsePower', group: 'technical' },
+  { key: 'product_category_id', labelKey: 'diamond.col.productCategoryId', group: 'category' },
+  { key: 'product_range_id', labelKey: 'diamond.col.productRangeId', group: 'category' },
+  { key: 'product_subrange_id', labelKey: 'diamond.col.productSubrangeId', group: 'category' },
+  { key: 'product_family_id', labelKey: 'diamond.col.productFamilyId', group: 'category' },
+  { key: 'product_family_name', labelKey: 'diamond.col.productFamilyName', group: 'category' },
+  { key: 'product_subfamily_id', labelKey: 'diamond.col.productSubfamilyId', group: 'category' },
+  { key: 'product_line_id', labelKey: 'diamond.col.productLineId', group: 'category' },
+  { key: 'is_new', labelKey: 'diamond.col.isNew', group: 'state' },
+  { key: 'is_old', labelKey: 'diamond.col.isOld', group: 'state' },
+  { key: 'is_good_deal', labelKey: 'diamond.col.isGoodDeal', group: 'state' },
+  { key: 'product_type', labelKey: 'diamond.col.productType', group: 'state' },
+  { key: 'has_accessories', labelKey: 'diamond.col.hasAccessories', group: 'state' },
+  { key: 'replacement_product_id', labelKey: 'diamond.col.replacementProductId', group: 'state' },
+  { key: 'image_big', labelKey: 'diamond.col.imageBig', group: 'media' },
+  { key: 'image_thumb', labelKey: 'diamond.col.imageThumb', group: 'media' },
+  { key: 'image_gallery', labelKey: 'diamond.col.imageGallery', group: 'media' },
+  { key: 'image_full', labelKey: 'diamond.col.imageFull', group: 'media' },
 ];
+
+// Stable group order (keys → rendered via t('diamond.colGroup.<key>'))
+const COLUMN_GROUPS = ['general', 'price', 'stock', 'size', 'technical', 'category', 'state', 'media'];
 
 // Default visible columns for compact view
 const DEFAULT_VISIBLE = [
@@ -254,7 +260,7 @@ export default function DiamondPage() {
           <div className="flex items-center gap-2 text-xs font-bold text-[#DC2626]">
             <Sparkles size={14} />
             <span>{conceptLabel}</span>
-            <span className="text-[#A04654] font-normal">konseptine uygun ürünler</span>
+            <span className="text-[#A04654] font-normal">{t('diamond.conceptSuffix')}</span>
           </div>
           <button
             onClick={() => {
@@ -308,7 +314,7 @@ export default function DiamondPage() {
         </button>
         {showPromo && (
           <button onClick={() => setFilter('promoOnly', !filters.promoOnly)} className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filters.promoOnly ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-white text-slate-600 border-slate-200 hover:border-amber-200'}`}>
-            <Tag size={14} /> Promo
+            <Tag size={14} /> {t('diamond.promo')}
           </button>
         )}
         <button onClick={() => setFilter('newOnly', !filters.newOnly)} className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold border transition-all ${filters.newOnly ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'}`}>
@@ -338,12 +344,12 @@ export default function DiamondPage() {
                     <button onClick={() => setVisibleCols(DEFAULT_VISIBLE)} className="text-[10px] text-slate-500 font-bold hover:underline">{t('diamond.default')}</button>
                   </div>
                 </div>
-                {['Genel', 'Fiyat', 'Stok', 'Boyut', 'Teknik', 'Kategori', 'Durum', 'Medya'].map(group => (
+                {COLUMN_GROUPS.map(group => (
                   <div key={group} className="mb-2">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{group}</p>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{t(`diamond.colGroup.${group}`)}</p>
                     <div className="flex flex-wrap gap-1">
                       {ALL_COLUMNS.filter(c => c.group === group).map(col => (
-                        <button key={col.key} onClick={() => toggleCol(col.key)} className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all ${visibleCols.includes(col.key) ? 'bg-red-100 text-[#DC2626] border border-red-200' : 'bg-slate-50 text-slate-400 border border-slate-100 hover:bg-slate-100'}`}>{col.label}</button>
+                        <button key={col.key} onClick={() => toggleCol(col.key)} className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all ${visibleCols.includes(col.key) ? 'bg-red-100 text-[#DC2626] border border-red-200' : 'bg-slate-50 text-slate-400 border border-slate-100 hover:bg-slate-100'}`}>{t(col.labelKey)}</button>
                       ))}
                     </div>
                   </div>
@@ -364,9 +370,9 @@ export default function DiamondPage() {
           <div>
             <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1"><Zap size={11} className="text-amber-500" /> {t('diamond.electricPower')}</p>
             <div className="flex items-center gap-2">
-              <input type="number" min={0} step={0.1} value={filters.minKw || ''} onChange={(e) => setFilter('minKw', Number(e.target.value) || 0)} placeholder="Min kW" className="w-28 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-amber-300 outline-none" />
+              <input type="number" min={0} step={0.1} value={filters.minKw || ''} onChange={(e) => setFilter('minKw', Number(e.target.value) || 0)} placeholder={t('diamond.minKw')} className="w-28 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-amber-300 outline-none" />
               <span className="text-slate-300">—</span>
-              <input type="number" min={0} step={0.1} value={filters.maxKw || ''} onChange={(e) => setFilter('maxKw', Number(e.target.value) || 0)} placeholder="Max kW" className="w-28 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-amber-300 outline-none" />
+              <input type="number" min={0} step={0.1} value={filters.maxKw || ''} onChange={(e) => setFilter('maxKw', Number(e.target.value) || 0)} placeholder={t('diamond.maxKw')} className="w-28 bg-slate-50 border border-slate-200 rounded-lg py-2 px-3 text-xs focus:ring-2 focus:ring-amber-300 outline-none" />
               {(filters.minKw > 0 || filters.maxKw > 0) && (
                 <button onClick={() => { setFilter('minKw', 0); setFilter('maxKw', 0); }} className="text-[10px] text-red-500 hover:text-red-700 font-bold flex items-center gap-0.5"><X size={12} /> {t('common.clear')}</button>
               )}
@@ -408,7 +414,7 @@ export default function DiamondPage() {
             {t('common.noResults', { defaultValue: 'Ürün bulunamadı' })}
           </p>
           <p className="text-xs text-slate-400 mt-1 max-w-sm">
-            Filtreleri değiştirin ya da katalog verisi henüz yüklenmemiş olabilir.
+            {t('catalog.emptyHint')}
           </p>
         </div>
       )}
@@ -425,7 +431,7 @@ export default function DiamondPage() {
                 code={item.id}
                 name={item.name}
                 subtitle={item.product_family_name}
-                dims={item.length_mm && item.width_mm && item.height_mm ? `${item.length_mm}×${item.width_mm}×${item.height_mm} mm` : undefined}
+                dims={formatDims(item.length_mm, item.width_mm, item.height_mm)}
                 price={item.price_catalog}
                 pricePromo={promoActive ? item.price_promo : null}
                 kw={Number(item.electric_power_kw) || 0}
@@ -474,7 +480,7 @@ export default function DiamondPage() {
                       <ProductImage src={item.image_thumb || item.image_big} alt={item.name} className="w-10 h-10 rounded-md flex-shrink-0" />
                       <div>
                         <div className="text-xs font-bold text-on-surface flex items-center gap-1.5">
-                          {item.name}
+                          {item.name?.trim() || item.id}
                           {item.is_new && <span className="bg-emerald-100 text-emerald-700 text-[8px] font-bold px-1 py-0.5 rounded">{t('diamond.new').toUpperCase()}</span>}
                         </div>
                         <div className="text-[10px] font-mono text-on-surface-variant">{item.id}</div>
@@ -513,7 +519,7 @@ export default function DiamondPage() {
                 <th className="py-2.5 px-3 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant sticky left-[60px] bg-surface-container z-20 min-w-[50px]">{t('diamond.image')}</th>
                 {activeColumns.map(col => (
                   <th key={col.key} className="py-2.5 px-3 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant whitespace-nowrap">
-                    {col.label}
+                    {t(col.labelKey)}
                   </th>
                 ))}
               </tr>
@@ -535,7 +541,7 @@ export default function DiamondPage() {
                     return (
                       <td key={col.key} className="py-2 px-3 text-[11px] text-on-surface whitespace-nowrap max-w-[250px] truncate" title={String(val ?? '')}>
                         {col.key === 'name' ? (
-                          <span className="font-bold">{val}</span>
+                          <span className="font-bold">{val || item.id}</span>
                         ) : col.key === 'price_promo' && showPromo && (item.price_promo ?? 0) > 0 ? (
                           <span className="text-red-600 font-bold">{formatCellValue(col.key, val)}</span>
                         ) : col.key === 'is_new' && val ? (

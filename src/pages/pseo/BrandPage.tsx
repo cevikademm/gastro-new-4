@@ -1,4 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Award, CheckCircle2, TrendingUp } from 'lucide-react';
 import SEO from '../../components/SEO';
 import { BRANDS, getBrand } from '../../content/pseo/brands';
@@ -6,6 +7,7 @@ import { getCategory, CATEGORIES } from '../../content/pseo/categories';
 import { breadcrumbSchema, organizationSchema } from '../../lib/seo';
 
 export default function BrandPage() {
+  const { t } = useTranslation();
   const { brand: brandSlug, category: catSlug } = useParams<{ brand?: string; category?: string }>();
 
   // /marka — tüm markalar
@@ -22,7 +24,7 @@ export default function BrandPage() {
             ]),
           ]}
         />
-        <h1 className="text-4xl font-bold text-slate-900 mb-10">Markalar</h1>
+        <h1 className="text-4xl font-bold text-slate-900 mb-10">{t('pseo.brandsTitle')}</h1>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {BRANDS.map((b) => (
             <Link
@@ -37,7 +39,7 @@ export default function BrandPage() {
               <p className="text-sm text-slate-500">{b.origin} · {b.founded}</p>
               <p className="mt-3 text-slate-700">{b.tagline}</p>
               <div className="mt-4 text-xs text-brand-red font-semibold">
-                {b.productCount.toLocaleString('tr-TR')}+ ürün →
+                {t('pseo.productCountArrow', { count: b.productCount.toLocaleString('tr-TR') })}
               </div>
             </Link>
           ))}
@@ -85,13 +87,16 @@ export default function BrandPage() {
             <p className="mt-6 text-slate-300 max-w-2xl">{brand.description}</p>
             <div className="mt-6 inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur rounded-xl">
               <TrendingUp size={16} className="text-brand-red" />
-              <span><strong>{brand.productCount.toLocaleString('tr-TR')}+ ürün</strong> kataloğumuzda</span>
+              <span>
+                <strong>{t('pseo.productCountShort', { count: brand.productCount.toLocaleString('tr-TR') })}</strong>{' '}
+                {t('pseo.inOurCatalog')}
+              </span>
             </div>
           </div>
         </section>
 
         <section className="max-w-7xl mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-slate-900 mb-8">Neden {brand.name}?</h2>
+          <h2 className="text-3xl font-bold text-slate-900 mb-8">{t('pseo.whyBrand', { brand: brand.name })}</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {brand.strengths.map((s) => (
               <div key={s} className="flex items-start gap-3 p-5 bg-slate-50 rounded-xl">
@@ -104,7 +109,7 @@ export default function BrandPage() {
 
         <section className="bg-slate-50 border-y border-slate-200">
           <div className="max-w-7xl mx-auto px-4 py-16">
-            <h2 className="text-3xl font-bold text-slate-900 mb-8">{brand.name} Ürün Kategorileri</h2>
+            <h2 className="text-3xl font-bold text-slate-900 mb-8">{t('pseo.brandProductCategories', { brand: brand.name })}</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {brand.categories.map((catSlug) => {
                 const cat = getCategory(catSlug);
@@ -120,7 +125,7 @@ export default function BrandPage() {
                     </div>
                     <div className="mt-1 text-xs text-slate-500">{cat.shortDesc}</div>
                     <div className="mt-2 text-xs text-brand-red font-semibold">
-                      €{cat.priceFrom.toLocaleString('tr-TR')}'den başlayan
+                      {t('pseo.startingFrom', { price: `€${cat.priceFrom.toLocaleString('tr-TR')}` })}
                     </div>
                   </Link>
                 );
@@ -155,7 +160,7 @@ export default function BrandPage() {
       <section className="bg-gradient-to-br from-white via-red-50 to-white text-[#0F2440] border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <nav className="text-xs text-slate-500 mb-4">
-            <Link to="/" className="hover:text-brand-red">Ana Sayfa</Link> /{' '}
+            <Link to="/" className="hover:text-brand-red">{t('common.home')}</Link> /{' '}
             <Link to={`/marka/${brand.slug}`} className="hover:text-brand-red">{brand.name}</Link> /{' '}
             <span>{category.namePlural}</span>
           </nav>
@@ -163,14 +168,14 @@ export default function BrandPage() {
             {brand.name} {category.namePlural}
           </h1>
           <p className="mt-4 text-lg text-slate-600 max-w-2xl">
-            {brand.name}'un profesyonel {category.namePlural.toLowerCase()} serisi. {category.shortDesc}
+            {t('pseo.brandCategoryIntro', { brand: brand.name, category: category.namePlural.toLowerCase() })} {category.shortDesc}
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/diamond" className="px-6 py-3 bg-brand-red hover:bg-brand-red rounded-xl font-bold transition">
-              Kataloğu Gör
+              {t('pseo.viewCatalog')}
             </Link>
             <Link to={`/kategori/${category.slug}`} className="px-6 py-3 bg-[#0F2440]/5 text-[#0F2440] border border-[#0F2440]/20 rounded-xl font-bold hover:bg-[#0F2440]/10 transition">
-              Tüm {category.namePlural}
+              {t('pseo.allOfCategory', { category: category.namePlural })}
             </Link>
           </div>
         </div>
@@ -178,7 +183,7 @@ export default function BrandPage() {
 
       <section className="max-w-7xl mx-auto px-4 py-16">
         <h2 className="text-2xl font-bold text-slate-900 mb-6">
-          {brand.name} {category.name} Özellikleri
+          {t('pseo.brandCategoryFeatures', { brand: brand.name, category: category.name })}
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {category.keyFeatures.map((f) => (

@@ -147,6 +147,9 @@ export const useDiamondStore = create<DiamondState>((set, get) => ({
         query = query.or(
           `name.ilike.%${filters.search}%,id.ilike.%${filters.search}%,description_tech_spec.ilike.%${filters.search}%`
         );
+      } else {
+        // Yalnızca gezinirken görselsiz ürünleri gizle; aramada hepsi çıksın (migration 029).
+        query = query.eq('has_image', true);
       }
 
       if (filters.category) {
@@ -185,8 +188,11 @@ export const useDiamondStore = create<DiamondState>((set, get) => ({
         query = query.lte('electric_power_kw', filters.maxKw);
       }
 
-      // Sıralama
-      query = query.order(filters.sortBy, { ascending: filters.sortOrder === 'asc' });
+      // Sıralama — önce €1500–€5000 bandı (sort_rank=0), küçük/ucuz ürünler sona
+      // (migration 028). Kullanıcının seçtiği sıralama bant içinde uygulanır.
+      query = query
+        .order('sort_rank', { ascending: true })
+        .order(filters.sortBy, { ascending: filters.sortOrder === 'asc' });
 
       // Sayfalama
       query = query.range(from, to);

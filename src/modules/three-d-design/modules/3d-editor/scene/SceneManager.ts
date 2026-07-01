@@ -103,9 +103,16 @@ export class SceneManager {
     ensureCameraControlsInstalled();
 
     // ── Renderer ──────────────────────────────────────────────────────
+    // ÖNEMLİ: `preserveDrawingBuffer` KULLANILMAZ — her karede buffer kopyalanmaya
+    // zorlar, sürekli render'da (serbest orbit) tekleme/kasma yapar (bilinen WebGL
+    // perf tuzağı). capture() zaten render() + toDataURL()'i AYNI senkron tick'te
+    // çağırdığı için buffer korumaya gerek yok; bu sayede orbit akıcı kalır.
+    // `alpha:true` → capture(transparent) için saydam PNG mümkün; normal karede
+    // scene.background her kareyi boyadığından görünüm birebir aynıdır.
     this.renderer = new THREE.WebGLRenderer({
       antialias,
-      alpha: false,
+      alpha: true,
+      premultipliedAlpha: false,
       powerPreference: 'high-performance',
     });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
@@ -303,6 +310,83 @@ export class SceneManager {
       this.scene.fog = new THREE.Fog(bg ?? new THREE.Color(0xf8fafc), 80, 200);
     } else {
       this.scene.fog = null;
+    }
+  }
+
+  // ── Yüksek kaliteli render capture ──────────────────────────────────────
+  /**
+   * Sahneyi süper-örnekleyerek yüksek kaliteli bir PNG/JPEG data URL'i üretir.
+   *
+   * Yöntem: çizim buffer'ını geçici olarak `scale` katı büyüt (pixelRatio),
+   * TEK karede senkron render et, AYNI tick içinde `toDataURL` ile oku, sonra
+   * her şeyi eski hâline getir. `preserveDrawingBuffer:true` sayesinde okuma
+   * güvenlidir. GPU limitleri için buffer kenarı 4096'ya (≈4K) clamp edilir.
+   *
+   * @returns Üretilen görüntünün data URL'i + gerçek piksel boyutu.
+   */
+  capture(opts: {
+    scale?: number;
+    transparent?: boolean;
+    hideGrid?: boolean;
+    mime?: 'image/png' | 'image/jpeg';
+    quality?: number;
+  } = {}): { dataUrl: string; width: number; height: number } {
+    const {
+      scale = 4,
+      transparent = false,
+      hideGrid = true,
+      mime = 'image/png',
+      quality = 0.95,
+    } = opts;
+
+    const canvas = this.renderer.domElement;
+    // CSS boyutundan bağımsız, mevcut buffer boyutundan yola çık.
+    const baseW = canvas.width || 1;
+    const baseH = canvas.height || 1;
+    const cssW = Math.max(1, Math.round(baseW / (this.renderer.getPixelRatio() || 1)));
+    const cssH = Math.max(1, Math.round(baseH / (this.renderer.getPixelRatio() || 1)));
+
+    // Süper-örnekleme oranını GPU dostu olacak şekilde clamp et (kenar ≤ 4096).
+    const maxEdge = 4096;
+    const safeScale = Math.max(
+      1,
+      Math.min(scale, maxEdge / cssW, maxEdge / cssH),
+    );
+
+    // Mevcut durumu sakla.
+    const prevPixelRatio = this.renderer.getPixelRatio();
+    const prevGridVisible = this.grid.visible;
+    const prevBackground = this.scene.background;
+    const prevClear = this.renderer.getClearColor(new THREE.Color());
+    const prevClearAlpha = this.renderer.getClearAlpha();
+
+    try {
+      if (hideGrid) this.grid.visible = false;
+      if (transparent) {
+        this.scene.background = null;
+        this.renderer.setClearColor(0x000000, 0);
+      }
+
+      // Buffer'ı büyüt (CSS boyutunu koru → sahnedeki düzen değişmesin).
+      this.renderer.setPixelRatio(safeScale);
+      this.renderer.setSize(cssW, cssH, false);
+      // camera-controls smooth geçişleri capture'ı bulanıklaştırmasın diye
+      // hedefe anında oturt.
+      this.controls.update(0);
+      this.renderer.render(this.scene, this.camera);
+
+      const outW = Math.round(cssW * safeScale);
+      const outH = Math.round(cssH * safeScale);
+      const dataUrl = canvas.toDataURL(mime, quality);
+      return { dataUrl, width: outW, height: outH };
+    } finally {
+      // Her şeyi eski hâline getir.
+      this.renderer.setPixelRatio(prevPixelRatio);
+      this.renderer.setSize(cssW, cssH, false);
+      this.grid.visible = prevGridVisible;
+      this.scene.background = prevBackground;
+      this.renderer.setClearColor(prevClear, prevClearAlpha);
+      // Bir sonraki RAF karesi normal görünümü yeniden çizecek.
     }
   }
 

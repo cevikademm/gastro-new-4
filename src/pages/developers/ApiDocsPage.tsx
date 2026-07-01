@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import i18n from '../../i18n';
 
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const SWAGGER_VERSION = '5.17.14';
@@ -15,7 +16,7 @@ function loadScript(src: string): Promise<void> {
     s.src = src;
     s.async = true;
     s.onload = () => resolve();
-    s.onerror = () => reject(new Error(`Yüklenemedi: ${src}`));
+    s.onerror = () => reject(new Error(i18n.t('developerApi.docs.errLoadFailed', { src })));
     document.head.appendChild(s);
   });
 }

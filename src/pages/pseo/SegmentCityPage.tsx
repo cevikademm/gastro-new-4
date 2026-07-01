@@ -1,4 +1,5 @@
 import { useParams, Link, Navigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, MapPin, Calculator, Sparkles } from 'lucide-react';
 import SEO from '../../components/SEO';
 import { getSegment, getCity } from '../../content/pseo/segments';
@@ -13,6 +14,7 @@ import { breadcrumbSchema, faqSchema, organizationSchema } from '../../lib/seo';
 type Props = { locale?: PseoLocale };
 
 export default function SegmentCityPage({ locale = 'tr' }: Props) {
+  const { t } = useTranslation();
   const { segment: segmentSlug, city: citySlug } = useParams<{ segment: string; city: string }>();
   const segment = segmentSlug ? getSegment(segmentSlug) : undefined;
   const city = citySlug ? getCity(citySlug) : undefined;
@@ -65,7 +67,7 @@ export default function SegmentCityPage({ locale = 'tr' }: Props) {
       <section className="bg-gradient-to-br from-sky-50 via-white to-blue-50 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 py-16">
           <nav className="text-xs text-slate-500 mb-4">
-            <Link to="/" className="hover:text-sky-600">Ana Sayfa</Link>
+            <Link to="/" className="hover:text-sky-600">{t('common.home')}</Link>
             {' / '}
             <span className="text-slate-700">{segment.namePlural}</span>
             {' / '}

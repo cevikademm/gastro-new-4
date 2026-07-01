@@ -37,16 +37,16 @@ export default function NotFoundPage() {
             className="group inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-xl font-bold text-sm border border-outline-variant/40 text-on-surface hover:bg-surface-container-low transition-colors w-full sm:w-auto"
           >
             <ArrowLeft size={16} className="transition-transform group-hover:-translate-x-1" />
-            Geri dön
+            {t('common.goBack')}
           </button>
         </div>
 
         <div className="mt-12 pt-8 border-t border-outline-variant/30 grid grid-cols-2 sm:grid-cols-4 gap-6 text-left">
           {[
-            { label: 'Katalog', path: '/diamond' },
-            { label: 'Planlama', path: '/kitchen-planner' },
-            { label: 'Projeler', path: '/projects' },
-            { label: 'Destek', path: '/support' },
+            { label: t('notFound.linkCatalog'), path: '/diamond' },
+            { label: t('notFound.linkPlanning'), path: '/kitchen-planner' },
+            { label: t('notFound.linkProjects'), path: '/projects' },
+            { label: t('notFound.linkSupport'), path: '/support' },
           ].map((l) => (
             <Link
               key={l.path}

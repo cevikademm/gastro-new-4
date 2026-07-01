@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useOrderStore, type OrderItem } from '../../stores/orderStore';
 import { useEquipmentStore } from '../../stores/equipmentStore';
 import {
@@ -7,15 +8,16 @@ import {
 } from 'lucide-react';
 import { proxiedImage } from '../../lib/assets';
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string; icon: typeof Clock }> = {
-  pending: { label: 'Beklemede', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', icon: Clock },
-  confirmed: { label: 'Onaylandı', color: 'text-[#DC2626]', bg: 'bg-red-50 border-red-200', icon: CheckCircle },
-  shipped: { label: 'Kargoda', color: 'text-violet-700', bg: 'bg-violet-50 border-violet-200', icon: Truck },
-  delivered: { label: 'Teslim Edildi', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: PackageCheck },
-  cancelled: { label: 'İptal Edildi', color: 'text-red-700', bg: 'bg-red-50 border-red-200', icon: XCircle },
+const STATUS_CONFIG: Record<string, { labelKey: string; color: string; bg: string; icon: typeof Clock }> = {
+  pending: { labelKey: 'orders.pending', color: 'text-amber-700', bg: 'bg-amber-50 border-amber-200', icon: Clock },
+  confirmed: { labelKey: 'orders.confirmed', color: 'text-[#DC2626]', bg: 'bg-red-50 border-red-200', icon: CheckCircle },
+  shipped: { labelKey: 'orders.shipped', color: 'text-violet-700', bg: 'bg-violet-50 border-violet-200', icon: Truck },
+  delivered: { labelKey: 'orders.delivered', color: 'text-emerald-700', bg: 'bg-emerald-50 border-emerald-200', icon: PackageCheck },
+  cancelled: { labelKey: 'orders.cancelled', color: 'text-red-700', bg: 'bg-red-50 border-red-200', icon: XCircle },
 };
 
 export default function OrderDetailPage() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const { orders, fetchOrders, getOrderById } = useOrderStore();
 
@@ -28,8 +30,8 @@ export default function OrderDetailPage() {
   if (!order) {
     return (
       <div className="max-w-4xl mx-auto py-24 text-center">
-        <p className="text-on-surface-variant">Sipariş bulunamadı</p>
-        <Link to="/orders" className="text-primary font-bold text-sm mt-4 inline-block hover:underline">← Siparişlere Dön</Link>
+        <p className="text-on-surface-variant">{t('orders.orderNotFound')}</p>
+        <Link to="/orders" className="text-primary font-bold text-sm mt-4 inline-block hover:underline">← {t('orders.backToOrders')}</Link>
       </div>
     );
   }
@@ -52,7 +54,7 @@ export default function OrderDetailPage() {
     <div className="max-w-5xl mx-auto w-full space-y-6">
       {/* Back */}
       <Link to="/orders" className="inline-flex items-center gap-2 text-sm text-on-surface-variant hover:text-primary transition-colors font-medium">
-        <ArrowLeft size={16} /> Siparişlerim
+        <ArrowLeft size={16} /> {t('orders.myOrders')}
       </Link>
 
       {/* Header */}
@@ -65,7 +67,7 @@ export default function OrderDetailPage() {
           <p className="text-on-surface-variant text-sm mt-1">{formatDate(order.created_at)}</p>
         </div>
         <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-xl border font-bold text-sm ${cfg.bg} ${cfg.color}`}>
-          <StatusIcon size={18} /> {cfg.label}
+          <StatusIcon size={18} /> {t(cfg.labelKey)}
         </div>
       </div>
 
@@ -73,7 +75,7 @@ export default function OrderDetailPage() {
       <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 overflow-hidden">
         <div className="px-5 py-3.5 bg-surface-container border-b border-outline-variant/10">
           <h2 className="font-headline font-bold text-sm text-primary uppercase tracking-wider">
-            Ürünler ({order.total_items} adet)
+            {t('orders.productsWithCount', { count: order.total_items })}
           </h2>
         </div>
         <div className="divide-y divide-outline-variant/10">
@@ -100,7 +102,7 @@ export default function OrderDetailPage() {
               </div>
               <div className="text-right text-xs text-on-surface-variant hidden sm:block">
                 <p className="flex items-center justify-end gap-1"><Euro size={10} /> {formatPrice(item.price)}</p>
-                <p className="text-[10px]">birim fiyat</p>
+                <p className="text-[10px]">{t('orders.unitPrice')}</p>
               </div>
               <div className="bg-primary/10 text-primary font-bold text-sm px-3 py-1 rounded-lg">
                 ×{item.quantity}
@@ -117,7 +119,7 @@ export default function OrderDetailPage() {
       {/* Notes */}
       {order.notes && (
         <div className="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/10 p-5">
-          <h3 className="font-headline font-bold text-sm text-on-surface mb-2">Notlar</h3>
+          <h3 className="font-headline font-bold text-sm text-on-surface mb-2">{t('orders.notes')}</h3>
           <p className="text-sm text-on-surface-variant">{order.notes}</p>
         </div>
       )}
@@ -126,15 +128,15 @@ export default function OrderDetailPage() {
       <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/10 shadow-sm p-6">
         <div className="flex flex-col gap-3 max-w-sm ml-auto">
           <div className="flex justify-between text-sm text-on-surface-variant">
-            <span>Ara Toplam ({order.total_items} adet)</span>
+            <span>{t('orders.subtotalWithCount', { count: order.total_items })}</span>
             <span className="font-mono">{formatPrice(order.total_price)}</span>
           </div>
           <div className="flex justify-between text-sm text-on-surface-variant">
-            <span>KDV (%19)</span>
+            <span>{t('orders.vatPercent', { percent: 19 })}</span>
             <span className="font-mono">{formatPrice(order.total_price * 0.19)}</span>
           </div>
           <div className="border-t border-outline-variant/20 pt-3 flex justify-between font-headline font-black text-lg text-primary">
-            <span>Genel Toplam</span>
+            <span>{t('orders.grandTotal')}</span>
             <span>{formatPrice(order.total_price * 1.19)}</span>
           </div>
         </div>

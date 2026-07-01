@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useCombisteelStore, type CombisteelProduct } from '../../stores/combisteelStore';
 import { useCompareStore, type CompareItem } from '../../stores/compareStore';
 import { useCartStore } from '../../stores/cartStore';
@@ -14,6 +15,8 @@ import {
 import CartQuantityButton from '../../components/CartQuantityButton';
 import ProductCard from '../../components/catalog/ProductCard';
 import CategoryFilterPanel from '../../components/CategoryFilterPanel';
+import { htmlToText } from '../../lib/htmlText';
+import { formatDims } from '../../lib/dims';
 import { useProductDetailStore } from '../../stores/productDetailStore';
 
 /* ─── Product Image ─── */
@@ -54,6 +57,7 @@ function toCompareItem(p: CombisteelProduct): CompareItem {
 
 /* ─── Main Page ─── */
 export default function CombiSteelPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const openDetail = useProductDetailStore((s) => s.open);
   const store = useCombisteelStore();
@@ -121,10 +125,10 @@ export default function CombiSteelPage() {
               <Box size={28} className="text-white" />
             </div>
             <div>
-              <h1 className="text-2xl md:text-3xl font-headline font-black text-white tracking-tight">CombiSteel Katalog</h1>
+              <h1 className="text-2xl md:text-3xl font-headline font-black text-white tracking-tight">{t('combisteel.pageTitle')}</h1>
               <p className="text-white/70 text-sm mt-1">
                 <span className="bg-white/20 rounded-full px-2.5 py-0.5 text-white font-bold text-xs mr-2">{totalCount.toLocaleString()}</span>
-                profesyonel mutfak ekipmanı
+                {t('combisteel.subtitle')}
               </p>
             </div>
           </div>
@@ -136,7 +140,7 @@ export default function CombiSteelPage() {
               type="text"
               value={filters.search}
               onChange={(e) => setFilter('search', e.target.value)}
-              placeholder="SKU, ürün adı veya açıklama ara..."
+              placeholder={t('combisteel.searchPlaceholder')}
               className="w-full bg-white/15 backdrop-blur-sm border border-white/20 rounded-xl py-3 pl-11 pr-10 text-sm text-white placeholder-white/50 focus:bg-white/25 focus:ring-2 focus:ring-white/30 outline-none transition-all"
             />
             {filters.search && (
@@ -159,7 +163,7 @@ export default function CombiSteelPage() {
               : 'bg-white text-slate-600 border-slate-200 hover:border-red-200'
           }`}
         >
-          <SlidersHorizontal size={14} /> Filtreler
+          <SlidersHorizontal size={14} /> {t('common.filters')}
           {hasActiveFilters && <span className="bg-red-500 text-white text-[9px] w-4 h-4 rounded-full flex items-center justify-center">!</span>}
         </button>
 
@@ -170,23 +174,23 @@ export default function CombiSteelPage() {
             filters.inStockOnly ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-white text-slate-600 border-slate-200 hover:border-emerald-200'
           }`}
         >
-          <Box size={14} /> Stokta
+          <Box size={14} /> {t('common.inStock')}
         </button>
 
         {/* Sort */}
         <div className="relative group">
           <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-red-200 transition-all">
-            <ArrowUpDown size={14} /> Sırala
+            <ArrowUpDown size={14} /> {t('common.sort')}
           </button>
           <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-slate-200 py-1 w-44 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-30">
             {[
-              { key: 'title', label: 'İsim (A-Z)', order: 'asc' as const },
-              { key: 'price', label: 'Fiyat (Düşük)', order: 'asc' as const },
-              { key: 'price', label: 'Fiyat (Yüksek)', order: 'desc' as const },
-              { key: 'stock', label: 'Stok (Yüksek)', order: 'desc' as const },
+              { key: 'title', label: t('combisteel.sortNameAsc'), order: 'asc' as const },
+              { key: 'price', label: t('combisteel.sortPriceAsc'), order: 'asc' as const },
+              { key: 'price', label: t('combisteel.sortPriceDesc'), order: 'desc' as const },
+              { key: 'stock', label: t('combisteel.sortStockDesc'), order: 'desc' as const },
             ].map(s => (
               <button
-                key={s.label}
+                key={`${s.key}-${s.order}`}
                 onClick={() => { setFilter('sortBy', s.key); setFilter('sortOrder', s.order); }}
                 className={`w-full text-left px-4 py-2 text-xs hover:bg-red-50 transition-colors ${
                   filters.sortBy === s.key && filters.sortOrder === s.order ? 'text-[#DC2626] font-bold bg-red-50/50' : 'text-slate-600'
@@ -213,7 +217,7 @@ export default function CombiSteelPage() {
 
         {hasActiveFilters && (
           <button onClick={resetFilters} className="flex items-center gap-1 px-3 py-2 text-xs text-red-500 hover:text-red-700 font-medium transition-colors">
-            <RotateCcw size={12} /> Temizle
+            <RotateCcw size={12} /> {t('common.clear')}
           </button>
         )}
       </div>
@@ -223,7 +227,7 @@ export default function CombiSteelPage() {
         <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4 animate-in slide-in-from-top-2">
           {/* Brands */}
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Marka</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{t('common.brand')}</p>
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => setFilter('brand', '')}
@@ -231,7 +235,7 @@ export default function CombiSteelPage() {
                   !filters.brand ? 'bg-red-500 text-white shadow-sm' : 'bg-slate-100 text-slate-500 hover:bg-red-50 hover:text-[#DC2626]'
                 }`}
               >
-                Tümü
+                {t('common.all')}
               </button>
               {brands.slice(0, 15).map(b => (
                 <button
@@ -249,16 +253,16 @@ export default function CombiSteelPage() {
 
           {/* Price Range */}
           <div>
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Fiyat Aralığı</p>
+            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{t('combisteel.priceRange')}</p>
             <div className="flex items-center gap-2">
               <div className="relative">
                 <Euro size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input type="number" min={0} value={filters.minPrice || ''} onChange={e => setFilter('minPrice', Number(e.target.value) || 0)} placeholder="Min" className="w-28 bg-slate-50 border border-slate-200 rounded-lg py-2 pl-7 pr-2 text-xs focus:ring-2 focus:ring-red-300 outline-none" />
+                <input type="number" min={0} value={filters.minPrice || ''} onChange={e => setFilter('minPrice', Number(e.target.value) || 0)} placeholder={t('common.min')} className="w-28 bg-slate-50 border border-slate-200 rounded-lg py-2 pl-7 pr-2 text-xs focus:ring-2 focus:ring-red-300 outline-none" />
               </div>
               <span className="text-slate-300">—</span>
               <div className="relative">
                 <Euro size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input type="number" min={0} value={filters.maxPrice || ''} onChange={e => setFilter('maxPrice', Number(e.target.value) || 0)} placeholder="Max" className="w-28 bg-slate-50 border border-slate-200 rounded-lg py-2 pl-7 pr-2 text-xs focus:ring-2 focus:ring-red-300 outline-none" />
+                <input type="number" min={0} value={filters.maxPrice || ''} onChange={e => setFilter('maxPrice', Number(e.target.value) || 0)} placeholder={t('common.max')} className="w-28 bg-slate-50 border border-slate-200 rounded-lg py-2 pl-7 pr-2 text-xs focus:ring-2 focus:ring-red-300 outline-none" />
               </div>
             </div>
           </div>
@@ -282,7 +286,7 @@ export default function CombiSteelPage() {
               <div className="absolute inset-0 border-4 border-red-100 rounded-full" />
               <div className="absolute inset-0 border-4 border-transparent border-t-[#DC2626] rounded-full animate-spin" />
             </div>
-            <p className="text-sm text-slate-500 font-medium">Ürünler yükleniyor...</p>
+            <p className="text-sm text-slate-500 font-medium">{t('product.loading')}</p>
           </div>
         </div>
       )}
@@ -290,7 +294,7 @@ export default function CombiSteelPage() {
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-2xl p-5 text-red-600 text-sm">
           {error}
-          <button onClick={fetchProducts} className="ml-3 underline font-bold">Tekrar dene</button>
+          <button onClick={fetchProducts} className="ml-3 underline font-bold">{t('common.retry')}</button>
         </div>
       )}
 
@@ -298,9 +302,9 @@ export default function CombiSteelPage() {
       {!isLoading && !error && products.length === 0 && (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Package size={40} className="text-slate-300 mb-3" />
-          <p className="text-sm font-bold text-slate-600">Ürün bulunamadı</p>
+          <p className="text-sm font-bold text-slate-600">{t('product.noResults')}</p>
           <p className="text-xs text-slate-400 mt-1 max-w-sm">
-            Filtreleri değiştirin ya da katalog verisi henüz yüklenmemiş olabilir.
+            {t('combisteel.emptyHint')}
           </p>
         </div>
       )}
@@ -314,11 +318,12 @@ export default function CombiSteelPage() {
               brand={item.brand || 'CombiSteel'}
               code={item.sku}
               name={item.title || item.description}
+              description={item.long_description || item.description || undefined}
               subtitle={item.category_name || undefined}
               price={item.price}
-              dims={(item.length_mm || item.width_mm) ? `${item.length_mm || item.width_mm}×${item.depth_mm || item.width_mm}×${item.height_mm || 0} mm` : undefined}
+              dims={formatDims(item.length_mm || item.width_mm, item.depth_mm, item.height_mm)}
               imageUrl={item.image_url || ''}
-              badges={{ stock: (item.stock != null && item.stock > 0) ? 'Stokta' : undefined }}
+              badges={{ stock: (item.stock != null && item.stock > 0) ? t('common.inStock') : undefined }}
               inCompare={isComparing(item.id)}
               cartProduct={toCartItem(item) as any}
               formatPrice={formatPrice}
@@ -354,7 +359,7 @@ export default function CombiSteelPage() {
                 </button>
                 <ProductImage src={item.image_url || ''} alt={item.title} className="w-14 h-14 rounded-xl flex-shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="font-bold text-sm text-on-surface truncate">{item.title || item.description}</p>
+                  <p className="font-bold text-sm text-on-surface truncate">{item.title || item.description || item.sku || item.id}</p>
                   <div className="flex items-center gap-3 mt-1 text-xs text-slate-400">
                     <span className="font-mono text-[#DC2626]">{item.sku}</span>
                     {item.brand && <span className="bg-slate-100 px-2 py-0.5 rounded text-slate-500">{item.brand}</span>}
@@ -363,7 +368,7 @@ export default function CombiSteelPage() {
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
                   {item.width_mm && <span className="text-xs text-slate-400 hidden lg:flex items-center gap-1"><Ruler size={12} /> {item.width_mm}×{item.depth_mm || item.height_mm}mm</span>}
-                  {item.stock != null && item.stock > 0 && <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-lg">{item.stock} adet</span>}
+                  {item.stock != null && item.stock > 0 && <span className="text-[10px] text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded-lg">{t('combisteel.stockCount', { count: item.stock })}</span>}
                   <span className="text-lg font-black text-[#DC2626] w-28 text-right">{formatPrice(item.price)}</span>
                   <CartQuantityButton product={toCartItem(item) as any} size="sm" />
                 </div>
@@ -380,16 +385,16 @@ export default function CombiSteelPage() {
             <thead>
               <tr className="bg-gradient-to-r from-slate-50 to-red-50/30 border-b border-slate-200">
                 <th className="py-3 px-3 w-8" />
-                <th className="py-3 px-3 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">Görsel</th>
-                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">SKU</th>
-                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">Ürün</th>
-                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">Marka</th>
-                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">Kategori</th>
-                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">Boyut</th>
-                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">Ağırlık</th>
-                <th className="py-3 px-4 text-center font-bold text-slate-500 text-[10px] uppercase tracking-wider">Stok</th>
-                <th className="py-3 px-4 text-right font-bold text-slate-500 text-[10px] uppercase tracking-wider">Fiyat</th>
-                <th className="py-3 px-4 text-center font-bold text-slate-500 text-[10px] uppercase tracking-wider">İşlem</th>
+                <th className="py-3 px-3 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('combisteel.colImage')}</th>
+                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('combisteel.colSku')}</th>
+                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('common.product')}</th>
+                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('common.brand')}</th>
+                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('catalog.category')}</th>
+                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('combisteel.colSize')}</th>
+                <th className="py-3 px-4 text-left font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('combisteel.colWeight')}</th>
+                <th className="py-3 px-4 text-center font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('common.stock')}</th>
+                <th className="py-3 px-4 text-right font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('common.price')}</th>
+                <th className="py-3 px-4 text-center font-bold text-slate-500 text-[10px] uppercase tracking-wider">{t('common.actions')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -407,7 +412,7 @@ export default function CombiSteelPage() {
                     </td>
                     <td className="py-2 px-3"><ProductImage src={item.image_url || ''} alt="" className="w-10 h-10 rounded-lg" /></td>
                     <td className="py-2 px-4 font-mono text-[#DC2626] text-[11px]">{item.sku}</td>
-                    <td className="py-2 px-4 font-semibold text-on-surface max-w-[200px] truncate">{item.title || item.description}</td>
+                    <td className="py-2 px-4 font-semibold text-on-surface max-w-[200px] truncate">{item.title || item.description || item.sku || item.id}</td>
                     <td className="py-2 px-4 text-slate-500">{item.brand || '—'}</td>
                     <td className="py-2 px-4 text-slate-400">{item.category_name || '—'}</td>
                     <td className="py-2 px-4 text-slate-400 font-mono text-[10px]">{item.width_mm ? `${item.width_mm}×${item.depth_mm || ''}×${item.height_mm || ''}` : '—'}</td>
@@ -439,7 +444,7 @@ export default function CombiSteelPage() {
           <button onClick={() => setPage(Math.min(totalPages, currentPage + 1))} disabled={currentPage === totalPages} className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-red-300 disabled:opacity-30 transition-all">
             <ChevronRight size={16} />
           </button>
-          <span className="ml-4 text-xs text-slate-400 font-medium">Sayfa {currentPage} / {totalPages}</span>
+          <span className="ml-4 text-xs text-slate-400 font-medium">{t('common.pageOf', { current: currentPage, total: totalPages })}</span>
         </div>
       )}
 
@@ -453,14 +458,14 @@ export default function CombiSteelPage() {
               <div className="relative z-10 flex items-center justify-between">
                 <div>
                   <p className="text-white/60 text-xs font-mono tracking-wider">{detailItem.sku}</p>
-                  <h2 className="text-lg font-bold mt-1">{detailItem.title || detailItem.description}</h2>
+                  <h2 className="text-lg font-bold mt-1">{detailItem.title || detailItem.description || detailItem.sku || detailItem.id}</h2>
                   {detailItem.brand && <p className="text-white/80 text-xs mt-0.5">{detailItem.brand}</p>}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => toggleCompare(detailItem)}
                     className={`p-2 rounded-xl transition-all ${isComparing(detailItem.id) ? 'bg-violet-500 text-white' : 'bg-white/20 text-white/70 hover:bg-white/30'}`}
-                    title="Karşılaştırmaya Ekle"
+                    title={t('compare.addToCompare')}
                   >
                     <GitCompareArrows size={16} />
                   </button>
@@ -478,18 +483,18 @@ export default function CombiSteelPage() {
                   <ProductImage src={detailItem.image_url || ''} alt={detailItem.title} className="w-44 h-44" />
                 </div>
                 <div className="flex-1 space-y-3">
-                  {detailItem.description && <p className="text-sm text-slate-600">{detailItem.description}</p>}
-                  {detailItem.long_description && <p className="text-xs text-slate-500">{detailItem.long_description}</p>}
+                  {detailItem.description && <p className="text-sm text-slate-600 whitespace-pre-line">{htmlToText(detailItem.description)}</p>}
+                  {detailItem.long_description && <p className="text-xs text-slate-500 whitespace-pre-line">{htmlToText(detailItem.long_description)}</p>}
                   <div className="grid grid-cols-2 gap-2 mt-3">
                     <div className="bg-gradient-to-br from-red-50 to-red-100/50 rounded-xl p-3 text-center border border-red-100">
                       <Euro size={16} className="mx-auto text-[#DC2626] mb-1" />
                       <p className="font-black text-[#DC2626] text-lg">{formatPrice(detailItem.price)}</p>
-                      <p className="text-[10px] text-[#A04654] font-medium">Fiyat</p>
+                      <p className="text-[10px] text-[#A04654] font-medium">{t('common.price')}</p>
                     </div>
                     <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-xl p-3 text-center border border-emerald-100">
                       <Box size={16} className="mx-auto text-emerald-500 mb-1" />
                       <p className="font-black text-emerald-700 text-lg">{detailItem.stock ?? '—'}</p>
-                      <p className="text-[10px] text-emerald-400 font-medium">Stok</p>
+                      <p className="text-[10px] text-emerald-400 font-medium">{t('common.stock')}</p>
                     </div>
                   </div>
                 </div>
@@ -498,15 +503,15 @@ export default function CombiSteelPage() {
               {/* Dimensions */}
               {(detailItem.width_mm || detailItem.height_mm || detailItem.depth_mm || detailItem.gross_weight) && (
                 <div>
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1"><Ruler size={11} /> Boyutlar & Ağırlık</h3>
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1"><Ruler size={11} /> {t('combisteel.dimensionsWeight')}</h3>
                   <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
                     {[
-                      { v: detailItem.length_mm, l: 'Uzunluk', u: 'mm' },
-                      { v: detailItem.width_mm, l: 'Genişlik', u: 'mm' },
-                      { v: detailItem.height_mm, l: 'Yükseklik', u: 'mm' },
-                      { v: detailItem.depth_mm, l: 'Derinlik', u: 'mm' },
-                      { v: detailItem.gross_weight, l: 'Brüt', u: 'kg' },
-                      { v: detailItem.net_weight, l: 'Net', u: 'kg' },
+                      { v: detailItem.length_mm, l: t('combisteel.dimLength'), u: 'mm' },
+                      { v: detailItem.width_mm, l: t('combisteel.dimWidth'), u: 'mm' },
+                      { v: detailItem.height_mm, l: t('combisteel.dimHeight'), u: 'mm' },
+                      { v: detailItem.depth_mm, l: t('combisteel.dimDepth'), u: 'mm' },
+                      { v: detailItem.gross_weight, l: t('combisteel.weightGross'), u: 'kg' },
+                      { v: detailItem.net_weight, l: t('combisteel.weightNet'), u: 'kg' },
                     ].filter(d => d.v).map(d => (
                       <div key={d.l} className="bg-slate-50 rounded-xl px-3 py-2 text-center">
                         <p className="text-xs font-bold text-on-surface">{d.v} <span className="text-slate-400 font-normal">{d.u}</span></p>
@@ -520,7 +525,7 @@ export default function CombiSteelPage() {
               {/* Tech Specs */}
               {detailItem.tech_specs?.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1"><Zap size={11} /> Teknik Özellikler</h3>
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-1"><Zap size={11} /> {t('product.technicalSpecs')}</h3>
                   <div className="bg-slate-50 rounded-xl divide-y divide-slate-200/70 overflow-hidden">
                     {detailItem.tech_specs.map((spec, i) => (
                       <div key={i} className={`flex items-center justify-between px-4 py-2 text-xs ${i % 2 === 0 ? '' : 'bg-white/50'}`}>
@@ -535,7 +540,7 @@ export default function CombiSteelPage() {
               {/* Extra Images */}
               {detailItem.extra_images?.length > 0 && (
                 <div>
-                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">Ek Görseller</h3>
+                  <h3 className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-2">{t('combisteel.extraImages')}</h3>
                   <div className="flex gap-2 overflow-x-auto pb-1">
                     {detailItem.extra_images.map((img, i) => (
                       <div key={i} className="flex-shrink-0 bg-slate-50 rounded-xl p-1">
@@ -553,7 +558,7 @@ export default function CombiSteelPage() {
                   onClick={() => handleShowOnFloorPlan(detailItem.sku || detailItem.id)}
                   className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white py-3.5 px-5 rounded-xl font-bold text-sm transition-all shadow-lg shadow-emerald-200"
                 >
-                  <Ruler size={16} /> Plan
+                  <Ruler size={16} /> {t('combisteel.floorPlan')}
                 </button>
                 <button
                   onClick={() => toggleCompare(detailItem)}
@@ -576,12 +581,12 @@ export default function CombiSteelPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm" onClick={() => setProjectModalItem(null)}>
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md m-4 overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 px-6 py-4">
-              <h3 className="text-lg font-bold text-white">Proje Seçin</h3>
-              <p className="text-emerald-100 text-xs">Ürünü hangi projenin kat planına eklemek istiyorsunuz?</p>
+              <h3 className="text-lg font-bold text-white">{t('project.selectProject')}</h3>
+              <p className="text-emerald-100 text-xs">{t('project.selectProjectHint')}</p>
             </div>
             <div className="p-4">
               {activeProjects.length === 0 ? (
-                <p className="text-sm text-slate-500 text-center py-6">Aktif proje yok. Önce bir proje oluşturun.</p>
+                <p className="text-sm text-slate-500 text-center py-6">{t('project.noActiveProjects')}</p>
               ) : (
                 <div className="space-y-2">
                   {activeProjects.map(proj => (
@@ -592,7 +597,7 @@ export default function CombiSteelPage() {
                   ))}
                 </div>
               )}
-              <button onClick={() => setProjectModalItem(null)} className="mt-3 w-full py-2.5 text-sm text-slate-400 hover:text-slate-600 transition-colors rounded-xl hover:bg-slate-50">İptal</button>
+              <button onClick={() => setProjectModalItem(null)} className="mt-3 w-full py-2.5 text-sm text-slate-400 hover:text-slate-600 transition-colors rounded-xl hover:bg-slate-50">{t('common.cancel')}</button>
             </div>
           </div>
         </div>
