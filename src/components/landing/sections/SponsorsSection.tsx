@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Stratejik iş ortakları (üretici markalar) bölümü.
@@ -14,23 +15,24 @@ interface Brand {
   name: string;
   /** public/brand-logos/<file> — png/svg/webp. */
   logo: string;
-  /** Kısa açıklama (ürün grubu / ülke) — kartın altında. */
-  tag?: string;
+  /** Kısa açıklama (ürün grubu / ülke) i18n anahtarı — kartın altında. */
+  tagKey?: string;
 }
 
 const BRANDS: Brand[] = [
-  { name: 'Diamond',    logo: '/brand-logos/diamond.png',    tag: 'Pişirme & Soğutma' },
-  { name: 'CombiSteel', logo: '/brand-logos/combisteel.png', tag: 'Endüstriyel Mutfak' },
-  { name: 'Rational',   logo: '/brand-logos/rational.png',   tag: 'Kombi Fırın' },
-  { name: 'Modular',    logo: '/brand-logos/modular.png',    tag: 'Pişirme Hatları' },
-  { name: 'Polaris',    logo: '/brand-logos/polaris.png',    tag: 'Soğutma' },
-  { name: 'Eco-Cool',   logo: '/brand-logos/eco-cool.png',   tag: 'Soğuk Zincir' },
-  { name: 'Venix',      logo: '/brand-logos/venix.png',      tag: 'Pizza & Fırın' },
-  { name: 'Eurofred',   logo: '/brand-logos/eurofred.png',   tag: 'İklimlendirme' },
+  { name: 'Diamond',    logo: '/brand-logos/diamond.png',    tagKey: 'landing.sponsors.tagCookingCooling' },
+  { name: 'CombiSteel', logo: '/brand-logos/combisteel.png', tagKey: 'landing.sponsors.tagIndustrial' },
+  { name: 'Rational',   logo: '/brand-logos/rational.png',   tagKey: 'landing.sponsors.tagCombiOven' },
+  { name: 'Modular',    logo: '/brand-logos/modular.png',    tagKey: 'landing.sponsors.tagCookingLines' },
+  { name: 'Polaris',    logo: '/brand-logos/polaris.png',    tagKey: 'landing.sponsors.tagCooling' },
+  { name: 'Eco-Cool',   logo: '/brand-logos/eco-cool.png',   tagKey: 'landing.sponsors.tagColdChain' },
+  { name: 'Venix',      logo: '/brand-logos/venix.png',      tagKey: 'landing.sponsors.tagPizzaOven' },
+  { name: 'Eurofred',   logo: '/brand-logos/eurofred.png',   tagKey: 'landing.sponsors.tagHvac' },
 ];
 
 /** Tek marka kartı — logo yüklenemezse wordmark fallback'e düşer. */
 function BrandCard({ brand }: { brand: Brand }) {
+  const { t } = useTranslation();
   const [failed, setFailed] = useState(false);
 
   return (
@@ -55,9 +57,9 @@ function BrandCard({ brand }: { brand: Brand }) {
         )}
       </div>
 
-      {brand.tag && (
+      {brand.tagKey && (
         <span className="text-[9px] font-bold uppercase tracking-[0.14em] text-slate-400 transition-colors duration-300 group-hover:text-slate-500">
-          {brand.tag}
+          {t(brand.tagKey)}
         </span>
       )}
     </div>
@@ -65,6 +67,7 @@ function BrandCard({ brand }: { brand: Brand }) {
 }
 
 export function SponsorsSection() {
+  const { t } = useTranslation();
   return (
     <section className="relative z-10 border-b border-slate-200 bg-gradient-to-b from-white to-slate-50 py-14 overflow-hidden">
       {/* ince diagonal grid dokusu */}
@@ -75,14 +78,13 @@ export function SponsorsSection() {
         <div className="mb-9 text-center">
           <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] text-brand-red shadow-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-brand-red" />
-            Çözüm Ekosistemi
+            {t('landing.sponsors.eyebrow')}
           </span>
           <h2 className="mt-3 font-display text-[22px] font-black tracking-tight text-[#0F2440] sm:text-[26px]">
-            Stratejik İş Ortaklarımız
+            {t('landing.sponsors.title')}
           </h2>
           <p className="mx-auto mt-2 max-w-xl text-[12px] font-medium leading-relaxed text-slate-500">
-            Dünyanın önde gelen endüstriyel mutfak üreticilerinin yetkili çözüm ortağıyız —
-            kurulumdan satış sonrasına tek elden hizmet.
+            {t('landing.sponsors.subtitle')}
           </p>
           <div className="mx-auto mt-4 h-0.5 w-16 rounded-full bg-gradient-to-r from-transparent via-brand-red to-transparent" />
         </div>

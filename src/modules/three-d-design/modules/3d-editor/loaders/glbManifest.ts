@@ -19,9 +19,9 @@ import type { EquipmentCategory } from '../../../core/types';
 export interface GlbManifestEntry {
   url: string;
   filename: string;
-  labelKey: string; // Changed to translation key
+  labelKey: string; // Translation key for the display name
   productId?: string;
-  categoryKey: string; // Changed to translation key
+  category: EquipmentCategory; // Logical filter category (NOT a translation key)
   dimensionsMm?: { width: number; depth: number; height: number };
   /** Yetkili tarafından eklenen "sistem ekipmanı" mı (true) yoksa dekoratif/marka asset mi (false). */
   isEquipment?: boolean;
@@ -32,7 +32,7 @@ export const GLB_MANIFEST: ReadonlyArray<GlbManifestEntry> = [
     url: '/models/2mc-logo.glb',
     filename: '2mc-logo.glb',
     labelKey: 'glb.label.2mcLogo',
-    categoryKey: 'glb.category.other',
+    category: 'other',
     dimensionsMm: { width: 600, depth: 100, height: 600 },
     isEquipment: false,
   },
@@ -40,7 +40,7 @@ export const GLB_MANIFEST: ReadonlyArray<GlbManifestEntry> = [
     url: '/models/Meshy_AI_Commercial_Planetary__0411175135_texture.glb',
     filename: 'Meshy_AI_Commercial_Planetary__0411175135_texture.glb',
     labelKey: 'glb.label.commercialPlanetaryMixer',
-    categoryKey: 'glb.category.preparation',
+    category: 'preparation',
     dimensionsMm: { width: 800, depth: 700, height: 1400 },
     isEquipment: true,
   },
@@ -48,7 +48,7 @@ export const GLB_MANIFEST: ReadonlyArray<GlbManifestEntry> = [
     url: '/models/Meshy_AI_Rainbow_Bottles_in_a__0411175104_texture.glb',
     filename: 'Meshy_AI_Rainbow_Bottles_in_a__0411175104_texture.glb',
     labelKey: 'glb.label.bottleDisplay',
-    categoryKey: 'glb.category.storage',
+    category: 'storage',
     dimensionsMm: { width: 1200, depth: 400, height: 1800 },
     isEquipment: true,
   },
@@ -56,7 +56,7 @@ export const GLB_MANIFEST: ReadonlyArray<GlbManifestEntry> = [
     url: '/models/Meshy_AI_ddd_0411175109_texture.glb',
     filename: 'Meshy_AI_ddd_0411175109_texture.glb',
     labelKey: 'glb.label.genericAsset',
-    categoryKey: 'glb.category.other',
+    category: 'other',
     dimensionsMm: { width: 600, depth: 600, height: 600 },
     isEquipment: true,
   },
@@ -65,7 +65,7 @@ export const GLB_MANIFEST: ReadonlyArray<GlbManifestEntry> = [
     filename: 'PSB-202MI-2V.glb',
     labelKey: 'glb.label.planetarySpiralMixer',
     productId: 'PSB-202MI/2V', // This is a product ID, not a label
-    categoryKey: 'glb.category.preparation',
+    category: 'preparation',
     isEquipment: true,
   },
 ];

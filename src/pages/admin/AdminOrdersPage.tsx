@@ -120,7 +120,7 @@ export default function AdminOrdersPage() {
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          placeholder={t('orders.searchPlaceholder')}
+          placeholder={t('orders.adminSearchPlaceholder')}
           className="w-full pl-10 pr-4 py-3 rounded-xl border border-outline-variant/20 bg-surface-container-lowest text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
         />
       </div>
@@ -135,7 +135,7 @@ export default function AdminOrdersPage() {
         ) : filtered.length === 0 ? (
           <div className="p-12 text-center text-on-surface-variant">
             <Filter size={32} className="mx-auto mb-2 opacity-40" />
-            {t('orders.noOrders')}
+            {t('orders.noFilterMatch')}
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -252,7 +252,7 @@ function OrderDetailDrawer({
         <div className="p-5 space-y-6">
           {/* Customer */}
           <section>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Müşteri</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">{t('orders.customer')}</h3>
             <div className="bg-surface-container-low rounded-xl p-4 space-y-1 text-sm">
               <div className="font-bold text-on-surface">{order.profile?.full_name || '—'}</div>
               {order.profile?.company && <div className="text-on-surface-variant">{order.profile.company}</div>}
@@ -263,7 +263,7 @@ function OrderDetailDrawer({
           {/* Items */}
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">
-              Ürünler ({order.total_items})
+              {t('orders.itemsHeading', { count: order.total_items })}
             </h3>
             <div className="bg-surface-container-low rounded-xl divide-y divide-outline-variant/10">
               {order.items?.map((it, i) => (
@@ -276,7 +276,7 @@ function OrderDetailDrawer({
                 </div>
               ))}
               <div className="p-3 flex justify-between font-black text-on-surface">
-                <span>Toplam</span>
+                <span>{t('common.total')}</span>
                 <span>{fmtMoney(order.total_price)}</span>
               </div>
             </div>
@@ -284,7 +284,7 @@ function OrderDetailDrawer({
 
           {/* Bildirim & Belge */}
           <section>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Bildirim &amp; Belge</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">{t('orders.notifyAndDocs')}</h3>
             <div className="flex gap-2">
               <button
                 onClick={handleWa}
@@ -292,7 +292,7 @@ function OrderDetailDrawer({
                 className="flex-1 px-3 py-2 rounded-lg bg-emerald-600 text-white font-bold text-sm hover:opacity-90 disabled:opacity-50 inline-flex items-center justify-center gap-2"
               >
                 {waState === 'sending' ? <Loader2 size={14} className="animate-spin" /> : waState === 'sent' ? <Check size={14} /> : <MessageCircle size={14} />}
-                {waState === 'sent' ? 'Gönderildi' : waState === 'err' ? 'Hata — tekrar' : 'WhatsApp gönder'}
+                {waState === 'sent' ? t('orders.waSent') : waState === 'err' ? t('orders.waError') : t('orders.waSend')}
               </button>
               <button
                 onClick={handlePdf}
@@ -300,14 +300,14 @@ function OrderDetailDrawer({
                 className="flex-1 px-3 py-2 rounded-lg border border-outline-variant/30 font-bold text-sm hover:bg-surface-container-high disabled:opacity-50 inline-flex items-center justify-center gap-2"
               >
                 {pdfState === 'gen' ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
-                {pdfState === 'err' ? 'PDF hata' : 'PDF indir'}
+                {pdfState === 'err' ? t('orders.pdfError') : t('orders.pdfDownload')}
               </button>
             </div>
           </section>
 
           {/* Status change */}
           <section>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Durum değiştir</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">{t('orders.changeStatus')}</h3>
             <div className="grid grid-cols-2 gap-2">
               {STATUS_FLOW.map((s) => {
                 const meta = STATUS_META[s];
@@ -329,7 +329,7 @@ function OrderDetailDrawer({
                     }`}
                   >
                     {saving === s ? <Loader2 size={13} className="animate-spin" /> : <Icon size={13} />}
-                    {meta.label}
+                    {statusLabel(s)}
                   </button>
                 );
               })}
@@ -338,18 +338,18 @@ function OrderDetailDrawer({
 
           {/* Tracking */}
           <section>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">Kargo takip</h3>
+            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">{t('orders.trackingHeading')}</h3>
             <div className="space-y-2">
               <input
                 value={carrier}
                 onChange={(e) => setCarrier(e.target.value)}
-                placeholder="Kargo firması (DHL, UPS...)"
+                placeholder={t('orders.carrierPlaceholder')}
                 className="w-full px-3 py-2 rounded-lg border border-outline-variant/20 bg-surface-container-lowest text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
               />
               <input
                 value={trackingNo}
                 onChange={(e) => setTrackingNo(e.target.value)}
-                placeholder="Takip numarası"
+                placeholder={t('orders.trackingNoPlaceholder')}
                 className="w-full px-3 py-2 rounded-lg border border-outline-variant/20 bg-surface-container-lowest text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
               />
               <button
@@ -361,7 +361,7 @@ function OrderDetailDrawer({
                 }}
                 className="w-full px-3 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 disabled:opacity-50"
               >
-                {saving === 'tracking' ? 'Kaydediliyor...' : 'Takip bilgisini kaydet'}
+                {saving === 'tracking' ? t('common.saving') : t('orders.saveTracking')}
               </button>
             </div>
           </section>
@@ -369,7 +369,7 @@ function OrderDetailDrawer({
           {/* Notes */}
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 flex items-center gap-1">
-              <StickyNote size={12} /> Notlar
+              <StickyNote size={12} /> {t('orders.notesHeading')}
             </h3>
             {order.notes && (
               <div className="bg-surface-container-low rounded-xl p-3 text-sm text-on-surface whitespace-pre-wrap mb-2">
@@ -380,7 +380,7 @@ function OrderDetailDrawer({
               value={note}
               onChange={(e) => setNote(e.target.value)}
               rows={3}
-              placeholder="Yeni not ekle..."
+              placeholder={t('orders.addNotePlaceholder')}
               className="w-full px-3 py-2 rounded-lg border border-outline-variant/20 bg-surface-container-lowest text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none"
             />
             <button
@@ -393,7 +393,7 @@ function OrderDetailDrawer({
               }}
               className="mt-2 px-3 py-2 rounded-lg bg-primary text-white font-bold text-sm hover:opacity-90 disabled:opacity-50"
             >
-              {saving === 'note' ? 'Ekleniyor...' : 'Not ekle'}
+              {saving === 'note' ? t('orders.addingNote') : t('orders.addNote')}
             </button>
           </section>
         </div>

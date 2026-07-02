@@ -6,6 +6,7 @@
  * (lightbox) sağlar. Silme hem dokümandan hem Storage'dan (best-effort) kaldırır.
  */
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Download, Images, Trash2, X } from 'lucide-react';
 import { useProjectStore } from '../../../store';
 import type { ProjectRender } from '../../../core/types';
@@ -45,6 +46,7 @@ async function downloadRender(r: ProjectRender): Promise<void> {
 }
 
 export default function RenderGalleryPanel({ open, onClose }: RenderGalleryPanelProps) {
+  const { t } = useTranslation();
   const renders = useProjectStore((s) => s.project.renders) ?? EMPTY_RENDERS;
   const update = useProjectStore((s) => s.update);
   const [lightbox, setLightbox] = useState<ProjectRender | null>(null);
@@ -68,13 +70,13 @@ export default function RenderGalleryPanel({ open, onClose }: RenderGalleryPanel
         <header className="px-5 h-12 flex items-center gap-2 border-b border-slate-100 shrink-0">
           <Images size={15} className="text-brand-red" />
           <span className="text-[13px] font-semibold text-slate-800 flex-1">
-            Renderlar {renders.length > 0 && <span className="text-slate-400 font-normal">· {renders.length}</span>}
+            {t('design3d.gallery.title')} {renders.length > 0 && <span className="text-slate-400 font-normal">· {renders.length}</span>}
           </span>
           <button
             type="button"
             onClick={onClose}
             className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
-            title="Kapat"
+            title={t('common.close')}
           >
             <X size={15} />
           </button>
@@ -83,9 +85,10 @@ export default function RenderGalleryPanel({ open, onClose }: RenderGalleryPanel
         <div className="overflow-y-auto p-4">
           {ordered.length === 0 ? (
             <div className="py-16 text-center text-[12px] text-slate-400 leading-relaxed">
-              Henüz render yok.<br />
-              Toolbar'daki <span className="font-medium text-slate-500">📷 kamera</span> düğmesiyle
-              yüksek kaliteli render alın — otomatik olarak buraya (projeye) kaydedilir.
+              {t('design3d.gallery.emptyTitle')}<br />
+              {t('design3d.gallery.emptyBefore')}{' '}
+              <span className="font-medium text-slate-500">{t('design3d.gallery.emptyCamera')}</span>{' '}
+              {t('design3d.gallery.emptyAfter')}
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -98,7 +101,7 @@ export default function RenderGalleryPanel({ open, onClose }: RenderGalleryPanel
                     type="button"
                     onClick={() => setLightbox(r)}
                     className="block w-full aspect-video overflow-hidden"
-                    title="Büyüt"
+                    title={t('design3d.gallery.enlarge')}
                   >
                     <img
                       src={r.fallbackDataUrl || r.url}
@@ -110,14 +113,14 @@ export default function RenderGalleryPanel({ open, onClose }: RenderGalleryPanel
                   <div className="absolute inset-x-0 bottom-0 flex items-center justify-between gap-1 p-1.5 bg-gradient-to-t from-slate-900/70 to-transparent opacity-0 group-hover:opacity-100 transition">
                     <span className="text-[9px] text-white/90 tabular-nums pl-1">
                       {r.width}×{r.height}
-                      {!r.path && <span className="text-amber-300"> · yerel</span>}
+                      {!r.path && <span className="text-amber-300"> · {t('design3d.gallery.local')}</span>}
                     </span>
                     <div className="flex items-center gap-1">
                       <button
                         type="button"
                         onClick={() => void downloadRender(r)}
                         className="p-1.5 rounded-lg bg-white/90 text-slate-700 hover:bg-white transition"
-                        title="İndir"
+                        title={t('common.download')}
                       >
                         <Download size={12} />
                       </button>
@@ -125,7 +128,7 @@ export default function RenderGalleryPanel({ open, onClose }: RenderGalleryPanel
                         type="button"
                         onClick={() => handleDelete(r)}
                         className="p-1.5 rounded-lg bg-white/90 text-rose-600 hover:bg-white transition"
-                        title="Sil"
+                        title={t('common.delete')}
                       >
                         <Trash2 size={12} />
                       </button>
@@ -154,7 +157,7 @@ export default function RenderGalleryPanel({ open, onClose }: RenderGalleryPanel
             type="button"
             onClick={() => setLightbox(null)}
             className="absolute top-5 right-5 p-2 rounded-xl bg-white/10 text-white hover:bg-white/20 transition"
-            title="Kapat"
+            title={t('common.close')}
           >
             <X size={18} />
           </button>

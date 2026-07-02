@@ -287,8 +287,8 @@ function exportRows(leads: CustomerLead[]) {
     Website: l.website || '',
     Puan: l.puan ?? '',
     Yorum: l.yorum_sayisi ?? '',
-    Durum: STATUS_META[l.durum]?.label || l.durum,
-    Mail: MAIL_META[l.mail_durumu]?.label || '',
+    Durum: statusLabel(l.durum),
+    Mail: mailLabel(l.mail_durumu),
     WhatsApp: l.whatsapp_durumu === 'gonderildi' ? 'Gönderildi' : '',
   }));
 }
@@ -651,7 +651,7 @@ export default function CustomerFinderPage() {
                 active ? 'bg-primary text-white border-primary' : `${meta.cls} hover:opacity-80`
               }`}
             >
-              {meta.label} · {stats[s] || 0}
+              {i18n.t(meta.labelKey)} · {stats[s] || 0}
             </button>
           );
         })}
@@ -874,11 +874,11 @@ export default function CustomerFinderPage() {
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold border ${STATUS_META[l.durum]?.cls}`}>
-                        {STATUS_META[l.durum]?.label || l.durum}
+                        {statusLabel(l.durum)}
                       </span>
                     </td>
                     <td className={`px-4 py-3 text-xs font-medium ${MAIL_META[l.mail_durumu]?.cls}`}>
-                      {MAIL_META[l.mail_durumu]?.label}
+                      {mailLabel(l.mail_durumu)}
                     </td>
                     <td className="px-4 py-3 text-right whitespace-nowrap">
                       {l.telefon && (
@@ -1077,7 +1077,7 @@ function LeadDrawer({
                     }`}
                   >
                     {saving === s ? <Loader2 size={12} className="animate-spin" /> : null}
-                    {meta.label}
+                    {i18n.t(meta.labelKey)}
                   </button>
                 );
               })}

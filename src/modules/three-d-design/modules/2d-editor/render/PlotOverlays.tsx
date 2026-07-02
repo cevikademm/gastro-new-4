@@ -8,11 +8,14 @@
  * conventions where these pieces of paper-space chrome are stationary.
  */
 
+import { useTranslation } from 'react-i18next';
+
 import { roomAreaM2, roomPerimeterM, type ProjectDocument } from '../../..';
 
 // ── Compass rose (top-right) ───────────────────────────────────────────────
 
 export function CompassRose() {
+  const { t } = useTranslation();
   return (
     <div className="absolute top-3 right-3 pointer-events-none select-none">
       <svg width={64} height={64} viewBox="0 0 64 64">
@@ -30,7 +33,7 @@ export function CompassRose() {
           fill="#0f172a"
           fontFamily="Inter, system-ui, sans-serif"
         >
-          K
+          {t('design3d.plot.north')}
         </text>
       </svg>
     </div>
@@ -46,6 +49,7 @@ interface TitleBlockProps {
 }
 
 export function TitleBlock({ project, scale = '1:100' }: TitleBlockProps) {
+  const { t } = useTranslation();
   // Sum area + perimeter across all rooms in the document.
   let totalArea = 0;
   let totalPerimeter = 0;
@@ -70,20 +74,20 @@ export function TitleBlock({ project, scale = '1:100' }: TitleBlockProps) {
             </td>
           </tr>
           <tr className="border-b border-slate-300">
-            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">ALAN</td>
+            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">{t('design3d.plot.area')}</td>
             <td className="px-3 py-1 font-semibold tabular-nums">{totalArea.toFixed(1)} m²</td>
           </tr>
           <tr className="border-b border-slate-300">
-            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">ÇEVRE</td>
+            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">{t('design3d.plot.perimeter')}</td>
             <td className="px-3 py-1 font-semibold tabular-nums">{totalPerimeter.toFixed(1)} m</td>
           </tr>
           <tr>
-            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">ÜRÜN ALANI</td>
+            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">{t('design3d.plot.productArea')}</td>
             <td className="px-3 py-1 font-semibold tabular-nums">{productAreaM2.toFixed(1)} m²</td>
           </tr>
           <tr>
             <td className="px-3 py-0.5 border-t border-slate-300 text-[9px] text-slate-400 uppercase" colSpan={2}>
-              Ölçek {scale}
+              {t('design3d.plot.scale', { scale })}
             </td>
           </tr>
         </tbody>
@@ -102,6 +106,7 @@ interface ScaleBarProps {
 }
 
 export function ScaleBar({ scale }: ScaleBarProps) {
+  const { t } = useTranslation();
   // Convert px/mm → px/m
   const pxPerM = scale * 1000;
 
@@ -127,7 +132,7 @@ export function ScaleBar({ scale }: ScaleBarProps) {
   return (
     <div className="absolute bottom-3 left-3 pointer-events-none select-none">
       <div className="bg-white/90 backdrop-blur border border-slate-300 px-3 py-2 text-[10px] font-mono text-slate-700">
-        <div className="font-bold mb-1 tracking-wider">GRAFİK ÖLÇEK 1:100</div>
+        <div className="font-bold mb-1 tracking-wider">{t('design3d.plot.graphicScale')}</div>
         <div className="relative" style={{ width: totalPx, height: 14 }}>
           {/* Bar */}
           <div className="absolute inset-x-0 top-1 h-2 flex border border-slate-800">

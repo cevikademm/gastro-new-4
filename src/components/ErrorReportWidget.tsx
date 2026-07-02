@@ -349,7 +349,7 @@ export default function ErrorReportWidget() {
                           color: active ? s.color : undefined,
                         }}
                       >
-                        {s.label}
+                        {t(s.labelKey)}
                       </button>
                     );
                   })}

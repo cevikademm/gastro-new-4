@@ -65,7 +65,7 @@ import {
   mountToWall,
   snapFloorItemToWalls,
 } from './interaction/placement';
-import { loadEquipment } from './loaders/GLBLoader';
+import { loadEquipment, preloadEquipment } from './loaders/GLBLoader';
 import { getCatalogEntry, type CatalogEntry } from './loaders/equipmentCatalog';
 import {
   buildProductMesh,
@@ -328,65 +328,12 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
       if (!raycaster.ray.intersectPlane(FLOOR_PLANE, hitWorld)) return;
       const local = m.contentRoot.worldToLocal(hitWorld.clone());
 
-      // Center the footprint on the click point. Domain anchor convention:
-      // position is the footprint MIN-CORNER.
-      const heightMm = parseHeightMm(item.h);
-      const category = mapEquipmentCategory(item.cat);
-      const mount = defaultMountFor(category);
-      // render → domain: Y'yi geri yansıt (bkz. renderSpace.ts).
-      let xMm = local.x * THREE_TO_MM - item.l / 2;
-      let yMm = flipPointY(local.y * THREE_TO_MM) - item.w / 2;
-      let rotation = 0;
-      const zMm = defaultZForMount(mount);
-
+      // Tıklama noktasının DOMAIN merkezi (render → domain: Y'yi geri yansıt,
+      // bkz. renderSpace.ts). Yerleştirme matematiği (footprint min-köşe, mount,
+      // çakışma/oda-içi tutma) karta-tıkla yoluyla ORTAK: buildEquipmentPlacement.
+      const centerMm = { x: local.x * THREE_TO_MM, y: flipPointY(local.y * THREE_TO_MM) };
       const project = useProjectStore.getState().project;
-      // Yeni ürünün overlap izni katalog varsayılanından gelir (yoksa undefined/false).
-      const allowOverlap = getCatalogEntry(item.id)?.allowOverlap;
-      // Yalnızca kendi yükseklik bandındaki + overlap-izinSİZ ürünler çakışsın
-      // (tezgah üstüne mikrodalga / range üstüne davlumbaz serbest kalsın).
-      const others = othersAtHeight(zMm, heightMm, Object.values(project.equipment))
-        .filter((o) => !o.allowOverlap);
-
-      if (mount === 'wall') {
-        // Davlumbaz vb.: en yakın duvara, odaya bakar şekilde yapıştır.
-        const clickCenter = { x: local.x * THREE_TO_MM, y: flipPointY(local.y * THREE_TO_MM) };
-        const mounted = mountToWall(project, clickCenter, item.l, item.w);
-        if (mounted) {
-          rotation = mounted.rotation;
-          const pos = allowOverlap
-            ? mounted.pos
-            : resolveCollision(mounted.pos, rotation, item.l, item.w, others, null);
-          xMm = pos.x;
-          yMm = pos.y;
-        }
-      } else {
-        // Overlap'e izinli DEĞİLSE: komşuya yanaş, örtüşmeyi it. (İzinliyse üst üste serbest.)
-        let px = xMm;
-        let py = yMm;
-        if (!allowOverlap) {
-          const snapped = snapToEdges({ x: px, y: py }, 0, item.l, item.w, others, null, 50);
-          const safe = resolveCollision(snapped, 0, item.l, item.w, others, null);
-          px = safe.x;
-          py = safe.y;
-        }
-        // Yakın duvara yapıştır (yanaşma), sonra oda duvarlarının dışına taşmasın (HER ZAMAN).
-        const snappedWall = snapFloorItemToWalls(project, { x: px, y: py }, 0, item.l, item.w);
-        const contained = containFloorItem(project, snappedWall, 0, item.l, item.w);
-        xMm = contained.x;
-        yMm = contained.y;
-      }
-
-      useProjectStore.getState().addEquipment({
-        catalogId: item.id,
-        name: item.name,
-        category,
-        position: { x: xMm, y: yMm, z: zMm },
-        rotation,
-        mount,
-        footprint: { width: item.l, depth: item.w },
-        heightMm,
-        allowOverlap,
-      });
+      useProjectStore.getState().addEquipment(buildEquipmentPlacement(project, item, centerMm));
 
       // Multi-place with Shift; otherwise disarm.
       if (!e.shiftKey) {
@@ -665,6 +612,50 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
 
       // Async build — GLB (katalog/MeshAI) varsa gerçek modeli kur, yoksa ürün görselli kutu.
       if (glbEntry) {
+        // ── Anında yer tutucu ──────────────────────────────────────────
+        // GLB (çoğu zaman MB'lerce) inerken sahne BOŞ kalmasın: ürünü yerine
+        // HEMEN koy. Tercih ürün görselli kutu (buildProductMesh) — katalog
+        // item'ı varsa gerçek foto/ölçüyle; yoksa gri fallback kutu. GLB gelince
+        // (aşağıdaki blok) bu yer tutucuyla değiştirilir. Aynı buildToken'ı
+        // paylaştıkları için yeni bir kurulum başlarsa ikisi de kendini iptal eder.
+        const phItem = useEquipmentStore.getState().getItemById(eq.catalogId);
+        void (async () => {
+          // Yer tutucu kurulmadan önce hızlı çık: GLB zaten geldiyse ya da yeni
+          // kurulum başladıysa gereksiz.
+          if (equipmentBuildTokenRef.current.get(id) !== buildToken) return;
+          if (cache.has(id)) return;
+          let placeholder: THREE.Group;
+          if (phItem) {
+            const rPh = flipEquipPlacement(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth);
+            placeholder = await buildProductMesh(phItem, {
+              equipmentId: id,
+              positionMm: { x: rPh.x, y: rPh.y, z: eq.position.z },
+              rotationRad: rPh.yaw,
+              tiltXRad: eq.tiltX ?? 0,
+              tiltYRad: eq.tiltY ?? 0,
+              widthMm: eq.footprint.width,
+              depthMm: eq.footprint.depth,
+              heightMm: eq.heightMm,
+              color: eq.color,
+            });
+          } else {
+            placeholder = buildFallbackBox(id, eq);
+          }
+          if (!equipmentRootRef.current) return;
+          if (!useProjectStore.getState().project.equipment[id]) return;
+          // buildProductMesh await'i sonrası tekrar kontrol: bu arada GLB gelmiş
+          // veya yeni kurulum başlamış olabilir → yer tutucuyu at (yalnız kendi
+          // benzersiz geometrisi; paylaşılan çelik materyaller Three tarafından
+          // sonraki kullanımda yeniden derlenir).
+          if (equipmentBuildTokenRef.current.get(id) !== buildToken) { disposeObject(placeholder); return; }
+          if (cache.has(id)) { disposeObject(placeholder); return; }
+          placeholder.userData.isPlaceholder = true;
+          equipmentRoot.add(placeholder);
+          seatOnFloor(placeholder, eq.position.z * MM_TO_THREE);
+          cache.set(id, placeholder);
+          equipmentSigRef.current.set(id, sig);
+        })();
+
         void (async () => {
           const { group } = await loadEquipment(glbEntry);
           if (!equipmentRootRef.current) return;
@@ -672,9 +663,11 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           // Yarış koruması: bu id için daha yeni bir kurulum başladıysa bu (eski)
           // GLB sonucunu at (klonun paylaşılan geometrisini dispose ETME).
           if (equipmentBuildTokenRef.current.get(id) !== buildToken) return;
-          // Önceden kurulmuş (ör. kutu→GLB yükseltmesinde) mesh varsa sahneden kaldır.
+          // Önceden kurulmuş mesh varsa (anlık yer tutucu VEYA kutu→GLB
+          // yükseltmesindeki kutu) sahneden kaldır + dispose et (öksüz/çift mesh
+          // olmasın, yer tutucu GPU kaynağı sızmasın).
           const staleG = cache.get(id);
-          if (staleG && staleG !== group) { equipmentRoot.remove(staleG); cache.delete(id); }
+          if (staleG && staleG !== group) { equipmentRoot.remove(staleG); disposeObject(staleG); cache.delete(id); }
           const rGlb = flipEquipPlacement(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth);
           group.position.set(
             rGlb.x * MM_TO_THREE,
@@ -797,6 +790,53 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
     const fitDist = (maxDim * 1.8) / (2 * Math.tan(fov / 2));
     m.focusOn(center, { distance: Math.max(fitDist, 1.2), duration: 0.4 });
   }, []);
+
+  // ── Karta tıkla → ürünü SAHNEYE HEMEN yerleştir ──────────────────────────
+  // Kullanıcı şikâyeti: "ürünü tıklayınca ekranda gözüksün". Katalog kartına
+  // tıklamak artık zemine tıklamayı beklemeden ürünü oda merkezine düşürür.
+  // Aynı yerleştirme boru hattı (buildEquipmentPlacement) kullanılır → çakışma/
+  // oda-içi tutma/duvara yaslama korunur, ürün üst üste binmez / dışarı taşmaz.
+  // Ardışık tıklamalar resolveCollision sayesinde aynı noktaya yığılmaz.
+  const placeItemAtCenter = useCallback((item: EquipmentItem) => {
+    const project = useProjectStore.getState().project;
+    const center = roomCenterDomain(project);
+    const id = useProjectStore.getState().addEquipment(
+      buildEquipmentPlacement(project, item, center),
+    );
+    // Yerleştirdikten sonra seç → sağ panel açılsın, kullanıcı hemen taşıyabilsin
+    // (InteractionController seçimiyle tutarlı: duvar panelini/seçimini kapat).
+    setSelectedEquipmentId(id);
+    setWallPanelOpen(false);
+    setWallAction(null);
+    useProjectStore.getState().selectWall(null);
+  }, []);
+
+  // ── GLB ön-yükleme (arm/hover) ───────────────────────────────────────────
+  // Ürün silahlandığında ya da kartı hover'landığında, GLB'si varsa GLBLoader'ın
+  // per-URL cache'ini ısıt → yerleştirme anında model çoktan inmiş olur, yer
+  // tutucu→GLB geçişi ışınlanma gibi anında olur. GLB yoksa güvenli no-op.
+  const preloadItem = useCallback((item: EquipmentItem) => {
+    let entry = getCatalogEntry(item.id);
+    if (!entry) {
+      // MeshAI ile Supabase'e üretilmiş GLB (resolveGlbEntry ile aynı mantık,
+      // ama elimizde Equipment değil katalog item'ı var → ölçüyü item'dan al).
+      const key = productKeyFor(item.img, item.id);
+      const row = key ? meshRows[key] : undefined;
+      if (row && row.status === 'done' && row.glb_url) {
+        entry = {
+          id: item.id,
+          name: item.name,
+          category: mapEquipmentCategory(item.cat),
+          dimensionsMm: { width: item.l, depth: item.w, height: parseHeightMm(item.h) },
+          glbUrl: row.glb_url,
+          anchor: 'bottom-center',
+          defaultRotationDeg: 0,
+          needsUprightTilt: true,
+        };
+      }
+    }
+    if (entry) preloadEquipment(entry);
+  }, [meshRows]);
 
   // ── Rotate gizmo attach/detach ───────────────────────────────────────────
   // Attach to the selected & UNLOCKED item's outer group; detach otherwise.
@@ -985,35 +1025,35 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
 
       {/* ── Top toolbar ─────────────────────────────────────────────── */}
       <div className="absolute top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5">
-        <ToolBtn onClick={fit} title="Sahneye sığdır"><Maximize2 size={14} /></ToolBtn>
+        <ToolBtn onClick={fit} title={t('design3d.toolbar.fitScene')}><Maximize2 size={14} /></ToolBtn>
         <Sep />
-        <ToolBtn onClick={() => setView('iso')} title="İzometri görünüm">
+        <ToolBtn onClick={() => setView('iso')} title={t('design3d.toolbar.viewIso')}>
           <Box size={14} />
         </ToolBtn>
-        <ToolBtn onClick={() => setView('top')} title="Üstten görünüm">
+        <ToolBtn onClick={() => setView('top')} title={t('design3d.toolbar.viewTop')}>
           <Square size={14} />
         </ToolBtn>
-        <ToolBtn onClick={() => setView('front')} title="Önden görünüm">
+        <ToolBtn onClick={() => setView('front')} title={t('design3d.toolbar.viewFront')}>
           <ArrowDown size={14} />
         </ToolBtn>
-        <ToolBtn onClick={() => setView('side')} title="Yandan görünüm">
+        <ToolBtn onClick={() => setView('side')} title={t('design3d.toolbar.viewSide')}>
           <ArrowRight size={14} />
         </ToolBtn>
         <Sep />
-        <ToolBtn active={showGrid} onClick={() => setShowGrid((v) => !v)} title="Izgara">
+        <ToolBtn active={showGrid} onClick={() => setShowGrid((v) => !v)} title={t('design3d.toolbar.grid')}>
           <GridIcon size={14} />
         </ToolBtn>
-        <ToolBtn active={shadows} onClick={() => setShadows((v) => !v)} title="Gölgeler">
+        <ToolBtn active={shadows} onClick={() => setShadows((v) => !v)} title={t('design3d.toolbar.shadows')}>
           <Sun size={14} />
         </ToolBtn>
-        <ToolBtn active={fogOn} onClick={() => setFogOn((v) => !v)} title="Atmosferik sis (kapalı = net)">
+        <ToolBtn active={fogOn} onClick={() => setFogOn((v) => !v)} title={t('design3d.toolbar.fog')}>
           <Eye size={14} />
         </ToolBtn>
         <Sep />
         <ToolBtn
           active={gizmoEnabled}
           onClick={() => setGizmoEnabled((v) => !v)}
-          title="3B döndürme halkaları (seçili ürünü gizmo ile döndür)"
+          title={t('design3d.toolbar.rotateGizmo')}
         >
           <Rotate3d size={14} />
         </ToolBtn>
@@ -1027,21 +1067,21 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
               return next;
             })
           }
-          title="Duvarlar — yükseklik ayarla / render için gizle"
+          title={t('design3d.toolbar.walls')}
         >
           <BrickWall size={14} />
         </ToolBtn>
         <ToolBtn
           onClick={onCapture}
           active={capturing}
-          title="Yüksek kaliteli render al (Ultra ~4K PNG · projeye kaydet + indir)"
+          title={t('design3d.toolbar.captureRender')}
         >
           {capturing ? <Loader2 size={14} className="animate-spin" /> : <Camera size={14} />}
         </ToolBtn>
         <ToolBtn
           active={galleryOpen}
           onClick={() => setGalleryOpen((v) => !v)}
-          title="Render galerisi (projeye kaydedilen görüntüler)"
+          title={t('design3d.toolbar.renderGallery')}
         >
           <Images size={14} />
         </ToolBtn>
@@ -1068,9 +1108,9 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
                 setWallAction(null);
               }}
               className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] font-semibold bg-brand-red text-white hover:brightness-110 transition"
-              title="Bu duvarı render/görünümde gizle"
+              title={t('design3d.wallChip.hideTitle')}
             >
-              <EyeOff size={13} /> Gizle
+              <EyeOff size={13} /> {t('design3d.wallChip.hide')}
             </button>
             <button
               type="button"
@@ -1080,7 +1120,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
                 setWallAction(null);
               }}
               className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
-              title="Duvar panelini aç (yükseklik)"
+              title={t('design3d.wallChip.openPanel')}
             >
               <BrickWall size={13} />
             </button>
@@ -1088,7 +1128,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
               type="button"
               onClick={() => setWallAction(null)}
               className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:bg-slate-100 transition"
-              title="Kapat"
+              title={t('common.close')}
             >
               <X size={12} />
             </button>
@@ -1100,13 +1140,13 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
       {armedProduct && (
         <div className="absolute top-16 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-brand-red text-white text-[11px] shadow-lg shadow-slate-900/10 z-10">
           <span className="font-semibold">{armedProduct.name}</span>
-          <span className="opacity-80">· yerleştirmek için zemine tıklayın</span>
-          <span className="opacity-60">· Shift+klik = ardışık</span>
+          <span className="opacity-80">· {t('design3d.armed.hint3d')}</span>
+          <span className="opacity-60">· {t('design3d.armed.chained')}</span>
           <button
             onClick={() => setArmedProduct(null)}
             className="ml-1 p-1 rounded-lg hover:bg-white/20 transition"
-            aria-label="İptal (Esc)"
-            title="İptal (Esc)"
+            aria-label={t('common.cancelEsc')}
+            title={t('common.cancelEsc')}
           >
             <X size={12} />
           </button>
@@ -1115,26 +1155,32 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
 
       {/* ── HUD ─────────────────────────────────────────────────────── */}
       <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5 text-[11px] tabular-nums text-slate-500">
-        <Box size={11} className="text-slate-400" /> {wallCount} duvar · {roomCount} oda · {equipmentCount} ekipman
+        <Box size={11} className="text-slate-400" />{' '}
+        {t('design3d.hud.counts', { walls: wallCount, rooms: roomCount, count: equipmentCount })}
         {selectedEquipmentId && (
           <span className="ml-1 text-brand-red font-medium">
-            seçili · gövdeyi sürükle (snap + çakışma) · 3B döndürme için ↻ butonu (toolbar / sağ panel) · F / çift tık = odaklan · R 90° · Del sil
+            {t('design3d.hud.selectedHelp')}
           </span>
         )}
       </div>
 
       {/* ── Kontrol ipucu (sağ alt) ─────────────────────────────────── */}
       <div className="absolute bottom-3 right-3 inline-flex items-center gap-3 px-3 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5 text-[10px] text-slate-500 pointer-events-none">
-        <span><b className="font-semibold text-slate-700">Sol</b> döndür</span>
-        <span><b className="font-semibold text-slate-700">Sağ</b> taşı</span>
-        <span><b className="font-semibold text-slate-700">Tekerlek</b> yakınlaş</span>
-        <span><b className="font-semibold text-slate-700">Çift tık</b> ürüne odaklan</span>
+        <span><b className="font-semibold text-slate-700">{t('design3d.controls.left')}</b> {t('design3d.controls.rotate')}</span>
+        <span><b className="font-semibold text-slate-700">{t('design3d.controls.right')}</b> {t('design3d.controls.pan')}</span>
+        <span><b className="font-semibold text-slate-700">{t('design3d.controls.wheel')}</b> {t('design3d.controls.zoom')}</span>
+        <span><b className="font-semibold text-slate-700">{t('design3d.controls.doubleClick')}</b> {t('design3d.controls.focus')}</span>
       </div>
 
       {/* ── Equipment catalog panel (rich, search + categories) ─────── */}
       <EquipmentCatalogPanel
         armedProductId={armedProduct?.id ?? null}
-        onArm={(item) => setArmedProduct(item)}
+        onArm={(item) => {
+          setArmedProduct(item);
+          if (item) preloadItem(item); // GLB cache'ini şimdiden ısıt
+        }}
+        onPlace={placeItemAtCenter}
+        onPreload={preloadItem}
         open={paletteOpen}
         onToggleOpen={() => setPaletteOpen((v) => !v)}
       />
@@ -1165,7 +1211,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
       {wallCount === 0 && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
           <div className="rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 px-4 py-3 text-[12px] text-slate-500 text-center max-w-xs">
-            Önce 2D editörde bir oda çizin — 3D görünüm canlı güncellenir.
+            {t('design3d.emptyState.noWalls')}
           </div>
         </div>
       )}
@@ -1308,6 +1354,95 @@ function resolveGlbEntry(
     };
   }
   return undefined;
+}
+
+/**
+ * Ortak yerleştirme matematiği — bir katalog ürününü domain uzayında `centerMm`
+ * MERKEZLİ olacak şekilde yerleştirmek için `addEquipment` girdisini üretir.
+ *
+ * Hem zemine-tıkla (onPlaceClick, raycast noktası) hem de karta-tıkla
+ * (placeItemAtCenter, oda merkezi) yolları bunu kullanır → footprint min-köşe
+ * çevrimi, mount (zemin/duvar), çakışma çözme, komşuya yaslama ve oda-içi tutma
+ * kuralları TEK yerde. Katalog varsayılan overlap izni korunur.
+ */
+function buildEquipmentPlacement(
+  project: import('../../core/types').ProjectDocument,
+  item: EquipmentItem,
+  centerMm: { x: number; y: number },
+): Omit<import('../../core/types').Equipment, 'id' | 'type'> {
+  const heightMm = parseHeightMm(item.h);
+  const category = mapEquipmentCategory(item.cat);
+  const mount = defaultMountFor(category);
+  // Domain anchor: position = footprint MIN-KÖŞE. Merkezi min-köşeye çevir.
+  let xMm = centerMm.x - item.l / 2;
+  let yMm = centerMm.y - item.w / 2;
+  let rotation = 0;
+  const zMm = defaultZForMount(mount);
+
+  // Yeni ürünün overlap izni katalog varsayılanından gelir (yoksa undefined/false).
+  const allowOverlap = getCatalogEntry(item.id)?.allowOverlap;
+  // Yalnızca kendi yükseklik bandındaki + overlap-izinSİZ ürünler çakışsın
+  // (tezgah üstüne mikrodalga / range üstüne davlumbaz serbest kalsın).
+  const others = othersAtHeight(zMm, heightMm, Object.values(project.equipment))
+    .filter((o) => !o.allowOverlap);
+
+  if (mount === 'wall') {
+    // Davlumbaz vb.: en yakın duvara, odaya bakar şekilde yapıştır.
+    const mounted = mountToWall(project, centerMm, item.l, item.w);
+    if (mounted) {
+      rotation = mounted.rotation;
+      const pos = allowOverlap
+        ? mounted.pos
+        : resolveCollision(mounted.pos, rotation, item.l, item.w, others, null);
+      xMm = pos.x;
+      yMm = pos.y;
+    }
+  } else {
+    // Overlap'e izinli DEĞİLSE: komşuya yanaş, örtüşmeyi it. (İzinliyse üst üste serbest.)
+    let px = xMm;
+    let py = yMm;
+    if (!allowOverlap) {
+      const snapped = snapToEdges({ x: px, y: py }, 0, item.l, item.w, others, null, 50);
+      const safe = resolveCollision(snapped, 0, item.l, item.w, others, null);
+      px = safe.x;
+      py = safe.y;
+    }
+    // Yakın duvara yapıştır (yanaşma), sonra oda duvarlarının dışına taşmasın (HER ZAMAN).
+    const snappedWall = snapFloorItemToWalls(project, { x: px, y: py }, 0, item.l, item.w);
+    const contained = containFloorItem(project, snappedWall, 0, item.l, item.w);
+    xMm = contained.x;
+    yMm = contained.y;
+  }
+
+  return {
+    catalogId: item.id,
+    name: item.name,
+    category,
+    position: { x: xMm, y: yMm, z: zMm },
+    rotation,
+    mount,
+    footprint: { width: item.l, depth: item.w },
+    heightMm,
+    allowOverlap,
+  };
+}
+
+/**
+ * Karta tıklayarak yerleştirme için makul bir varsayılan domain noktası: çizilen
+ * duvarların köşe (vertex) ortalaması ≈ odanın iç merkezi. Buradan sonra
+ * containFloorItem ürünü oda poligonuna çeker, resolveCollision üst üste
+ * binmeyi engeller — yani merkezin tam "içeride" olması şart değil. Boş projede
+ * origin.
+ */
+function roomCenterDomain(
+  project: import('../../core/types').ProjectDocument,
+): { x: number; y: number } {
+  const verts = Object.values(project.vertices);
+  if (verts.length === 0) return { x: 0, y: 0 };
+  let sx = 0;
+  let sy = 0;
+  for (const v of verts) { sx += v.x; sy += v.y; }
+  return { x: sx / verts.length, y: sy / verts.length };
 }
 
 function buildFallbackBox(

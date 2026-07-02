@@ -795,7 +795,7 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
               <div className={`absolute inset-0 bg-gradient-to-br ${feasibilityTone.bgFrom} to-white`} />
               <div className="relative">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Fizibilite Skoru</span>
+                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{t('planner.feasibilityScore')}</span>
                   <span className={`text-xs font-black px-2 py-0.5 rounded-full ${feasibilityTone.chipBg} ${feasibilityTone.chipText}`}>
                     {feasibilityTone.label}
                   </span>
@@ -812,10 +812,10 @@ Lütfen bu işletme için gerekli mutfak ekipmanlarını öner. Cevabını SADEC
                   />
                 </div>
                 <p className="text-[11px] text-slate-600 mt-2 leading-relaxed">
-                  {feasibility >= 75 && 'Parametreler sağlıklı. Yatırım ve kapasite dengede.'}
-                  {feasibility >= 50 && feasibility < 75 && 'Planınız uygun. Marj veya geri dönüş hafifçe iyileştirilebilir.'}
-                  {feasibility >= 30 && feasibility < 50 && 'Dikkat: Bütçe-ciro dengesini veya sepet fiyatını gözden geçirin.'}
-                  {feasibility < 30 && 'Risk yüksek. Misafir kapasitesini artırın veya yatırımı düşürün.'}
+                  {feasibility >= 75 && t('planner.feasibilityMsgStrong')}
+                  {feasibility >= 50 && feasibility < 75 && t('planner.feasibilityMsgGood')}
+                  {feasibility >= 30 && feasibility < 50 && t('planner.feasibilityMsgRisky')}
+                  {feasibility < 30 && t('planner.feasibilityMsgHard')}
                 </p>
               </div>
             </div>

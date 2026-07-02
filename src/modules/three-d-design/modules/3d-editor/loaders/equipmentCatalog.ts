@@ -19,6 +19,7 @@
  *   3) the registry hot-reloads in dev because it's a plain TS module.
  */
 
+import i18n from '@/i18n';
 import type { EquipmentCategory } from '../../../core/types';
 import { findGlbForProductId, GLB_MANIFEST } from './glbManifest';
 
@@ -61,7 +62,7 @@ export const EQUIPMENT_CATALOG: ReadonlyArray<CatalogEntry> = GLB_MANIFEST
   .filter((m) => m.isEquipment !== false)
   .map((m): CatalogEntry => ({
     id: m.productId ?? `glb-${m.filename.replace(/\.glb$/i, '')}`,
-    name: m.label,
+    name: i18n.t(m.labelKey),
     category: m.category,
     dimensionsMm: m.dimensionsMm ?? { width: 800, depth: 700, height: 900 },
     glbUrl: m.url,
@@ -116,7 +117,7 @@ export function getCatalogEntry(id: string): CatalogEntry | undefined {
   if (!fromManifest) return undefined;
   return {
     id,
-    name: fromManifest.label,
+    name: i18n.t(fromManifest.labelKey),
     category: fromManifest.category,
     dimensionsMm: fromManifest.dimensionsMm ?? { width: 800, depth: 700, height: 900 },
     glbUrl: fromManifest.url,

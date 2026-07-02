@@ -30,14 +30,26 @@ import { findGlbForProductId, listSystemGlbEquipment } from '../loaders/glbManif
 import { importGlbFile, GLB_ACCEPT_ATTR } from '../loaders/customGlb';
 import { useMeshStore } from '../../../../../stores/meshStore';
 import {
-  getProduct3DModelsByKeys,
+  getAllProduct3DModels,
   productKeyFor,
 } from '../../../../../lib/meshyClient';
+import i18n from '@/i18n';
 
 interface EquipmentCatalogPanelProps {
   /** Currently armed product id (Editor3D owns this state). */
   armedProductId: string | null;
   onArm: (item: EquipmentItem | null) => void;
+  /**
+   * Karta tıklayınca ürünü SAHNEYE HEMEN yerleştir (3D). Verilirse tek tık =
+   * anında yerleştirme (oda merkezine); Shift+tık = eski "arm" davranışı (zemine
+   * tıklayarak hassas yerleştirme). Verilmezse (2D) tık her zaman arm eder.
+   */
+  onPlace?: (item: EquipmentItem) => void;
+  /**
+   * Kart hover'lanınca ürünün GLB'sini ön-yükle (cache ısıt) → yerleştirmede
+   * bekleme olmasın. Opsiyonel; GLB yoksa güvenli no-op olmalı.
+   */
+  onPreload?: (item: EquipmentItem) => void;
   open: boolean;
   onToggleOpen: () => void;
   /** Which edge to dock to. Defaults to 'right' (3D editor). 2D uses 'left'
@@ -71,6 +83,8 @@ function hasGlb(
 export default function EquipmentCatalogPanel({
   armedProductId,
   onArm,
+  onPlace,
+  onPreload,
   open,
   onToggleOpen,
   side = 'right',
@@ -133,8 +147,8 @@ export default function EquipmentCatalogPanel({
       .filter((m) => !m.productId)
       .map((m): EquipmentItem => ({
         id: `glb-${m.filename.replace(/\.glb$/i, '')}`,
-        name: m.label,
-        desc: 'Sistem 3D Kütüphanesi',
+        name: i18n.t(m.labelKey),
+        desc: i18n.t('design3d.catalog.systemLibrary'),
         cat: m.category as string,
         sub: '',
         fam: '',
@@ -156,23 +170,18 @@ export default function EquipmentCatalogPanel({
   );
 
   // ── Supabase'deki MeshAI 3D modellerini bir kez bulk fetch et ───────
-  // Sayfada 1000+ ürün olabilir; product_key olarak image URL'leri kullanıyoruz.
-  // 200'lük chunk'larda çekip store'a yazıyoruz.
+  // ÖNEMLİ: product_key olarak binlerce ürün anahtarını 200'lük dev `.in()`
+  // sorgularına bölmek URL/parse limitine takılıp bazı chunk'ları HTTP 400 ile
+  // düşürüyordu → done modeller "kayıp" görünüyordu (17→4). Tablo yalnız üretimi
+  // başlatılmış modelleri içerir (küçük); hepsini TEK sorguda çekip store'a yazıyoruz.
   useEffect(() => {
     if (meshFetched || allItems.length === 0) return;
     let cancelled = false;
     (async () => {
-      const keys = allItems
-        .map((i) => productKeyFor(i.img, i.id))
-        .filter(Boolean);
-      if (keys.length === 0) return;
-      const chunks: string[][] = [];
-      for (let i = 0; i < keys.length; i += 200) chunks.push(keys.slice(i, i + 200));
       try {
-        const results = await Promise.all(chunks.map((c) => getProduct3DModelsByKeys(c).catch(() => ({}))));
+        const rows = await getAllProduct3DModels();
         if (cancelled) return;
-        const merged = results.flatMap((m) => Object.values(m));
-        if (merged.length > 0) setMeshRows(merged);
+        if (rows.length > 0) setMeshRows(rows);
       } catch {
         /* yok say — offline ise sadece hardcoded GLB'ler görünür */
       } finally {
@@ -341,7 +350,17 @@ export default function EquipmentCatalogPanel({
                     <li key={item.id}>
                       <button
                         type="button"
-                        onClick={() => onArm(armed ? null : item)}
+                        onClick={(e) => {
+                          // Varsayılan (3D): tek tık → ürünü sahneye HEMEN yerleştir.
+                          // Shift+tık → hassas yerleştirme için "arm" (zemine tıkla).
+                          // onPlace yoksa (2D) her tık eski davranış: arm.
+                          if (onPlace && !e.shiftKey) {
+                            onPlace(item);
+                            return;
+                          }
+                          onArm(armed ? null : item);
+                        }}
+                        onMouseEnter={() => onPreload?.(item)}
                         className={[
                           'w-full flex gap-2.5 p-2 rounded-xl border text-left transition',
                           armed

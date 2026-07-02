@@ -60,7 +60,7 @@ export default function CompareDetailPage() {
     },
     {
       question: t('compare.faqVarietyQ', 'Hangi platformun ürün çeşitliliği daha geniş?'),
-      answer: t('compare.faqVarietyA', '{{name}} {{count}}+ ürün listeler. 2MC Gastro 10.000+ premium ürün ile odaklı bir katalog sunar — Diamond ve CombiSteel ana markalar olarak. Geniş katalog yerine özenle seçilmiş, kanıtlanmış ekipmanlar.', { name: c.name, count: c.productCount.toLocaleString('tr-TR') }),
+      answer: t('compare.faqVarietyA', '{{name}} {{productCount}}+ ürün listeler. 2MC Gastro 10.000+ premium ürün ile odaklı bir katalog sunar — Diamond ve CombiSteel ana markalar olarak. Geniş katalog yerine özenle seçilmiş, kanıtlanmış ekipmanlar.', { name: c.name, productCount: c.productCount.toLocaleString('tr-TR') }),
     },
   ];
 
@@ -180,7 +180,7 @@ export default function CompareDetailPage() {
       </section>
 
       <section className="max-w-3xl mx-auto px-4 py-12">
-        <h2 className="text-2xl font-bold text-slate-900 mb-6">Sıkça Sorulan Sorular</h2>
+        <h2 className="text-2xl font-bold text-slate-900 mb-6">{t('compare.faqTitle', 'Sıkça Sorulan Sorular')}</h2>
         <div className="space-y-3">
           {faqs.map((f, i) => (
             <details key={i} className="bg-slate-50 rounded-xl p-5">
@@ -193,19 +193,19 @@ export default function CompareDetailPage() {
 
       <section className="bg-gradient-to-br from-[#DC2626] to-[#991B1B] text-white">
         <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4">2MC Gastro'yu deneyin — ücretsiz</h2>
+          <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4">{t('compare.ctaTitle', "2MC Gastro'yu deneyin — ücretsiz")}</h2>
           <p className="text-red-100 mb-8 max-w-2xl mx-auto">
-            3D mutfak tasarımı, AI ürün önerisi ve anahtar teslim kurulum. Hiçbir kayıt gerekmez.
+            {t('compare.ctaSubtitle', '3D mutfak tasarımı, AI ürün önerisi ve anahtar teslim kurulum. Hiçbir kayıt gerekmez.')}
           </p>
           <div className="flex flex-wrap gap-3 justify-center">
             <Link to="/design" className="inline-flex items-center gap-2 px-6 py-3 bg-white text-[#DC2626] rounded-xl font-bold hover:bg-red-50">
-              <Sparkles size={18} /> 3D Tasarıma Başla
+              <Sparkles size={18} /> {t('compare.ctaDesign', '3D Tasarıma Başla')}
             </Link>
             <Link to="/tools/kitchen-calculator" className="inline-flex items-center gap-2 px-6 py-3 bg-[#991B1B] border border-white/30 text-white rounded-xl font-bold hover:bg-[#3D0D12]">
-              <Calculator size={18} /> ROI Hesapla
+              <Calculator size={18} /> {t('compare.ctaRoi', 'ROI Hesapla')}
             </Link>
             <Link to="/support" className="inline-flex items-center gap-2 px-6 py-3 bg-[#991B1B] border border-white/30 text-white rounded-xl font-bold hover:bg-[#3D0D12]">
-              <MessageCircle size={18} /> Bize Yazın
+              <MessageCircle size={18} /> {t('compare.ctaContact', 'Bize Yazın')}
             </Link>
           </div>
         </div>

@@ -158,6 +158,21 @@ export async function getProduct3DModel(productKey: string): Promise<Product3DMo
   return (data as Product3DModel | null) || null;
 }
 
+/**
+ * TÜM MeshAI kayıtlarını getir (katalog paneli için).
+ * Tablo yalnızca üretimi başlatılmış modelleri içerir — küçüktür. Binlerce ürün
+ * anahtarını 200'lük dev `.in()` GET sorgularına bölmek URL/parse limitlerine
+ * takılıp (HTTP 400) satırları sessizce düşürüyordu; tek toplu select sağlamdır.
+ */
+export async function getAllProduct3DModels(limit = 2000): Promise<Product3DModel[]> {
+  if (!supabase) return [];
+  const { data } = await supabase
+    .from('product_3d_models')
+    .select('*')
+    .limit(limit);
+  return (data as Product3DModel[] | null) || [];
+}
+
 /** Birden fazla ürün için cache'leri toplu çek (kart rozetleri için) */
 export async function getProduct3DModelsByKeys(keys: string[]): Promise<Record<string, Product3DModel>> {
   if (!supabase || keys.length === 0) return {};

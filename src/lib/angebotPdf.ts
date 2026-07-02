@@ -85,7 +85,7 @@ export async function buildAngebotPdf(
 
   const vatRate = opts.vatRate ?? 0.19;
   const isOffer = meta.kind === 'angebot';
-  const title = meta.title ?? (isOffer ? 'Angebot / Teklif' : 'Bestellung / Sipariş');
+  const title = meta.title ?? (isOffer ? i18n.t('orders.pdf.titleOffer') : i18n.t('orders.pdf.titleOrder'));
   const numberLabel = isOffer ? 'Angebotsnr.:' : 'Bestellnr.:';
 
   // ── Görselleri paralel ön-yükle (logo + ürünler) ──

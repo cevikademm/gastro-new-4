@@ -165,6 +165,19 @@ export async function loadEquipment(entry: CatalogEntry): Promise<LoadResult> {
   return { group, size };
 }
 
+/**
+ * Warm the per-URL template cache (fetch + normalize) WITHOUT cloning.
+ *
+ * Called from the catalog when an item is armed or its card is hovered, so the
+ * (often multi-MB) GLB is already downloading — or fully cached — by the time
+ * the user actually places it. Fire-and-forget: safely no-ops when the URL is
+ * already cached and never blocks the caller. Placement (`loadEquipment`)
+ * reuses the exact same cached promise, so a warmed model swaps in instantly.
+ */
+export function preloadEquipment(entry: CatalogEntry): void {
+  void loadTemplate(entry);
+}
+
 /** 90° rotation step convenience — takes deg, returns deg snapped to 90. */
 export function snapRotationDeg(deg: number): number {
   return Math.round(deg / 90) * 90;

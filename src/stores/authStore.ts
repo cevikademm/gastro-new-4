@@ -102,7 +102,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         if (!supabase) {
           set({ isLoading: false });
-          return { success: false, error: i18n.t('common.error.supabaseNotConfigured') };
+          return { success: false, error: i18n.t('common.errorMessage.supabaseNotConfigured') };
         }
 
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -138,7 +138,7 @@ export const useAuthStore = create<AuthState>()(
         set({ isLoading: true });
         if (!supabase) {
           set({ isLoading: false });
-          return { success: false, error: i18n.t('common.error.supabaseNotConfigured') };
+          return { success: false, error: i18n.t('common.errorMessage.supabaseNotConfigured') };
         }
 
         const { data: authData, error } = await supabase.auth.signUp({
@@ -186,7 +186,7 @@ export const useAuthStore = create<AuthState>()(
       },
 
       changePassword: async (newPassword) => {
-        if (!supabase) return { success: false, error: i18n.t('common.error.supabaseNotConfigured') };
+        if (!supabase) return { success: false, error: i18n.t('common.errorMessage.supabaseNotConfigured') };
         const { error } = await supabase.auth.updateUser({ password: newPassword });
         if (error) return { success: false, error: error.message };
         return { success: true };

@@ -554,7 +554,7 @@ export default function ProjectDetailPage() {
           id: key, product_key: key, name: fi.name,
           source_image_url: fi.imageData || '',
           meshy_task_id: null, status: 'error', progress: 0,
-          error: 'Ürün görseli public URL değil (base64). MeshAI için katalog görseli gerekli.',
+          error: t('projects.meshErrorImageNotPublic'),
           glb_url: null, usdz_url: null, thumbnail_url: null,
           created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
           finished_at: null,
@@ -568,9 +568,9 @@ export default function ProjectDetailPage() {
           (row) => setMeshRow(row),
         );
       } catch (err) {
-        const raw = err instanceof Error ? err.message : 'Bilinmeyen hata';
+        const raw = err instanceof Error ? err.message : t('common.unknownError');
         const friendly = /NoMorePendingTasks|\b429\b/i.test(raw)
-          ? 'Meshy kuyruğu dolu (plan limiti). Diğer modeller bitince otomatik denenir — ya da meshy.ai planını yükseltin.'
+          ? t('projects.meshErrorQueueFull')
           : raw;
         setMeshRow({
           id: key, product_key: key, name: fi.name,
@@ -1021,7 +1021,7 @@ export default function ProjectDetailPage() {
                         <button
                           onClick={() => setView3DModel(meshRow!)}
                           className="absolute top-2 right-2 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wide shadow-lg ring-2 ring-white bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:scale-105 active:scale-95 transition-all"
-                          title="3D modeli görüntüle"
+                          title={t('projects.view3dModel')}
                         >
                           <Box size={14} className="drop-shadow" />
                           3D ✓
@@ -1034,7 +1034,7 @@ export default function ProjectDetailPage() {
                               ? 'bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white ring-white animate-pulse'
                               : 'bg-gradient-to-r from-violet-500 via-fuchsia-500 to-pink-500 text-white ring-white/70 hover:ring-white shadow-violet-400/50'
                           }`}
-                          title="3D modelleme için seç"
+                          title={t('projects.select3dModeling')}
                         >
                           {selected3D.has(fi.id) ? <CheckCircle2 size={14} className="drop-shadow" /> : <Sparkles size={14} className="drop-shadow" />}
                           3D
@@ -1058,7 +1058,7 @@ export default function ProjectDetailPage() {
                         <span className="font-bold">{Math.round(fi.width / 10)}×{Math.round(fi.height / 10)}cm</span>
                         {fi.kw > 0 && <><span>•</span><span className="font-bold">{fi.kw} kW</span></>}
                         {fi.priceOnRequest
-                          ? <><span>•</span><span className="font-bold text-amber-600">Fiyat sorulacak</span></>
+                          ? <><span>•</span><span className="font-bold text-amber-600">{t('projects.onRequest')}</span></>
                           : (fi.price || 0) > 0 && <><span>•</span><span className="font-bold text-primary">€{(fi.price || 0).toLocaleString()}</span></>}
                       </div>
 
@@ -1067,10 +1067,10 @@ export default function ProjectDetailPage() {
                           <button
                             type="button"
                             onClick={() => setPendingProductRemove({ id: fi.equipmentId || fi.id, name: fi.name })}
-                            title="Ürünü projeden kaldır (tasarım + kat planı + teklif)"
+                            title={t('projects.removeProductTitleFull')}
                             className="inline-flex items-center gap-1.5 text-[11px] font-bold text-slate-400 hover:text-rose-600 transition-colors"
                           >
-                            <Trash2 size={13} /> Sil
+                            <Trash2 size={13} /> {t('common.delete')}
                           </button>
                         </div>
                       )}
@@ -1092,14 +1092,14 @@ export default function ProjectDetailPage() {
       {activeTab === 'settings' && (
         <div className="max-w-2xl space-y-6">
           <div className="bg-surface-container-lowest rounded-xl shadow-sm p-6 border border-outline-variant/10">
-            <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">Oda Boyutları</h2>
+            <h2 className="font-headline font-bold text-primary text-sm uppercase tracking-wider mb-4">{t('projects.roomDimensions')}</h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Uzunluk (cm)</label>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">{t('projects.lengthCm')}</label>
                 <input type="number" defaultValue={p.roomWidthCm} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
               </div>
               <div>
-                <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">Genişlik (cm)</label>
+                <label className="block text-xs font-bold text-on-surface-variant uppercase mb-1.5">{t('projects.widthCm')}</label>
                 <input type="number" defaultValue={p.roomHeightCm} className="w-full bg-surface-container-highest border-none rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-primary outline-none" />
               </div>
             </div>
@@ -1116,7 +1116,7 @@ export default function ProjectDetailPage() {
                 <Box size={20} />
                 <div>
                   <h2 className="font-bold text-base">{view3DModel.name}</h2>
-                  <p className="text-[11px] text-white/80">3D Model — sürükle: döndür, kaydır: yakınlaştır</p>
+                  <p className="text-[11px] text-white/80">{t('projects.viewer3dHint')}</p>
                 </div>
               </div>
               <button onClick={() => setView3DModel(null)} className="p-1.5 rounded-lg hover:bg-white/20 transition-colors">
@@ -1131,7 +1131,7 @@ export default function ProjectDetailPage() {
               />
             </div>
             <div className="p-4 border-t border-slate-100 flex justify-between items-center gap-3 flex-wrap">
-              <p className="text-[11px] text-slate-400">MeshAI ile üretildi • Supabase'de saklı</p>
+              <p className="text-[11px] text-slate-400">{t('projects.meshAiGeneratedNote')}</p>
               <div className="flex gap-2">
                 {view3DModel.glb_url && (
                   <a href={view3DModel.glb_url} download={`${view3DModel.name}.glb`} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 text-xs font-bold transition-colors">
@@ -1154,7 +1154,7 @@ export default function ProjectDetailPage() {
                   </a>
                 )}
                 <button onClick={() => setView3DModel(null)} className="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
-                  Kapat
+                  {t('common.close')}
                 </button>
               </div>
             </div>
@@ -1170,8 +1170,8 @@ export default function ProjectDetailPage() {
               <div className="flex items-center gap-3">
                 <Sparkles size={22} />
                 <div>
-                  <h2 className="font-bold text-lg">MeshAI 3D Üretimi</h2>
-                  <p className="text-xs text-white/80">Seçilen ürünler için GLB modelleri oluşturuluyor</p>
+                  <h2 className="font-bold text-lg">{t('projects.meshAiTitle')}</h2>
+                  <p className="text-xs text-white/80">{t('projects.meshAiSubtitle')}</p>
                 </div>
               </div>
               <button onClick={() => setMeshModalOpen(false)} className="p-1.5 rounded-lg hover:bg-white/20 transition-colors">
@@ -1191,16 +1191,16 @@ export default function ProjectDetailPage() {
                     <div className="flex items-center justify-between gap-2">
                       <p className="font-bold text-sm text-slate-800 truncate">{job.name}</p>
                       <span className="text-[10px] font-bold text-slate-400 uppercase">
-                        {job.status === 'pending' && 'Bekliyor'}
+                        {job.status === 'pending' && t('projects.meshStatusPending')}
                         {job.status === 'processing' && (
                           <>
-                            {job.stage === 'preview' && '1/2 Model'}
-                            {job.stage === 'refine' && '2/2 Doku'}
-                            {!job.stage && 'İşleniyor'} • {job.progress}%
+                            {job.stage === 'preview' && t('projects.meshStagePreview')}
+                            {job.stage === 'refine' && t('projects.meshStageRefine')}
+                            {!job.stage && t('projects.meshStatusProcessing')} • {t('projects.meshProgressPercent', { progress: job.progress })}
                           </>
                         )}
-                        {job.status === 'done' && 'Tamam'}
-                        {job.status === 'error' && 'Hata'}
+                        {job.status === 'done' && t('projects.meshStatusDone')}
+                        {job.status === 'error' && t('projects.meshStatusError')}
                       </span>
                     </div>
                     <div className="mt-2 w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
@@ -1218,13 +1218,13 @@ export default function ProjectDetailPage() {
                           onClick={() => setView3DModel(job)}
                           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-violet-600 text-white hover:bg-violet-700 text-xs font-bold transition-colors"
                         >
-                          <Eye size={12} /> Önizle
+                          <Eye size={12} /> {t('projects.preview')}
                         </button>
                         <a
                           href={job.glb_url}
                           download={`${job.name}.glb`}
                           className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-violet-50 text-violet-700 hover:bg-violet-100 text-xs font-bold transition-colors"
-                          title="GLB indir"
+                          title={t('projects.downloadGlbTitle')}
                         >
                           <Download size={12} />
                         </a>
@@ -1242,9 +1242,9 @@ export default function ProjectDetailPage() {
               )}
             </div>
             <div className="p-4 border-t border-slate-100 flex justify-between items-center">
-              <p className="text-[11px] text-slate-400">Üretilen modeller cache'lenir; aynı ürün için tekrar istek atılmaz.</p>
+              <p className="text-[11px] text-slate-400">{t('projects.meshCacheNote')}</p>
               <button onClick={() => setMeshModalOpen(false)} className="px-4 py-2 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
-                Kapat
+                {t('common.close')}
               </button>
             </div>
           </div>

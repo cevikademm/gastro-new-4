@@ -243,7 +243,7 @@ export default function WelcomeOrderPage() {
           style={{ background: '#fff', borderColor: '#e8e6df' }}
         >
           <div className="text-[11px] font-mono uppercase tracking-[0.2em] mb-3" style={{ color: '#DC2626' }}>
-            // 3 yöntem · sana en kolayını seç
+            {t('welcome.order.methodsEyebrow')}
           </div>
           <ol className="space-y-2 text-[13px]" style={{ color: '#0F2440' }}>
             <li className="flex gap-3">
@@ -254,7 +254,7 @@ export default function WelcomeOrderPage() {
                 1
               </span>
               <span>
-                <strong>Tıkla–tıkla taşı (en kolay):</strong> Bir satıra tıkla → clay dolgulu olur. Sonra hedef satıra tıkla → yer değiştirirler.
+                <strong>{t('welcome.order.method1Title')}</strong> {t('welcome.order.method1Desc')}
               </span>
             </li>
             <li className="flex gap-3">
@@ -265,7 +265,7 @@ export default function WelcomeOrderPage() {
                 2
               </span>
               <span>
-                <strong>↑ ↓ butonları:</strong> Sağdaki ok butonlarıyla bir adım yukarı/aşağı taşı.
+                <strong>{t('welcome.order.method2Title')}</strong> {t('welcome.order.method2Desc')}
               </span>
             </li>
             <li className="flex gap-3">
@@ -276,7 +276,7 @@ export default function WelcomeOrderPage() {
                 3
               </span>
               <span>
-                <strong>Sürükle:</strong> Soldaki <code className="px-1 rounded text-[11px]" style={{ background: '#faf9f5', border: '1px solid #e8e6df' }}>⋮⋮</code> tutamacına bas, fareyi yeni konuma getir, bırak.
+                <strong>{t('welcome.order.method3Title')}</strong> {t('welcome.order.method3DescBefore')} <code className="px-1 rounded text-[11px]" style={{ background: '#faf9f5', border: '1px solid #e8e6df' }}>⋮⋮</code> {t('welcome.order.method3DescAfter')}
               </span>
             </li>
           </ol>
@@ -287,13 +287,13 @@ export default function WelcomeOrderPage() {
             >
               <MousePointer2 size={13} />
               <span>
-                <strong>{SECTION_LABELS[picked].tr}</strong> seçildi · şimdi taşımak istediğin konumdaki satıra tıkla.
+                <strong>{sectionLabel(picked)}</strong> {t('welcome.order.pickedHint')}
                 <button
                   type="button"
                   onClick={() => setPicked(null)}
                   className="ml-2 inline-flex items-center gap-1 underline"
                 >
-                  <X size={11} /> iptal (Esc)
+                  <X size={11} /> {t('welcome.order.cancelEsc')}
                 </button>
               </span>
             </div>
