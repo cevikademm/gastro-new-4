@@ -12,12 +12,12 @@ import { ProductsMegaMenu } from './ProductsMegaMenu';
 import { CATEGORIES } from '../stores/equipmentStore';
 
 const NAV_ITEMS = [
-  { name: 'PLANLAMA', path: '/kitchen-planner' },
-  { name: 'ÜRÜNLER', path: '/magaza' },
-  { name: 'PROJELER', path: '/projects' },
-  { name: 'İLETİŞİM', path: '/support' },
-  { name: 'HAKKIMIZDA', path: '/brand' },
-  { name: 'BLOG', path: '/blog' }
+  { key: 'landing.navbar.planning', fallback: 'Planlama', path: '/kitchen-planner' },
+  { key: 'landing.navbar.products', fallback: 'Ürünler', path: '/magaza' },
+  { key: 'landing.navbar.projects', fallback: 'Projeler', path: '/projects' },
+  { key: 'landing.navbar.contact', fallback: 'İletişim', path: '/support' },
+  { key: 'landing.navbar.about', fallback: 'Hakkımızda', path: '/brand' },
+  { key: 'landing.navbar.blog', fallback: 'Blog', path: '/blog' },
 ];
 
 export function Navbar({ transparent = false }: { transparent?: boolean }) {
@@ -133,7 +133,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                 if (item.path === '/magaza') {
                   return (
                     <div
-                      key={item.name}
+                      key={item.key}
                       className="relative"
                       onMouseEnter={() => setIsProductsOpen(true)}
                       onMouseLeave={() => setIsProductsOpen(false)}
@@ -148,7 +148,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                           isProductsOpen ? "text-brand-red" : linkColor
                         )}
                       >
-                        {item.name}
+                        {t(item.key, item.fallback)}
                         <ChevronDown className={cn("w-3 h-3 transition-transform duration-300", isProductsOpen && "rotate-180")} />
                       </button>
                       <AnimatePresence>
@@ -164,14 +164,14 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
 
                 return (
                   <Link
-                    key={item.name}
+                    key={item.key}
                     to={item.path}
                     className={cn(
                       "text-xs font-bold uppercase tracking-[0.12em] whitespace-nowrap transition-colors relative group",
                       linkColor
                     )}
                   >
-                    {item.name}
+                    {t(item.key, item.fallback)}
                     <span className="absolute -bottom-3 left-1/2 w-1 h-1 bg-brand-red rounded-full opacity-0 group-hover:opacity-100 -translate-x-1/2 transition-all duration-300 shadow-[0_0_8px_rgba(220,38,38,0.5)]" />
                   </Link>
                 );
@@ -194,7 +194,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onKeyDown={(e) => { if (e.key === 'Enter') submitSearch(); if (e.key === 'Escape') setIsSearchOpen(false); }}
                     onBlur={() => { if (!searchQuery.trim()) setIsSearchOpen(false); }}
-                    placeholder="ARA..."
+                    placeholder={t('landing.navbar.searchPlaceholder', 'Ara...')}
                     className={cn(
                       "bg-transparent border-b pl-0 pr-2 py-1.5 text-xs outline-none uppercase tracking-[0.15em] min-w-0",
                       isScrolled
@@ -208,7 +208,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
               </AnimatePresence>
               <button
                 type="button"
-                aria-label="Ara"
+                aria-label={t('landing.navbar.searchAria', 'Ara')}
                 onClick={() => { if (isSearchOpen) submitSearch(); else setIsSearchOpen(true); }}
                 className={cn(
                   "p-1.5 transition-colors cursor-pointer hover:text-brand-red",
@@ -265,7 +265,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
 
             <button
               onClick={() => setIsCartOpen(true)}
-              aria-label="Sepet"
+              aria-label={t('landing.navbar.cartAria', 'Sepet')}
               className={cn(
                 "relative hover:text-brand-red transition-colors cursor-pointer",
                 isScrolled
@@ -297,7 +297,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
               onClick={goToQuote}
               className="hidden md:flex items-center gap-2 px-6 py-3 bg-brand-red hover:bg-[#B91C1C] text-white rounded-full transition-all font-bold text-[9px] uppercase tracking-[0.18em] whitespace-nowrap shadow-[0_10px_24px_-8px_rgba(220,38,38,0.5)] cursor-pointer"
             >
-              <FileText className="w-3.5 h-3.5 shrink-0" /> TEKLİF AL
+              <FileText className="w-3.5 h-3.5 shrink-0" /> {t('landing.navbar.getQuote', 'Teklif Al')}
             </button>
           </div>
         </div>
@@ -317,7 +317,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
               <nav className="flex flex-col gap-6 mt-4">
                 {NAV_ITEMS.map((item, i) => (
                   <motion.div
-                    key={item.name}
+                    key={item.key}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     exit={{ opacity: 0, x: -16 }}
@@ -332,7 +332,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                           className="w-full text-3xl font-display font-bold uppercase tracking-tighter text-[#0F2440] hover:text-brand-red flex items-center gap-4 transition-colors"
                         >
                           <span className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_10px_rgba(220,38,38,0.45)]" />
-                          {item.name}
+                          {t(item.key, item.fallback)}
                           <ChevronDown className={cn("w-6 h-6 ml-auto transition-transform duration-300", isMobileProductsOpen && "rotate-180")} />
                         </button>
                         <AnimatePresence initial={false}>
@@ -350,7 +350,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                                   onClick={() => setIsMobileMenuOpen(false)}
                                   className="flex items-center justify-between py-2 text-sm font-bold uppercase tracking-wide text-brand-red"
                                 >
-                                  Tüm Ürünler
+                                  {t('landing.navbar.allProducts', 'Tüm Ürünler')}
                                   <ChevronRight className="w-4 h-4" />
                                 </Link>
                               </li>
@@ -377,7 +377,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                         onClick={() => setIsMobileMenuOpen(false)}
                       >
                         <span className="w-1.5 h-1.5 rounded-full bg-brand-red shadow-[0_0_10px_rgba(220,38,38,0.45)]" />
-                        {item.name}
+                        {t(item.key, item.fallback)}
                       </Link>
                     )}
                   </motion.div>
@@ -444,7 +444,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                   }}
                   className="flex items-center justify-center gap-3 w-full py-4 bg-brand-red hover:bg-[#B91C1C] text-white rounded-full transition-all font-bold text-xs uppercase tracking-[0.2em] shadow-[0_10px_24px_-8px_rgba(220,38,38,0.5)] cursor-pointer"
                 >
-                  <FileText className="w-4 h-4" /> TEKLİF AL
+                  <FileText className="w-4 h-4" /> {t('landing.navbar.getQuote', 'Teklif Al')}
                 </button>
               </motion.div>
             </div>

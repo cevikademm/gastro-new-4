@@ -644,11 +644,12 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           if (!equipmentRootRef.current) return;
           if (!useProjectStore.getState().project.equipment[id]) return;
           // buildProductMesh await'i sonrası tekrar kontrol: bu arada GLB gelmiş
-          // veya yeni kurulum başlamış olabilir → yer tutucuyu at (yalnız kendi
-          // benzersiz geometrisi; paylaşılan çelik materyaller Three tarafından
-          // sonraki kullanımda yeniden derlenir).
-          if (equipmentBuildTokenRef.current.get(id) !== buildToken) { disposeObject(placeholder); return; }
-          if (cache.has(id)) { disposeObject(placeholder); return; }
+          // veya yeni kurulum başlamış olabilir → yer tutucuyu at. dispose YOK:
+          // sahneye hiç eklenmedi (GPU kaynağı yok) + kutular paylaşılan çelik
+          // materyal/doku kullanır, dispose diğer kutuları bozabilir (bkz. aşağıdaki
+          // kutu yolu). GLB gelmişse zaten sahnede; burada eklemeyiz.
+          if (equipmentBuildTokenRef.current.get(id) !== buildToken) return;
+          if (cache.has(id)) return;
           placeholder.userData.isPlaceholder = true;
           equipmentRoot.add(placeholder);
           seatOnFloor(placeholder, eq.position.z * MM_TO_THREE);

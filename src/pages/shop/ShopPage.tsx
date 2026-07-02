@@ -34,6 +34,7 @@ const PRICE_RANGES: { key: string; labelKey: string; test: (p: number) => boolea
   { key: 'all', labelKey: 'shop.price.all', test: () => true },
   { key: 'lt500', labelKey: 'shop.price.lt500', test: (p) => p > 0 && p < 500 },
   { key: 'mid1', labelKey: 'shop.price.mid1', test: (p) => p >= 500 && p < 2000 },
+  { key: 'mid1_5to5', labelKey: 'shop.price.mid1_5to5', test: (p) => p >= 1500 && p < 5000 },
   { key: 'mid2', labelKey: 'shop.price.mid2', test: (p) => p >= 2000 && p < 5000 },
   { key: 'gt5000', labelKey: 'shop.price.gt5000', test: (p) => p >= 5000 },
 ];
@@ -91,7 +92,11 @@ export default function ShopPage() {
   const [query, setQuery] = useState(searchParams.get('q') || '');
   const [category, setCategory] = useState(searchParams.get('cat') || '');
   const [subGroup, setSubGroup] = useState(searchParams.get('sub') || '');
-  const [priceKey, setPriceKey] = useState('all');
+  const [priceKey, setPriceKey] = useState(() => {
+    const p = searchParams.get('price') || searchParams.get('priceRange');
+    if (p === '1500-5000') return 'mid1_5to5';
+    return p || 'all';
+  });
   const [powerKey, setPowerKey] = useState('all');
   const [sort, setSort] = useState<SortKey>('default');
   const [page, setPage] = useState(1);

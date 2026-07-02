@@ -129,7 +129,26 @@ export function FeaturedProducts() {
   );
 }
 
+const FOOTER_QUICK_LINKS = [
+  'landing.footer.links.about',
+  'landing.footer.links.career',
+  'landing.footer.links.contact',
+  'landing.footer.links.paymentOptions',
+  'landing.footer.links.shipping',
+  'landing.footer.links.newsletter',
+];
+
+const FOOTER_HELP_LINKS = [
+  'landing.footer.helpLinks.support',
+  'landing.footer.helpLinks.warranty',
+  'landing.footer.helpLinks.terms',
+  'landing.footer.helpLinks.sitemap',
+  'landing.footer.imprint',
+  'landing.footer.helpLinks.cancellation',
+];
+
 export function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="bg-[#0F2440] text-white pt-32 pb-12 relative z-10">
       <div className="max-w-[90rem] mx-auto px-6">
@@ -143,7 +162,7 @@ export function Footer() {
               </div>
             </div>
             <p className="text-white/65 text-sm leading-relaxed mb-8">
-              15 yılı aşkın tecrübemizle Avrupa'nın önde gelen restoran, otel ve catering işletmelerine profesyonel mutfak ekipmanları sunuyoruz.
+              {t('landing.footer.tagline')}
             </p>
             <div className="flex gap-4">
               {[Instagram, Facebook, Twitter, Youtube].map((Icon, i) => (
@@ -155,25 +174,25 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">Hızlı Bağlantılar</h4>
+            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.quickLinksHeading', 'Hızlı Bağlantılar')}</h4>
             <ul className="space-y-4 text-sm text-white/65">
-              {['Hakkımızda', 'Kariyer', 'İletişim', 'Ödeme Seçenekleri', 'Kargo & Teslimat', 'Bülten'].map(item => (
-                <li key={item}><a href="#" className="hover:text-brand-red transition-colors">{item}</a></li>
+              {FOOTER_QUICK_LINKS.map(key => (
+                <li key={key}><a href="#" className="hover:text-brand-red transition-colors">{t(key)}</a></li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">Yardım Merkezi</h4>
+            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.helpCenterHeading', 'Yardım Merkezi')}</h4>
             <ul className="space-y-4 text-sm text-white/65">
-              {['Müşteri Destek', 'Garanti Koşulları', 'Kullanım Koşulları', 'Site Haritası', 'Künye', 'Cayma Hakkı'].map(item => (
-                <li key={item}><a href="#" className="hover:text-brand-red transition-colors">{item}</a></li>
+              {FOOTER_HELP_LINKS.map(key => (
+                <li key={key}><a href="#" className="hover:text-brand-red transition-colors">{t(key)}</a></li>
               ))}
             </ul>
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">İletişim</h4>
+            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.contactHeading', 'İletişim')}</h4>
             <ul className="space-y-6 text-sm text-white/65">
               <li className="flex gap-4">
                 <MapPin className="w-5 h-5 text-brand-red shrink-0" />
@@ -192,11 +211,11 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/15 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
-          <p className="text-[10px] text-white/50 uppercase tracking-widest">© 2026 2MC Gastro GmbH. Tüm hakları saklıdır.</p>
+          <p className="text-[10px] text-white/50 uppercase tracking-widest">{t('landing.footer.copyright', '© {{year}} 2MC Gastro GmbH. Tüm hakları saklıdır.', { year: new Date().getFullYear() })}</p>
           <div className="flex gap-8 text-[10px] text-white/50 uppercase tracking-widest">
-            <a href="#" className="hover:text-brand-red transition-colors">Gizlilik Politikası</a>
-            <a href="#" className="hover:text-brand-red transition-colors">Çerezler</a>
-            <a href="#" className="hover:text-brand-red transition-colors">Künye</a>
+            <a href="#" className="hover:text-brand-red transition-colors">{t('landing.footer.privacyPolicy', 'Gizlilik Politikası')}</a>
+            <a href="#" className="hover:text-brand-red transition-colors">{t('landing.footer.cookies', 'Çerezler')}</a>
+            <a href="#" className="hover:text-brand-red transition-colors">{t('landing.footer.imprint', 'Künye')}</a>
           </div>
         </div>
       </div>

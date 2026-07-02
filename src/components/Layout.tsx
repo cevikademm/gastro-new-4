@@ -35,18 +35,18 @@ const NAV_ITEMS = [
 const SIDE_ITEMS = [
   { path: '/dashboard', labelKey: 'nav.dashboard', icon: LayoutDashboard, id: 'dashboard' },
   // Projeler sekmesi gizlendi — gösterge panelinde (Dashboard) zaten erişilebilir durumda.
-  { path: '/3d-design', labelKey: '3D Design', icon: Boxes, id: '3d-design', raw: true },
-  { path: '/katalog', labelKey: 'Ürünler', icon: Package, id: 'urunler', raw: true },
-  { path: '/kitchen-planner', labelKey: 'AI Mutfak Planlayıcı', icon: Refrigerator, id: 'kitchen-planner', raw: true },
+  { path: '/3d-design', labelKey: 'nav.threeDDesign', icon: Boxes, id: '3d-design' },
+  { path: '/katalog', labelKey: 'nav.products', icon: Package, id: 'urunler' },
+  { path: '/kitchen-planner', labelKey: 'nav.kitchenPlanner', icon: Refrigerator, id: 'kitchen-planner' },
   { path: '/cart', labelKey: 'nav.cart', icon: ShoppingCart, id: 'cart' },
   { path: '/orders', labelKey: 'nav.myOrders', icon: Package, id: 'orders' },
-  { path: '/teklifler', labelKey: 'Teklifler', icon: FileText, id: 'teklifler', raw: true },
+  { path: '/teklifler', labelKey: 'nav.quotes', icon: FileText, id: 'teklifler' },
 
   { path: '/settings', labelKey: 'nav.settings', icon: SlidersHorizontal, id: 'settings' },
   { path: '/payment', labelKey: 'nav.payment', icon: CreditCard, id: 'payment' },
   { path: '/brand', labelKey: 'nav.brand', icon: Palette, id: 'brand' },
-  { path: '/blog', labelKey: 'Blog', icon: Pencil, id: 'blog', raw: true },
-  { path: '/tools/kitchen-calculator', labelKey: 'Hesaplayıcı', icon: Box, id: 'calc', raw: true },
+  { path: '/blog', labelKey: 'nav.blog', icon: Pencil, id: 'blog' },
+  { path: '/tools/kitchen-calculator', labelKey: 'nav.calculator', icon: Box, id: 'calc' },
 ];
 
 // Alt tab bar için sadece önemli 5 sayfa
@@ -55,7 +55,7 @@ const BOTTOM_NAV = [
   { path: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.panel' },
   { path: '/design', icon: Ruler, labelKey: 'nav.drawing' },
   { path: '/cart', icon: ShoppingCart, labelKey: 'nav.cart' },
-  { path: '/katalog', icon: Package, labelKey: 'Ürünler' },
+  { path: '/katalog', icon: Package, labelKey: 'nav.products' },
 ];
 
 export default function Layout() {

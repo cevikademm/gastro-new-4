@@ -120,13 +120,13 @@ const CONCEPTS = [
 ];
 
 const CATALOG_CATEGORIES = [
-  { id: "all", nameKey: "landing.master.catalog.categories.all" },
-  { id: "cooking", nameKey: "landing.master.catalog.categories.cooking" },
-  { id: "cooling", nameKey: "landing.master.catalog.categories.cooling" },
-  { id: "dishwash", nameKey: "landing.master.catalog.categories.dishwash" },
-  { id: "pizza_pasta", nameKey: "landing.master.catalog.categories.pizzaPasta" },
-  { id: "prep_hygiene", nameKey: "landing.master.catalog.categories.prepHygiene" },
-  { id: "dynamic_prep", nameKey: "landing.master.catalog.categories.dynamicPrep" }
+  { id: "all", nameKey: "landing.master.catalog.categories.all", nameFallback: "Tümü" },
+  { id: "cooking", nameKey: "landing.master.catalog.categories.cooking", nameFallback: "Pişirme" },
+  { id: "cooling", nameKey: "landing.master.catalog.categories.cooling", nameFallback: "Soğutma" },
+  { id: "dishwash", nameKey: "landing.master.catalog.categories.dishwash", nameFallback: "Bulaşık" },
+  { id: "pizza_pasta", nameKey: "landing.master.catalog.categories.pizzaPasta", nameFallback: "Pizza & Makarna" },
+  { id: "prep_hygiene", nameKey: "landing.master.catalog.categories.prepHygiene", nameFallback: "Hazırlık & Hijyen" },
+  { id: "dynamic_prep", nameKey: "landing.master.catalog.categories.dynamicPrep", nameFallback: "Dinamik Hazırlık" }
 ];
 
 const PROJECT_PACKAGES = [
@@ -913,7 +913,7 @@ export function LandingPage() {
                         onClick={() => setSelectedCategory(cat.id)}
                         className={`shrink-0 lg:shrink lg:w-full snap-start whitespace-nowrap text-left text-[10px] font-bold px-3 py-1.5 rounded-lg transition-all cursor-pointer ${selectedCategory === cat.id ? "bg-brand-red/10 border border-brand-red/25 text-brand-red" : "border border-slate-200 lg:border-transparent text-slate-600 hover:bg-slate-50"}`}
                       >
-                        {t(cat.nameKey)}
+                        {t(cat.nameKey, cat.nameFallback)}
                       </button>
                     ))}
                   </div>
