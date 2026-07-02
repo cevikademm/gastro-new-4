@@ -579,7 +579,14 @@
     "customerFinder": "Müşteri Bulma",
     "contact": "İletişim",
     "about": "Hakkımızda",
-    "account": "Hesabım"
+    "account": "Hesabım",
+    "threeDDesign": "3D Tasarım",
+    "products": "Ürünler",
+    "kitchenPlanner": "AI Mutfak Planlayıcı",
+    "quotes": "Teklifler",
+    "blog": "Blog",
+    "calculator": "Hesaplayıcı",
+    "errorReports": "Hata Bildirimleri"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -1762,6 +1769,44 @@
       "login": "Giriş Yap",
       "register": "Kayıt Ol"
     },
+    "navbar": {
+      "planning": "Planlama",
+      "products": "Ürünler",
+      "projects": "Projeler",
+      "contact": "İletişim",
+      "about": "Hakkımızda",
+      "blog": "Blog",
+      "getQuote": "Teklif Al",
+      "searchPlaceholder": "Ara...",
+      "allProducts": "Tüm Ürünler",
+      "searchAria": "Ara",
+      "cartAria": "Sepet"
+    },
+    "footer": {
+      "tagline": "15 yılı aşkın tecrübemizle Avrupa'nın önde gelen restoran, otel ve catering işletmelerine profesyonel mutfak ekipmanları sunuyoruz.",
+      "quickLinksHeading": "Hızlı Bağlantılar",
+      "links": {
+        "about": "Hakkımızda",
+        "career": "Kariyer",
+        "contact": "İletişim",
+        "paymentOptions": "Ödeme Seçenekleri",
+        "shipping": "Kargo & Teslimat",
+        "newsletter": "Bülten"
+      },
+      "helpCenterHeading": "Yardım Merkezi",
+      "helpLinks": {
+        "support": "Müşteri Destek",
+        "warranty": "Garanti Koşulları",
+        "terms": "Kullanım Koşulları",
+        "sitemap": "Site Haritası",
+        "cancellation": "Cayma Hakkı"
+      },
+      "imprint": "Künye",
+      "contactHeading": "İletişim",
+      "copyright": "© {{year}} 2MC Gastro GmbH. Tüm hakları saklıdır.",
+      "privacyPolicy": "Gizlilik Politikası",
+      "cookies": "Çerezler"
+    },
     "hero": {
       "eyebrow": "Avrupa'nın Gastro Ekipman Platformu",
       "headline": {
@@ -1857,6 +1902,15 @@
           "perMonth": "€ {{amount}} / ay",
           "addToQuote": "Teklife Ekle",
           "inQuote": "Teklife Eklendi"
+        },
+        "categories": {
+          "all": "Tümü",
+          "cooking": "Pişirme",
+          "cooling": "Soğutma",
+          "dishwash": "Bulaşık",
+          "pizzaPasta": "Pizza & Makarna",
+          "prepHygiene": "Hazırlık & Hijyen",
+          "dynamicPrep": "Dinamik Hazırlık"
         }
       },
       "hero": {
@@ -2391,6 +2445,7 @@
       "lt500": "€0 – €500",
       "mid1": "€500 – €2.000",
       "mid2": "€2.000 – €5.000",
+      "mid1_5to5": "€1.500 – €5.000",
       "gt5000": "€5.000 ve üzeri"
     },
     "power": {
