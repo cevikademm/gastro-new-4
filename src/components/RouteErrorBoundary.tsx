@@ -1,4 +1,5 @@
 import React from 'react';
+import { logReactError } from '../lib/errorLog';
 
 interface Props { children: React.ReactNode }
 interface State { error: Error | null }
@@ -18,12 +19,15 @@ export default class RouteErrorBoundary extends React.Component<Props, State> {
     return { error };
   }
 
-  componentDidCatch(error: Error) {
+  componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Stale chunk → bir kez otomatik yenile (sonsuz döngüyü engelle)
     if (isChunkError(error) && !sessionStorage.getItem(CHUNK_FLAG)) {
       sessionStorage.setItem(CHUNK_FLAG, '1');
       window.location.reload();
+      return; // sayfa gidiyor; log yazmaya çalışma
     }
+    // error_logs'a yaz → admin panelde "Sistem Logları" sekmesinde görünür.
+    logReactError(error, info?.componentStack || undefined);
   }
 
   private handleReload = () => {

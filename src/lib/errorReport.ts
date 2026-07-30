@@ -24,7 +24,10 @@ export interface ErrorReport {
   reporter_name: string | null;
   reporter_email: string | null;
   reporter_role: string | null;
+  /** Kullanıcının kendi yazdığı ham metin — AI bunu ASLA ezmez. */
   description: string;
+  /** Aynı bildirimin AI ile detaylandırılmış hali (migration 032). */
+  description_ai?: string | null;
   page_url: string | null;
   page_path: string | null;
   user_agent: string | null;
@@ -38,6 +41,13 @@ export interface ErrorReport {
   console_errors: string | null;
   created_at: string;
   resolved_at: string | null;
+  /** Claude Haiku ile üretilen düzeltme prompt'u (migration 030 · lib/fixPrompt.ts). */
+  ai_prompt?: string | null;
+  ai_prompt_at?: string | null;
+  ai_model?: string | null;
+  /** Otomatik triyaj durumu (error-webhook edge function doldurur, migration 031). */
+  ai_status?: 'queued' | 'ok' | 'failed' | 'skipped' | null;
+  ai_error?: string | null;
 }
 
 export function getAdminPhone(): string {
@@ -230,8 +240,13 @@ export function buildWhatsAppText(
       severity: severityLabel(rec.severity as ErrorSeverity) || rec.severity || i18n.t('errorReports.severity.normal'),
     }),
     '',
+    // AI detaylandırdıysa onu göster; ham metin HER ZAMAN altında kalsın ki
+    // yanlış yorumlanmışsa bildirenin asıl cümlesi kaybolmasın.
     i18n.t('errorReports.wa.descriptionHeader'),
-    rec.description || '—',
+    rec.description_ai || rec.description || '—',
+    ...(rec.description_ai && rec.description
+      ? ['', i18n.t('errorReports.wa.reportedWords'), `"${rec.description}"`]
+      : []),
     '',
     screenshotLine,
     `🆔 ${rec.id}`,
@@ -262,6 +277,35 @@ export async function shareScreenshotFile({
     if (e && (e as Error).name === 'AbortError') return 'aborted';
     console.warn('[HataBildir] Web Share başarısız:', (e as Error)?.message || e);
     return false;
+  }
+}
+
+/**
+ * Bildirimi SUNUCUDAN otomatik WhatsApp mesajı olarak yollar (send-whatsapp
+ * edge function · Green-API). Kullanıcının wa.me sekmesinde "gönder"e basmasına
+ * gerek kalmaz — kayıt anında Adem'e düşer.
+ *
+ * Ekran görüntüsü Storage'a yüklendiyse metindeki link üzerinden erişilir;
+ * send-whatsapp yalnızca PDF'i belge olarak iliştirebiliyor, görseli değil.
+ *
+ * Gönderim başarısız olsa bile kayıt tamamdır — çağıran taraf bunu bloklayıcı
+ * saymamalı, yalnızca uyarı göstermeli.
+ */
+export async function sendReportWhatsApp(
+  rec: Partial<ErrorReport> & { id: string },
+  phone = getAdminPhone(),
+): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: 'Supabase yapılandırılmamış.' };
+  try {
+    const { data, error } = await supabase.functions.invoke('send-whatsapp', {
+      body: { text: buildWhatsAppText(rec), phones: [phone] },
+    });
+    if (error) return { ok: false, error: error.message };
+    const res = data as { ok?: boolean; error?: string } | null;
+    if (res?.error) return { ok: false, error: String(res.error) };
+    return res?.ok ? { ok: true } : { ok: false, error: 'Mesaj gönderilemedi' };
+  } catch (e) {
+    return { ok: false, error: (e as Error)?.message || 'Gönderim hatası' };
   }
 }
 

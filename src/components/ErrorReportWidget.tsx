@@ -14,9 +14,10 @@ import { useAuthStore } from '../stores/authStore';
 import {
   captureScreenshot, uploadScreenshot, makeReportId, persistReport,
   buildWhatsAppText, openWhatsApp, downloadDataUrl, getAdminPhone,
-  dataUrlToFile, shareScreenshotFile, copyImageToClipboard,
+  dataUrlToFile, shareScreenshotFile, copyImageToClipboard, sendReportWhatsApp,
   type ErrorReport, type ErrorSeverity,
 } from '../lib/errorReport';
+import { generateFixPrompt, copyText } from '../lib/fixPrompt';
 
 const WA_GREEN = '#25D366';
 const WA_GREEN_DARK = '#128C7E';
@@ -48,6 +49,8 @@ function collectMeta() {
 
 type Meta = ReturnType<typeof collectMeta>;
 type Toast = { type: 'ok' | 'warn'; text: string } | null;
+/** Claude Haiku çıktısı: detaylandırılmış açıklama + geliştirici prompt'u. */
+type AiResult = { prompt: string; detail: string; model: string };
 
 export default function ErrorReportWidget() {
   const { t } = useTranslation();
@@ -62,6 +65,12 @@ export default function ErrorReportWidget() {
   const [meta, setMeta] = useState<Meta>({});
   const [sending, setSending] = useState(false);
   const [toast, setToast] = useState<Toast>(null);
+  // AI düzeltme prompt'u (Claude Haiku) — üretilirse kayıtla birlikte saklanır.
+  const [aiPrompt, setAiPrompt] = useState('');
+  // AI'ın detaylandırdığı açıklama — description_ai olarak kaydedilir.
+  const [aiDetail, setAiDetail] = useState('');
+  const [aiModel, setAiModel] = useState('');
+  const [aiBusy, setAiBusy] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const reset = useCallback(() => {
@@ -69,6 +78,10 @@ export default function ErrorReportWidget() {
     setDescription('');
     setSeverity('normal');
     setSending(false);
+    setAiPrompt('');
+    setAiDetail('');
+    setAiModel('');
+    setAiBusy(false);
   }, []);
 
   const showToast = useCallback((type: 'ok' | 'warn', text: string, ms = 4200) => {
@@ -118,7 +131,15 @@ export default function ErrorReportWidget() {
     e.target.value = '';
   }, []);
 
-  const buildRecord = useCallback(async (preset?: { id?: string; created_at?: string }): Promise<ErrorReport> => {
+  /**
+   * Kaydetme anında üretilen AI çıktısı. State'e yazmayı beklemek yerine
+   * doğrudan buildRecord'a geçilir — setState asenkron olduğu için aynı tur
+   * içinde okunamaz.
+   */
+  const buildRecord = useCallback(async (
+    preset?: { id?: string; created_at?: string },
+    ai?: AiResult | null,
+  ): Promise<ErrorReport> => {
     const id = preset?.id || makeReportId();
     const created_at = preset?.created_at || new Date().toISOString();
     let screenshot_url: string | null = null;
@@ -140,7 +161,10 @@ export default function ErrorReportWidget() {
       reporter_name: user?.fullName || user?.email || 'Admin',
       reporter_email: user?.email || null,
       reporter_role: user?.role || 'admin',
+      // Kullanıcının yazdığı ham metin — AI üretse bile ASLA ezilmez.
       description: description.trim(),
+      // AI'ın detaylandırdığı hali ayrı sütunda (migration 034).
+      description_ai: ai?.detail || aiDetail || null,
       page_url: meta.page_url || null,
       page_path: meta.page_path || null,
       user_agent: meta.user_agent || null,
@@ -154,8 +178,56 @@ export default function ErrorReportWidget() {
       console_errors: null,
       created_at,
       resolved_at: null,
+      ai_prompt: ai?.prompt || aiPrompt || null,
+      ai_prompt_at: (ai?.prompt || aiPrompt) ? new Date().toISOString() : null,
+      ai_model: (ai?.prompt || aiPrompt) ? (ai?.model || aiModel || null) : null,
     };
-  }, [screenshot, user, description, meta, severity]);
+  }, [screenshot, user, description, meta, severity, aiPrompt, aiDetail, aiModel]);
+
+  /**
+   * Claude Haiku çağrısı — açıklamayı DETAYLANDIRIR + geliştirici prompt'u üretir.
+   * State'e yazmaz, sonucu döndürür; hata durumunda null (bildirim kaydı asla
+   * AI yüzünden bloklanmaz).
+   */
+  const runAi = useCallback(async (): Promise<AiResult | null> => {
+    if (description.trim().length < 5) return null;
+    try {
+      const res = await generateFixPrompt({
+        description,
+        pagePath: meta.page_path,
+        pageUrl: meta.page_url,
+        severity,
+        screenSize: meta.screen_size,
+        userAgent: meta.user_agent,
+        reporter: user?.fullName || user?.email || 'Admin',
+      });
+      return { prompt: res.prompt, detail: res.detailedDescription, model: res.model };
+    } catch (e) {
+      console.warn('[HataBildir] AI detaylandırma başarısız:', (e as Error)?.message || e);
+      return null;
+    }
+  }, [description, meta, severity, user]);
+
+  // "AI ile Üret" butonu — kaydetmeden önce çıktıyı görmek/düzenlemek isteyene.
+  // Kaydetme zaten otomatik çalıştırıyor; bu yol yalnızca ön izleme.
+  const handleGeneratePrompt = useCallback(async () => {
+    if (aiBusy) return;
+    if (description.trim().length < 5) {
+      showToast('warn', 'Önce hatayı birkaç kelimeyle açıklayın.');
+      return;
+    }
+    setAiBusy(true);
+    const res = await runAi();
+    if (res) {
+      setAiPrompt(res.prompt);
+      setAiDetail(res.detail);
+      setAiModel(res.model);
+      showToast('ok', 'Açıklama detaylandırıldı — kayıtla birlikte saklanacak.');
+    } else {
+      showToast('warn', 'Detaylandırma başarısız. Kaydederken tekrar denenecek.');
+    }
+    setAiBusy(false);
+  }, [aiBusy, description, runAi, showToast]);
 
   // WhatsApp ile gönder
   const handleSend = useCallback(async () => {
@@ -165,6 +237,14 @@ export default function ErrorReportWidget() {
     const shot = screenshot;
     const id = makeReportId();
     const created_at = new Date().toISOString();
+
+    // AI detaylandırmayı HEMEN başlat ama BEKLEME. Aşağıdaki pano/paylaşım
+    // çağrıları kullanıcı jestinin tazeliğine bağlı; araya await koyarsak
+    // tarayıcı clipboard.write / share iznini reddeder. Sonucu kayıttan
+    // hemen önce topluyoruz. Elle üretilmişse tekrar çağırma.
+    const aiPending: Promise<AiResult | null> = aiPrompt
+      ? Promise.resolve({ prompt: aiPrompt, detail: aiDetail, model: aiModel })
+      : runAi();
 
     // Native dosya paylaşımı mümkün mü? (genelde mobil) — senkron kontrol.
     const file = shot ? dataUrlToFile(shot, `hata-${id}.jpg`) : null;
@@ -201,24 +281,35 @@ export default function ErrorReportWidget() {
         });
       }
 
-      // 2) Kalıcı kayıt: Storage'a yükle (URL) + DB'ye yaz (her durumda).
-      const rec = await buildRecord({ id, created_at });
+      // 2) Kalıcı kayıt: AI çıktısını topla, Storage'a yükle, DB'ye yaz.
+      //    AI başarısızsa (null) kayıt yine de tam olarak yazılır.
+      const ai = await aiPending;
+      const rec = await buildRecord({ id, created_at }, ai);
       await persistReport(rec);
 
-      // 3) Görüntü native paylaşıldıysa bitti. Aksi halde wa.me + (link/pano/indir).
-      if (shareOutcome === 'shared') {
-        showToast('ok', 'Kaydedildi ve ekran görüntüsü WhatsApp\'a eklenerek paylaşıldı.');
-      } else {
-        // URL yoksa ve panoya da kopyalanamadıysa son çare: cihaza indir.
-        if (shot && !rec.screenshot_url && !copied) downloadDataUrl(shot, `hata-${rec.id}.jpg`);
+      // 3) Mesajı SUNUCUDAN otomatik gönder — kimsenin "gönder"e basması gerekmez.
+      const wa = await sendReportWhatsApp(rec);
+
+      // 4) Görüntü zaten native paylaşıldıysa ya da linki mesaja girdiyse iş bitti.
+      //    Yalnızca görüntü hiçbir şekilde iletilemediyse wa.me'yi açıyoruz ki
+      //    admin dosyayı elle iliştirebilsin (aksi halde çift mesaj giderdi).
+      let needsManualImage = false;
+      if (shot && shareOutcome !== 'shared' && !rec.screenshot_url) {
+        needsManualImage = true;
+        if (!copied) downloadDataUrl(shot, `hata-${rec.id}.jpg`);
         openWhatsApp(buildWhatsAppText(rec, { copied }));
-        showToast('ok',
-          rec.screenshot_url
-            ? 'Kaydedildi. WhatsApp açıldı — görüntü linki mesaja eklendi.'
-            : copied
-              ? 'Kaydedildi. WhatsApp açıldı — sohbette Ctrl+V ile görüntüyü yapıştırın.'
-              : 'Kaydedildi. WhatsApp açıldı — görüntüyü ek olarak iliştirin.');
       }
+
+      const to = `+${getAdminPhone()}`;
+      showToast(
+        wa.ok ? 'ok' : 'warn',
+        wa.ok
+          ? needsManualImage
+            ? `Kaydedildi ve ${to} numarasına iletildi. Görüntüyü açılan sohbete ${copied ? 'Ctrl+V ile yapıştırın' : 'ek olarak iliştirin'}.`
+            : `Kaydedildi ve ${to} numarasına WhatsApp'tan iletildi.`
+          : `Kaydedildi ancak WhatsApp'a iletilemedi (${wa.error || 'bilinmeyen hata'}).`,
+        wa.ok ? 4200 : 6000,
+      );
       setOpen(false);
       reset();
     } catch (e) {
@@ -226,25 +317,40 @@ export default function ErrorReportWidget() {
       showToast('warn', 'Bir sorun oluştu, tekrar deneyin.');
       setSending(false);
     }
-  }, [sending, description, screenshot, meta, severity, user, buildRecord, reset, showToast]);
+  }, [sending, description, screenshot, meta, severity, user, buildRecord, reset, showToast,
+      aiPrompt, aiDetail, aiModel, runAi]);
 
-  // Yalnızca kaydet (WhatsApp açmadan)
+  // Yalnızca kaydet (WhatsApp açmadan) — AI detaylandırma burada da otomatik.
   const handleSaveOnly = useCallback(async () => {
     if (sending) return;
     if (!description.trim()) { showToast('warn', 'Lütfen hatayı kısaca açıklayın.'); return; }
     setSending(true);
     try {
-      const rec = await buildRecord();
+      const ai = aiPrompt
+        ? { prompt: aiPrompt, detail: aiDetail, model: aiModel }
+        : await runAi();
+      const rec = await buildRecord(undefined, ai);
       const ok = await persistReport(rec);
+      // Kaydedildiği anda otomatik WhatsApp — wa.me sekmesi açılmaz.
+      const wa = await sendReportWhatsApp(rec);
       setOpen(false);
       reset();
-      showToast(ok ? 'ok' : 'warn', ok ? 'Hata bildirimi kaydedildi.' : 'Kaydedildi (yerel) — DB erişilemedi.');
+      const to = `+${getAdminPhone()}`;
+      showToast(
+        ok && wa.ok ? 'ok' : 'warn',
+        !ok
+          ? 'Kaydedilemedi — DB erişilemedi.'
+          : wa.ok
+            ? `Kaydedildi ve ${to} numarasına WhatsApp'tan iletildi.`
+            : `Kaydedildi ancak WhatsApp'a iletilemedi (${wa.error || 'bilinmeyen hata'}).`,
+        ok && wa.ok ? 4200 : 6000,
+      );
     } catch (e) {
       console.error('[HataBildir] kayıt hatası:', e);
       showToast('warn', 'Kaydedilemedi, tekrar deneyin.');
       setSending(false);
     }
-  }, [sending, description, buildRecord, reset, showToast]);
+  }, [sending, description, buildRecord, reset, showToast, aiPrompt, aiDetail, aiModel, runAi]);
 
   if (!isAdmin) return null;
 
@@ -356,6 +462,65 @@ export default function ErrorReportWidget() {
                 </div>
               </div>
 
+              {/* AI: detaylandırılmış açıklama + düzeltme prompt'u (Claude Haiku) */}
+              <div className="mb-4">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="text-xs font-bold text-on-surface-variant uppercase tracking-wide">🤖 AI Detaylandırma</span>
+                  <div className="flex gap-2">
+                    {aiPrompt && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const ok = await copyText(aiPrompt);
+                          showToast(ok ? 'ok' : 'warn', ok ? 'Prompt panoya kopyalandı.' : 'Kopyalanamadı.');
+                        }}
+                        className="px-2.5 py-1 rounded-lg border border-outline-variant/20 text-xs font-semibold hover:bg-surface-container-low"
+                      >
+                        Kopyala
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={handleGeneratePrompt}
+                      disabled={aiBusy}
+                      className="px-2.5 py-1 rounded-lg border border-outline-variant/20 text-xs font-semibold hover:bg-surface-container-low disabled:opacity-60 disabled:cursor-wait"
+                    >
+                      {aiBusy ? 'Üretiliyor…' : aiPrompt ? 'Yeniden Üret' : 'Şimdi Önizle'}
+                    </button>
+                  </div>
+                </div>
+                {aiPrompt ? (
+                  <div className="space-y-2">
+                    {aiDetail && (
+                      <div className="rounded-xl border border-outline-variant/20 bg-surface-container px-3 py-2.5">
+                        <div className="text-[10.5px] font-bold text-on-surface-variant uppercase tracking-wide mb-1">
+                          Detaylandırılmış açıklama
+                        </div>
+                        <p className="text-[12px] leading-relaxed whitespace-pre-wrap">{aiDetail}</p>
+                        <p className="mt-2 pt-2 border-t border-outline-variant/20 text-[11px] text-on-surface-variant leading-snug">
+                          Sizin yazdığınız metin de aynen kaydedilir — bu detay onun yerine geçmez.
+                        </p>
+                      </div>
+                    )}
+                    <details className="rounded-xl border border-outline-variant/20 bg-surface-container overflow-hidden">
+                      <summary className="px-3 py-2 text-[11.5px] font-bold cursor-pointer select-none">
+                        Geliştirici prompt'u
+                      </summary>
+                      <pre className="px-3 pb-2.5 text-[11.5px] leading-relaxed whitespace-pre-wrap max-h-48 overflow-y-auto font-mono">
+                        {aiPrompt}
+                      </pre>
+                    </details>
+                  </div>
+                ) : (
+                  <p className="rounded-xl border border-dashed border-outline-variant/40 px-3 py-2.5 text-[11.5px] text-on-surface-variant leading-snug">
+                    <b>Kaydederken otomatik çalışır.</b> Yapay zekâ açıklamanızı detaylandırır
+                    (ne yapılıyordu, ne bekleniyordu, ne oldu) ve geliştirici için sisteme uygun
+                    bir düzeltme prompt'u yazar. Yazdığınız metin aynen korunur, detay ayrı alana
+                    kaydedilir. Şimdi görmek isterseniz <b>Şimdi Önizle</b>'ye basın.
+                  </p>
+                )}
+              </div>
+
               {/* Otomatik meta */}
               <div className="mb-4 rounded-lg bg-surface-container px-3 py-2.5 border border-outline-variant/20 text-[11.5px] text-on-surface-variant leading-relaxed">
                 <div className="flex gap-1.5"><b className="min-w-[54px]">Sayfa</b><span className="break-all">{meta.page_path || '—'}</span></div>
@@ -371,16 +536,18 @@ export default function ErrorReportWidget() {
                 style={{ background: `linear-gradient(145deg, ${WA_GREEN}, ${WA_GREEN_DARK})` }}
               >
                 {sending ? <span className="w-4 h-4 rounded-full border-2 border-white/40 border-t-white animate-spin" /> : <WhatsAppGlyph size={20} />}
-                {sending ? 'Gönderiliyor…' : 'WhatsApp ile Gönder'}
+                {sending ? (aiPrompt ? 'Gönderiliyor…' : 'AI detaylandırıyor…') : 'WhatsApp ile Gönder'}
               </button>
               <button
                 onClick={handleSaveOnly}
                 disabled={sending}
                 className="w-full mt-2.5 py-2.5 rounded-xl border border-outline-variant/20 text-on-surface text-sm font-semibold hover:bg-surface-container-low disabled:opacity-70"
               >
-                Sadece Kaydet
+                {sending ? (aiPrompt ? 'Kaydediliyor…' : 'AI detaylandırıyor…') : 'Sadece Kaydet'}
               </button>
               <p className="mt-2.5 text-[11px] text-on-surface-variant text-center leading-snug">
+                Kaydedince bildirim <b>otomatik olarak {phonePretty}</b> numarasına WhatsApp'tan
+                iletilir.<br />
                 Mobilde görüntü <b>doğrudan mesaja eklenir</b>. Masaüstünde <b>panoya kopyalanır</b> —
                 WhatsApp sohbetinde <b>Ctrl+V</b> ile yapıştırın.
               </p>

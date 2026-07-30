@@ -8,28 +8,44 @@ import { useProjectStore } from '../../stores/projectStore';
 import { useEquipmentStore, type EquipmentItem } from '../../stores/equipmentStore';
 import ProductCard from '../../components/catalog/ProductCard';
 import { formatDims } from '../../lib/dims';
+import { brandAsset } from '../../lib/assets';
 import {
   Search, X, ChevronLeft, ChevronRight, Package, Loader2, Clock, CheckCircle2, MapPin,
 } from 'lucide-react';
 
+// Brand logo fallback — resim yoksa marka logosu
+const getBrandLogo = (brand: string): string => {
+  const lowerBrand = brand.toLowerCase().replace(/\s+/g, '');
+  const logoFiles: Record<string, string> = {
+    'diamond': 'diamond.png',
+    'combisteel': 'combisteel.png',
+    'hendi': 'hendi.png',
+  };
+  const file = logoFiles[lowerBrand];
+  return file ? brandAsset(file) : '';
+};
+
 // all_products satırı → sepet (EquipmentItem) şekli — Diamond/CombiSteel ile aynı sepet anahtarı (id)
-const toCartItem = (p: AllProduct): EquipmentItem => ({
-  id: p.id,
-  name: p.name,
-  desc: '',
-  cat: p.category || 'other',
-  sub: '',
-  fam: p.category || '',
-  img: p.image || '',
-  url: p.image || '',
-  brand: p.brand,
-  l: Number(p.length_mm) || 0,
-  w: Number(p.width_mm) || Number(p.depth_mm) || 0,
-  h: String(p.height_mm ?? '0'),
-  kw: 0,
-  price: p.price || 0,
-  line: '',
-});
+const toCartItem = (p: AllProduct): EquipmentItem => {
+  const fallbackImg = p.image || getBrandLogo(p.brand);
+  return {
+    id: p.id,
+    name: p.name,
+    desc: '',
+    cat: p.category || 'other',
+    sub: '',
+    fam: p.category || '',
+    img: p.image || fallbackImg,
+    url: p.image || fallbackImg,
+    brand: p.brand,
+    l: Number(p.length_mm) || 0,
+    w: Number(p.width_mm) || Number(p.depth_mm) || 0,
+    h: String(p.height_mm ?? '0'),
+    kw: 0,
+    price: p.price || 0,
+    line: '',
+  };
+};
 
 // Ölçü etiketi (kartta gösterim) — var olan ölçüleri L×W×H mm biçiminde gösterir.
 const dimStr = (p: AllProduct): string | undefined =>

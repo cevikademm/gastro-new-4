@@ -2298,7 +2298,8 @@
       "reporter": "👤 Gemeldet von: {{name}}{{role}}",
       "page": "📍 Seite: {{path}}",
       "severity": "⚠️ Schweregrad: {{severity}}",
-      "descriptionHeader": "📝 *Beschreibung:*"
+      "descriptionHeader": "📝 *Beschreibung:*",
+      "reportedWords": "🗣️ *Eigene Worte des Melders:*"
     }
   },
   "resources": {

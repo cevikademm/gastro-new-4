@@ -1,8 +1,13 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
+import { installErrorLogging } from './lib/errorLog';
 import './i18n';
 import './index.css';
+
+// Yakalanmamış JS hataları + promise reddleri → Supabase error_logs.
+// React kurulmadan önce takılıyor ki ilk paint hataları da yakalansın.
+installErrorLogging();
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

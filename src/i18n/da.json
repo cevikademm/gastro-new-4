@@ -2298,7 +2298,8 @@
       "reporter": "👤 Bildiren: {{name}}{{role}}",
       "page": "📍 Sayfa: {{path}}",
       "severity": "⚠️ Önem: {{severity}}",
-      "descriptionHeader": "📝 *Açıklama:*"
+      "descriptionHeader": "📝 *Açıklama:*",
+      "reportedWords": "🗣️ *Anmelderens egne ord:*"
     }
   },
   "resources": {

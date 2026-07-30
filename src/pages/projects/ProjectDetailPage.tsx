@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import { useProjectStore, type ProductItem } from '../../stores/projectStore';
 import { useAuthStore } from '../../stores/authStore';
+import { useEquipmentStore } from '../../stores/equipmentStore';
 import {
   ArrowLeft, ClipboardList, Calendar, Building,
   Plus, Trash2, Package, Flame, Droplets, Refrigerator,
@@ -17,6 +18,7 @@ import { designQuoteLines, quoteLinesFromDoc, type DesignQuoteLine } from '../..
 import { loadBestDesign } from '../../lib/gastroDesignSync';
 import { removeQuoteItemEverywhere } from '../../lib/designDelete';
 import ConfirmDialog from '../../components/ConfirmDialog';
+import { brandAsset } from '../../lib/assets';
 
 // Kat planından placedItems okuma
 interface FloorPlanItem {
@@ -114,26 +116,41 @@ function QuoteTab({ project, floorItems, designLines, onRemove }: { project: imp
     priceOnRequest: l.priceOnRequest,
   }));
   // Kat planı + elle eklenen ürünler (allItems) → satır (adet 1); tasarım satırının kapsadığını atla.
+  const getItem = useEquipmentStore.getState().getItemById;
+  const getBrandLogo = (brand: string): string => {
+    const lowerBrand = brand.toLowerCase().replace(/\s+/g, '');
+    const logoFiles: Record<string, string> = {
+      'diamond': 'diamond.png',
+      'combisteel': 'combisteel.png',
+      'hendi': 'hendi.png',
+    };
+    const file = logoFiles[lowerBrand];
+    return file ? brandAsset(file) : '';
+  };
   const floorRows: QuoteRow[] = floorItems
     .filter((fi) => !designIds.has(fi.equipmentId || fi.id))
-    .map((fi) => ({
-      id: fi.equipmentId || fi.id,
-      name: fi.name,
-      code: fi.equipmentId || fi.id,
-      category: (fi.category as any) || 'other',
-      icon: fi.icon || 'package',
-      imageData: fi.imageData,
-      dimensions: { width: Math.round(fi.width / 10), height: Math.round(fi.height / 10), depth: 0 },
-      kw: fi.kw || 0,
-      powerType: fi.kw > 0 ? 'electric' : 'none',
-      price: fi.price || 0,
-      description: fi.desc || '',
-      brand: fi.brand || '',
-      series: '',
-      features: [],
-      qty: 1,
-      priceOnRequest: false,
-    }));
+    .map((fi) => {
+      const catalogItem = getItem(fi.equipmentId || fi.id);
+      const fallbackImg = fi.brand ? getBrandLogo(fi.brand) : undefined;
+      return {
+        id: fi.equipmentId || fi.id,
+        name: fi.name,
+        code: fi.equipmentId || fi.id,
+        category: (fi.category as any) || 'other',
+        icon: fi.icon || 'package',
+        imageData: fi.imageData || catalogItem?.img || fallbackImg || null,
+        dimensions: { width: Math.round(fi.width / 10), height: Math.round(fi.height / 10), depth: 0 },
+        kw: fi.kw || 0,
+        powerType: fi.kw > 0 ? 'electric' : 'none',
+        price: fi.price || 0,
+        description: fi.desc || '',
+        brand: fi.brand || '',
+        series: '',
+        features: [],
+        qty: 1,
+        priceOnRequest: false,
+      };
+    });
   const products: QuoteRow[] = [...designRows, ...floorRows].filter((p) => !removedKeys.has(p.id));
   const quoteNo = `TKF-${id.slice(-6).toUpperCase()}-${new Date().getFullYear()}`;
   const subtotal = products.reduce((sum, p) => sum + (p.priceOnRequest ? 0 : p.price * p.qty), 0);
@@ -186,7 +203,7 @@ function QuoteTab({ project, floorItems, designLines, onRemove }: { project: imp
           qty: p.qty,
           unit: 'Stück',
           unitPrice: p.priceOnRequest ? null : (p.price > 0 ? p.price : null),
-          imageUrl: p.imageData || null,
+          imageUrl: p.imageData || (p as any).img || null,
         };
       });
       if (shipping > 0) {
