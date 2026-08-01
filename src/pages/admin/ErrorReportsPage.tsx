@@ -9,20 +9,22 @@
 //
 // SQL: migrations/018 (reports) · 030 (ai_prompt) · 031 (logs + fixes + webhook)
 import { lazy, Suspense, useState } from 'react';
-import { Bug, ScrollText, History, Zap, Loader2 } from 'lucide-react';
+import { Bug, ScrollText, History, Zap, Bot, Loader2 } from 'lucide-react';
 import ReportsPanel from './errorReports/ReportsPanel';
 
 const LogsPanel = lazy(() => import('./errorReports/LogsPanel'));
 const HistoryPanel = lazy(() => import('./errorReports/HistoryPanel'));
 const AutomationPanel = lazy(() => import('./errorReports/AutomationPanel'));
+const AgentPanel = lazy(() => import('./errorReports/AgentPanel'));
 
-type TabKey = 'reports' | 'logs' | 'history' | 'automation';
+type TabKey = 'reports' | 'logs' | 'history' | 'automation' | 'agent';
 
 const TABS: Array<{ key: TabKey; label: string; icon: typeof Bug; hint: string }> = [
   { key: 'reports', label: 'Bildirimler', icon: Bug, hint: 'Adminlerin elle ilettiği hatalar — ekran görüntüsü ve açıklamasıyla.' },
   { key: 'logs', label: 'Sistem Logları', icon: ScrollText, hint: 'Uygulamanın otomatik yakaladığı JS/promise hataları. Aynı hata tek satırda toplanır.' },
   { key: 'history', label: 'İşlem Geçmişi', icon: History, hint: 'Her kayda ne olduğu: webhook tetiklendi, AI analizi üretildi, durum değişti.' },
   { key: 'automation', label: 'Otomasyon', icon: Zap, hint: 'Yeni hata düşünce Claude Haiku otomatik düzeltme prompt\'u üretsin.' },
+  { key: 'agent', label: 'Ajan', icon: Bot, hint: 'Saatte bir çalışan bulut ajanı hataları kodda düzeltip canlıya alır.' },
 ];
 
 const Fallback = () => (
@@ -70,6 +72,7 @@ export default function ErrorReportsPage() {
       {tab === 'logs' && <Suspense fallback={<Fallback />}><LogsPanel /></Suspense>}
       {tab === 'history' && <Suspense fallback={<Fallback />}><HistoryPanel /></Suspense>}
       {tab === 'automation' && <Suspense fallback={<Fallback />}><AutomationPanel /></Suspense>}
+      {tab === 'agent' && <Suspense fallback={<Fallback />}><AgentPanel /></Suspense>}
     </div>
   );
 }

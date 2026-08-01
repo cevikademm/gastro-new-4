@@ -7,7 +7,9 @@ export type EmailTemplate =
   | "approval-granted"
   | "lead-followup"
   | "quote-ready"
-  | "lead-magnet";
+  | "lead-magnet"
+  /** Bildirilen sorun düzeltilip canlıya alındığında bildirene gider. */
+  | "fix-deployed";
 
 export interface SendEmailParams {
   template: EmailTemplate;

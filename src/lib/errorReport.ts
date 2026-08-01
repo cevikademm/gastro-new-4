@@ -5,6 +5,7 @@
 // parse edebilen bakımlı fork (klasik html2canvas bunlarda hata fırlatıyordu).
 import html2canvas from 'html2canvas-pro';
 import { supabase } from './supabase';
+import { logFixEvent } from './fixPrompt';
 import i18n from '../i18n';
 
 // WhatsApp mesaj başlığındaki proje adı.
@@ -48,7 +49,30 @@ export interface ErrorReport {
   /** Otomatik triyaj durumu (error-webhook edge function doldurur, migration 031). */
   ai_status?: 'queued' | 'ok' | 'failed' | 'skipped' | null;
   ai_error?: string | null;
+  // ─── Düzeltme takibi (migration 037) — otomatik düzeltme ajanı doldurur ───
+  fix_status?: FixStatus | null;
+  fix_attempt_count?: number | null;
+  fix_commit_sha?: string | null;
+  fix_commit_url?: string | null;
+  fix_files?: string[] | null;
+  fix_lines_changed?: number | null;
+  /** Kullanıcıya gösterilen sade dil özeti — changelog ve e-postada yayınlanır. */
+  fix_summary?: string | null;
+  fix_technical?: string | null;
+  fix_skip_reason?: string | null;
+  fix_error?: string | null;
+  committed_at?: string | null;
+  deployed_at?: string | null;
+  verified_at?: string | null;
+  reverted_at?: string | null;
+  /** Arşive alındıysa dolu (migration 038 — gerçek DELETE yapılmıyor). */
+  deleted_at?: string | null;
 }
+
+/** Düzeltme durum makinesi — migration 037. */
+export type FixStatus =
+  | 'none' | 'eligible' | 'claimed' | 'committed' | 'deployed'
+  | 'verified' | 'failed' | 'skipped' | 'revert_requested' | 'reverted' | 'manual';
 
 export function getAdminPhone(): string {
   let ls: string | null = null;
@@ -296,16 +320,52 @@ export async function sendReportWhatsApp(
   phone = getAdminPhone(),
 ): Promise<{ ok: boolean; error?: string }> {
   if (!supabase) return { ok: false, error: 'Supabase yapılandırılmamış.' };
+
+  let result: { ok: boolean; error?: string };
   try {
     const { data, error } = await supabase.functions.invoke('send-whatsapp', {
       body: { text: buildWhatsAppText(rec), phones: [phone] },
     });
-    if (error) return { ok: false, error: error.message };
     const res = data as { ok?: boolean; error?: string } | null;
-    if (res?.error) return { ok: false, error: String(res.error) };
-    return res?.ok ? { ok: true } : { ok: false, error: 'Mesaj gönderilemedi' };
+    if (error) result = { ok: false, error: error.message };
+    else if (res?.error) result = { ok: false, error: String(res.error) };
+    else result = res?.ok ? { ok: true } : { ok: false, error: 'Mesaj gönderilemedi' };
   } catch (e) {
-    return { ok: false, error: (e as Error)?.message || 'Gönderim hatası' };
+    result = { ok: false, error: (e as Error)?.message || 'Gönderim hatası' };
+  }
+
+  // Gönderim sonucunu işlem geçmişine yaz — eskiden yalnızca toast'ta görünüp
+  // kayboluyordu, "bu bildirim iletildi mi" sorusu cevapsızdı.
+  void logFixEvent({
+    id: rec.id,
+    kind: 'whatsapp',
+    status: result.ok ? 'ok' : 'failed',
+    title: result.ok ? `WhatsApp iletildi → +${phone}` : 'WhatsApp iletilemedi',
+    detail: result.error || null,
+    payload: { phone },
+  });
+
+  return result;
+}
+
+/**
+ * Hata kaydını arşive alır (soft delete).
+ * Gerçek DELETE yapmıyoruz: error_fixes'teki işlem geçmişi kayda bağlı ve
+ * silinen bir kaydın "neydi, kim çözdü" bilgisi geri gelmiyordu.
+ * SQL: migration 038 → public.soft_delete_error_record
+ */
+export async function archiveReport(id: string, reason?: string): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: 'Supabase yapılandırılmamış.' };
+  try {
+    const { error } = await supabase.rpc('soft_delete_error_record', {
+      p_kind: 'report',
+      p_id: id,
+      p_reason: reason || null,
+    });
+    if (error) return { ok: false, error: error.message };
+    return { ok: true };
+  } catch (e) {
+    return { ok: false, error: (e as Error)?.message || 'Silme hatası' };
   }
 }
 

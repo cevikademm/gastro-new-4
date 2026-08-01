@@ -287,7 +287,9 @@
       "unfav": "Favoriden çıkar",
       "fav": "Favoriye ekle",
       "glbBadgeTitle": "Sistemde 3D modeli (GLB) var",
-      "systemLibrary": "Sistem Kütüphanesi"
+      "systemLibrary": "Sistem Kütüphanesi",
+      "showMore": "Daha fazla göster ({{n}})",
+      "uploadedDesc": "Yüklenen 3D model"
     },
     "walls": {
       "title": "Duvarlar",
@@ -586,7 +588,8 @@
     "quotes": "Teklifler",
     "blog": "Blog",
     "calculator": "Hesaplayıcı",
-    "errorReports": "Hata Bildirimleri"
+    "errorReports": "Hata Bildirimleri",
+    "changelog": "Neler Düzeldi"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2694,40 @@
     "equipmentCategoriesSubtitle": "Profesyonel mutfağınız için tüm endüstriyel ekipman kategorileri.",
     "priceLabel": "Fiyat aralığı",
     "pricesByCity": "Şehirlere Göre Fiyatlar"
+  },
+  "categoryTaxonomy": {
+    "cooking": "Pişirme",
+    "cooling": "Soğutma",
+    "dishwash": "Bulaşık Yıkama",
+    "prep_hygiene": "Hazırlık & Hijyen",
+    "self_service": "Self Servis & Büfe",
+    "pizza_pasta": "Pizza & Pasta",
+    "dynamic_prep": "Dinamik Hazırlık",
+    "cook_chill": "Pişir & Soğut",
+    "ventilation": "Havalandırma",
+    "bakery": "Pastane & Fırıncılık",
+    "trolley_gn": "Araçlar & GN Kaplar",
+    "coffee_tea": "Kahve & Çay",
+    "laundry": "Çamaşırhane",
+    "ice_cream": "Dondurma",
+    "hospitality": "Konaklama & Temizlik",
+    "cleaning_products": "Temizlik Ürünleri"
+  },
+  "glb": {
+    "label": {
+      "2mcLogo": "2MC Logo",
+      "commercialPlanetaryMixer": "Ticari Planet Mikser",
+      "bottleDisplay": "Şişe Teşhir Rafı",
+      "genericAsset": "Genel 3D Obje",
+      "planetarySpiralMixer": "Planet / Spiral Mikser"
+    }
+  },
+  "changelog": {
+    "title": "Neler Düzeldi",
+    "subtitle": "Bildirdiğiniz sorunlar için yaptığımız düzeltmeler burada listelenir.",
+    "empty": "Henüz yayınlanmış bir düzeltme yok.",
+    "technical": "Teknik detay",
+    "reverted": "Geri alındı",
+    "revertedHint": "Bu düzeltme sorun çıkardığı için geri alındı."
   }
 }

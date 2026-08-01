@@ -3,6 +3,7 @@ import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { useAuthStore } from '../stores/authStore';
 import { useUIStore } from '../stores/uiStore';
+import { subscribeNotifications } from '../lib/notifications';
 import { useCartStore } from '../stores/cartStore';
 import NotificationPanel from './NotificationPanel';
 import LanguageSelector from './LanguageSelector';
@@ -13,7 +14,7 @@ import { CartDrawer } from './CartDrawer';
 import {
   Bell, Settings, LayoutDashboard, Ruler, Refrigerator, Home, Search,
   SlidersHorizontal, HelpCircle, BookOpen, PlusCircle,
-  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Box, Boxes, Package, Palette, Shield, Users, FileText, Bug
+  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Box, Boxes, Package, Palette, Shield, Users, FileText, Bug, Sparkles
 } from 'lucide-react';
 import ErrorReportWidget from './ErrorReportWidget';
 // NOTE: "Manuel çizim" (legacy DesignStudio manualMode) kaldırıldı — kat planı artık 3D Design bölümünde.
@@ -45,6 +46,7 @@ const SIDE_ITEMS = [
   { path: '/settings', labelKey: 'nav.settings', icon: SlidersHorizontal, id: 'settings' },
   { path: '/payment', labelKey: 'nav.payment', icon: CreditCard, id: 'payment' },
   { path: '/brand', labelKey: 'nav.brand', icon: Palette, id: 'brand' },
+  { path: '/degisiklikler', labelKey: 'nav.changelog', icon: Sparkles, id: 'changelog' },
   { path: '/blog', labelKey: 'nav.blog', icon: Pencil, id: 'blog' },
   { path: '/tools/kitchen-calculator', labelKey: 'nav.calculator', icon: Box, id: 'calc' },
 ];
@@ -63,7 +65,15 @@ export default function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, isAuthenticated, logout } = useAuthStore();
-  const { mobileMenuOpen, toggleMobileMenu, toggleNotificationPanel, unreadCount } = useUIStore();
+  const { mobileMenuOpen, toggleMobileMenu, toggleNotificationPanel, unreadCount, loadNotifications } = useUIStore();
+
+  // Bildirimler sunucudan gelir (migration 040). Oturum açılınca yükle ve
+  // yeni bildirim düştüğünde canlı tazele.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    void loadNotifications();
+    return subscribeNotifications(() => { void loadNotifications(); });
+  }, [isAuthenticated, loadNotifications]);
   const cartItems = useCartStore((s) => s.items);
   const cartCount = cartItems.reduce((sum, i) => sum + i.quantity, 0);
 

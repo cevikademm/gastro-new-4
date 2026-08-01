@@ -586,7 +586,8 @@
     "quotes": "Offerter",
     "blog": "Blog",
     "calculator": "Kalkylator",
-    "errorReports": "Felrapporter"
+    "errorReports": "Felrapporter",
+    "changelog": "Vad som åtgärdats"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2692,13 @@
     "equipmentCategoriesSubtitle": "Alla professionella utrustningskategorier för ditt kök.",
     "priceLabel": "Prisintervall",
     "pricesByCity": "Priser per stad"
+  },
+  "changelog": {
+    "title": "Vad som åtgärdats",
+    "subtitle": "Här listas åtgärderna för de problem du rapporterat.",
+    "empty": "Inga åtgärder publicerade ännu.",
+    "technical": "Teknisk detalj",
+    "reverted": "Återställd",
+    "revertedHint": "Denna åtgärd orsakade ett problem och återställdes."
   }
 }

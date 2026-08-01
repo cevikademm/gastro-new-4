@@ -273,21 +273,23 @@
       "empty": "Henüz kapı veya pencere yok."
     },
     "catalog": {
-      "title": "Ekipman Kataloğu",
-      "uploadedBrand": "Yüklenen",
-      "uploadFailed": "GLB yüklenemedi: {{err}}",
-      "uploadTitle": "Kendi 3D modelini yükle (.glb / .gltf)",
-      "upload": "GLB Yükle",
-      "collapse": "Daralt",
-      "expand": "Genişlet",
-      "searchPlaceholder": "Ara… (örn. fritöz)",
-      "favorites": "Favori",
-      "glbOnlyTitle": "Sadece sistemde GLB / 3D modeli olan ürünleri göster",
-      "noResults": "Eşleşen ürün bulunamadı.",
-      "unfav": "Favoriden çıkar",
-      "fav": "Favoriye ekle",
-      "glbBadgeTitle": "Sistemde 3D modeli (GLB) var",
-      "systemLibrary": "Sistem Kütüphanesi"
+      "title": "Gerätekatalog",
+      "uploadedBrand": "Hochgeladen",
+      "uploadFailed": "GLB-Upload fehlgeschlagen: {{err}}",
+      "uploadTitle": "Eigenes 3D-Modell hochladen (.glb / .gltf)",
+      "upload": "GLB hochladen",
+      "collapse": "Einklappen",
+      "expand": "Ausklappen",
+      "searchPlaceholder": "Suchen… (z. B. Fritteuse)",
+      "favorites": "Favoriten",
+      "glbOnlyTitle": "Nur Produkte mit GLB-/3D-Modell anzeigen",
+      "noResults": "Keine passenden Produkte gefunden.",
+      "unfav": "Aus Favoriten entfernen",
+      "fav": "Zu Favoriten hinzufügen",
+      "glbBadgeTitle": "3D-Modell (GLB) verfügbar",
+      "systemLibrary": "Systembibliothek",
+      "showMore": "Mehr anzeigen ({{n}})",
+      "uploadedDesc": "Hochgeladenes 3D-Modell"
     },
     "walls": {
       "title": "Duvarlar",
@@ -586,7 +588,8 @@
     "quotes": "Angebote",
     "blog": "Blog",
     "calculator": "Rechner",
-    "errorReports": "Fehlermeldungen"
+    "errorReports": "Fehlermeldungen",
+    "changelog": "Was behoben wurde"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2694,40 @@
     "equipmentCategoriesSubtitle": "Alle Kategorien gewerblicher Ausstattung für Ihre Profiküche.",
     "priceLabel": "Preisspanne",
     "pricesByCity": "Preise nach Stadt"
+  },
+  "categoryTaxonomy": {
+    "cooking": "Kochtechnik",
+    "cooling": "Kühltechnik",
+    "dishwash": "Spültechnik",
+    "prep_hygiene": "Vorbereitung & Hygiene",
+    "self_service": "Self-Service & Buffet",
+    "pizza_pasta": "Pizza & Pasta",
+    "dynamic_prep": "Dynamische Vorbereitung",
+    "cook_chill": "Cook & Chill",
+    "ventilation": "Lüftungstechnik",
+    "bakery": "Bäckerei & Konditorei",
+    "trolley_gn": "Wagen & GN-Behälter",
+    "coffee_tea": "Kaffee & Tee",
+    "laundry": "Wäscherei",
+    "ice_cream": "Speiseeis",
+    "hospitality": "Hotellerie & Housekeeping",
+    "cleaning_products": "Reinigungsmittel"
+  },
+  "glb": {
+    "label": {
+      "2mcLogo": "2MC-Logo",
+      "commercialPlanetaryMixer": "Planetenrührmaschine (gewerblich)",
+      "bottleDisplay": "Flaschenregal",
+      "genericAsset": "Allgemeines 3D-Objekt",
+      "planetarySpiralMixer": "Planeten-/Spiralkneter"
+    }
+  },
+  "changelog": {
+    "title": "Was behoben wurde",
+    "subtitle": "Hier finden Sie die Korrekturen zu den von Ihnen gemeldeten Problemen.",
+    "empty": "Noch keine Korrekturen veröffentlicht.",
+    "technical": "Technische Details",
+    "reverted": "Zurückgenommen",
+    "revertedHint": "Diese Korrektur verursachte ein Problem und wurde zurückgenommen."
   }
 }

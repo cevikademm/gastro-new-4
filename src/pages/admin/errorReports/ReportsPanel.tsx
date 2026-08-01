@@ -8,10 +8,12 @@ import { useEffect, useMemo, useState, useCallback } from 'react';
 import { Loader2, RefreshCw, Sparkles, Bot, AlertCircle } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import {
-  buildWhatsAppText, openWhatsApp,
+  buildWhatsAppText, openWhatsApp, archiveReport,
   type ErrorReport, type ErrorStatus, type ErrorSeverity,
 } from '../../../lib/errorReport';
-import { generateFixPrompt, saveFixPrompt } from '../../../lib/fixPrompt';
+import { generateFixPrompt, saveFixPrompt, markFixPromptFailed } from '../../../lib/fixPrompt';
+import { markEligible, requestRevert } from '../../../lib/fixAgent';
+import FixStatusBadge from './FixStatusBadge';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PromptModal from './PromptModal';
 
@@ -53,6 +55,9 @@ export default function ReportsPanel() {
     const { data, error: err } = await supabase
       .from('error_reports')
       .select('*')
+      // Arşive alınanlar (soft delete, migration 038) listede görünmez —
+      // geçmişleri İşlem Geçmişi sekmesinde durmaya devam eder.
+      .is('deleted_at', null)
       .order('created_at', { ascending: false });
     if (err) {
       setError(/does not exist|schema cache/i.test(err.message)
@@ -91,10 +96,12 @@ export default function ReportsPanel() {
   }, []);
 
   const doDelete = useCallback(async () => {
-    if (!supabase || !toDelete) return;
+    if (!toDelete) return;
     setBusy(toDelete.id);
-    const { error: err } = await supabase.from('error_reports').delete().eq('id', toDelete.id);
-    if (!err) setReports((prev) => prev.filter((r) => r.id !== toDelete.id));
+    // Soft delete: kayıt arşive alınır, işlem geçmişi korunur (migration 038).
+    const res = await archiveReport(toDelete.id);
+    if (res.ok) setReports((prev) => prev.filter((r) => r.id !== toDelete.id));
+    else setError(res.error || 'Silinemedi.');
     setBusy(null);
     setToDelete(null);
   }, [toDelete]);
@@ -132,11 +139,33 @@ export default function ReportsPanel() {
       setReports((prev) => prev.map((x) => (x.id === r.id ? next : x)));
       setPromptView(next);
     } catch (e) {
-      setError((e as Error)?.message || 'Prompt üretilemedi.');
+      const msg = (e as Error)?.message || 'Prompt üretilemedi.';
+      setError(msg);
+      // Kayıt "AI hatası" olarak işaretlensin — yoksa panelde eski durum kalıyor.
+      await markFixPromptFailed(r.id, msg);
+      setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, ai_status: 'failed', ai_error: msg } : x)));
     } finally {
       setAiBusy(null);
     }
   }, [aiBusy]);
+
+  /** Kaydı ajan kuyruğuna sokar (onaylı modda zorunlu adım). */
+  const giveToAgent = useCallback(async (r: ErrorReport) => {
+    setBusy(r.id);
+    const err = await markEligible('report', r.id);
+    if (err) setError(err);
+    else setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, fix_status: 'eligible' } : x)));
+    setBusy(null);
+  }, []);
+
+  /** Canlıdaki düzeltmenin geri alınmasını ister; ajan sıradaki koşuda yapar. */
+  const askRevert = useCallback(async (r: ErrorReport) => {
+    setBusy(r.id);
+    const err = await requestRevert('report', r.id);
+    if (err) setError(err);
+    else setReports((prev) => prev.map((x) => (x.id === r.id ? { ...x, fix_status: 'revert_requested' } : x)));
+    setBusy(null);
+  }, []);
 
   const imgSrc = (r: ErrorReport) => r.screenshot_url || r.screenshot_data || null;
 
@@ -213,8 +242,27 @@ export default function ReportsPanel() {
                         <AlertCircle size={12} /> AI hatası
                       </span>
                     )}
+                    <FixStatusBadge status={r.fix_status} commitSha={r.fix_commit_sha} commitUrl={r.fix_commit_url} />
                     <span className="ml-auto text-[11.5px] text-on-surface-variant">{fmtDate(r.created_at)}</span>
                   </div>
+
+                  {/* Ajan düzeltmeyi yaptıysa ne yaptığını burada anlat. */}
+                  {r.fix_summary && (
+                    <div className="rounded-lg border px-3 py-2" style={{ borderColor: '#16A34A44', background: '#16A34A0f' }}>
+                      <div className="text-[10.5px] font-bold uppercase tracking-wide mb-0.5" style={{ color: '#15803D' }}>
+                        Yapılan düzeltme
+                      </div>
+                      <p className="text-[12.5px] leading-relaxed">{r.fix_summary}</p>
+                      {r.fix_technical && (
+                        <p className="mt-1 text-[11.5px] text-on-surface-variant leading-relaxed">{r.fix_technical}</p>
+                      )}
+                    </div>
+                  )}
+                  {r.fix_skip_reason && (
+                    <div className="rounded-lg border px-3 py-2 text-[11.5px] leading-relaxed" style={{ borderColor: '#B4530944', background: '#B453090f', color: '#92400E' }}>
+                      <b>Ajan vazgeçti:</b> {r.fix_skip_reason}
+                    </div>
+                  )}
 
                   {/* AI detaylandırdıysa onu göster; bildirenin kendi cümlesi
                       HER ZAMAN altında dursun — yanlış yorum yakalanabilsin. */}
@@ -251,6 +299,29 @@ export default function ReportsPanel() {
                       {aiBusy === r.id ? <Loader2 size={13} className="animate-spin" /> : <Sparkles size={13} />}
                       {aiBusy === r.id ? 'Üretiliyor…' : r.ai_prompt ? 'Prompt\'u Gör' : 'AI Prompt'}
                     </button>
+                    {/* Ajan akışı: kuyruğa ver / canlıdaki düzeltmeyi geri al */}
+                    {r.ai_prompt && (!r.fix_status || r.fix_status === 'none') && (
+                      <button
+                        disabled={busy === r.id}
+                        onClick={() => giveToAgent(r)}
+                        title="Otomatik düzeltme ajanının kuyruğuna ekle"
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-bold border inline-flex items-center gap-1"
+                        style={{ borderColor: '#6366F155', background: '#6366F112', color: '#4F46E5' }}
+                      >
+                        <Bot size={13} /> Ajana Ver
+                      </button>
+                    )}
+                    {(r.fix_status === 'deployed' || r.fix_status === 'verified') && (
+                      <button
+                        disabled={busy === r.id}
+                        onClick={() => askRevert(r)}
+                        title="Bu düzeltmeyi geri al — ajan sıradaki koşuda git revert atar"
+                        className="px-2.5 py-1.5 rounded-lg text-xs font-bold border"
+                        style={{ borderColor: '#EA580C55', background: '#EA580C12', color: '#C2410C' }}
+                      >
+                        Geri Al
+                      </button>
+                    )}
                     {(r.status || 'new') !== 'in_progress' && (r.status || 'new') !== 'resolved' && (
                       <button disabled={busy === r.id} onClick={() => setStatus(r.id, 'in_progress')} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#F59E0B55', background: '#F59E0B12', color: '#B45309' }}>İncele</button>
                     )}

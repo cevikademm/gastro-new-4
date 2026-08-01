@@ -586,7 +586,8 @@
     "quotes": "Ajánlatok",
     "blog": "Blog",
     "calculator": "Kalkulátor",
-    "errorReports": "Hibajelentések"
+    "errorReports": "Hibajelentések",
+    "changelog": "Mit javítottunk"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2692,13 @@
     "equipmentCategoriesSubtitle": "Minden professzionális berendezéskategória az Ön konyhájához.",
     "priceLabel": "Árkategória",
     "pricesByCity": "Árak városonként"
+  },
+  "changelog": {
+    "title": "Mit javítottunk",
+    "subtitle": "Itt találja az Ön által jelzett problémákra kiadott javításokat.",
+    "empty": "Még nincs közzétett javítás.",
+    "technical": "Technikai részletek",
+    "reverted": "Visszavonva",
+    "revertedHint": "Ez a javítás problémát okozott, ezért visszavontuk."
   }
 }

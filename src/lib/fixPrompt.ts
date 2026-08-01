@@ -91,15 +91,64 @@ export async function generateFixPrompt(input: FixPromptInput): Promise<FixPromp
 }
 
 /**
+ * İşlem geçmişine (error_fixes) satır yazar.
+ * Otomatik akış bunu edge function'da yapıyordu; elle akış hiç yapmıyordu —
+ * bu yüzden panelde "Otomasyon kapalıyken elle üretin" denen yol tamamen
+ * izsizdi ve harcanan token görünmüyordu. Tek yardımcı, üç çağrı yeri.
+ */
+export async function logFixEvent(opts: {
+  table?: string;
+  id: string;
+  kind: 'ai_prompt' | 'whatsapp' | 'note' | 'email';
+  status?: 'ok' | 'failed' | 'skipped';
+  title: string;
+  detail?: string | null;
+  model?: string | null;
+  usage?: { input: number; output: number } | null;
+  actor?: string;
+  payload?: Record<string, unknown>;
+}): Promise<void> {
+  if (!supabase || !opts.id) return;
+  const isLog = (opts.table || 'error_reports') === 'error_logs';
+  try {
+    await supabase.from('error_fixes').insert({
+      [isLog ? 'log_id' : 'report_id']: opts.id,
+      target_kind: isLog ? 'log' : 'report',
+      target_ref: opts.id,
+      kind: opts.kind,
+      status: opts.status || 'ok',
+      title: opts.title,
+      detail: opts.detail ?? null,
+      model: opts.model ?? null,
+      tokens_in: opts.usage?.input ?? null,
+      tokens_out: opts.usage?.output ?? null,
+      actor: opts.actor || 'manual',
+      payload: opts.payload || {},
+    });
+  } catch (e) {
+    // Geçmiş kaydı yan etki — asıl işi bloklamasın.
+    console.warn('[fixPrompt] Geçmiş kaydı yazılamadı:', (e as Error)?.message || e);
+  }
+}
+
+/**
  * Üretilen prompt'u ve detaylandırılmış açıklamayı kayda yazar.
  * `description` sütununa ASLA dokunmaz — kullanıcının yazdığı ham metin orada
- * korunur, AI'ın detaylandırdığı hali `description_ai`'ye gider (migration 032).
+ * korunur, AI'ın detaylandırdığı hali `description_ai`'ye gider (migration 034).
+ *
+ * `ai_status` da burada yazılır: yazılmadığı için, webhook bir kez 'failed'
+ * yazdıysa elle başarıyla yeniden üretildiğinde bile panelde kalıcı "AI hatası"
+ * rozeti kalıyordu.
+ *
  * Migration uygulanmamışsa sessizce false döner — çıktı yine de ekranda görünür.
  */
 export async function saveFixPrompt(
   reportId: string,
-  result: Pick<FixPromptResult, 'prompt' | 'detailedDescription' | 'model'>,
+  result: Pick<FixPromptResult, 'prompt' | 'detailedDescription' | 'model'> & {
+    usage?: { input: number; output: number; cacheRead: number };
+  },
   table = 'error_reports',
+  actor = 'manual',
 ): Promise<boolean> {
   if (!supabase || !reportId) return false;
   try {
@@ -107,6 +156,8 @@ export async function saveFixPrompt(
       ai_prompt: result.prompt,
       ai_prompt_at: new Date().toISOString(),
       ai_model: result.model || '',
+      ai_status: 'ok',
+      ai_error: null,
     };
     if (result.detailedDescription) patch.description_ai = result.detailedDescription;
 
@@ -115,10 +166,53 @@ export async function saveFixPrompt(
       console.warn('[fixPrompt] Kayıt güncellenemedi:', error.message);
       return false;
     }
+
+    await logFixEvent({
+      table,
+      id: reportId,
+      kind: 'ai_prompt',
+      status: 'ok',
+      title: 'Elle AI analizi üretildi',
+      detail: result.prompt,
+      model: result.model,
+      usage: result.usage,
+      actor,
+    });
     return true;
   } catch (e) {
     console.warn('[fixPrompt] Kayıt exception:', (e as Error)?.message || e);
+    // ai_status'ü de düşür ki panelde "üretiliyor" durumunda asılı kalmasın.
+    void markFixPromptFailed(reportId, (e as Error)?.message || 'bilinmeyen hata', table);
     return false;
+  }
+}
+
+/**
+ * Elle AI üretimi başarısız olduğunda kaydı işaretler.
+ * Bunu yazmazsak kayıt eski (belki 'ok') durumunda kalıyor ve panel yanlış
+ * rozet gösteriyor.
+ */
+export async function markFixPromptFailed(
+  reportId: string,
+  message: string,
+  table = 'error_reports',
+): Promise<void> {
+  if (!supabase || !reportId) return;
+  try {
+    await supabase
+      .from(table)
+      .update({ ai_status: 'failed', ai_error: String(message).slice(0, 500) })
+      .eq('id', reportId);
+    await logFixEvent({
+      table,
+      id: reportId,
+      kind: 'ai_prompt',
+      status: 'failed',
+      title: 'Elle AI analizi başarısız',
+      detail: String(message).slice(0, 2000),
+    });
+  } catch (e) {
+    console.warn('[fixPrompt] Hata durumu yazılamadı:', (e as Error)?.message || e);
   }
 }
 

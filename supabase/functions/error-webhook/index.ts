@@ -29,6 +29,7 @@ import {
   generateFixPrompt,
   type ReportInput,
 } from "../_shared/fixPromptCore.ts";
+import { safeEqual } from "../_shared/secretAuth.ts";
 
 const ANTHROPIC_API_KEY = Deno.env.get("ANTHROPIC_API_KEY") || "";
 const WEBHOOK_SECRET = Deno.env.get("ERROR_WEBHOOK_SECRET") || "";
@@ -42,12 +43,25 @@ const json = (data: unknown, status = 200) =>
     headers: { "Content-Type": "application/json" },
   });
 
-/** Zamanlama saldırısına kapalı sır karşılaştırması. */
-function safeEqual(a: string, b: string): boolean {
-  if (a.length !== b.length) return false;
-  let diff = 0;
-  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  return diff === 0;
+/**
+ * Trigger'ın bıraktığı 'queued' webhook izini kapatır.
+ * ÖNEMLİ: erken dönüş yollarında da çağrılmalı — yoksa error_fixes'te
+ * sonsuza dek asılı kalan satırlar birikiyor.
+ */
+async function closeQueuedWebhook(
+  sb: ReturnType<typeof createClient>,
+  fkCol: string,
+  id: string,
+  status: "ok" | "skipped" | "failed",
+  title: string,
+): Promise<void> {
+  try {
+    await sb.from("error_fixes")
+      .update({ status, title })
+      .eq(fkCol, id).eq("kind", "webhook").eq("status", "queued");
+  } catch (e) {
+    console.warn("[error-webhook] queued iz kapatılamadı:", (e as Error)?.message);
+  }
 }
 
 const TABLES = new Set(["error_reports", "error_logs"]);
@@ -135,12 +149,14 @@ Deno.serve(async (req) => {
 
   // Zaten analiz edilmişse tekrar para harcama (webhook yeniden denenmiş olabilir).
   if (rec.ai_prompt) {
+    await closeQueuedWebhook(sb, fkCol, id, "skipped", "Atlandı: AI analizi zaten vardı");
     return json({ ok: true, id, skipped: "ai_prompt zaten var" });
   }
 
   const input = toReportInput(table, rec as Record<string, unknown>);
   if (clip(input.description, 4000).length < 5) {
     await sb.from(table).update({ ai_status: "skipped", ai_error: "açıklama çok kısa" }).eq("id", id);
+    await closeQueuedWebhook(sb, fkCol, id, "skipped", "Atlandı: açıklama çok kısa");
     return json({ ok: true, id, skipped: "açıklama çok kısa" });
   }
 
@@ -175,10 +191,7 @@ Deno.serve(async (req) => {
       payload: { source_table: table, cache_read: out.usage.cacheRead },
     });
 
-    // Trigger'ın bıraktığı 'queued' webhook izini kapat — geçmişte asılı kalmasın.
-    await sb.from("error_fixes")
-      .update({ status: "ok", title: "Webhook tamamlandı → error-webhook" })
-      .eq(fkCol, id).eq("kind", "webhook").eq("status", "queued");
+    await closeQueuedWebhook(sb, fkCol, id, "ok", "Webhook tamamlandı → error-webhook");
 
     return json({ ok: true, id, model: out.model, usage: out.usage });
   } catch (err) {
@@ -195,9 +208,7 @@ Deno.serve(async (req) => {
       actor: "error-webhook",
       payload: { source_table: table },
     });
-    await sb.from("error_fixes")
-      .update({ status: "failed", title: "Webhook tamamlandı (triyaj başarısız)" })
-      .eq(fkCol, id).eq("kind", "webhook").eq("status", "queued");
+    await closeQueuedWebhook(sb, fkCol, id, "failed", "Webhook tamamlandı (triyaj başarısız)");
 
     // 200 dönüyoruz: pg_net'in yeniden denemesi bir işe yaramaz, hata zaten kayıtlı.
     return json({ ok: false, id, error: msg });

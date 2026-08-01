@@ -273,21 +273,23 @@
       "empty": "Henüz kapı veya pencere yok."
     },
     "catalog": {
-      "title": "Ekipman Kataloğu",
-      "uploadedBrand": "Yüklenen",
-      "uploadFailed": "GLB yüklenemedi: {{err}}",
-      "uploadTitle": "Kendi 3D modelini yükle (.glb / .gltf)",
-      "upload": "GLB Yükle",
-      "collapse": "Daralt",
-      "expand": "Genişlet",
-      "searchPlaceholder": "Ara… (örn. fritöz)",
-      "favorites": "Favori",
-      "glbOnlyTitle": "Sadece sistemde GLB / 3D modeli olan ürünleri göster",
-      "noResults": "Eşleşen ürün bulunamadı.",
-      "unfav": "Favoriden çıkar",
-      "fav": "Favoriye ekle",
-      "glbBadgeTitle": "Sistemde 3D modeli (GLB) var",
-      "systemLibrary": "Sistem Kütüphanesi"
+      "title": "Equipment Catalog",
+      "uploadedBrand": "Uploaded",
+      "uploadFailed": "GLB upload failed: {{err}}",
+      "uploadTitle": "Upload your own 3D model (.glb / .gltf)",
+      "upload": "Upload GLB",
+      "collapse": "Collapse",
+      "expand": "Expand",
+      "searchPlaceholder": "Search… (e.g. fryer)",
+      "favorites": "Favorites",
+      "glbOnlyTitle": "Show only products with a GLB / 3D model",
+      "noResults": "No matching products found.",
+      "unfav": "Remove from favorites",
+      "fav": "Add to favorites",
+      "glbBadgeTitle": "3D model (GLB) available",
+      "systemLibrary": "System Library",
+      "showMore": "Show more ({{n}})",
+      "uploadedDesc": "Uploaded 3D model"
     },
     "walls": {
       "title": "Duvarlar",
@@ -586,7 +588,8 @@
     "quotes": "Quotes",
     "blog": "Blog",
     "calculator": "Calculator",
-    "errorReports": "Error Reports"
+    "errorReports": "Error Reports",
+    "changelog": "What's Fixed"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2694,40 @@
     "equipmentCategoriesSubtitle": "All commercial equipment categories for your professional kitchen.",
     "priceLabel": "Price range",
     "pricesByCity": "Prices by City"
+  },
+  "categoryTaxonomy": {
+    "cooking": "Cooking",
+    "cooling": "Refrigeration",
+    "dishwash": "Dishwashing",
+    "prep_hygiene": "Prep & Hygiene",
+    "self_service": "Self-Service & Buffet",
+    "pizza_pasta": "Pizza & Pasta",
+    "dynamic_prep": "Dynamic Preparation",
+    "cook_chill": "Cook & Chill",
+    "ventilation": "Ventilation",
+    "bakery": "Bakery & Pastry",
+    "trolley_gn": "Trolleys & GN Containers",
+    "coffee_tea": "Coffee & Tea",
+    "laundry": "Laundry",
+    "ice_cream": "Ice Cream",
+    "hospitality": "Hospitality & Housekeeping",
+    "cleaning_products": "Cleaning Products"
+  },
+  "glb": {
+    "label": {
+      "2mcLogo": "2MC Logo",
+      "commercialPlanetaryMixer": "Commercial Planetary Mixer",
+      "bottleDisplay": "Bottle Display Rack",
+      "genericAsset": "Generic 3D Asset",
+      "planetarySpiralMixer": "Planetary / Spiral Mixer"
+    }
+  },
+  "changelog": {
+    "title": "What's Fixed",
+    "subtitle": "Fixes we shipped for the issues you reported are listed here.",
+    "empty": "No fixes published yet.",
+    "technical": "Technical detail",
+    "reverted": "Reverted",
+    "revertedHint": "This fix caused a problem and was rolled back."
   }
 }

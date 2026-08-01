@@ -586,7 +586,8 @@
     "quotes": "Offertes",
     "blog": "Blog",
     "calculator": "Calculator",
-    "errorReports": "Foutmeldingen"
+    "errorReports": "Foutmeldingen",
+    "changelog": "Wat is opgelost"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2692,13 @@
     "equipmentCategoriesSubtitle": "Alle professionele apparatuurcategorieën voor uw horecakeuken.",
     "priceLabel": "Prijsklasse",
     "pricesByCity": "Prijzen per stad"
+  },
+  "changelog": {
+    "title": "Wat is opgelost",
+    "subtitle": "Hier staan de oplossingen voor de problemen die u heeft gemeld.",
+    "empty": "Nog geen oplossingen gepubliceerd.",
+    "technical": "Technisch detail",
+    "reverted": "Teruggedraaid",
+    "revertedHint": "Deze oplossing veroorzaakte een probleem en is teruggedraaid."
   }
 }

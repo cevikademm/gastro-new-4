@@ -26,14 +26,18 @@ import {
 import { parseHeightMm } from '../loaders/productMesh';
 import { EQUIPMENT_CATALOG, isCustomGlb, getCatalogEntry } from '../loaders/equipmentCatalog';
 import { loadModelViewerScript } from '../../../../../components/Model3DViewer';
-import { findGlbForProductId, listSystemGlbEquipment } from '../loaders/glbManifest';
+import {
+  findGlbForProductId,
+  listSystemGlbEquipment,
+  GLB_CATEGORY_TO_TAXONOMY,
+} from '../loaders/glbManifest';
 import { importGlbFile, GLB_ACCEPT_ATTR } from '../loaders/customGlb';
 import { useMeshStore } from '../../../../../stores/meshStore';
 import {
   getAllProduct3DModels,
   productKeyFor,
 } from '../../../../../lib/meshyClient';
-import i18n from '@/i18n';
+import { matchesCategory } from '@/lib/categoryTaxonomy';
 
 interface EquipmentCatalogPanelProps {
   /** Currently armed product id (Editor3D owns this state). */
@@ -89,7 +93,7 @@ export default function EquipmentCatalogPanel({
   onToggleOpen,
   side = 'right',
 }: EquipmentCatalogPanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n: i18nApi } = useTranslation();
   const productItems = useEquipmentStore((s) => s.allItems);
   const favorites = useEquipmentStore((s) => s.favorites);
   const toggleFavorite = useEquipmentStore((s) => s.toggleFavorite);
@@ -115,7 +119,7 @@ export default function EquipmentCatalogPanel({
       const item: EquipmentItem = {
         id: entry.id,
         name: entry.name,
-        desc: 'Yüklenen 3D model',
+        desc: t('design3d.catalog.uploadedDesc', 'Yüklenen 3D model'),
         cat: '',
         sub: '',
         fam: '',
@@ -147,9 +151,11 @@ export default function EquipmentCatalogPanel({
       .filter((m) => !m.productId)
       .map((m): EquipmentItem => ({
         id: `glb-${m.filename.replace(/\.glb$/i, '')}`,
-        name: i18n.t(m.labelKey),
-        desc: i18n.t('design3d.catalog.systemLibrary'),
-        cat: m.category as string,
+        name: t(m.labelKey, { defaultValue: m.labelFallback }),
+        desc: t('design3d.catalog.systemLibrary'),
+        // Kategori chip'leri ürün taksonomisini kullanır; 3D enum → taksonomi
+        // eşlemesi olmadan chip'e tıklayınca GLB öğeleri kaybolurdu.
+        cat: GLB_CATEGORY_TO_TAXONOMY[m.category] ?? '',
         sub: '',
         fam: '',
         img: '',
@@ -161,7 +167,7 @@ export default function EquipmentCatalogPanel({
         price: 0,
         line: 'GLB Library',
       }));
-  }, []);
+  }, [t, i18nApi.language]);
 
   // Birleşik liste — yüklenenler ve sentetik GLB item'ları en üstte
   const allItems = useMemo<EquipmentItem[]>(
@@ -200,7 +206,9 @@ export default function EquipmentCatalogPanel({
     let items = allItems;
     if (favOnly) items = items.filter((i) => favorites.includes(i.id));
     if (glbOnly) items = items.filter((i) => hasGlb(i, meshRows));
-    if (category) items = items.filter((i) => i.cat === category);
+    // Chip sayılarıyla AYNI çözümleyici (resolvedOf) kullanılır; ham `i.cat`
+    // eşitliği GLB öğelerini (farklı enum / boş cat) gizliyordu.
+    if (category) items = items.filter((i) => matchesCategory(category, i));
     if (search) {
       const q = search.toLowerCase();
       items = items.filter(
@@ -210,20 +218,28 @@ export default function EquipmentCatalogPanel({
           (i.desc?.toLowerCase().includes(q) ?? false),
       );
     }
-    return items.slice(0, RESULT_LIMIT);
+    return items;
   }, [allItems, favorites, favOnly, glbOnly, meshRows, category, search]);
+
+  // DOM'u sınırlı tutmak için sayfalama: filtre değişince limit sıfırlanır,
+  // "Daha fazla göster" ile RESULT_LIMIT'lik adımlarla açılır.
+  const [visibleLimit, setVisibleLimit] = useState(RESULT_LIMIT);
+  useEffect(() => {
+    setVisibleLimit(RESULT_LIMIT);
+  }, [search, category, favOnly, glbOnly]);
+  const visible = useMemo(() => filtered.slice(0, visibleLimit), [filtered, visibleLimit]);
 
   return (
     <aside
       className={[
         'absolute top-16 bottom-3 rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 transition-all flex flex-col overflow-hidden z-20',
         side === 'left' ? 'left-3' : 'right-3',
-        open ? 'w-[74vw] max-w-[17rem] sm:w-80 sm:max-w-none' : 'w-9',
+        open ? 'w-[74vw] max-w-[17rem] sm:w-80 sm:max-w-none xl:w-96 2xl:w-[26rem]' : 'w-9',
       ].join(' ')}
     >
       <header className="flex items-center gap-1 px-4 py-3 border-b border-slate-100">
         {open && (
-          <h3 className="text-[12px] font-semibold text-slate-800 truncate">{t('design3d.catalog.title')}</h3>
+          <h3 className="text-[13px] font-semibold text-slate-800 truncate">{t('design3d.catalog.title')}</h3>
         )}
         <div className="ml-auto flex items-center gap-1">
           {open && (
@@ -261,12 +277,12 @@ export default function EquipmentCatalogPanel({
           {/* ── Search ───────────────────────────────────────────────── */}
           <div className="px-4 py-3 border-b border-slate-100">
             <div className="relative">
-              <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder={t('design3d.catalog.searchPlaceholder')}
-                className="w-full pl-8 pr-7 h-8 rounded-lg border border-slate-200 text-[11px] outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
+                placeholder={t('design3d.catalog.searchPlaceholder', 'Ara… (örn. fritöz)')}
+                className="w-full pl-9 pr-7 h-9 rounded-xl border border-slate-200 text-[12px] outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
               />
               {search && (
                 <button
@@ -307,15 +323,15 @@ export default function EquipmentCatalogPanel({
                   3D {glbCount > 0 && <span className="tabular-nums">({glbCount})</span>}
                 </button>
               </div>
-              <span className="text-[10px] text-slate-400 tabular-nums">
-                {filtered.length}{filtered.length === RESULT_LIMIT ? '+' : ''}
+              <span className="text-[11px] text-slate-400 tabular-nums">
+                {filtered.length}
               </span>
             </div>
           </div>
 
-          {/* ── Category chips ───────────────────────────────────────── */}
+          {/* ── Category chips — tek satır yatay kaydırma ────────────── */}
           <div className="px-4 py-3 border-b border-slate-100">
-            <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+            <div className="flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <CategoryChip
                 label={t('common.all')}
                 active={category === ''}
@@ -341,64 +357,77 @@ export default function EquipmentCatalogPanel({
                 {t('design3d.catalog.noResults')}
               </p>
             ) : (
-              <ul className="space-y-1.5">
-                {filtered.map((item) => {
-                  const armed = item.id === armedProductId;
-                  const fav = favorites.includes(item.id);
-                  const glb = hasGlb(item, meshRows);
-                  return (
-                    <li key={item.id}>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          // Varsayılan (3D): tek tık → ürünü sahneye HEMEN yerleştir.
-                          // Shift+tık → hassas yerleştirme için "arm" (zemine tıkla).
-                          // onPlace yoksa (2D) her tık eski davranış: arm.
-                          if (onPlace && !e.shiftKey) {
-                            onPlace(item);
-                            return;
-                          }
-                          onArm(armed ? null : item);
-                        }}
-                        onMouseEnter={() => onPreload?.(item)}
-                        className={[
-                          'w-full flex gap-2.5 p-2 rounded-xl border text-left transition',
-                          armed
-                            ? 'bg-brand-red/5 border-brand-red/40 ring-1 ring-brand-red/20'
-                            : 'bg-white border-slate-200/70 hover:border-brand-red/40 hover:shadow-sm',
-                        ].join(' ')}
-                      >
-                        <Thumb item={item} glb={glb} />
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[12px] font-semibold text-slate-800 truncate">
-                            {item.name}
-                          </div>
-                          <div className="text-[10px] text-slate-400 truncate">
-                            {item.brand} · {item.id}
-                          </div>
-                          <div className="text-[10px] text-slate-500 tabular-nums">
-                            {item.l}×{item.w}×{parseHeightMm(item.h)} mm
-                          </div>
-                        </div>
+              <>
+                <ul className="space-y-1.5">
+                  {visible.map((item) => {
+                    const armed = item.id === armedProductId;
+                    const fav = favorites.includes(item.id);
+                    const glb = hasGlb(item, meshRows);
+                    return (
+                      // Favori butonu kartın İÇİNDE değil, kardeş overlay olarak
+                      // durur — button-içinde-button geçersiz HTML'di (a11y).
+                      <li key={item.id} className="relative">
                         <button
                           type="button"
                           onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFavorite(item.id);
+                            // Varsayılan (3D): tek tık → ürünü sahneye HEMEN yerleştir.
+                            // Shift+tık → hassas yerleştirme için "arm" (zemine tıkla).
+                            // onPlace yoksa (2D) her tık eski davranış: arm.
+                            if (onPlace && !e.shiftKey) {
+                              onPlace(item);
+                              return;
+                            }
+                            onArm(armed ? null : item);
                           }}
+                          onMouseEnter={() => onPreload?.(item)}
                           className={[
-                            'p-1.5 rounded-lg transition',
+                            'w-full flex gap-2.5 p-2 pr-9 rounded-xl border text-left transition',
+                            armed
+                              ? 'bg-brand-red/5 border-brand-red/40 ring-1 ring-brand-red/20'
+                              : 'bg-white border-slate-200/70 hover:border-brand-red/40 hover:shadow-sm',
+                          ].join(' ')}
+                        >
+                          <Thumb item={item} glb={glb} />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-[12px] xl:text-[13px] font-semibold text-slate-800 truncate">
+                              {item.name}
+                            </div>
+                            <div className="text-[10px] xl:text-[11px] text-slate-400 truncate">
+                              {item.brand} · {item.id}
+                            </div>
+                            <div className="text-[10px] xl:text-[11px] text-slate-500 tabular-nums">
+                              {item.l}×{item.w}×{parseHeightMm(item.h)} mm
+                            </div>
+                          </div>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => toggleFavorite(item.id)}
+                          className={[
+                            'absolute right-1.5 top-1.5 p-1.5 rounded-lg transition',
                             fav ? 'text-amber-500' : 'text-slate-300 hover:bg-slate-100 hover:text-amber-400',
                           ].join(' ')}
                           aria-label={fav ? t('design3d.catalog.unfav') : t('design3d.catalog.fav')}
                         >
                           <Star size={12} fill={fav ? 'currentColor' : 'none'} />
                         </button>
-                      </button>
-                    </li>
-                  );
-                })}
-              </ul>
+                      </li>
+                    );
+                  })}
+                </ul>
+                {filtered.length > visibleLimit && (
+                  <button
+                    type="button"
+                    onClick={() => setVisibleLimit((n) => n + RESULT_LIMIT)}
+                    className="w-full h-8 mt-2 rounded-xl border border-slate-200 text-[11px] font-medium text-slate-600 hover:bg-slate-50 transition"
+                  >
+                    {t('design3d.catalog.showMore', {
+                      defaultValue: 'Daha fazla göster ({{n}})',
+                      n: filtered.length - visibleLimit,
+                    })}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </>
@@ -422,7 +451,7 @@ function Thumb({ item, glb }: { item: EquipmentItem; glb: boolean }) {
   );
 
   return (
-    <div className="relative flex-shrink-0 w-12 h-12 bg-slate-50 border border-slate-200/70 rounded-lg overflow-hidden flex items-center justify-center">
+    <div className="relative flex-shrink-0 w-12 h-12 xl:w-14 xl:h-14 bg-slate-50 border border-slate-200/70 rounded-lg overflow-hidden flex items-center justify-center">
       {item.img ? (
         <img src={item.img} alt="" className="w-full h-full object-contain" loading="lazy" />
       ) : glbUrl ? (
@@ -430,7 +459,7 @@ function Thumb({ item, glb }: { item: EquipmentItem; glb: boolean }) {
       ) : glb ? (
         <Box size={20} className="text-brand-red/60" />
       ) : (
-        <span className="text-[9px] text-slate-400">no img</span>
+        <span className="text-[10px] text-slate-400">no img</span>
       )}
       {glb && (
         <span
@@ -504,7 +533,7 @@ function CategoryChip({
       type="button"
       onClick={onClick}
       className={[
-        'inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] font-medium border transition',
+        'inline-flex items-center gap-1 px-2.5 h-7 rounded-full text-[11px] font-medium border transition whitespace-nowrap shrink-0',
         active
           ? 'bg-brand-red text-white border-brand-red'
           : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50',

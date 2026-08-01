@@ -586,7 +586,8 @@
     "quotes": "Oferte",
     "blog": "Blog",
     "calculator": "Calculator",
-    "errorReports": "Rapoarte Erori"
+    "errorReports": "Rapoarte Erori",
+    "changelog": "Ce s-a reparat"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2692,13 @@
     "equipmentCategoriesSubtitle": "Toate categoriile de echipamente profesionale pentru bucătăria dumneavoastră.",
     "priceLabel": "Interval de preț",
     "pricesByCity": "Prețuri pe orașe"
+  },
+  "changelog": {
+    "title": "Ce s-a reparat",
+    "subtitle": "Aici sunt listate remedierile pentru problemele raportate de dvs.",
+    "empty": "Nicio remediere publicată încă.",
+    "technical": "Detalii tehnice",
+    "reverted": "Anulată",
+    "revertedHint": "Această remediere a cauzat o problemă și a fost anulată."
   }
 }

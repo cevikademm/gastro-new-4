@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 /**
  * `public/models/` klasöründeki GLB dosyalarını tarayıp glbManifest.ts'i
- * günceller. Mevcut girişlerin elle eklenen meta verisini (productId, label,
- * category, dimensionsMm) korur — sadece YENİ dosyalar için boş şablon ekler
+ * günceller. Mevcut girişlerin elle eklenen meta verisini (productId, labelKey,
+ * labelFallback, category, dimensionsMm) korur — sadece YENİ dosyalar için boş şablon ekler
  * ve diskte olmayan dosyaları manifest'ten siler.
  *
  * Kullanım:
@@ -116,10 +116,14 @@ if (removed.length > 0) {
 const SKELETON = (filename) => {
   const stem = filename.replace(/\.glb$/i, '');
   const label = stem.replace(/_+/g, ' ').replace(/Meshy AI /gi, '(Meshy) ').trim();
+  // labelKey: dosya adından türetilmiş camelCase çeviri anahtarı;
+  // labelFallback: çeviri girilene kadar gösterilecek okunabilir ad.
+  const keySafe = stem.replace(/[^a-zA-Z0-9]+(.)?/g, (_, c) => (c ? c.toUpperCase() : ''));
   return `  {
     url: '/models/${filename}',
     filename: '${filename}',
-    label: '${label}',
+    labelKey: 'glb.label.${keySafe}',
+    labelFallback: '${label.replace(/'/g, "\\'")}',
     category: 'other',
     isEquipment: true,
   },

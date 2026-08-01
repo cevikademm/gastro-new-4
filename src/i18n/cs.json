@@ -586,7 +586,8 @@
     "quotes": "Nabídky",
     "blog": "Blog",
     "calculator": "Kalkulačka",
-    "errorReports": "Hlášení Chyb"
+    "errorReports": "Hlášení Chyb",
+    "changelog": "Co bylo opraveno"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2692,13 @@
     "equipmentCategoriesSubtitle": "Všechny kategorie profesionálního vybavení pro vaši kuchyni.",
     "priceLabel": "Cenové rozpětí",
     "pricesByCity": "Ceny podle měst"
+  },
+  "changelog": {
+    "title": "Co bylo opraveno",
+    "subtitle": "Zde najdete opravy problémů, které jste nahlásili.",
+    "empty": "Zatím nebyly zveřejněny žádné opravy.",
+    "technical": "Technické podrobnosti",
+    "reverted": "Vráceno zpět",
+    "revertedHint": "Tato oprava způsobila problém a byla vrácena zpět."
   }
 }

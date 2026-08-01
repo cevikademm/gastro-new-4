@@ -9,6 +9,7 @@
 // SQL: supabase/migrations/031_error_logs_and_webhook.sql
 // Panel: src/pages/admin/ErrorReportsPage.tsx → "Sistem Logları" sekmesi
 import { supabase } from './supabase';
+import type { FixStatus } from './errorReport';
 
 export type LogLevel = 'error' | 'warning' | 'info';
 export type LogSource = 'window' | 'promise' | 'console' | 'react' | 'network' | 'supabase' | 'manual';
@@ -48,6 +49,22 @@ export interface ErrorLog {
   first_seen_at: string;
   last_seen_at: string;
   resolved_at: string | null;
+  // ─── Düzeltme takibi (migration 037) — otomatik düzeltme ajanı doldurur ───
+  fix_status?: FixStatus | null;
+  fix_attempt_count?: number | null;
+  fix_commit_sha?: string | null;
+  fix_commit_url?: string | null;
+  fix_files?: string[] | null;
+  fix_lines_changed?: number | null;
+  fix_summary?: string | null;
+  fix_technical?: string | null;
+  fix_skip_reason?: string | null;
+  fix_error?: string | null;
+  committed_at?: string | null;
+  deployed_at?: string | null;
+  verified_at?: string | null;
+  reverted_at?: string | null;
+  deleted_at?: string | null;
 }
 
 export interface ClientErrorInput {
@@ -232,6 +249,8 @@ export async function fetchErrorLogs(limit = 200): Promise<{ data: ErrorLog[]; e
   const { data, error } = await supabase
     .from('error_logs')
     .select('*')
+    // Arşive alınanları gizle (soft delete, migration 038).
+    .is('deleted_at', null)
     .order('last_seen_at', { ascending: false })
     .limit(limit);
   if (error) {
@@ -254,21 +273,36 @@ export async function setErrorLogStatus(id: string, status: LogStatus): Promise<
   return !error;
 }
 
-export async function deleteErrorLog(id: string): Promise<boolean> {
+/**
+ * Log kaydını arşive alır (soft delete).
+ * Gerçek DELETE yapmıyoruz: error_fixes'teki işlem geçmişi kayda bağlıydı ve
+ * silinen bir kaydın geçmişi de gidiyordu (migration 038).
+ */
+export async function deleteErrorLog(id: string, reason?: string): Promise<boolean> {
   if (!supabase) return false;
-  const { error } = await supabase.from('error_logs').delete().eq('id', id);
+  const { error } = await supabase.rpc('soft_delete_error_record', {
+    p_kind: 'log',
+    p_id: id,
+    p_reason: reason || null,
+  });
   return !error;
 }
 
-/** Çözülmüş/yoksayılmış logları toplu temizler. @returns silinen satır sayısı */
+/** Çözülmüş/yoksayılmış logları toplu arşivler. @returns arşivlenen satır sayısı */
 export async function purgeClosedLogs(): Promise<number> {
   if (!supabase) return 0;
   const { data, error } = await supabase
     .from('error_logs')
-    .delete()
-    .in('status', ['resolved', 'ignored'])
-    .select('id');
-  return error ? 0 : (data?.length || 0);
+    .select('id')
+    .is('deleted_at', null)
+    .in('status', ['resolved', 'ignored']);
+  if (error || !data?.length) return 0;
+
+  let n = 0;
+  for (const row of data as Array<{ id: string }>) {
+    if (await deleteErrorLog(row.id, 'toplu temizlik')) n++;
+  }
+  return n;
 }
 
 // Not: AI prompt'unu kaydetmek için lib/fixPrompt.ts → saveFixPrompt(id, res, 'error_logs')

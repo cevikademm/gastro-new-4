@@ -1,10 +1,15 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { useUIStore } from '../stores/uiStore';
-import { X, CheckCheck, Bell, AlertTriangle, Info, CheckCircle } from 'lucide-react';
+import { X, CheckCheck, Bell, AlertTriangle, Info, CheckCircle, Loader2 } from 'lucide-react';
 
 export default function NotificationPanel() {
   const { t } = useTranslation();
-  const { notifications, notificationPanelOpen, toggleNotificationPanel, markRead, markAllRead } = useUIStore();
+  const navigate = useNavigate();
+  const {
+    notifications, notificationsLoading, notificationPanelOpen,
+    toggleNotificationPanel, markRead, markAllRead,
+  } = useUIStore();
 
   if (!notificationPanelOpen) return null;
 
@@ -39,7 +44,11 @@ export default function NotificationPanel() {
           </div>
         </div>
         <div className="max-h-80 overflow-y-auto">
-          {notifications.length === 0 ? (
+          {notificationsLoading && notifications.length === 0 ? (
+            <div className="p-6 text-center text-sm text-on-surface-variant">
+              <Loader2 size={16} className="animate-spin mx-auto" />
+            </div>
+          ) : notifications.length === 0 ? (
             <div className="p-6 text-center text-sm text-on-surface-variant">{t('notifications.noNotifications')}</div>
           ) : (
             notifications.map((n) => {
@@ -47,7 +56,13 @@ export default function NotificationPanel() {
               return (
                 <button
                   key={n.id}
-                  onClick={() => markRead(n.id)}
+                  onClick={() => {
+                    markRead(n.id);
+                    if (n.link) {
+                      toggleNotificationPanel();
+                      navigate(n.link);
+                    }
+                  }}
                   className={`w-full text-left p-4 border-b border-outline-variant/5 hover:bg-surface-container-high transition-colors ${!n.read ? 'bg-primary-fixed/5' : ''}`}
                 >
                   <div className="flex items-start gap-3">

@@ -11,7 +11,8 @@ import {
   fetchErrorLogs, setErrorLogStatus, deleteErrorLog, purgeClosedLogs,
   type ErrorLog, type LogStatus,
 } from '../../../lib/errorLog';
-import { generateFixPrompt, saveFixPrompt } from '../../../lib/fixPrompt';
+import { generateFixPrompt, saveFixPrompt, markFixPromptFailed } from '../../../lib/fixPrompt';
+import FixStatusBadge from './FixStatusBadge';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PromptModal from './PromptModal';
 
@@ -149,7 +150,11 @@ export default function LogsPanel() {
       setLogs((prev) => prev.map((l) => (l.id === log.id ? next : l)));
       setPromptView(next);
     } catch (e) {
-      setError((e as Error)?.message || 'Prompt üretilemedi.');
+      const msg = (e as Error)?.message || 'Prompt üretilemedi.';
+      setError(msg);
+      // Kayıt "AI hatası" olarak işaretlensin — yoksa panelde eski durum kalıyor.
+      await markFixPromptFailed(log.id, msg, 'error_logs');
+      setLogs((prev) => prev.map((l) => (l.id === log.id ? { ...l, ai_status: 'failed', ai_error: msg } : l)));
     } finally {
       setAiBusy(null);
     }
@@ -247,6 +252,7 @@ export default function LogsPanel() {
                           <AlertCircle size={12} /> AI hatası
                         </span>
                       )}
+                      <FixStatusBadge status={log.fix_status} commitSha={log.fix_commit_sha} commitUrl={log.fix_commit_url} />
                     </div>
                     <p className="text-sm font-semibold text-on-surface break-words line-clamp-2">{log.message}</p>
                     <p className="text-[11.5px] text-on-surface-variant mt-0.5 truncate">
@@ -266,6 +272,24 @@ export default function LogsPanel() {
                       <div><b>Kullanıcı:</b> {log.user_email || 'anonim'}{log.user_role ? ` (${log.user_role})` : ''}</div>
                       <div className="break-all sm:col-span-2"><b>Tarayıcı:</b> {log.user_agent || '—'}</div>
                     </div>
+
+                    {/* Ajan düzeltmeyi yaptıysa ne yaptığını burada anlat. */}
+                    {log.fix_summary && (
+                      <div className="rounded-lg border px-3 py-2.5" style={{ borderColor: '#16A34A44', background: '#16A34A0f' }}>
+                        <div className="text-[10.5px] font-bold uppercase tracking-wide mb-0.5" style={{ color: '#15803D' }}>
+                          Yapılan düzeltme
+                        </div>
+                        <p className="text-[12.5px] leading-relaxed">{log.fix_summary}</p>
+                        {log.fix_technical && (
+                          <p className="mt-1 text-[11.5px] text-on-surface-variant leading-relaxed">{log.fix_technical}</p>
+                        )}
+                      </div>
+                    )}
+                    {log.fix_skip_reason && (
+                      <div className="rounded-lg border px-3 py-2 text-[11.5px] leading-relaxed" style={{ borderColor: '#B4530944', background: '#B453090f', color: '#92400E' }}>
+                        <b>Ajan vazgeçti:</b> {log.fix_skip_reason}
+                      </div>
+                    )}
 
                     {/* AI'ın detaylandırdığı açıklama. Ham hata mesajı yukarıdaki
                         başlıkta aynen duruyor — burası onun yerine geçmez. */}

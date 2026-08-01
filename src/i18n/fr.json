@@ -586,7 +586,8 @@
     "quotes": "Devis",
     "blog": "Blog",
     "calculator": "Calculateur",
-    "errorReports": "Rapports d'Erreur"
+    "errorReports": "Rapports d'Erreur",
+    "changelog": "Corrections"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2692,13 @@
     "equipmentCategoriesSubtitle": "Toutes les catégories d'équipement professionnel pour votre cuisine.",
     "priceLabel": "Gamme de prix",
     "pricesByCity": "Prix par ville"
+  },
+  "changelog": {
+    "title": "Corrections apportées",
+    "subtitle": "Les corrections apportées aux problèmes que vous avez signalés sont listées ici.",
+    "empty": "Aucune correction publiée pour le moment.",
+    "technical": "Détail technique",
+    "reverted": "Annulée",
+    "revertedHint": "Cette correction a causé un problème et a été annulée."
   }
 }

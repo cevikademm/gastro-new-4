@@ -25,7 +25,7 @@ const json = (data: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-type TemplateName = "order-confirmation" | "welcome" | "order-shipped" | "approval-granted" | "lead-followup" | "quote-ready" | "lead-magnet" | "cold-outreach";
+type TemplateName = "order-confirmation" | "welcome" | "order-shipped" | "approval-granted" | "lead-followup" | "quote-ready" | "lead-magnet" | "cold-outreach" | "fix-deployed";
 
 interface Payload {
   template: TemplateName;
@@ -66,6 +66,38 @@ function render(template: TemplateName, data: Record<string, unknown>): { subjec
 </body></html>`;
 
   switch (template) {
+    // Bildirilen bir sorun düzeltilip canlıya alındığında bildirene gider.
+    // Çağıran: supabase/functions/fix-agent (action:"deployed").
+    // İÇERİK KURALI: commit sha, dosya adı, kişisel veri YAZILMAZ — bu metin
+    // doğrudan müşteriye gidiyor.
+    case "fix-deployed": {
+      const name = String(data.name || "").trim();
+      const summary = String(data.summary || "").trim();
+      return {
+        subject: "Bildirdiğiniz sorun düzeltildi · 2MC Gastro",
+        html: shell(
+          `<h1 style="margin:0 0 12px;font-size:22px">${name ? `Merhaba ${name},` : "Merhaba,"}</h1>
+           <p style="margin:0 0 16px;font-size:15px;line-height:1.6">
+             Bize bildirdiğiniz sorun düzeltildi ve değişiklik yayına alındı.
+           </p>
+           <div style="margin:0 0 20px;padding:16px;background:${brand.surface};border-radius:12px;border:1px solid #e0e3e5">
+             <div style="font-size:12px;font-weight:700;color:${brand.onSurfaceVariant};text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px">
+               Yapılan düzeltme
+             </div>
+             <p style="margin:0;font-size:15px;line-height:1.6">${summary}</p>
+           </div>
+           <p style="margin:0 0 20px;font-size:14px;line-height:1.6;color:${brand.onSurfaceVariant}">
+             Sorunun devam ettiğini görürseniz lütfen tekrar bildirin — kaydınızı yeniden açarız.
+           </p>
+           <a href="https://www.2mcgastro.de/degisiklikler"
+              style="display:inline-block;background:${brand.primary};color:#fff;text-decoration:none;padding:12px 22px;border-radius:10px;font-weight:700;font-size:14px">
+             Tüm düzeltmeleri gör
+           </a>`,
+          "Bildirdiğiniz sorun düzeltildi.",
+        ),
+      };
+    }
+
     case "order-confirmation": {
       const orderNumber = String(data.orderNumber || "—");
       const total = String(data.total || "—");

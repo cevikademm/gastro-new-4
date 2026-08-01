@@ -586,7 +586,8 @@
     "quotes": "Oferty",
     "blog": "Blog",
     "calculator": "Kalkulator",
-    "errorReports": "Zgłoszenia Błędów"
+    "errorReports": "Zgłoszenia Błędów",
+    "changelog": "Co naprawiono"
   },
   "brand": {
     "name": "2MC Gastro",
@@ -2691,5 +2692,13 @@
     "equipmentCategoriesSubtitle": "Wszystkie kategorie profesjonalnego wyposażenia dla Państwa kuchni.",
     "priceLabel": "Zakres cen",
     "pricesByCity": "Ceny według miast"
+  },
+  "changelog": {
+    "title": "Co naprawiono",
+    "subtitle": "Tutaj znajdziesz poprawki zgłoszonych przez Ciebie problemów.",
+    "empty": "Brak opublikowanych poprawek.",
+    "technical": "Szczegóły techniczne",
+    "reverted": "Wycofano",
+    "revertedHint": "Ta poprawka spowodowała problem i została wycofana."
   }
 }

@@ -1,6 +1,11 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { debouncedSyncUserPrefs, loadUserPrefs } from '../lib/gastroSync';
+import {
+  fetchNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from '../lib/notifications';
 
 interface Notification {
   id: string;
@@ -9,6 +14,8 @@ interface Notification {
   type: 'info' | 'success' | 'warning' | 'error';
   read: boolean;
   createdAt: string;
+  /** Tıklanınca gidilecek yol (ör. /degisiklikler). */
+  link?: string | null;
 }
 
 interface UIState {
@@ -23,18 +30,14 @@ interface UIState {
   toggleMobileMenu: () => void;
   setCookieConsent: (value: boolean) => void;
   addNotification: (n: Omit<Notification, 'id' | 'read' | 'createdAt'>) => void;
+  /** Sunucudan (my_notifications view'ı) tazeler. */
+  loadNotifications: () => Promise<void>;
+  notificationsLoading: boolean;
   markRead: (id: string) => void;
   markAllRead: () => void;
   toggleNotificationPanel: () => void;
   unreadCount: () => number;
 }
-
-const initialNotifications: Notification[] = [
-  { id: '1', title: 'BOM Dışa Aktarıldı', message: 'The Grand Bistro - L3 projesi için BOM başarıyla dışa aktarıldı.', type: 'success', read: false, createdAt: '2024-05-20T10:00:00' },
-  { id: '2', title: 'Revizyon Kaydedildi', message: 'Riverside Hotel Kitchen v2.4 revizyonu kaydedildi.', type: 'info', read: false, createdAt: '2024-05-20T07:00:00' },
-  { id: '3', title: 'Yeni Ekipman', message: 'Vulcan VC4G Gas Oven kataloğa eklendi.', type: 'info', read: true, createdAt: '2024-05-19T15:00:00' },
-  { id: '4', title: 'Stok Uyarısı', message: 'Walk-in Soğutucu Modül stokta kalmadı.', type: 'warning', read: false, createdAt: '2024-05-19T09:00:00' },
-];
 
 export const useUIStore = create<UIState>()(
   persist(
@@ -42,7 +45,9 @@ export const useUIStore = create<UIState>()(
       sidebarOpen: true,
       mobileMenuOpen: false,
       cookieConsent: null,
-      notifications: initialNotifications,
+      // Kaynak sunucu (notifications tablosu). Sabit demo kayıtları kaldırıldı.
+      notifications: [],
+      notificationsLoading: false,
       notificationPanelOpen: false,
       showPromoProducts: true,
       setShowPromoProducts: (v) => set({ showPromoProducts: v }),
@@ -60,16 +65,36 @@ export const useUIStore = create<UIState>()(
         }));
       },
 
+      loadNotifications: async () => {
+        set({ notificationsLoading: true });
+        const rows = await fetchNotifications();
+        set({
+          notifications: rows.map((n) => ({
+            id: n.id,
+            title: n.title,
+            message: n.message || '',
+            type: n.type,
+            read: n.read,
+            createdAt: n.created_at,
+            link: n.link,
+          })),
+          notificationsLoading: false,
+        });
+      },
+
+      // Okundu bilgisi sunucuda tutulur; ekranı hemen güncelleyip arkadan yazıyoruz.
       markRead: (id) => {
         set((state) => ({
           notifications: state.notifications.map((n) => (n.id === id ? { ...n, read: true } : n)),
         }));
+        void markNotificationRead(id);
       },
 
       markAllRead: () => {
         set((state) => ({
           notifications: state.notifications.map((n) => ({ ...n, read: true })),
         }));
+        void markAllNotificationsRead();
       },
 
       toggleNotificationPanel: () => set((s) => ({ notificationPanelOpen: !s.notificationPanelOpen })),
@@ -78,28 +103,32 @@ export const useUIStore = create<UIState>()(
     }),
     {
       name: '2mc-gastro-ui',
-      version: 1,
+      // v2: bildirimler artık sunucudan geliyor. v1'de sabit demo kayıtları
+      // localStorage'a yazılmıştı; migrate onları temizlemezse ekranda kalırlar.
+      version: 2,
+      migrate: (persisted, version) => {
+        const s = (persisted || {}) as Record<string, unknown>;
+        if (version < 2) delete s.notifications;
+        return s as never;
+      },
       partialize: (state) => ({
         cookieConsent: state.cookieConsent,
-        notifications: state.notifications,
         showPromoProducts: state.showPromoProducts,
       }),
     }
   )
 );
 
-// Sync notifications to Supabase
+// Kullanıcı tercihlerini Supabase'e yaz. Bildirimler ARTIK BURADAN GİTMİYOR:
+// sunucu üretiyor, gastro_user_prefs'e kopyalamak eski demo kayıtların geri
+// gelmesine yol açıyordu.
 useUIStore.subscribe((state) => {
-  debouncedSyncUserPrefs({
-    notifications: state.notifications,
-    cookieConsent: state.cookieConsent,
-  });
+  debouncedSyncUserPrefs({ cookieConsent: state.cookieConsent });
 });
 
 loadUserPrefs().then((remote) => {
   if (!remote) return;
-  const local = useUIStore.getState();
-  if (remote.notifications?.length > local.notifications.length) {
-    useUIStore.setState({ notifications: remote.notifications });
+  if (typeof remote.cookieConsent === 'boolean') {
+    useUIStore.setState({ cookieConsent: remote.cookieConsent });
   }
 });

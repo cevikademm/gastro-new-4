@@ -62,6 +62,7 @@ const BrandSeoPage = lazy(() => import('./pages/pseo/BrandPage'));
 const CompareIndexPage = lazy(() => import('./pages/compare/CompareIndexPage'));
 const CompareDetailPage = lazy(() => import('./pages/compare/CompareDetailPage'));
 const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
+const ChangelogPage = lazy(() => import('./pages/changelog/ChangelogPage'));
 const ApiKeysPage = lazy(() => import('./pages/account/ApiKeysPage'));
 const ApiDocsPage = lazy(() => import('./pages/developers/ApiDocsPage'));
 import LandingPage from './pages/landing/LandingPage';
@@ -169,6 +170,9 @@ export default function App() {
             <Route path="compare" element={<CompareIndexPage />} />
             <Route path="compare/:slug" element={<CompareDetailPage />} />
             <Route path="resources" element={<ResourcesPage />} />
+            {/* Neler Düzeldi — otomatik düzeltme ajanının yayınladığı changelog */}
+            <Route path="degisiklikler" element={<ChangelogPage />} />
+            <Route path="changelog" element={<Navigate to="/degisiklikler" replace />} />
 
             {/* Developer API: self-service keys + interactive docs */}
             <Route path="account/api-keys" element={<ApiKeysPage />} />

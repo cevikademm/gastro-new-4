@@ -58,11 +58,16 @@ export interface CatalogEntry {
 // Yeni GLB eklemek: dosyayı `public/models/`'a koy, `glbManifest.ts`'e bir
 // satır ekle. Bu modül otomatik olarak `EQUIPMENT_CATALOG`'u günceller.
 
+// `name` bir GETTER'dır: modül yüklenirken donmuş bir çeviri yerine okuma
+// anında çözümlenir — dil değişince güncel adı döndürür, anahtar eksikse
+// labelFallback (TR) gösterir.
 export const EQUIPMENT_CATALOG: ReadonlyArray<CatalogEntry> = GLB_MANIFEST
   .filter((m) => m.isEquipment !== false)
   .map((m): CatalogEntry => ({
     id: m.productId ?? `glb-${m.filename.replace(/\.glb$/i, '')}`,
-    name: i18n.t(m.labelKey),
+    get name() {
+      return i18n.t(m.labelKey, { defaultValue: m.labelFallback });
+    },
     category: m.category,
     dimensionsMm: m.dimensionsMm ?? { width: 800, depth: 700, height: 900 },
     glbUrl: m.url,
@@ -117,7 +122,7 @@ export function getCatalogEntry(id: string): CatalogEntry | undefined {
   if (!fromManifest) return undefined;
   return {
     id,
-    name: i18n.t(fromManifest.labelKey),
+    name: i18n.t(fromManifest.labelKey, { defaultValue: fromManifest.labelFallback }),
     category: fromManifest.category,
     dimensionsMm: fromManifest.dimensionsMm ?? { width: 800, depth: 700, height: 900 },
     glbUrl: fromManifest.url,

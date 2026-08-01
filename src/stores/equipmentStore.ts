@@ -43,10 +43,12 @@ export interface EquipmentCategory {
 
 // name alanı GETTER'dır: dil değişince (i18n.changeLanguage) UI'da etiket
 // otomatik güncellenir. Kategori ID'leri sabit kalır; yalnızca gösterilen
-// etiket i18n'den okuma anında çözümlenir.
+// etiket i18n'den okuma anında çözümlenir. `fallback` (TR kaynak etiket),
+// çeviri anahtarı eksik dillerde ham anahtar yerine gösterilir.
 function makeCategory(
   id: string,
   nameKey: string,
+  fallback: string,
   icon: string,
   color: string,
 ): EquipmentCategory {
@@ -57,28 +59,28 @@ function makeCategory(
     color,
     count: 0,
     get name() {
-      return i18n.t(nameKey);
+      return i18n.t(nameKey, { defaultValue: fallback });
     },
   };
 }
 
 export const CATEGORIES: EquipmentCategory[] = [
-  makeCategory('cooking', 'categoryTaxonomy.cooking', 'flame', '#ef4444'),
-  makeCategory('cooling', 'categoryTaxonomy.cooling', 'refrigerator', '#3b82f6'),
-  makeCategory('dishwash', 'categoryTaxonomy.dishwash', 'droplets', '#06b6d4'),
-  makeCategory('prep_hygiene', 'categoryTaxonomy.prep_hygiene', 'table', '#6b7280'),
-  makeCategory('self_service', 'categoryTaxonomy.self_service', 'table', '#f59e0b'),
-  makeCategory('pizza_pasta', 'categoryTaxonomy.pizza_pasta', 'flame', '#dc2626'),
-  makeCategory('dynamic_prep', 'categoryTaxonomy.dynamic_prep', 'microwave', '#8b5cf6'),
-  makeCategory('cook_chill', 'categoryTaxonomy.cook_chill', 'microwave', '#10b981'),
-  makeCategory('ventilation', 'categoryTaxonomy.ventilation', 'waves', '#64748b'),
-  makeCategory('bakery', 'categoryTaxonomy.bakery', 'microwave', '#d97706'),
-  makeCategory('trolley_gn', 'categoryTaxonomy.trolley_gn', 'table', '#78716c'),
-  makeCategory('coffee_tea', 'categoryTaxonomy.coffee_tea', 'droplets', '#92400e'),
-  makeCategory('laundry', 'categoryTaxonomy.laundry', 'waves', '#7c3aed'),
-  makeCategory('ice_cream', 'categoryTaxonomy.ice_cream', 'refrigerator', '#ec4899'),
-  makeCategory('hospitality', 'categoryTaxonomy.hospitality', 'waves', '#0891b2'),
-  makeCategory('cleaning_products', 'categoryTaxonomy.cleaning_products', 'droplets', '#059669'),
+  makeCategory('cooking', 'categoryTaxonomy.cooking', 'Pişirme', 'flame', '#ef4444'),
+  makeCategory('cooling', 'categoryTaxonomy.cooling', 'Soğutma', 'refrigerator', '#3b82f6'),
+  makeCategory('dishwash', 'categoryTaxonomy.dishwash', 'Bulaşık Yıkama', 'droplets', '#06b6d4'),
+  makeCategory('prep_hygiene', 'categoryTaxonomy.prep_hygiene', 'Hazırlık & Hijyen', 'table', '#6b7280'),
+  makeCategory('self_service', 'categoryTaxonomy.self_service', 'Self Servis & Büfe', 'table', '#f59e0b'),
+  makeCategory('pizza_pasta', 'categoryTaxonomy.pizza_pasta', 'Pizza & Pasta', 'flame', '#dc2626'),
+  makeCategory('dynamic_prep', 'categoryTaxonomy.dynamic_prep', 'Dinamik Hazırlık', 'microwave', '#8b5cf6'),
+  makeCategory('cook_chill', 'categoryTaxonomy.cook_chill', 'Pişir & Soğut', 'microwave', '#10b981'),
+  makeCategory('ventilation', 'categoryTaxonomy.ventilation', 'Havalandırma', 'waves', '#64748b'),
+  makeCategory('bakery', 'categoryTaxonomy.bakery', 'Pastane & Fırıncılık', 'microwave', '#d97706'),
+  makeCategory('trolley_gn', 'categoryTaxonomy.trolley_gn', 'Araçlar & GN Kaplar', 'table', '#78716c'),
+  makeCategory('coffee_tea', 'categoryTaxonomy.coffee_tea', 'Kahve & Çay', 'droplets', '#92400e'),
+  makeCategory('laundry', 'categoryTaxonomy.laundry', 'Çamaşırhane', 'waves', '#7c3aed'),
+  makeCategory('ice_cream', 'categoryTaxonomy.ice_cream', 'Dondurma', 'refrigerator', '#ec4899'),
+  makeCategory('hospitality', 'categoryTaxonomy.hospitality', 'Konaklama & Temizlik', 'waves', '#0891b2'),
+  makeCategory('cleaning_products', 'categoryTaxonomy.cleaning_products', 'Temizlik Ürünleri', 'droplets', '#059669'),
 ];
 
 // Count products per category — taksonomi çözümlemesine göre (Diamond ham cat +

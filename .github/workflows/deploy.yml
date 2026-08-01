@@ -52,6 +52,69 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      # ─── KAPI 1: tip kontrolü ────────────────────────────────────────
+      # Otomatik düzeltme ajanı doğrudan main'e commit ediyor.
+      #
+      # DİKKAT — bu kapı dağıtımı DURDURMAZ: prod dağıtımları Vercel'in
+      # yerleşik git entegrasyonundan geliyor (deployment metadata'sında
+      # branchAlias/repoPushedAt olanlar), bu workflow'dan değil. Yani burada
+      # kırmızı görmek "canlıya çıkmadı" demek değil; yalnızca yüksek sesle
+      # uyarır. Dağıtımı gerçekten kapıya bağlamak için Vercel panelinden
+      # Settings → Git → "Production Branch auto-deploy" kapatılmalı.
+      #
+      # Ajanın asıl engelleri: (1) kendi commit-öncesi kapıları,
+      # (2) record_fix_result sunucu doğrulaması — kapsam ihlalinde changelog
+      # yayınlanmaz ve admin'e bildirim düşer, (3) hata tekrar ederse
+      # otomatik git revert.
+      - name: Typecheck (tsc --noEmit)
+        run: npm run lint
+
+      # ─── KAPI 2: ajan commit'lerinde kapsam ve boyut ──────────────────
+      # Yalnızca "fix(auto):" ile başlayan commit'lere uygulanır; insan
+      # commit'leri etkilenmez.
+      - name: Agent commit guard
+        if: github.event_name == 'push'
+        run: |
+          MSG=$(git log -1 --pretty=%s)
+          case "$MSG" in
+            "fix(auto):"*) ;;
+            *) echo "Ajan commit'i değil, kapı atlandı."; exit 0 ;;
+          esac
+
+          echo "Ajan commit'i tespit edildi — kapsam ve boyut denetleniyor."
+          BEFORE="${{ github.event.before }}"
+          if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            BEFORE=$(git rev-parse HEAD~1)
+          fi
+
+          FILES=$(git diff --name-only "$BEFORE" "${{ github.sha }}")
+          echo "Değişen dosyalar:"; echo "$FILES"
+
+          # Kapsam: her yol src/ altında olmalı.
+          OUT=$(echo "$FILES" | grep -v '^src/' || true)
+          if [ -n "$OUT" ]; then
+            echo "::error::Ajan kapsam dışına çıktı: $OUT"
+            exit 1
+          fi
+
+          # Yasak yollar (ödeme, kimlik, güvenlik, rota tablosu, i18n).
+          DENY=$(echo "$FILES" | grep -E '^src/(App|main)\.tsx$|^src/i18n/|^src/lib/(supabase|security|csrf|secure-storage|payment|stripe|b2b-payments)\.ts$|^src/components/AdminGuard\.tsx$' || true)
+          if [ -n "$DENY" ]; then
+            echo "::error::Ajan yasaklı dosyaya dokundu: $DENY"
+            exit 1
+          fi
+
+          # Boyut kapağı.
+          COUNT=$(echo "$FILES" | grep -c . || true)
+          LINES=$(git diff --shortstat "$BEFORE" "${{ github.sha }}" | grep -oE '[0-9]+ (insertion|deletion)' | grep -oE '[0-9]+' | paste -sd+ - | bc)
+          LINES=${LINES:-0}
+          echo "Dosya: $COUNT · Satır: $LINES"
+          if [ "$COUNT" -gt 8 ] || [ "$LINES" -gt 400 ]; then
+            echo "::error::Ajan boyut sınırını aştı ($COUNT dosya, $LINES satır)"
+            exit 1
+          fi
+          echo "Kapı geçildi."
+
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
@@ -83,6 +146,27 @@ jobs:
           URL=$(vercel deploy --prebuilt ${{ steps.target.outputs.flag }} --token=${{ secrets.VERCEL_TOKEN }})
           echo "url=$URL" >> "$GITHUB_OUTPUT"
           echo "Deployed: $URL"
+
+      # Dağıtım tamamlandığını fix-agent'a bildir: changelog yayınlanır,
+      # bildirime düşer, hatayı bildirene e-posta gider.
+      # Başarısız olsa bile deploy raporunu bozmasın (housekeeping 45 dk sonra
+      # zaten committed → deployed terfisini yapıyor).
+      - name: Notify fix-agent
+        if: always() && steps.deploy.outcome == 'success' && steps.target.outputs.label == 'production'
+        continue-on-error: true
+        env:
+          FIX_AGENT_URL: ${{ vars.FIX_AGENT_URL }}
+          FIX_AGENT_SECRET: ${{ secrets.FIX_AGENT_SECRET }}
+        run: |
+          if [ -z "$FIX_AGENT_URL" ] || [ -z "$FIX_AGENT_SECRET" ]; then
+            echo "fix-agent yapılandırılmamış, bildirim atlandı."
+            exit 0
+          fi
+          curl -sS -X POST "$FIX_AGENT_URL" \
+            -H "Content-Type: application/json" \
+            -H "x-agent-secret: $FIX_AGENT_SECRET" \
+            -d "{\"action\":\"deployed\",\"commit_sha\":\"${{ github.sha }}\",\"deploy_url\":\"${{ steps.deploy.outputs.url }}\",\"source\":\"github-actions\"}" \
+            || echo "Bildirim gönderilemedi (yoksayıldı)."
 
       - name: Summary
         run: |
