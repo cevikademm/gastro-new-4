@@ -51,6 +51,8 @@ const BlogAdminPage = lazy(() => import('./pages/admin/BlogAdminPage'));
 const WelcomeOrderPage = lazy(() => import('./pages/admin/WelcomeOrderPage'));
 const CustomerFinderPage = lazy(() => import('./pages/admin/CustomerFinderPage'));
 const ErrorReportsPage = lazy(() => import('./pages/admin/ErrorReportsPage'));
+// Hata Bildir FAB — lazy: html2canvas-pro ağır, yalnızca admin girişinde insin.
+const ErrorReportWidget = lazy(() => import('./components/ErrorReportWidget'));
 const BlogListPage = lazy(() => import('./pages/blog/BlogListPage'));
 const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'));
 const KitchenCalculatorPage = lazy(() => import('./pages/tools/KitchenCalculatorPage'));
@@ -82,6 +84,8 @@ function RouteFallback() {
 
 export default function App() {
   const checkSession = useAuthStore((s) => s.checkSession);
+  // Hata Bildir FAB'ı her rotada göstermek için gereken tek bilgi.
+  const isAdmin = useAuthStore((s) => s.user?.role === 'admin');
 
   useEffect(() => {
     checkSession();
@@ -194,6 +198,13 @@ export default function App() {
       <ComparePanel />
       {/* Tek standart ürün detay kartı — mağaza + katalog ortak (sağdan kayan panel) */}
       <ProductDetailDrawer />
+      {/* Hata Bildir FAB — Layout'ta değil burada: ana sayfa, mağaza, blog gibi
+          Layout dışı rotalarda da çıksın. Admin değilse chunk hiç indirilmez. */}
+      {isAdmin && (
+        <Suspense fallback={null}>
+          <ErrorReportWidget />
+        </Suspense>
+      )}
       <CookieBanner />
     </BrowserRouter>
   );

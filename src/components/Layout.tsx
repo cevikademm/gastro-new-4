@@ -16,7 +16,6 @@ import {
   SlidersHorizontal, HelpCircle, BookOpen, PlusCircle,
   Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Box, Boxes, Package, Palette, Shield, Users, FileText, Bug, Sparkles
 } from 'lucide-react';
-import ErrorReportWidget from './ErrorReportWidget';
 // NOTE: "Manuel çizim" (legacy DesignStudio manualMode) kaldırıldı — kat planı artık 3D Design bölümünde.
 
 const ADMIN_ITEMS = [
@@ -444,9 +443,8 @@ export default function Layout() {
 
       {/* Global Cart Drawer */}
       <CartDrawer open={isCartOpen} onClose={() => setIsCartOpen(false)} />
-
-      {/* Admin-only: Hata Bildir FAB (kendi içinde role kontrolü yapar) */}
-      <ErrorReportWidget />
+      {/* Not: Hata Bildir FAB artık App kökünde global mount ediliyor —
+          ana sayfa/mağaza gibi Layout dışı rotalarda da görünsün diye. */}
     </div>
   );
 }
