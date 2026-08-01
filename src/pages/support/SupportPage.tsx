@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send, HelpCircle, ChevronDown, ChevronUp, MessageSquare, Phone, Mail } from 'lucide-react';
+import { Send, HelpCircle, ChevronDown, ChevronUp, MessageSquare, Phone, Mail, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { useAuthStore } from '../../stores/authStore';
+
+// Destek biletlerinin gittiği kutu. Alıcıyı edge function sunucu tarafında
+// sabitler (SUPPORT_INBOX); buradaki değer yalnızca hata durumundaki
+// mailto yedeği ve ekranda gösterim içindir.
+const SUPPORT_INBOX = 'info@2mcgastro.de';
 
 const faqData = [
   { qKey: 'faq.q1', aKey: 'faq.a1' },
@@ -12,17 +19,56 @@ const faqData = [
 
 export default function SupportPage() {
   const { t } = useTranslation();
+  const user = useAuthStore((s) => s.user);
   const [form, setForm] = useState({ subject: '', message: '', priority: 'medium' });
   const [submitted, setSubmitted] = useState(false);
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState('');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  /**
+   * Bileti send-email edge function'ı üzerinden info@2mcgastro.de'ye yollar.
+   * Alıcıyı function sabitler; yanıtla adresi bileti açan kullanıcıdır.
+   * Gönderim başarısızsa form KORUNUR ve mailto yedeği sunulur — eskiden
+   * hiçbir şey gönderilmeden "başarıyla oluşturuldu" yazılıyordu.
+   */
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.subject || !form.message) return;
-    setSubmitted(true);
-    setForm({ subject: '', message: '', priority: 'medium' });
-    setTimeout(() => setSubmitted(false), 3000);
+    if (!form.subject.trim() || !form.message.trim() || sending) return;
+    setSending(true);
+    setError('');
+    try {
+      if (!supabase) throw new Error('Supabase yapılandırılmamış.');
+      const { data, error: fnError } = await supabase.functions.invoke('send-email', {
+        body: {
+          template: 'support-ticket',
+          to: SUPPORT_INBOX,
+          replyTo: user?.email || undefined,
+          data: {
+            subject: form.subject.trim(),
+            message: form.message.trim(),
+            priority: form.priority,
+            reporterName: user?.fullName || user?.email || '',
+            reporterEmail: user?.email || '',
+            reporterCompany: user?.company || '',
+          },
+        },
+      });
+      if (fnError) throw new Error(fnError.message);
+      if (data?.error) throw new Error(String(data.error));
+
+      setSubmitted(true);
+      setForm({ subject: '', message: '', priority: 'medium' });
+      setTimeout(() => setSubmitted(false), 5000);
+    } catch (err) {
+      setError((err as Error)?.message || t('support.sendFailed'));
+    } finally {
+      setSending(false);
+    }
   };
+
+  // Gönderim başarısızsa kullanıcı yazdığını kaybetmesin — hazır mailto.
+  const mailtoFallback = `mailto:${SUPPORT_INBOX}?subject=${encodeURIComponent(form.subject)}&body=${encodeURIComponent(form.message)}`;
 
   return (
     <div className="max-w-5xl mx-auto w-full space-y-8 py-8 px-4 sm:px-6">
@@ -43,6 +89,16 @@ export default function SupportPage() {
               <div className="bg-success-container text-success px-4 py-3 rounded-lg mb-4 text-sm font-medium border border-success/20">{t('support.ticketSubmitted')}</div>
             )}
 
+            {error && (
+              <div className="bg-error-container text-error px-4 py-3 rounded-lg mb-4 text-sm border border-error/20">
+                <p className="font-semibold">{t('support.sendFailed')}</p>
+                <p className="mt-1 opacity-80 break-words">{error}</p>
+                <a href={mailtoFallback} className="inline-block mt-2 font-bold underline">
+                  {SUPPORT_INBOX}
+                </a>
+              </div>
+            )}
+
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
                 <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.18em] mb-2">{t('support.subject')}</label>
@@ -61,8 +117,13 @@ export default function SupportPage() {
                 <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-[0.18em] mb-2">{t('support.message')}</label>
                 <textarea value={form.message} onChange={(e) => setForm({ ...form, message: e.target.value })} rows={5} required className="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg py-3 px-4 text-sm text-on-surface focus:bg-surface-container-lowest focus:border-primary/40 focus:ring-2 focus:ring-primary/15 outline-none resize-none transition-colors" />
               </div>
-              <button type="submit" className="inline-flex items-center gap-2 brushed-metal text-white px-7 py-3.5 rounded-xl font-bold shadow-lg text-sm">
-                <Send size={16} /> {t('support.send')}
+              <button
+                type="submit"
+                disabled={sending}
+                className="inline-flex items-center gap-2 brushed-metal text-white px-7 py-3.5 rounded-xl font-bold shadow-lg text-sm disabled:opacity-70 disabled:cursor-wait"
+              >
+                {sending ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                {sending ? t('support.sending') : t('support.send')}
               </button>
             </form>
           </div>
@@ -97,8 +158,8 @@ export default function SupportPage() {
             <h3 className="font-headline font-bold text-lg mb-1">{t('support.contactUs')}</h3>
             <p className="text-white/60 text-xs mb-5 leading-relaxed">{t('support.businessHours')}</p>
             <div className="space-y-3 text-sm border-t border-white/10 pt-4">
-              <a href="mailto:support@2mcgastro.com" className="flex items-center gap-3 text-white/85 hover:text-white transition-colors">
-                <Mail size={14} className="text-[var(--c-clay-soft)]" /> support@2mcgastro.com
+              <a href="mailto:info@2mcgastro.de" className="flex items-center gap-3 text-white/85 hover:text-white transition-colors">
+                <Mail size={14} className="text-[var(--c-clay-soft)]" /> info@2mcgastro.de
               </a>
               <a href="tel:+493012345678" className="flex items-center gap-3 text-white/85 hover:text-white transition-colors">
                 <Phone size={14} className="text-[var(--c-clay-soft)]" /> +49 30 123 456 78

@@ -1340,6 +1340,8 @@
     "critical": "Krytyczny",
     "send": "Wyślij",
     "ticketSubmitted": "Zgłoszenie wysłane",
+    "sending": "Wysyłanie…",
+    "sendFailed": "Nie udało się wysłać zgłoszenia. Napisz do nas bezpośrednio:",
     "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."

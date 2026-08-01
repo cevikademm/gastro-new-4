@@ -1340,6 +1340,8 @@
     "critical": "Critică",
     "send": "Trimite",
     "ticketSubmitted": "Tichet trimis",
+    "sending": "Se trimite…",
+    "sendFailed": "Tichetul nu a putut fi trimis. Scrieți-ne direct:",
     "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."

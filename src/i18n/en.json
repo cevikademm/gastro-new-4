@@ -592,6 +592,74 @@
     "changelog": "What's Fixed"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — About Us",
+      "badge": "About Us",
+      "heroTitle": "The trusted partner for professional kitchens",
+      "heroSubtitle": "2MC Gastro provides commercial kitchen equipment, smart planning tools and end-to-end project support to gastronomy professionals — from restaurants and hotels to cafés and large-scale catering facilities.",
+      "ctaShop": "Explore Products",
+      "ctaDesign": "3D Kitchen Planner",
+      "stats": {
+        "products": { "value": "14,000+", "label": "Products" },
+        "brands": { "value": "3", "label": "International brands" },
+        "languages": { "value": "15", "label": "Languages supported" },
+        "planning": { "value": "2D & 3D", "label": "Kitchen design studio" }
+      },
+      "story": {
+        "title": "Who We Are",
+        "p1": "2MC Gastro is a Germany-based supplier of commercial kitchen equipment. With a team that knows the gastronomy industry inside out, we aim to deliver the right equipment at the right price — whatever the size of your business.",
+        "p2": "What sets us apart is an approach that goes beyond selling: we manage the entire journey from product selection to kitchen layout, from quotation to delivery. With our 2D and 3D kitchen design studio you can see your kitchen before it is built and place your equipment at true scale.",
+        "p3": "We bring together more than 14,000 products from leading European brands such as Diamond, CombiSteel and HENDI under one roof — and with our digital catalog, instant quotation system and a platform available in 15 languages, we make purchasing transparent and fast."
+      },
+      "mission": {
+        "title": "Our Mission",
+        "text": "To take the complexity out of building a professional kitchen and turn it into a transparent, enjoyable experience that every business can access — with the right equipment, smart planning and honest pricing."
+      },
+      "vision": {
+        "title": "Our Vision",
+        "text": "To become Europe's first-choice digital partner for gastronomy equipment — redefining the standard of kitchen planning by combining technology with deep industry knowledge."
+      },
+      "values": {
+        "title": "Our Values",
+        "subtitle": "The principles that guide us in every project",
+        "quality": { "title": "Quality", "text": "We only work with proven, durable and certified equipment. We stand behind every product we sell." },
+        "trust": { "title": "Transparency", "text": "Clear prices, clear delivery times, clear communication. Surprise costs and vague promises are not our style." },
+        "technology": { "title": "Technology", "text": "From 3D kitchen design to instant PDF quotes — we digitalize our processes to save you time and money." },
+        "partnership": { "title": "Partnership", "text": "We see ourselves as a solution partner, not just a supplier. We stay at your side long after your kitchen opens." }
+      },
+      "services": {
+        "title": "What We Do",
+        "subtitle": "Everything under one roof — from equipment selection to your kitchen's opening day",
+        "supply": { "title": "Equipment Supply", "text": "More than 14,000 commercial kitchen products, from cooking to refrigeration, warewashing to preparation — through our reliable supply chain." },
+        "design": { "title": "2D & 3D Kitchen Design", "text": "Draw your kitchen, add doors and windows, place equipment at true scale and walk through it in 3D. Your design stays in sync with your projects automatically." },
+        "quote": { "title": "Quotes & Project Management", "text": "Create a professional PDF quote from your cart or project in minutes, and track revisions in one place." },
+        "delivery": { "title": "Delivery & Support", "text": "Planned delivery from order to installation — and fast support for your questions afterwards." }
+      },
+      "brands": {
+        "title": "Our Brands",
+        "subtitle": "We work with Europe's leading manufacturers",
+        "diamond": "A strong European name in professional cooking and refrigeration lines",
+        "combisteel": "The address for price-performance with a wide product range",
+        "hendi": "The global standard in smallwares and kitchen utensils"
+      },
+      "identity": {
+        "title": "Our Brand Identity",
+        "subtitle": "The logo and colors that represent 2MC Gastro",
+        "mainLogo": "Main Logo",
+        "icon": "Icon / Favicon",
+        "colorsTitle": "Brand Colors",
+        "colorRed": "2MC Red",
+        "colorDark": "Dark Anthracite",
+        "colorLight": "Light Background",
+        "colorText": "Text Color"
+      },
+      "cta": {
+        "title": "Let's plan your kitchen together",
+        "text": "Get a free quote for your project, or start drawing your kitchen in the 3D studio right away.",
+        "contact": "Contact Us",
+        "design": "Open 3D Studio"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Professional Kitchen Planning",
     "studioVersion": "Studio v1.0",
@@ -1342,6 +1410,8 @@
     "critical": "Critical",
     "send": "Send",
     "ticketSubmitted": "Support ticket submitted successfully",
+    "sending": "Sending…",
+    "sendFailed": "The ticket could not be sent. Please email us directly:",
     "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."

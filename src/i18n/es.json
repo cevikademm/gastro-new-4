@@ -1340,6 +1340,8 @@
     "critical": "Crítica",
     "send": "Enviar",
     "ticketSubmitted": "Ticket de soporte enviado",
+    "sending": "Enviando…",
+    "sendFailed": "No se ha podido enviar el ticket. Escríbenos directamente:",
     "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."

@@ -1340,6 +1340,8 @@
     "critical": "Kritisk",
     "send": "Send",
     "ticketSubmitted": "Supportsag sendt",
+    "sending": "Sender…",
+    "sendFailed": "Sagen kunne ikke sendes. Skriv direkte til os:",
     "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."

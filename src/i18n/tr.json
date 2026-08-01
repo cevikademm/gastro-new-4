@@ -592,6 +592,74 @@
     "changelog": "Neler Düzeldi"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — Hakkımızda",
+      "badge": "Hakkımızda",
+      "heroTitle": "Profesyonel mutfakların güvenilir çözüm ortağı",
+      "heroSubtitle": "2MC Gastro; restoranlardan otellere, kafelerden toplu beslenme tesislerine kadar gastronomi profesyonellerine endüstriyel mutfak ekipmanları, akıllı planlama araçları ve uçtan uca proje desteği sunar.",
+      "ctaShop": "Ürünleri Keşfet",
+      "ctaDesign": "3D Mutfak Planlayıcı",
+      "stats": {
+        "products": { "value": "14.000+", "label": "Ürün çeşidi" },
+        "brands": { "value": "3", "label": "Uluslararası marka" },
+        "languages": { "value": "15", "label": "Dil desteği" },
+        "planning": { "value": "2D & 3D", "label": "Mutfak planlama stüdyosu" }
+      },
+      "story": {
+        "title": "Biz Kimiz?",
+        "p1": "2MC Gastro, Almanya merkezli bir endüstriyel mutfak ekipmanları tedarikçisidir. Gastronomi sektörünün ihtiyaçlarını yakından tanıyan ekibimizle, işletmenizin ölçeği ne olursa olsun doğru ekipmanı doğru fiyata sunmayı hedefliyoruz.",
+        "p2": "Bizi farklı kılan, satıştan öteye geçen yaklaşımımız: Ürün seçiminden mutfak yerleşim planına, tekliften teslimata kadar tüm süreci tek elden yönetiyoruz. 2D ve 3D mutfak tasarım stüdyomuzla mutfağınızı daha kurulmadan görebilir, ekipmanlarınızı gerçek ölçüleriyle yerleştirebilirsiniz.",
+        "p3": "Diamond, CombiSteel ve HENDI gibi Avrupa'nın önde gelen markalarının 14.000'den fazla ürününü tek çatı altında topluyor; dijital kataloğumuz, anında teklif sistemimiz ve 15 dilde hizmet veren platformumuzla satın alma sürecini şeffaf ve hızlı hale getiriyoruz."
+      },
+      "mission": {
+        "title": "Misyonumuz",
+        "text": "Profesyonel mutfak kurmayı karmaşık bir süreç olmaktan çıkarıp; doğru ekipman, akıllı planlama ve dürüst fiyatlandırmayla her işletmenin erişebileceği, şeffaf ve keyifli bir deneyime dönüştürmek."
+      },
+      "vision": {
+        "title": "Vizyonumuz",
+        "text": "Avrupa'da gastronomi ekipmanları denince akla gelen ilk dijital çözüm ortağı olmak; teknolojiyi ve sektör bilgimizi birleştirerek mutfak planlamanın standardını yeniden tanımlamak."
+      },
+      "values": {
+        "title": "Değerlerimiz",
+        "subtitle": "Her projede bize yön veren ilkeler",
+        "quality": { "title": "Kalite", "text": "Yalnızca kendini kanıtlamış, dayanıklı ve sertifikalı ekipmanlarla çalışırız. Sattığımız her ürünün arkasında dururuz." },
+        "trust": { "title": "Şeffaflık", "text": "Net fiyat, net teslimat süresi, net iletişim. Sürpriz maliyetler ve belirsiz vaatler bize göre değil." },
+        "technology": { "title": "Teknoloji", "text": "3D mutfak tasarımından anında PDF teklife — süreçlerimizi dijitalleştirerek size zaman ve maliyet kazandırırız." },
+        "partnership": { "title": "Ortaklık", "text": "Kendimizi tedarikçi değil, çözüm ortağı olarak görürüz. Mutfağınız açıldıktan sonra da yanınızdayız." }
+      },
+      "services": {
+        "title": "Neler Yapıyoruz?",
+        "subtitle": "Ekipman seçiminden mutfağınızın açılışına kadar tek çatı altında",
+        "supply": { "title": "Ekipman Tedariki", "text": "Pişirmeden soğutmaya, bulaşıktan hazırlığa 14.000'den fazla endüstriyel mutfak ekipmanı — güvenilir tedarik zincirimizden." },
+        "design": { "title": "2D & 3D Mutfak Tasarımı", "text": "Mutfağınızı çizin, kapı ve pencere ekleyin, ekipmanları gerçek ölçüleriyle yerleştirin ve 3D olarak gezin. Tasarımınız projelerinizle otomatik senkronize olur." },
+        "quote": { "title": "Teklif & Proje Yönetimi", "text": "Sepetinizden veya projenizden dakikalar içinde profesyonel PDF teklif oluşturun; revizyonları tek yerden takip edin." },
+        "delivery": { "title": "Teslimat & Destek", "text": "Siparişten kuruluma planlı teslimat, sonrasında da soru ve ihtiyaçlarınız için hızlı destek." }
+      },
+      "brands": {
+        "title": "Markalarımız",
+        "subtitle": "Avrupa'nın önde gelen üreticileriyle çalışıyoruz",
+        "diamond": "Profesyonel pişirme ve soğutma hatlarında Avrupa'nın güçlü markası",
+        "combisteel": "Geniş ürün gamıyla fiyat-performansın adresi",
+        "hendi": "Küçük ekipman ve mutfak gereçlerinde dünya standardı"
+      },
+      "identity": {
+        "title": "Marka Kimliğimiz",
+        "subtitle": "2MC Gastro'yu temsil eden logo ve renkler",
+        "mainLogo": "Ana Logo",
+        "icon": "İkon / Favicon",
+        "colorsTitle": "Marka Renkleri",
+        "colorRed": "2MC Kırmızısı",
+        "colorDark": "Koyu Antrasit",
+        "colorLight": "Açık Zemin",
+        "colorText": "Metin Rengi"
+      },
+      "cta": {
+        "title": "Mutfağınızı birlikte planlayalım",
+        "text": "Projeniz için ücretsiz teklif alın ya da 3D stüdyoda mutfağınızı hemen çizmeye başlayın.",
+        "contact": "İletişime Geç",
+        "design": "3D Stüdyoyu Aç"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Profesyonel Mutfak Planlama",
     "studioVersion": "Studio v1.0",
@@ -1342,6 +1410,8 @@
     "critical": "Kritik",
     "send": "Gönder",
     "ticketSubmitted": "Destek biletiniz başarıyla oluşturuldu",
+    "sending": "Gönderiliyor…",
+    "sendFailed": "Bilet gönderilemedi. Lütfen doğrudan e-posta ile ulaşın:",
     "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."

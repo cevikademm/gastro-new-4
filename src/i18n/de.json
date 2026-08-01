@@ -592,6 +592,74 @@
     "changelog": "Was behoben wurde"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — Über uns",
+      "badge": "Über uns",
+      "heroTitle": "Der verlässliche Partner für Profiküchen",
+      "heroSubtitle": "2MC Gastro bietet Gastronomie-Profis gewerbliche Küchentechnik, intelligente Planungswerkzeuge und Projektbegleitung aus einer Hand — vom Restaurant über das Hotel bis zur Gemeinschaftsverpflegung.",
+      "ctaShop": "Produkte entdecken",
+      "ctaDesign": "3D-Küchenplaner",
+      "stats": {
+        "products": { "value": "14.000+", "label": "Produkte" },
+        "brands": { "value": "3", "label": "Internationale Marken" },
+        "languages": { "value": "15", "label": "Sprachen" },
+        "planning": { "value": "2D & 3D", "label": "Küchenplanungs-Studio" }
+      },
+      "story": {
+        "title": "Wer wir sind",
+        "p1": "2MC Gastro ist ein in Deutschland ansässiger Anbieter für gewerbliche Küchentechnik. Mit einem Team, das die Gastronomie aus der Praxis kennt, liefern wir die passende Ausstattung zum fairen Preis — unabhängig von der Größe Ihres Betriebs.",
+        "p2": "Was uns unterscheidet, ist ein Ansatz, der über den Verkauf hinausgeht: Wir begleiten den gesamten Weg von der Produktauswahl über den Küchengrundriss bis zu Angebot und Lieferung. Mit unserem 2D- und 3D-Küchenstudio sehen Sie Ihre Küche, bevor sie gebaut ist, und platzieren Ihre Geräte maßstabsgetreu.",
+        "p3": "Wir bündeln über 14.000 Produkte führender europäischer Marken wie Diamond, CombiSteel und HENDI unter einem Dach — und machen den Einkauf mit digitalem Katalog, Sofort-Angebotssystem und einer Plattform in 15 Sprachen transparent und schnell."
+      },
+      "mission": {
+        "title": "Unsere Mission",
+        "text": "Den Aufbau einer Profiküche von einem komplizierten Prozess in ein transparentes, angenehmes Erlebnis zu verwandeln, das jedem Betrieb offensteht — mit der richtigen Technik, kluger Planung und ehrlichen Preisen."
+      },
+      "vision": {
+        "title": "Unsere Vision",
+        "text": "Europas erste Adresse für digitale Gastronomie-Ausstattung zu werden — und den Standard der Küchenplanung neu zu definieren, indem wir Technologie mit fundiertem Branchenwissen verbinden."
+      },
+      "values": {
+        "title": "Unsere Werte",
+        "subtitle": "Die Prinzipien, die uns in jedem Projekt leiten",
+        "quality": { "title": "Qualität", "text": "Wir arbeiten ausschließlich mit bewährter, langlebiger und zertifizierter Technik. Hinter jedem verkauften Produkt stehen wir voll und ganz." },
+        "trust": { "title": "Transparenz", "text": "Klare Preise, klare Lieferzeiten, klare Kommunikation. Überraschungskosten und vage Versprechen sind nicht unser Stil." },
+        "technology": { "title": "Technologie", "text": "Von der 3D-Küchenplanung bis zum sofortigen PDF-Angebot — wir digitalisieren unsere Prozesse und sparen Ihnen Zeit und Kosten." },
+        "partnership": { "title": "Partnerschaft", "text": "Wir verstehen uns als Lösungspartner, nicht nur als Lieferant. Auch nach der Eröffnung Ihrer Küche bleiben wir an Ihrer Seite." }
+      },
+      "services": {
+        "title": "Was wir tun",
+        "subtitle": "Alles aus einer Hand — von der Geräteauswahl bis zur Eröffnung Ihrer Küche",
+        "supply": { "title": "Gerätelieferung", "text": "Über 14.000 Produkte der gewerblichen Küchentechnik, vom Kochen übers Kühlen bis zu Spültechnik und Vorbereitung — über unsere zuverlässige Lieferkette." },
+        "design": { "title": "2D- & 3D-Küchenplanung", "text": "Zeichnen Sie Ihre Küche, fügen Sie Türen und Fenster hinzu, platzieren Sie Geräte maßstabsgetreu und begehen Sie alles in 3D. Ihre Planung bleibt automatisch mit Ihren Projekten synchron." },
+        "quote": { "title": "Angebote & Projektmanagement", "text": "Erstellen Sie in Minuten ein professionelles PDF-Angebot aus Warenkorb oder Projekt — und verfolgen Sie Revisionen an einem Ort." },
+        "delivery": { "title": "Lieferung & Support", "text": "Geplante Lieferung von der Bestellung bis zur Montage — und danach schneller Support für Ihre Fragen." }
+      },
+      "brands": {
+        "title": "Unsere Marken",
+        "subtitle": "Wir arbeiten mit Europas führenden Herstellern",
+        "diamond": "Eine starke europäische Marke für professionelle Koch- und Kühltechnik",
+        "combisteel": "Die Adresse für Preis-Leistung mit breitem Sortiment",
+        "hendi": "Der weltweite Standard bei Kleingeräten und Küchenhelfern"
+      },
+      "identity": {
+        "title": "Unsere Markenidentität",
+        "subtitle": "Logo und Farben, die 2MC Gastro repräsentieren",
+        "mainLogo": "Hauptlogo",
+        "icon": "Icon / Favicon",
+        "colorsTitle": "Markenfarben",
+        "colorRed": "2MC-Rot",
+        "colorDark": "Dunkles Anthrazit",
+        "colorLight": "Heller Hintergrund",
+        "colorText": "Textfarbe"
+      },
+      "cta": {
+        "title": "Planen wir Ihre Küche gemeinsam",
+        "text": "Holen Sie sich ein kostenloses Angebot für Ihr Projekt — oder beginnen Sie sofort, Ihre Küche im 3D-Studio zu zeichnen.",
+        "contact": "Kontakt aufnehmen",
+        "design": "3D-Studio öffnen"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Professionelle Küchenplanung",
     "studioVersion": "Studio v1.0",
@@ -1342,6 +1410,8 @@
     "critical": "Kritisch",
     "send": "Senden",
     "ticketSubmitted": "Support-Ticket erfolgreich erstellt",
+    "sending": "Wird gesendet…",
+    "sendFailed": "Das Ticket konnte nicht gesendet werden. Bitte schreiben Sie uns direkt:",
     "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."

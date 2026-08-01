@@ -25,13 +25,28 @@ const json = (data: unknown, status = 200) =>
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-type TemplateName = "order-confirmation" | "welcome" | "order-shipped" | "approval-granted" | "lead-followup" | "quote-ready" | "lead-magnet" | "cold-outreach" | "fix-deployed";
+type TemplateName = "order-confirmation" | "welcome" | "order-shipped" | "approval-granted" | "lead-followup" | "quote-ready" | "lead-magnet" | "cold-outreach" | "fix-deployed" | "support-ticket";
 
 interface Payload {
   template: TemplateName;
   to: string;
   data: Record<string, unknown>;
+  /** Yanıtla'nın gideceği adres (destek biletinde bileti açan kullanıcı). */
+  replyTo?: string;
 }
+
+// Destek biletlerinin sabit alıcısı. İstemciden gelen `to` bu şablonda
+// YOK SAYILIR — aksi halde function açık röle gibi kullanılabilirdi.
+const SUPPORT_INBOX = Deno.env.get("SUPPORT_INBOX") || "info@2mcgastro.de";
+
+// Kullanıcı girdisi HTML gövdeye gömülüyor — kaçırılmazsa e-posta içeriği
+// enjekte edilebilir.
+const esc = (s: unknown) =>
+  String(s ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
 
 // Minimal inline HTML templates. React Email + SSR is overkill inside an edge
 // function — we keep these as plain HTML strings and let the brand design shine
@@ -66,6 +81,51 @@ function render(template: TemplateName, data: Record<string, unknown>): { subjec
 </body></html>`;
 
   switch (template) {
+    // Destek sayfasındaki bilet formu → info@2mcgastro.de (SUPPORT_INBOX).
+    // Çağıran: src/pages/support/SupportPage.tsx
+    case "support-ticket": {
+      const PRIORITY: Record<string, { label: string; color: string }> = {
+        low: { label: "Düşük", color: "#16A34A" },
+        medium: { label: "Orta", color: "#F59E0B" },
+        high: { label: "Yüksek", color: "#EF4444" },
+        critical: { label: "Kritik", color: "#991B1B" },
+      };
+      const p = PRIORITY[String(data.priority || "medium")] || PRIORITY.medium;
+      const subject = esc(data.subject) || "(konu yok)";
+      const name = esc(data.reporterName) || "—";
+      const email = esc(data.reporterEmail) || "—";
+      const company = esc(data.reporterCompany);
+      const message = esc(data.message).replace(/\n/g, "<br/>");
+
+      const row = (k: string, v: string) =>
+        `<tr><td style="padding:4px 12px 4px 0;font-size:13px;color:${brand.onSurfaceVariant};white-space:nowrap">${k}</td>
+             <td style="padding:4px 0;font-size:13px;font-weight:600">${v}</td></tr>`;
+
+      return {
+        subject: `[Destek · ${p.label}] ${subject}`,
+        html: shell(
+          `<div style="margin:0 0 16px">
+             <span style="display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;
+                          background:${p.color}1a;color:${p.color};border:1px solid ${p.color}44">${p.label} öncelik</span>
+           </div>
+           <h1 style="margin:0 0 16px;font-size:21px;line-height:1.35">${subject}</h1>
+           <div style="margin:0 0 20px;padding:16px;background:${brand.surface};border-radius:12px;border:1px solid #e0e3e5">
+             <div style="font-size:12px;font-weight:700;color:${brand.onSurfaceVariant};text-transform:uppercase;letter-spacing:.4px;margin-bottom:8px">Mesaj</div>
+             <div style="font-size:15px;line-height:1.65">${message}</div>
+           </div>
+           <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 20px">
+             ${row("Gönderen", name)}
+             ${row("E-posta", `<a href="mailto:${email}" style="color:${brand.primary}">${email}</a>`)}
+             ${company ? row("Firma", company) : ""}
+           </table>
+           <p style="margin:0;font-size:13px;color:${brand.onSurfaceVariant}">
+             Bu e-postayı doğrudan yanıtlayabilirsiniz — yanıt ${email} adresine gider.
+           </p>`,
+          `${p.label} öncelikli destek bileti: ${subject}`,
+        ),
+      };
+    }
+
     // Bildirilen bir sorun düzeltilip canlıya alındığında bildirene gider.
     // Çağıran: supabase/functions/fix-agent (action:"deployed").
     // İÇERİK KURALI: commit sha, dosya adı, kişisel veri YAZILMAZ — bu metin
@@ -227,15 +287,20 @@ Deno.serve(async (req) => {
 
   try {
     const body = (await req.json()) as Payload;
-    if (!body.template || !body.to) return json({ error: "template and to are required" }, 400);
+    // Destek bileti alıcısını sunucu belirler; diğer şablonlarda `to` zorunlu.
+    const isTicket = body.template === "support-ticket";
+    if (!body.template || (!body.to && !isTicket)) {
+      return json({ error: "template and to are required" }, 400);
+    }
 
     const { subject, html } = render(body.template, body.data || {});
 
     const { data, error } = await resend.emails.send({
       from: FROM_EMAIL,
-      to: body.to,
+      to: isTicket ? SUPPORT_INBOX : body.to,
       subject,
       html,
+      ...(body.replyTo ? { reply_to: body.replyTo } : {}),
     });
 
     if (error) return json({ error: error.message }, 500);

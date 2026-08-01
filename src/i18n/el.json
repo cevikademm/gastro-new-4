@@ -1340,6 +1340,8 @@
     "critical": "Κρίσιμη",
     "send": "Αποστολή",
     "ticketSubmitted": "Το tiket υποβλήθηκε",
+    "sending": "Αποστολή…",
+    "sendFailed": "Δεν ήταν δυνατή η αποστολή του αιτήματος. Στείλτε μας email απευθείας:",
     "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
