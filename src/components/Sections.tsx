@@ -204,7 +204,7 @@ export function Footer() {
               </li>
               <li className="flex gap-4">
                 <Mail className="w-5 h-5 text-brand-red shrink-0" />
-                <span>info@2mcgastro.com</span>
+                <span>info@2mcgastro.de</span>
               </li>
             </ul>
           </div>

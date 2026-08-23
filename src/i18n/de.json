@@ -1095,7 +1095,7 @@
   "pending": {
     "title": "Ihr Konto wartet auf Genehmigung",
     "message": "Ihre Registrierung wurde erfolgreich empfangen. Sie können sich anmelden, sobald Ihr Konto von einem Administrator genehmigt wurde. Sie werden während des Genehmigungsprozesses per E-Mail benachrichtigt.",
-    "timeInfo": "Die Genehmigung wird normalerweise innerhalb von <strong>24 Stunden</strong> abgeschlossen. Bei Fragen können Sie an <strong>info@2mcgastro.com</strong> schreiben.",
+    "timeInfo": "Die Genehmigung wird normalerweise innerhalb von <strong>24 Stunden</strong> abgeschlossen. Bei Fragen können Sie an <strong>info@2mcgastro.de</strong> schreiben.",
     "backToLogin": "Zurück zur Anmeldeseite"
   },
   "dashboard": {
@@ -2496,6 +2496,7 @@
     "showProducts": "{{countFormatted}} Produkte anzeigen",
     "cartCta": "Mein Warenkorb ({{count}}) · Angebot anfragen",
     "noResultsHint": "Versuchen Sie eine andere Suche, Kategorie oder Preisspanne.",
+    "partialMatchHint": "Keine exakte Übereinstimmung für „{{query}}“ — es werden die ähnlichsten Ergebnisse angezeigt.",
     "clearFilters": "Filter löschen",
     "priceOnRequest": "Preis auf Anfrage",
     "priceViaQuote": "Preis auf Angebot",
@@ -2665,6 +2666,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Neu",
+      "arandi": "Angerufen",
+      "ilgilendi": "Interessiert",
+      "musteri": "Kunde",
+      "olumsuz": "Kein Interesse"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Nicht gesendet",
+      "gonderildi": "Gesendet",
+      "yanit_geldi": "Antwort erhalten"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Friseur",

@@ -590,6 +590,74 @@
     "changelog": "Co naprawiono"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — O nas",
+      "badge": "O nas",
+      "heroTitle": "Zaufany partner profesjonalnych kuchni",
+      "heroSubtitle": "2MC Gastro dostarcza profesjonalistom branży gastronomicznej wyposażenie kuchni przemysłowych, inteligentne narzędzia do planowania oraz kompleksowe wsparcie projektowe — od restauracji i hoteli po kawiarnie i duże obiekty cateringowe.",
+      "ctaShop": "Poznaj produkty",
+      "ctaDesign": "Planer kuchni 3D",
+      "stats": {
+        "products": { "value": "14 000+", "label": "Produktów" },
+        "brands": { "value": "3", "label": "Marek międzynarodowych" },
+        "languages": { "value": "15", "label": "Obsługiwanych języków" },
+        "planning": { "value": "2D & 3D", "label": "Studio projektowania kuchni" }
+      },
+      "story": {
+        "title": "Kim jesteśmy",
+        "p1": "2MC Gastro to dostawca wyposażenia dla kuchni profesjonalnych z siedzibą w Niemczech. Z zespołem, który doskonale zna specyfikę branży gastronomicznej, dostarczamy właściwy sprzęt w uczciwej cenie — niezależnie od wielkości Państwa działalności.",
+        "p2": "To, co nas wyróżnia, to podejście wykraczające poza sprzedaż: prowadzimy Państwa przez całą drogę, od wyboru produktu i rozplanowania kuchni po ofertę i dostawę. Dzięki naszemu studiu projektowania 2D i 3D zobaczą Państwo swoją kuchnię, zanim jeszcze powstanie, i rozmieszczą sprzęt w skali rzeczywistej.",
+        "p3": "Pod jednym dachem gromadzimy ponad 14 000 produktów wiodących europejskich marek, takich jak Diamond, CombiSteel i HENDI — a dzięki cyfrowemu katalogowi, natychmiastowemu systemowi ofertowania oraz platformie w 15 językach czynimy zakupy przejrzystymi i szybkimi."
+      },
+      "mission": {
+        "title": "Nasza misja",
+        "text": "Uwolnić proces tworzenia profesjonalnej kuchni od zbędnej złożoności i zamienić go w przejrzyste, przyjemne doświadczenie dostępne dla każdego przedsiębiorstwa — dzięki właściwemu sprzętowi, inteligentnemu planowaniu i uczciwym cenom."
+      },
+      "vision": {
+        "title": "Nasza wizja",
+        "text": "Zostać w Europie partnerem cyfrowym pierwszego wyboru w dziedzinie wyposażenia gastronomicznego — na nowo zdefiniować standard planowania kuchni, łącząc technologię z głęboką znajomością branży."
+      },
+      "values": {
+        "title": "Nasze wartości",
+        "subtitle": "Zasady, którymi kierujemy się w każdym projekcie",
+        "quality": { "title": "Jakość", "text": "Współpracujemy wyłącznie ze sprawdzonym, trwałym i certyfikowanym sprzętem. Za każdy sprzedany produkt bierzemy pełną odpowiedzialność." },
+        "trust": { "title": "Przejrzystość", "text": "Jasne ceny, jasne terminy dostaw, jasna komunikacja. Ukryte koszty i mgliste obietnice nie są w naszym stylu." },
+        "technology": { "title": "Technologia", "text": "Od projektowania kuchni w 3D po natychmiastową ofertę PDF — digitalizujemy nasze procesy, aby oszczędzić Państwa czas i pieniądze." },
+        "partnership": { "title": "Partnerstwo", "text": "Postrzegamy siebie jako partnera w rozwiązaniach, a nie tylko dostawcę. Jesteśmy przy Państwa boku również długo po otwarciu kuchni." }
+      },
+      "services": {
+        "title": "Czym się zajmujemy",
+        "subtitle": "Wszystko pod jednym dachem — od doboru sprzętu po dzień otwarcia Państwa kuchni",
+        "supply": { "title": "Dostawa wyposażenia", "text": "Ponad 14 000 produktów dla kuchni profesjonalnej — od gotowania i chłodzenia po zmywanie i obróbkę wstępną — za pośrednictwem naszego niezawodnego łańcucha dostaw." },
+        "design": { "title": "Projekt kuchni 2D & 3D", "text": "Narysują Państwo swoją kuchnię, dodadzą drzwi i okna, umieszczą sprzęt w skali rzeczywistej i zwiedzą całość w 3D. Projekt pozostaje automatycznie zsynchronizowany z Państwa dokumentami." },
+        "quote": { "title": "Oferty i zarządzanie projektem", "text": "W kilka minut utworzą Państwo profesjonalną ofertę PDF z koszyka lub projektu i będą śledzić rewizje w jednym miejscu." },
+        "delivery": { "title": "Dostawa i wsparcie", "text": "Zaplanowana dostawa od zamówienia do montażu — a następnie szybkie wsparcie w Państwa pytaniach." }
+      },
+      "brands": {
+        "title": "Nasze marki",
+        "subtitle": "Współpracujemy z czołowymi producentami w Europie",
+        "diamond": "Silna europejska marka w liniach profesjonalnego gotowania i chłodzenia",
+        "combisteel": "Adres najlepszego stosunku ceny do jakości z szerokim asortymentem",
+        "hendi": "Światowy standard w drobnym sprzęcie i akcesoriach kuchennych"
+      },
+      "identity": {
+        "title": "Nasza identyfikacja wizualna",
+        "subtitle": "Logo i kolory reprezentujące 2MC Gastro",
+        "mainLogo": "Logo główne",
+        "icon": "Ikona / Favicon",
+        "colorsTitle": "Kolory marki",
+        "colorRed": "Czerwień 2MC",
+        "colorDark": "Ciemny antracyt",
+        "colorLight": "Jasne tło",
+        "colorText": "Kolor tekstu"
+      },
+      "cta": {
+        "title": "Zaplanujmy Państwa kuchnię wspólnie",
+        "text": "Otrzymają Państwo bezpłatną ofertę na projekt lub od razu rozpoczną projektowanie kuchni w studiu 3D.",
+        "contact": "Skontaktuj się z nami",
+        "design": "Otwórz studio 3D"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Profesjonalne planowanie kuchni",
     "studioVersion": "Studio v1.0",
@@ -1025,7 +1093,7 @@
   "pending": {
     "title": "Konto oczekuje na zatwierdzenie",
     "message": "Twoja rejestracja została przyjęta. Będziesz mógł się zalogować po zatwierdzeniu konta przez administratora. O postępach powiadomimy Cię e-mailem.",
-    "timeInfo": "Zatwierdzenie zwykle trwa <strong>24 godziny</strong>. W razie pytań prosimy o kontakt: <strong>info@2mcgastro.com</strong>.",
+    "timeInfo": "Zatwierdzenie zwykle trwa <strong>24 godziny</strong>. W razie pytań prosimy o kontakt: <strong>info@2mcgastro.de</strong>.",
     "backToLogin": "Powrót do logowania"
   },
   "dashboard": {
@@ -2426,6 +2494,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "Brak dokładnego dopasowania dla „{{query}}” — pokazujemy najbliższe wyniki.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2595,6 +2664,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Nowy",
+      "arandi": "Wykonano telefon",
+      "ilgilendi": "Zainteresowany",
+      "musteri": "Klient",
+      "olumsuz": "Brak zainteresowania"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Nie wysłano",
+      "gonderildi": "Wysłano",
+      "yanit_geldi": "Otrzymano odpowiedź"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

@@ -476,7 +476,7 @@ function QuoteTab({ project, floorItems, designLines, onRemove }: { project: imp
         <div className="relative z-10 px-6 py-4 border-t border-slate-200 flex items-center justify-between bg-white">
           <div className="flex items-center gap-3">
             <img src="/logo-icon.png" alt="2MC" className="h-7 w-7 object-contain opacity-60" />
-            <span className="text-[10px] text-slate-400">2MC Gastro · info@2mcgastro.com</span>
+            <span className="text-[10px] text-slate-400">2MC Gastro · info@2mcgastro.de</span>
           </div>
           <div className="text-[10px] text-slate-400 text-right">
             {t('projects.footerValidity')}<br />{t('projects.footerPricesExclVat')}

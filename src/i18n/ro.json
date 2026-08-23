@@ -590,6 +590,74 @@
     "changelog": "Ce s-a reparat"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — Despre noi",
+      "badge": "Despre noi",
+      "heroTitle": "Partenerul de încredere al bucătăriilor profesionale",
+      "heroSubtitle": "2MC Gastro pune la dispoziția profesioniștilor din gastronomie echipamente pentru bucătării industriale, instrumente inteligente de planificare și asistență completă de proiect — de la restaurante și hoteluri la cafenele și unități mari de catering.",
+      "ctaShop": "Descoperă produsele",
+      "ctaDesign": "Planificator bucătărie 3D",
+      "stats": {
+        "products": { "value": "14.000+", "label": "Produse" },
+        "brands": { "value": "3", "label": "Mărci internaționale" },
+        "languages": { "value": "15", "label": "Limbi disponibile" },
+        "planning": { "value": "2D & 3D", "label": "Studio de design bucătării" }
+      },
+      "story": {
+        "title": "Cine suntem",
+        "p1": "2MC Gastro este un furnizor de echipamente pentru bucătării profesionale cu sediul în Germania. Cu o echipă care cunoaște în profunzime sectorul gastronomiei, livrăm echipamentul potrivit la prețul potrivit — indiferent de dimensiunea afacerii dumneavoastră.",
+        "p2": "Ceea ce ne diferențiază este o abordare care depășește simpla vânzare: gestionăm întregul parcurs, de la selecția produselor la planul bucătăriei, de la ofertă la livrare. Cu studioul nostru de design 2D și 3D vă vedeți bucătăria înainte de a fi construită și așezați echipamentele la scară reală.",
+        "p3": "Reunim sub același acoperiș peste 14.000 de produse ale unor mărci europene de top precum Diamond, CombiSteel și HENDI — iar prin catalogul digital, sistemul de ofertare instantanee și platforma disponibilă în 15 limbi facem procesul de achiziție transparent și rapid."
+      },
+      "mission": {
+        "title": "Misiunea noastră",
+        "text": "Să eliminăm complexitatea din procesul de construire a unei bucătării profesionale și să-l transformăm într-o experiență transparentă și plăcută, accesibilă oricărei afaceri — prin echipamentul potrivit, o planificare inteligentă și prețuri corecte."
+      },
+      "vision": {
+        "title": "Viziunea noastră",
+        "text": "Să devenim partenerul digital preferat al Europei pentru echipamentele de gastronomie — să redefinim standardul planificării bucătăriilor îmbinând tehnologia cu o cunoaștere profundă a industriei."
+      },
+      "values": {
+        "title": "Valorile noastre",
+        "subtitle": "Principiile care ne ghidează în fiecare proiect",
+        "quality": { "title": "Calitate", "text": "Lucrăm exclusiv cu echipamente verificate, durabile și certificate. Ne asumăm responsabilitatea pentru fiecare produs pe care îl vindem." },
+        "trust": { "title": "Transparență", "text": "Prețuri clare, termene de livrare clare, comunicare clară. Costurile-surpriză și promisiunile vagi nu sunt în stilul nostru." },
+        "technology": { "title": "Tehnologie", "text": "De la designul bucătăriei în 3D la oferta PDF instant — digitalizăm procesele pentru a vă economisi timp și bani." },
+        "partnership": { "title": "Parteneriat", "text": "Ne considerăm un partener de soluții, nu doar un furnizor. Rămânem alături de dumneavoastră și mult după deschiderea bucătăriei." }
+      },
+      "services": {
+        "title": "Ce facem",
+        "subtitle": "Totul sub același acoperiș — de la alegerea echipamentelor până la ziua deschiderii bucătăriei",
+        "supply": { "title": "Furnizare de echipamente", "text": "Peste 14.000 de produse pentru bucătăria profesională, de la gătit și refrigerare la spălare și pregătire — prin lanțul nostru de aprovizionare de încredere." },
+        "design": { "title": "Design bucătărie 2D & 3D", "text": "Desenați-vă bucătăria, adăugați uși și ferestre, poziționați echipamentele la scară reală și plimbați-vă prin ea în 3D. Designul rămâne automat sincronizat cu proiectele dumneavoastră." },
+        "quote": { "title": "Oferte și management de proiect", "text": "Creați într-un minut o ofertă PDF profesională din coș sau din proiect și urmăriți toate reviziile într-un singur loc." },
+        "delivery": { "title": "Livrare și asistență", "text": "Livrare planificată de la comandă la instalare — și asistență rapidă pentru întrebările ulterioare." }
+      },
+      "brands": {
+        "title": "Mărcile noastre",
+        "subtitle": "Colaborăm cu principalii producători din Europa",
+        "diamond": "Un nume european puternic în liniile profesionale de gătit și refrigerare",
+        "combisteel": "Adresa pentru raport preț-performanță cu o gamă largă de produse",
+        "hendi": "Standardul mondial în echipamente mici și ustensile de bucătărie"
+      },
+      "identity": {
+        "title": "Identitatea noastră de brand",
+        "subtitle": "Logoul și culorile care reprezintă 2MC Gastro",
+        "mainLogo": "Logo principal",
+        "icon": "Iconiță / Favicon",
+        "colorsTitle": "Culorile brandului",
+        "colorRed": "Roșu 2MC",
+        "colorDark": "Antracit închis",
+        "colorLight": "Fundal deschis",
+        "colorText": "Culoarea textului"
+      },
+      "cta": {
+        "title": "Să planificăm împreună bucătăria dumneavoastră",
+        "text": "Cereți o ofertă gratuită pentru proiectul dumneavoastră sau începeți chiar acum să desenați bucătăria în studioul 3D.",
+        "contact": "Contactați-ne",
+        "design": "Deschide studioul 3D"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Planificare profesională a bucătăriilor",
     "studioVersion": "Studio v1.0",
@@ -1025,7 +1093,7 @@
   "pending": {
     "title": "Contul dumneavoastră așteaptă aprobarea",
     "message": "Înregistrarea a fost primită. Veți putea să vă autentificați după ce contul este aprobat de un administrator. Veți fi notificat prin email pe parcursul procesului.",
-    "timeInfo": "Aprobarea este de obicei finalizată în <strong>24 de ore</strong>. Pentru întrebări, scrieți la <strong>info@2mcgastro.com</strong>.",
+    "timeInfo": "Aprobarea este de obicei finalizată în <strong>24 de ore</strong>. Pentru întrebări, scrieți la <strong>info@2mcgastro.de</strong>.",
     "backToLogin": "Înapoi la autentificare"
   },
   "dashboard": {
@@ -2426,6 +2494,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "Nicio potrivire exactă pentru „{{query}}” — afișăm cele mai apropiate rezultate.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2595,6 +2664,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Nou",
+      "arandi": "Sunat",
+      "ilgilendi": "Interesat",
+      "musteri": "Client",
+      "olumsuz": "Fără interes"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Netrimis",
+      "gonderildi": "Trimis",
+      "yanit_geldi": "Răspuns primit"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

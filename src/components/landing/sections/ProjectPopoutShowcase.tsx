@@ -33,7 +33,7 @@ export function ProjectPopoutHeroSlide() {
       <div className="lp-container absolute inset-0 grid grid-cols-[0.9fr_1.1fr] items-center gap-4 sm:gap-6 lg:grid-cols-[0.82fr_1.18fr]">
         <div className="relative z-20 max-w-[520px] pb-4 text-left text-[#0F2440]">
           <div className="mb-3 hidden w-fit rounded-xl border border-white/70 bg-white/78 px-3 py-2 shadow-[0_16px_36px_-28px_rgba(15,36,64,0.55)] backdrop-blur sm:block lg:mb-4">
-            <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-8 w-auto object-contain lg:h-10" />
+            <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-8 w-auto object-contain lg:h-10" />
           </div>
           <span className="mb-2 hidden items-center gap-2 text-[9px] font-black uppercase tracking-[0.26em] text-brand-red sm:inline-flex lg:mb-4 lg:text-[10px]">
             <span className="h-px w-7 bg-white" />

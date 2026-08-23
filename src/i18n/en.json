@@ -1095,7 +1095,7 @@
   "pending": {
     "title": "Your Account is Pending Approval",
     "message": "Your registration has been received successfully. You will be able to log in once your account is approved by an administrator. You will be notified by email during the approval process.",
-    "timeInfo": "Approval is usually completed within <strong>24 hours</strong>. For questions, you can write to <strong>info@2mcgastro.com</strong>.",
+    "timeInfo": "Approval is usually completed within <strong>24 hours</strong>. For questions, you can write to <strong>info@2mcgastro.de</strong>.",
     "backToLogin": "Back to login page"
   },
   "dashboard": {
@@ -2496,6 +2496,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "No exact match for “{{query}}” — showing the closest results.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2665,6 +2666,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "New",
+      "arandi": "Called",
+      "ilgilendi": "Interested",
+      "musteri": "Customer",
+      "olumsuz": "Not interested"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Not sent",
+      "gonderildi": "Sent",
+      "yanit_geldi": "Replied"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

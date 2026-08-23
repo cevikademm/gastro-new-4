@@ -590,6 +590,74 @@
     "changelog": "Mit javítottunk"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — Rólunk",
+      "badge": "Rólunk",
+      "heroTitle": "A professzionális konyhák megbízható partnere",
+      "heroSubtitle": "A 2MC Gastro ipari konyhai berendezéseket, intelligens tervezőeszközöket és teljes körű projekttámogatást nyújt gasztronómiai szakemberek részére — éttermektől és szállodáktól kávézókig és nagyméretű közétkeztetési létesítményekig.",
+      "ctaShop": "Termékek felfedezése",
+      "ctaDesign": "3D konyhatervező",
+      "stats": {
+        "products": { "value": "14 000+", "label": "Termék" },
+        "brands": { "value": "3", "label": "Nemzetközi márka" },
+        "languages": { "value": "15", "label": "Támogatott nyelv" },
+        "planning": { "value": "2D & 3D", "label": "Konyhatervező stúdió" }
+      },
+      "story": {
+        "title": "Kik vagyunk",
+        "p1": "A 2MC Gastro Németországban székhellyel rendelkező ipari konyhai berendezés-beszállító. A gasztronómiai iparágat kiválóan ismerő csapatunkkal a megfelelő berendezést a megfelelő áron kínáljuk — bármilyen méretű is legyen az Ön vállalkozása.",
+        "p2": "Ami megkülönböztet minket, az az értékesítésen túlmutató szemlélet: a termék kiválasztásától a konyha kialakításán át az ajánlatig és a szállításig végigkísérjük a teljes folyamatot. 2D és 3D konyhatervező stúdiónkkal még a felépítés előtt látja konyháját, és valós méretben helyezheti el berendezéseit.",
+        "p3": "Egy fedél alatt gyűjtjük össze Európa vezető márkáinak — Diamond, CombiSteel és HENDI — több mint 14 000 termékét, és digitális katalógusunkkal, azonnali ajánlatkészítő rendszerünkkel, valamint 15 nyelven elérhető platformunkkal átláthatóvá és gyorssá tesszük a beszerzést."
+      },
+      "mission": {
+        "title": "Küldetésünk",
+        "text": "Kivenni a professzionális konyha kialakításából a bonyolultságot, és olyan átlátható, kellemes élménnyé alakítani, amelyet minden vállalkozás elérhet — a megfelelő berendezéssel, intelligens tervezéssel és becsületes árakkal."
+      },
+      "vision": {
+        "title": "Jövőképünk",
+        "text": "Európa első számú digitális partnerévé válni a gasztronómiai berendezések területén — technológia és mély szakmai tudás ötvözésével újradefiniálni a konyhatervezés mércéjét."
+      },
+      "values": {
+        "title": "Értékeink",
+        "subtitle": "Az elvek, amelyek minden projektben vezérelnek minket",
+        "quality": { "title": "Minőség", "text": "Kizárólag bevált, tartós és tanúsított berendezésekkel dolgozunk. Minden eladott termékünkért teljes felelősséget vállalunk." },
+        "trust": { "title": "Átláthatóság", "text": "Tiszta árak, tiszta szállítási határidők, tiszta kommunikáció. A meglepetésköltségek és a homályos ígéretek nem a mi stílusunk." },
+        "technology": { "title": "Technológia", "text": "A 3D konyhatervezéstől az azonnali PDF-ajánlatig — folyamatainkat digitalizáljuk, hogy Ön időt és pénzt spóroljon." },
+        "partnership": { "title": "Partnerség", "text": "Megoldáspartnernek tekintjük magunkat, nem csupán beszállítónak. Az Ön konyhájának megnyitása után is hosszú ideig az Ön oldalán maradunk." }
+      },
+      "services": {
+        "title": "Amit csinálunk",
+        "subtitle": "Minden egy fedél alatt — a berendezés kiválasztásától a konyha megnyitásának napjáig",
+        "supply": { "title": "Berendezésbeszerzés", "text": "Több mint 14 000 ipari konyhai termék főzéstől hűtésen át mosogatásig és előkészítésig — megbízható ellátási láncunkon keresztül." },
+        "design": { "title": "2D és 3D konyhatervezés", "text": "Rajzolja meg konyháját, helyezzen el ajtókat és ablakokat, tegye el a berendezéseket valós méretben, és járja körbe 3D-ben. A terve automatikusan szinkronban marad projektjeivel." },
+        "quote": { "title": "Ajánlatok és projektmenedzsment", "text": "Percek alatt készítsen professzionális PDF-ajánlatot kosarából vagy projektjéből, és kövesse a felülvizsgálatokat egy helyen." },
+        "delivery": { "title": "Szállítás és támogatás", "text": "Tervezett szállítás a rendeléstől a telepítésig — és gyors támogatás az azt követő kérdéseihez." }
+      },
+      "brands": {
+        "title": "Márkáink",
+        "subtitle": "Európa vezető gyártóival dolgozunk együtt",
+        "diamond": "Erős európai név a professzionális főző- és hűtőberendezés-vonalak területén",
+        "combisteel": "Az ár-érték arány címe széles termékkínálattal",
+        "hendi": "A világszabvány a kis konyhai eszközök és felszerelések terén"
+      },
+      "identity": {
+        "title": "Márkaidentitásunk",
+        "subtitle": "A 2MC Gastro-t képviselő logó és színek",
+        "mainLogo": "Fő logó",
+        "icon": "Ikon / Favicon",
+        "colorsTitle": "Márkaszínek",
+        "colorRed": "2MC vörös",
+        "colorDark": "Sötét antracit",
+        "colorLight": "Világos háttér",
+        "colorText": "Szövegszín"
+      },
+      "cta": {
+        "title": "Tervezzük meg együtt a konyháját",
+        "text": "Kérjen ingyenes ajánlatot projektjére, vagy azonnal kezdje el megrajzolni konyháját a 3D stúdióban.",
+        "contact": "Kapcsolatfelvétel",
+        "design": "3D stúdió megnyitása"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Professzionális konyhatervezés",
     "studioVersion": "Studio v1.0",
@@ -1025,7 +1093,7 @@
   "pending": {
     "title": "Fiókja jóváhagyásra vár",
     "message": "Regisztrációját sikeresen fogadtuk. Bejelentkezhet, amint az adminisztrátor jóváhagyja fiókját. A jóváhagyási folyamatról e-mailben értesítjük.",
-    "timeInfo": "A jóváhagyás általában <strong>24 órán belül</strong> megtörténik. Kérdés esetén írjon az <strong>info@2mcgastro.com</strong> címre.",
+    "timeInfo": "A jóváhagyás általában <strong>24 órán belül</strong> megtörténik. Kérdés esetén írjon az <strong>info@2mcgastro.de</strong> címre.",
     "backToLogin": "Vissza a bejelentkezéshez"
   },
   "dashboard": {
@@ -2426,6 +2494,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "Nincs pontos találat erre: „{{query}}” — a leginkább hasonló találatokat mutatjuk.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2595,6 +2664,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Új",
+      "arandi": "Felhívva",
+      "ilgilendi": "Érdeklődik",
+      "musteri": "Ügyfél",
+      "olumsuz": "Nem érdekli"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Nincs elküldve",
+      "gonderildi": "Elküldve",
+      "yanit_geldi": "Válasz érkezett"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

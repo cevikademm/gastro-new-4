@@ -109,7 +109,7 @@ export default function Layout() {
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <Link to="/" className="flex items-center gap-2 group">
-            <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-10 w-auto max-w-[164px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
+            <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-10 w-auto max-w-[164px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
           </Link>
 
           <nav className="hidden lg:flex gap-6 items-center">
@@ -286,7 +286,7 @@ export default function Layout() {
         <aside className="bg-surface-container-low fixed top-16 md:top-20 left-0 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] w-64 flex-col space-y-2 p-4 hidden lg:flex z-40 border-r border-outline-variant/10">
           <div className="mb-4 px-2">
             <Link to="/">
-              <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-12 w-auto max-w-[190px] object-contain object-left" />
+              <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-12 w-auto max-w-[190px] object-contain object-left" />
             </Link>
             <p className="font-body text-xs text-on-surface-variant mt-1 px-2">{t('brand.phase')}</p>
           </div>

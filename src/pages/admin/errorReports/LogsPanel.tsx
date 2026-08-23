@@ -12,9 +12,11 @@ import {
   type ErrorLog, type LogStatus,
 } from '../../../lib/errorLog';
 import { generateFixPrompt, saveFixPrompt, markFixPromptFailed } from '../../../lib/fixPrompt';
+import { publishManualResolution, unpublishResolution } from '../../../lib/changelog';
 import FixStatusBadge from './FixStatusBadge';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PromptModal from './PromptModal';
+import ResolveDialog, { type ResolveResult } from './ResolveDialog';
 
 const LEVEL: Record<string, { label: string; color: string }> = {
   error: { label: 'Hata', color: '#EF4444' },
@@ -68,6 +70,9 @@ export default function LogsPanel() {
   const [aiBusy, setAiBusy] = useState<string | null>(null);
   const [promptView, setPromptView] = useState<ErrorLog | null>(null);
   const [confirm, setConfirm] = useState<{ kind: 'one'; log: ErrorLog } | { kind: 'purge' } | null>(null);
+  // "Çözüldü" penceresi — sistem loglarında portal yayını varsayılan KAPALI.
+  const [toResolve, setToResolve] = useState<ErrorLog | null>(null);
+  const [resolveError, setResolveError] = useState('');
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -98,6 +103,55 @@ export default function LogsPanel() {
     if (ok) {
       const resolved_at = status === 'resolved' ? new Date().toISOString() : null;
       setLogs((prev) => prev.map((l) => (l.id === log.id ? { ...l, status, resolved_at } : l)));
+    }
+    setBusy(null);
+  }, []);
+
+  /**
+   * "Çözüldü": kaydı kapatır; istenirse /degisiklikler sayfasında yayınlar
+   * (migration 043). Sistem logları teknik olduğu için yayın varsayılan kapalı.
+   */
+  const doResolve = useCallback(async (v: ResolveResult) => {
+    const log = toResolve;
+    if (!log) return;
+    setBusy(log.id);
+    setResolveError('');
+    const res = await publishManualResolution({
+      kind: 'log',
+      id: log.id,
+      summary: v.summary,
+      detail: v.detail,
+      category: v.category,
+      publish: v.publish,
+    });
+    if (!res.ok) {
+      setResolveError(res.error || 'İşlem tamamlanamadı.');
+      setBusy(null);
+      return;
+    }
+    const now = new Date().toISOString();
+    setLogs((prev) => prev.map((l) => (l.id === log.id
+      ? {
+          ...l,
+          status: 'resolved' as LogStatus,
+          resolved_at: l.resolved_at || now,
+          fix_summary: v.summary || l.fix_summary,
+          fix_technical: v.detail || l.fix_technical,
+        }
+      : l)));
+    setBusy(null);
+    setToResolve(null);
+  }, [toResolve]);
+
+  /** Çözülmüş kaydı yeniden açar; portalda yayınlandıysa girdiyi gizler. */
+  const reopen = useCallback(async (log: ErrorLog) => {
+    setBusy(log.id);
+    const res = await unpublishResolution('log', log.id);
+    if (!res.ok) setError(res.error || 'İşlem tamamlanamadı.');
+    else {
+      setLogs((prev) => prev.map((l) => (l.id === log.id
+        ? { ...l, status: 'new' as LogStatus, resolved_at: null }
+        : l)));
     }
     setBusy(null);
   }, []);
@@ -333,12 +387,15 @@ export default function LogsPanel() {
                         <button disabled={busy === log.id} onClick={() => changeStatus(log, 'in_progress')} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#F59E0B55', background: '#F59E0B12', color: '#B45309' }}>İncele</button>
                       )}
                       {log.status !== 'resolved' && (
-                        <button disabled={busy === log.id} onClick={() => changeStatus(log, 'resolved')} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#16A34A55', background: '#16A34A12', color: '#15803D' }}>Çözüldü</button>
+                        <button disabled={busy === log.id} onClick={() => { setResolveError(''); setToResolve(log); }} title="Kaydı kapat — istersen /degisiklikler sayfasında yayınla" className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#16A34A55', background: '#16A34A12', color: '#15803D' }}>Çözüldü</button>
                       )}
                       {log.status !== 'ignored' && (
                         <button disabled={busy === log.id} onClick={() => changeStatus(log, 'ignored')} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low">Yoksay</button>
                       )}
-                      {(log.status === 'resolved' || log.status === 'ignored') && (
+                      {log.status === 'resolved' && (
+                        <button disabled={busy === log.id} onClick={() => reopen(log)} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low">Yeniden Aç</button>
+                      )}
+                      {log.status === 'ignored' && (
                         <button disabled={busy === log.id} onClick={() => changeStatus(log, 'new')} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low">Yeniden Aç</button>
                       )}
                       {log.page_url && (
@@ -371,6 +428,19 @@ export default function LogsPanel() {
           onClose={() => setPromptView(null)}
         />
       )}
+
+      {/* Çözüldü → (isteğe bağlı) portal yayını */}
+      <ResolveDialog
+        open={!!toResolve}
+        reference={toResolve?.description_ai || toResolve?.message || null}
+        defaultSummary={toResolve?.fix_summary || null}
+        defaultDetail={toResolve?.fix_technical || null}
+        defaultPublish={false}
+        busy={!!toResolve && busy === toResolve.id}
+        error={resolveError}
+        onConfirm={doResolve}
+        onCancel={() => { setToResolve(null); setResolveError(''); }}
+      />
 
       <ConfirmDialog
         open={!!confirm}

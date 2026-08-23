@@ -6,13 +6,14 @@
 // öğrenebilmesi. Teknik detay yalnızca isteyene, katlanmış hâlde.
 //
 // Veri: src/lib/changelog.ts · Tablo: migration 039
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Sparkles, Loader2, RefreshCw, Undo2 } from 'lucide-react';
 import {
   fetchChangelog, fmtChangelogDate,
   type ChangelogEntry, type ChangelogCategory,
 } from '../../lib/changelog';
+import { supabase } from '../../lib/supabase';
 import SEO from '../../components/SEO';
 
 const CATEGORY: Record<ChangelogCategory, { label: string; color: string }> = {
@@ -27,15 +28,27 @@ export default function ChangelogPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const load = async () => {
-    setLoading(true);
+  const load = useCallback(async (silent = false) => {
+    if (!silent) setLoading(true);
     const { data, error: err } = await fetchChangelog(60);
     setEntries(data);
     setError(err);
     setLoading(false);
-  };
+  }, []);
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => { void load(); }, [load]);
+
+  // Bir kayıt yayınlandığı anda sayfa kendini tazelesin — kullanıcı F5'e
+  // basmadan görsün (changelog_entries realtime yayınında, migration 039).
+  useEffect(() => {
+    if (!supabase) return;
+    const channel = supabase
+      .channel('changelog-live')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'changelog_entries' },
+        () => { void load(true); })
+      .subscribe();
+    return () => { void supabase?.removeChannel(channel); };
+  }, [load]);
 
   return (
     <div className="max-w-3xl mx-auto space-y-6 w-full">
@@ -54,7 +67,7 @@ export default function ChangelogPage() {
           </p>
         </div>
         <button
-          onClick={load}
+          onClick={() => void load()}
           className="px-3 py-1.5 text-xs font-bold rounded-lg border border-outline-variant/20 hover:bg-surface-container-low inline-flex items-center gap-1.5 shrink-0"
         >
           <RefreshCw size={14} /> {t('common.refresh', 'Yenile')}

@@ -13,8 +13,29 @@ Saatte bir çalışan bulut ajanı (claude.ai/code/routines) bekleyen hataları 
 | Audit sertleştirme (soft delete) | `supabase/migrations/038_error_audit_hardening.sql` |
 | Changelog tablosu | `supabase/migrations/039_changelog.sql` |
 | Bildirimler | `supabase/migrations/040_notifications.sql` |
+| Elle çözüm → yayın | `supabase/migrations/043_manual_resolution_publish.sql` (+ `044` yayın kapatma) |
+| Çözüldü penceresi | `src/pages/admin/errorReports/ResolveDialog.tsx` |
 | Admin paneli | `src/pages/admin/errorReports/AgentPanel.tsx` |
 | Portal sayfası | `src/pages/changelog/ChangelogPage.tsx` (`/degisiklikler`) |
+
+## Elle çözümde de portal yayını (043)
+
+Portal sayfasına yazan tek yol ajan değildir. Admin panelinden **Çözüldü**
+denince açılan pencere kullanıcıya görünecek özeti sorar ve
+`publish_manual_resolution` RPC'si:
+
+1. kaydı `resolved` yapar (`fix_status` boştaysa `manual`),
+2. `changelog_entries`'e **published** girdi yazar (slug kayıt başına sabit →
+   tekrar işaretlemek kopya değil güncelleme yapar),
+3. bildirene + herkese bildirim düşer (`fix_notified_at` ile bir kez),
+4. `error_fixes`'e işlem geçmişi satırı ekler.
+
+Pencerede "Portalda yayınla" kutusu kapatılırsa kayıt sessizce kapanır; daha önce
+yayınlanmış bir girdi varsa gizlenir (migration 044).
+
+**Yeniden Aç** → `unpublish_manual_resolution`: kayıt geri açılır, portal girdisi
+silinmez **gizlenir** (`status = 'hidden'`). Sistem loglarında (Sistem Logları
+sekmesi) yayın kutusu varsayılan **kapalıdır** — her teknik log portala düşmemeli.
 
 ## Kurulum
 

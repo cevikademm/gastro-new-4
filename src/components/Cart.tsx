@@ -273,7 +273,7 @@ export default function Cart() {
         </div>
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center relative z-10">
           <div className="flex-1">
-            <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-8 object-contain mb-2" style={{ filter: 'brightness(0) invert(1)' }} />
+            <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-8 object-contain mb-2" style={{ filter: 'brightness(0) invert(1)' }} />
             <p className="text-xs text-red-200">{COMPANY_INFO.tagline}</p>
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-red-100">

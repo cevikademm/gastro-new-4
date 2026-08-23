@@ -590,6 +590,74 @@
     "changelog": "Wat is opgelost"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — Over ons",
+      "badge": "Over ons",
+      "heroTitle": "De betrouwbare partner voor professionele keukens",
+      "heroSubtitle": "2MC Gastro biedt gastronomieprofessionals grootkeukenapparatuur, slimme planningstools en volledige projectbegeleiding — van restaurants en hotels tot cafés en grootschalige cateringbedrijven.",
+      "ctaShop": "Producten ontdekken",
+      "ctaDesign": "3D-keukenplanner",
+      "stats": {
+        "products": { "value": "14.000+", "label": "Producten" },
+        "brands": { "value": "3", "label": "Internationale merken" },
+        "languages": { "value": "15", "label": "Beschikbare talen" },
+        "planning": { "value": "2D & 3D", "label": "Keukenontwerpstudio" }
+      },
+      "story": {
+        "title": "Wie zijn wij",
+        "p1": "2MC Gastro is een in Duitsland gevestigde leverancier van grootkeukenapparatuur. Met een team dat de gastronomiebranche door en door kent, leveren wij de juiste apparatuur voor de juiste prijs — ongeacht de omvang van uw bedrijf.",
+        "p2": "Wat ons onderscheidt, is een aanpak die verder gaat dan verkopen: wij begeleiden het hele traject, van productkeuze en keukenindeling tot offerte en levering. Met onze 2D- en 3D-keukenstudio ziet u uw keuken al voordat deze gebouwd is en plaatst u uw apparatuur op ware schaal.",
+        "p3": "Wij brengen ruim 14.000 producten van toonaangevende Europese merken zoals Diamond, CombiSteel en HENDI onder één dak — en met onze digitale catalogus, ons directe offertesysteem en een platform in 15 talen maken wij inkopen transparant en snel."
+      },
+      "mission": {
+        "title": "Onze missie",
+        "text": "Het opbouwen van een professionele keuken uit de complexiteit halen en er een transparante, prettige ervaring van maken die voor elk bedrijf toegankelijk is — met de juiste apparatuur, slimme planning en eerlijke prijzen."
+      },
+      "vision": {
+        "title": "Onze visie",
+        "text": "Europa's eerste keuze worden als digitale partner voor gastronomie-apparatuur — en de standaard van keukenplanning opnieuw definiëren door technologie te koppelen aan diepgaande branchekennis."
+      },
+      "values": {
+        "title": "Onze waarden",
+        "subtitle": "De principes die ons in elk project sturen",
+        "quality": { "title": "Kwaliteit", "text": "Wij werken uitsluitend met bewezen, duurzame en gecertificeerde apparatuur. Achter elk product dat wij verkopen staan wij volledig." },
+        "trust": { "title": "Transparantie", "text": "Heldere prijzen, heldere levertijden, heldere communicatie. Verrassingskosten en vage beloftes zijn niet onze stijl." },
+        "technology": { "title": "Technologie", "text": "Van 3D-keukenontwerp tot directe PDF-offerte — wij digitaliseren onze processen om u tijd en geld te besparen." },
+        "partnership": { "title": "Partnerschap", "text": "Wij zien onszelf als oplossingspartner, niet slechts als leverancier. Ook lang na de opening van uw keuken staan wij aan uw zijde." }
+      },
+      "services": {
+        "title": "Wat wij doen",
+        "subtitle": "Alles onder één dak — van apparatuurkeuze tot de openingsdag van uw keuken",
+        "supply": { "title": "Levering van apparatuur", "text": "Ruim 14.000 producten voor de grootkeuken, van koken en koelen tot spoelen en voorbereiden — via onze betrouwbare toeleveringsketen." },
+        "design": { "title": "2D- & 3D-keukenontwerp", "text": "Teken uw keuken, plaats deuren en ramen, positioneer apparatuur op ware schaal en wandel erdoor in 3D. Uw ontwerp blijft automatisch met uw projecten gesynchroniseerd." },
+        "quote": { "title": "Offertes & projectbeheer", "text": "Maak binnen enkele minuten een professionele PDF-offerte vanuit uw winkelwagen of project en houd revisies op één plek bij." },
+        "delivery": { "title": "Levering & ondersteuning", "text": "Geplande levering van bestelling tot installatie — en snelle ondersteuning voor uw vragen daarna." }
+      },
+      "brands": {
+        "title": "Onze merken",
+        "subtitle": "Wij werken samen met de toonaangevende fabrikanten van Europa",
+        "diamond": "Een sterk Europees merk in professionele kook- en koellijnen",
+        "combisteel": "Hét adres voor prijs-kwaliteit met een breed productassortiment",
+        "hendi": "De wereldwijde standaard voor klein keukenmateriaal en gereedschap"
+      },
+      "identity": {
+        "title": "Onze merkidentiteit",
+        "subtitle": "Het logo en de kleuren die 2MC Gastro vertegenwoordigen",
+        "mainLogo": "Hoofdlogo",
+        "icon": "Icoon / Favicon",
+        "colorsTitle": "Merkkleuren",
+        "colorRed": "2MC-rood",
+        "colorDark": "Donker antraciet",
+        "colorLight": "Lichte achtergrond",
+        "colorText": "Tekstkleur"
+      },
+      "cta": {
+        "title": "Laten we uw keuken samen plannen",
+        "text": "Ontvang een gratis offerte voor uw project of begin direct met tekenen in onze 3D-studio.",
+        "contact": "Neem contact op",
+        "design": "3D-studio openen"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Professionele keukenplanning",
     "studioVersion": "Studio v1.0",
@@ -1025,7 +1093,7 @@
   "pending": {
     "title": "Uw account wacht op goedkeuring",
     "message": "Uw registratie is succesvol ontvangen. U kunt inloggen zodra uw account is goedgekeurd door een beheerder. U wordt per e-mail op de hoogte gehouden tijdens het goedkeuringsproces.",
-    "timeInfo": "Goedkeuring wordt meestal binnen <strong>24 uur</strong> afgerond. Voor vragen kunt u schrijven naar <strong>info@2mcgastro.com</strong>.",
+    "timeInfo": "Goedkeuring wordt meestal binnen <strong>24 uur</strong> afgerond. Voor vragen kunt u schrijven naar <strong>info@2mcgastro.de</strong>.",
     "backToLogin": "Terug naar inlogpagina"
   },
   "dashboard": {
@@ -2426,6 +2494,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "Geen exacte overeenkomst voor ‘{{query}}’ — de dichtstbijzijnde resultaten worden getoond.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2595,6 +2664,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Nieuw",
+      "arandi": "Gebeld",
+      "ilgilendi": "Geïnteresseerd",
+      "musteri": "Klant",
+      "olumsuz": "Geen interesse"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Niet verzonden",
+      "gonderildi": "Verzonden",
+      "yanit_geldi": "Antwoord ontvangen"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

@@ -7,6 +7,42 @@ const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY as string | und
 export type LeadStatus = 'yeni' | 'arandi' | 'ilgilendi' | 'musteri' | 'olumsuz';
 export type MailStatus = 'gonderilmedi' | 'gonderildi' | 'yanit_geldi';
 
+/**
+ * Kazınan (Apify → Google Haritalar) metin alanlarını görüntülemeye hazırlar:
+ * satır sonu/sekme/çift boşluk tek boşluğa iner, baş-son boşluk atılır.
+ * Kaynak siteden gelen veri her zaman temiz gelmiyor; ham hâliyle basınca
+ * hücrede kopuk/biçimsiz görünüyor.
+ */
+export const cleanText = (v: string | null | undefined): string | null => {
+  // \u00A0 kırılmaz boşluk · \u200B-\u200D sıfır genişlikli · \uFEFF BOM
+  const s = String(v ?? '').replace(/[\s\u00A0\u200B-\u200D\uFEFF]+/g, ' ').trim();
+  return s || null;
+};
+
+/**
+ * E-posta temizliği: "mailto:" öneki, sorgu eki (?subject=…), sondaki
+ * noktalama ve boşluklar atılır. Yerel kısım büyük/küçük harfe duyarlı
+ * olabildiği için harf dönüşümü YAPILMAZ (H5008@accor.com gerçek bir adres).
+ * Adres hiç kalmazsa null döner.
+ */
+export const cleanEmail = (v: string | null | undefined): string | null => {
+  let s = cleanText(v) || '';
+  s = s.replace(/^mailto:/i, '').split('?')[0].replace(/\s+/g, '');
+  s = s.replace(/^[<("']+|[>)"'.,;:]+$/g, '');
+  return s || null;
+};
+
+/** Kayıttaki serbest metin alanlarını normalize eder (liste + dışa aktarım). */
+const normalizeLead = (l: CustomerLead): CustomerLead => ({
+  ...l,
+  isim: cleanText(l.isim),
+  kategori: cleanText(l.kategori),
+  adres: cleanText(l.adres),
+  telefon: cleanText(l.telefon),
+  email: cleanEmail(l.email),
+  website: cleanText(l.website),
+});
+
 export interface LeadReview {
   author: string | null;
   text: string | null;
@@ -170,7 +206,10 @@ export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => 
         .order('created_at', { ascending: false });
       searches = (sData || []) as CustomerSearch[];
     } catch { /* aramalar alınamazsa gruplama adresten türetilir */ }
-    set({ leads: (data || []) as CustomerLead[], searches, loading: false });
+    // Kazınan veri ham hâliyle basılmaz — tek giriş noktasında normalize edilir,
+    // böylece liste, detay, mail gönderimi ve dışa aktarım aynı temiz değeri görür.
+    const leads = ((data || []) as CustomerLead[]).map(normalizeLead);
+    set({ leads, searches, loading: false });
   },
 
   fetchReviews: async (leadId, placeUrl, max = 10) => {

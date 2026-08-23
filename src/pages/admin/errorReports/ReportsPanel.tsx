@@ -5,7 +5,7 @@
 //
 // Widget: src/components/ErrorReportWidget.tsx · SQL: migrations/018, 030, 031
 import { useEffect, useMemo, useState, useCallback } from 'react';
-import { Loader2, RefreshCw, Sparkles, Bot, AlertCircle } from 'lucide-react';
+import { Loader2, RefreshCw, Sparkles, Bot, AlertCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '../../../lib/supabase';
 import {
   buildWhatsAppText, openWhatsApp, archiveReport,
@@ -13,9 +13,13 @@ import {
 } from '../../../lib/errorReport';
 import { generateFixPrompt, saveFixPrompt, markFixPromptFailed } from '../../../lib/fixPrompt';
 import { markEligible, requestRevert } from '../../../lib/fixAgent';
+import {
+  publishManualResolution, unpublishResolution, fetchPublishedTargets,
+} from '../../../lib/changelog';
 import FixStatusBadge from './FixStatusBadge';
 import ConfirmDialog from '../../../components/ConfirmDialog';
 import PromptModal from './PromptModal';
+import ResolveDialog, { type ResolveResult } from './ResolveDialog';
 
 const SEV: Record<ErrorSeverity, { label: string; color: string }> = {
   low: { label: 'Düşük', color: '#16A34A' },
@@ -47,6 +51,10 @@ export default function ReportsPanel() {
   const [aiBusy, setAiBusy] = useState<string | null>(null);
   const [promptView, setPromptView] = useState<ErrorReport | null>(null);
   const [toDelete, setToDelete] = useState<ErrorReport | null>(null);
+  // "Çözüldü" penceresi + portalda yayında olan kayıtlar (rozet için).
+  const [toResolve, setToResolve] = useState<ErrorReport | null>(null);
+  const [resolveError, setResolveError] = useState('');
+  const [published, setPublished] = useState<Set<string>>(new Set());
 
   const fetchReports = useCallback(async () => {
     if (!supabase) { setError('Supabase yapılandırılmamış.'); setLoading(false); return; }
@@ -66,6 +74,7 @@ export default function ReportsPanel() {
       setReports([]);
     } else {
       setReports((data as ErrorReport[]) || []);
+      setPublished(await fetchPublishedTargets('report'));
     }
     setLoading(false);
   }, []);
@@ -91,6 +100,66 @@ export default function ReportsPanel() {
     const { error: err } = await supabase.from('error_reports').update({ status, resolved_at }).eq('id', id);
     if (!err) {
       setReports((prev) => prev.map((r) => (r.id === id ? { ...r, status, resolved_at } : r)));
+    }
+    setBusy(null);
+  }, []);
+
+  /**
+   * "Çözüldü": kaydı kapatır ve özeti /degisiklikler sayfasında yayınlar
+   * (migration 043). Eskiden yalnızca status güncelleniyordu — bildiren kişi
+   * sonucu hiçbir yerde göremiyordu.
+   */
+  const doResolve = useCallback(async (v: ResolveResult) => {
+    const r = toResolve;
+    if (!r) return;
+    setBusy(r.id);
+    setResolveError('');
+    const res = await publishManualResolution({
+      kind: 'report',
+      id: r.id,
+      summary: v.summary,
+      detail: v.detail,
+      category: v.category,
+      publish: v.publish,
+    });
+    if (!res.ok) {
+      setResolveError(res.error || 'İşlem tamamlanamadı.');
+      setBusy(null);
+      return;
+    }
+    const now = new Date().toISOString();
+    setReports((prev) => prev.map((x) => (x.id === r.id
+      ? {
+          ...x,
+          status: 'resolved' as ErrorStatus,
+          resolved_at: x.resolved_at || now,
+          fix_summary: v.summary || x.fix_summary,
+          fix_technical: v.detail || x.fix_technical,
+        }
+      : x)));
+    setPublished((prev) => {
+      const next = new Set(prev);
+      if (res.published) next.add(r.id); else next.delete(r.id);
+      return next;
+    });
+    setBusy(null);
+    setToResolve(null);
+  }, [toResolve]);
+
+  /** "Yeniden Aç": kaydı geri açar, portaldaki girdiyi gizler. */
+  const reopen = useCallback(async (r: ErrorReport) => {
+    setBusy(r.id);
+    const res = await unpublishResolution('report', r.id);
+    if (!res.ok) setError(res.error || 'İşlem tamamlanamadı.');
+    else {
+      setReports((prev) => prev.map((x) => (x.id === r.id
+        ? { ...x, status: 'new' as ErrorStatus, resolved_at: null }
+        : x)));
+      setPublished((prev) => {
+        const next = new Set(prev);
+        next.delete(r.id);
+        return next;
+      });
     }
     setBusy(null);
   }, []);
@@ -243,6 +312,18 @@ export default function ReportsPanel() {
                       </span>
                     )}
                     <FixStatusBadge status={r.fix_status} commitSha={r.fix_commit_sha} commitUrl={r.fix_commit_url} />
+                    {published.has(r.id) && (
+                      <a
+                        href="/degisiklikler"
+                        target="_blank"
+                        rel="noopener"
+                        title="Kullanıcıya görünen sayfada yayında — açmak için tıklayın"
+                        className="inline-flex items-center gap-1 text-[11px] font-extrabold px-2 py-0.5 rounded-full border"
+                        style={{ background: '#0EA5E91a', color: '#0369A1', borderColor: '#0EA5E944' }}
+                      >
+                        <ExternalLink size={11} /> Portalda yayında
+                      </a>
+                    )}
                     <span className="ml-auto text-[11.5px] text-on-surface-variant">{fmtDate(r.created_at)}</span>
                   </div>
 
@@ -326,10 +407,13 @@ export default function ReportsPanel() {
                       <button disabled={busy === r.id} onClick={() => setStatus(r.id, 'in_progress')} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#F59E0B55', background: '#F59E0B12', color: '#B45309' }}>İncele</button>
                     )}
                     {(r.status || 'new') !== 'resolved' && (
-                      <button disabled={busy === r.id} onClick={() => setStatus(r.id, 'resolved')} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#16A34A55', background: '#16A34A12', color: '#15803D' }}>Çözüldü</button>
+                      <button disabled={busy === r.id} onClick={() => { setResolveError(''); setToResolve(r); }} title="Kaydı kapat ve /degisiklikler sayfasında yayınla" className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#16A34A55', background: '#16A34A12', color: '#15803D' }}>Çözüldü</button>
                     )}
                     {r.status === 'resolved' && (
-                      <button disabled={busy === r.id} onClick={() => setStatus(r.id, 'new')} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low">Yeniden Aç</button>
+                      <>
+                        <button disabled={busy === r.id} onClick={() => { setResolveError(''); setToResolve(r); }} title="Yayınlanan açıklamayı düzenle" className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#16A34A55', background: '#16A34A12', color: '#15803D' }}>Açıklamayı Düzenle</button>
+                        <button disabled={busy === r.id} onClick={() => reopen(r)} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-low">Yeniden Aç</button>
+                      </>
                     )}
                     <button onClick={() => openWhatsApp(buildWhatsAppText(r))} className="px-2.5 py-1.5 rounded-lg text-xs font-bold border" style={{ borderColor: '#128C7E55', background: '#128C7E12', color: '#128C7E' }}>WhatsApp</button>
                     {r.page_url && (
@@ -363,6 +447,18 @@ export default function ReportsPanel() {
           <button onClick={() => setZoom(null)} className="fixed top-4 right-4 w-10 h-10 rounded-lg bg-white/15 text-white text-2xl">✕</button>
         </div>
       )}
+
+      {/* Çözüldü → kullanıcıya görünecek açıklama + portal yayını */}
+      <ResolveDialog
+        open={!!toResolve}
+        reference={toResolve?.description_ai || toResolve?.description || null}
+        defaultSummary={toResolve?.fix_summary || null}
+        defaultDetail={toResolve?.fix_technical || null}
+        busy={!!toResolve && busy === toResolve.id}
+        error={resolveError}
+        onConfirm={doResolve}
+        onCancel={() => { setToResolve(null); setResolveError(''); }}
+      />
 
       <ConfirmDialog
         open={!!toDelete}

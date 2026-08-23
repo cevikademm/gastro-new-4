@@ -421,6 +421,10 @@ export function LandingPage() {
   const [sliderPercentage, setSliderPercentage] = useState(50);
   const [isDraggingSlider, setIsDraggingSlider] = useState(false);
   const [inspection3dReady, setInspection3dReady] = useState(false);
+  // Planner bölümündeki 3B model de görünüre girene kadar yüklenmez —
+  // kitchen-model.glb 1.9 MB + three chunk'ı kritik yoldan çıkarır (LCP).
+  const plannerRef = useRef<HTMLDivElement>(null);
+  const [planner3dReady, setPlanner3dReady] = useState(false);
   const [activeAppliance, setActiveAppliance] = useState<'mixer' | 'ice'>('mixer');
   const [viewMode, setViewMode] = useState<'normal' | 'cutaway' | 'compare'>('normal');
 
@@ -486,6 +490,25 @@ export function LandingPage() {
     observer.observe(slider);
     return () => observer.disconnect();
   }, [inspection3dReady]);
+
+  // Planner 3B modeli: yukarıdakiyle aynı kalıp. Bölüm görünüre yaklaşmadan
+  // ne three chunk'ı ne de kitchen-model.glb indirilir.
+  useEffect(() => {
+    const host = plannerRef.current;
+    if (!host || planner3dReady) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        setPlanner3dReady(true);
+        observer.disconnect();
+      },
+      { rootMargin: '500px 0px', threshold: 0.01 }
+    );
+
+    observer.observe(host);
+    return () => observer.disconnect();
+  }, [planner3dReady]);
 
   // Chatbot Message Flow Data
   const chatFlow: Record<number, { botMsg: string; options: Array<{ text: string; nextStep: number; action?: string }> }> = {
@@ -1043,14 +1066,20 @@ export function LandingPage() {
                 </div>
 
                 {/* Right Side: only the auto-rotating 3D model — transparent, blends into the section */}
-                <div className="lg:col-span-7 xl:col-span-8 relative h-[300px] lg:h-[400px] xl:h-[420px] flex items-center justify-center">
-                  <React.Suspense fallback={
+                <div ref={plannerRef} className="lg:col-span-7 xl:col-span-8 relative h-[300px] lg:h-[400px] xl:h-[420px] flex items-center justify-center">
+                  {planner3dReady ? (
+                    <React.Suspense fallback={
+                      <div className="flex h-full w-full items-center justify-center">
+                        <div className="w-8 h-8 border-t-2 border-brand-red rounded-full animate-spin" />
+                      </div>
+                    }>
+                      <KitchenModelViewer model="kitchenDraft" autoRotate alwaysActive transparent fitMargin={1.3} className="h-full w-full" />
+                    </React.Suspense>
+                  ) : (
                     <div className="flex h-full w-full items-center justify-center">
                       <div className="w-8 h-8 border-t-2 border-brand-red rounded-full animate-spin" />
                     </div>
-                  }>
-                    <KitchenModelViewer model="kitchenDraft" autoRotate alwaysActive transparent fitMargin={1.3} className="h-full w-full" />
-                  </React.Suspense>
+                  )}
                 </div>
 
               </div>

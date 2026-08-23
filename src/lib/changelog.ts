@@ -51,6 +51,97 @@ export async function fetchChangelog(limit = 50): Promise<{ data: ChangelogEntry
   return { data: (data as ChangelogEntry[]) || [], error: '' };
 }
 
+// ─── Elle çözüm → portal yayını (migration 043) ──────────────────────
+// Admin panelinde "Çözüldü" denince buradan geçilir. Eskiden yalnızca
+// error_reports.status güncelleniyordu; changelog'a hiçbir şey düşmediği için
+// sorunu bildiren kişi sonucu göremiyordu.
+
+export type ResolutionKind = 'report' | 'log';
+
+export interface PublishResolutionInput {
+  kind: ResolutionKind;
+  id: string;
+  /** Kullanıcıya gösterilecek sade dil özeti (yayınlanacaksa zorunlu). */
+  summary: string;
+  /** Teknik not — yalnızca admin görür. */
+  detail?: string | null;
+  category?: ChangelogCategory;
+  /** false → kayıt kapanır ama portalda yayınlanmaz. */
+  publish?: boolean;
+}
+
+const MISSING_RPC = /function .* does not exist|schema cache|could not find the function/i;
+
+const rpcError = (msg: string): string =>
+  MISSING_RPC.test(msg)
+    ? 'publish_manual_resolution bulunamadı — migration 043 SQL\'ini çalıştırın.'
+    : msg;
+
+/**
+ * Kaydı "çözüldü" yapar ve (publish ise) /degisiklikler sayfasında yayınlar,
+ * bildirene bildirim düşer. Aynı kayıt için tekrar çağrılırsa girdi güncellenir
+ * — kopya satır oluşmaz.
+ */
+export async function publishManualResolution(
+  input: PublishResolutionInput,
+): Promise<{ ok: boolean; published: boolean; error?: string }> {
+  if (!supabase) return { ok: false, published: false, error: 'Supabase yapılandırılmamış.' };
+  try {
+    const { data, error } = await supabase.rpc('publish_manual_resolution', {
+      p_kind: input.kind,
+      p_id: input.id,
+      p_summary: input.summary,
+      p_detail: input.detail || null,
+      p_category: input.category || 'fix',
+      p_publish: input.publish !== false,
+    });
+    if (error) return { ok: false, published: false, error: rpcError(error.message) };
+    const res = (data || {}) as { ok?: boolean; published?: boolean; error?: string };
+    if (!res.ok) return { ok: false, published: false, error: res.error || 'İşlem tamamlanamadı.' };
+    return { ok: true, published: !!res.published };
+  } catch (e) {
+    return { ok: false, published: false, error: (e as Error)?.message || 'İşlem hatası' };
+  }
+}
+
+/** "Yeniden Aç": kaydı geri açar, portaldaki girdiyi gizler (silmez). */
+export async function unpublishResolution(
+  kind: ResolutionKind,
+  id: string,
+): Promise<{ ok: boolean; error?: string }> {
+  if (!supabase) return { ok: false, error: 'Supabase yapılandırılmamış.' };
+  try {
+    const { data, error } = await supabase.rpc('unpublish_manual_resolution', { p_kind: kind, p_id: id });
+    if (error) return { ok: false, error: rpcError(error.message) };
+    const res = (data || {}) as { ok?: boolean; error?: string };
+    return res.ok ? { ok: true } : { ok: false, error: res.error || 'İşlem tamamlanamadı.' };
+  } catch (e) {
+    return { ok: false, error: (e as Error)?.message || 'İşlem hatası' };
+  }
+}
+
+/**
+ * Portalda yayında olan kayıtların kimlikleri — panelde "Yayında" rozeti için.
+ * Admin RLS'i tüm girdileri görür; hata durumunda boş küme döner (rozet yok).
+ */
+export async function fetchPublishedTargets(
+  kind: ResolutionKind = 'report',
+): Promise<Set<string>> {
+  if (!supabase) return new Set();
+  const col = kind === 'report' ? 'report_id' : 'log_id';
+  const { data, error } = await supabase
+    .from('changelog_entries')
+    .select(col)
+    .eq('status', 'published')
+    .not(col, 'is', null);
+  if (error || !data) return new Set();
+  return new Set(
+    (data as Array<Record<string, string | null>>)
+      .map((r) => r[col])
+      .filter((v): v is string => !!v),
+  );
+}
+
 /** Tarihi "1 Ağustos 2026" biçiminde verir; bozuksa ham değeri döndürür. */
 export function fmtChangelogDate(iso: string | null, locale = 'tr-TR'): string {
   if (!iso) return '';

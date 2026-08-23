@@ -590,6 +590,74 @@
     "changelog": "O que foi corrigido"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — Sobre nós",
+      "badge": "Sobre nós",
+      "heroTitle": "O parceiro de confiança das cozinhas profissionais",
+      "heroSubtitle": "A 2MC Gastro fornece a profissionais da gastronomia equipamento para cozinhas industriais, ferramentas de planeamento inteligentes e acompanhamento integral de projetos — de restaurantes e hotéis a cafés e grandes unidades de catering.",
+      "ctaShop": "Explorar produtos",
+      "ctaDesign": "Planeador de cozinha 3D",
+      "stats": {
+        "products": { "value": "14.000+", "label": "Produtos" },
+        "brands": { "value": "3", "label": "Marcas internacionais" },
+        "languages": { "value": "15", "label": "Idiomas suportados" },
+        "planning": { "value": "2D & 3D", "label": "Estúdio de design de cozinhas" }
+      },
+      "story": {
+        "title": "Quem somos",
+        "p1": "A 2MC Gastro é um fornecedor de equipamento para cozinhas profissionais sediado na Alemanha. Com uma equipa que conhece o setor da gastronomia por dentro, entregamos o equipamento certo ao preço certo — seja qual for a dimensão do seu negócio.",
+        "p2": "O que nos distingue é uma abordagem que vai além da venda: acompanhamos todo o percurso, desde a escolha dos produtos ao layout da cozinha, do orçamento à entrega. Com o nosso estúdio de design 2D e 3D pode ver a sua cozinha antes de ser construída e posicionar os equipamentos à escala real.",
+        "p3": "Reunimos sob o mesmo teto mais de 14.000 produtos de marcas europeias de referência como Diamond, CombiSteel e HENDI — e, com o nosso catálogo digital, sistema de orçamentação instantânea e uma plataforma disponível em 15 idiomas, tornamos a compra transparente e rápida."
+      },
+      "mission": {
+        "title": "A nossa missão",
+        "text": "Transformar a criação de uma cozinha profissional, retirando-lhe a complexidade, numa experiência transparente e agradável, ao alcance de qualquer negócio — com o equipamento certo, um planeamento inteligente e preços honestos."
+      },
+      "vision": {
+        "title": "A nossa visão",
+        "text": "Tornarmo-nos o parceiro digital de referência na Europa para o equipamento de gastronomia — redefinir o padrão do planeamento de cozinhas combinando tecnologia e conhecimento profundo do setor."
+      },
+      "values": {
+        "title": "Os nossos valores",
+        "subtitle": "Os princípios que nos orientam em cada projeto",
+        "quality": { "title": "Qualidade", "text": "Trabalhamos apenas com equipamentos comprovados, duradouros e certificados. Assumimos a responsabilidade por cada produto que vendemos." },
+        "trust": { "title": "Transparência", "text": "Preços claros, prazos de entrega claros, comunicação clara. Custos-surpresa e promessas vagas não fazem parte do nosso estilo." },
+        "technology": { "title": "Tecnologia", "text": "Do design de cozinhas em 3D ao orçamento PDF instantâneo — digitalizamos os nossos processos para lhe poupar tempo e dinheiro." },
+        "partnership": { "title": "Parceria", "text": "Vemo-nos como um parceiro de soluções e não apenas como um fornecedor. Continuamos ao seu lado muito depois de a sua cozinha abrir portas." }
+      },
+      "services": {
+        "title": "O que fazemos",
+        "subtitle": "Tudo sob o mesmo teto — da escolha do equipamento ao dia de abertura da sua cozinha",
+        "supply": { "title": "Fornecimento de equipamento", "text": "Mais de 14.000 produtos para cozinha profissional, da cozedura à refrigeração, da lavagem à preparação — através da nossa cadeia de fornecimento fiável." },
+        "design": { "title": "Design de cozinha 2D & 3D", "text": "Desenhe a sua cozinha, adicione portas e janelas, coloque o equipamento à escala real e percorra tudo em 3D. O seu projeto permanece sincronizado automaticamente com os seus dossiers." },
+        "quote": { "title": "Orçamentos e gestão de projeto", "text": "Crie em minutos um orçamento PDF profissional a partir do carrinho ou do projeto e acompanhe as revisões num único local." },
+        "delivery": { "title": "Entrega e apoio", "text": "Entrega planeada desde a encomenda até à instalação — e apoio rápido para as suas questões posteriores." }
+      },
+      "brands": {
+        "title": "As nossas marcas",
+        "subtitle": "Trabalhamos com os principais fabricantes europeus",
+        "diamond": "Uma marca europeia forte em linhas profissionais de cozedura e refrigeração",
+        "combisteel": "A referência em relação preço-desempenho com uma vasta gama de produto",
+        "hendi": "O padrão mundial em pequenos equipamentos e utensílios de cozinha"
+      },
+      "identity": {
+        "title": "A nossa identidade de marca",
+        "subtitle": "O logótipo e as cores que representam a 2MC Gastro",
+        "mainLogo": "Logótipo principal",
+        "icon": "Ícone / Favicon",
+        "colorsTitle": "Cores da marca",
+        "colorRed": "Vermelho 2MC",
+        "colorDark": "Antracite escuro",
+        "colorLight": "Fundo claro",
+        "colorText": "Cor do texto"
+      },
+      "cta": {
+        "title": "Vamos planear a sua cozinha em conjunto",
+        "text": "Peça um orçamento gratuito para o seu projeto, ou comece agora a desenhar a sua cozinha no estúdio 3D.",
+        "contact": "Fale connosco",
+        "design": "Abrir estúdio 3D"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Planeamento profissional de cozinhas",
     "studioVersion": "Studio v1.0",
@@ -1025,7 +1093,7 @@
   "pending": {
     "title": "A sua conta aguarda aprovação",
     "message": "O seu registo foi recebido. Poderá iniciar sessão assim que a sua conta for aprovada por um administrador. Receberá notificação por email durante o processo.",
-    "timeInfo": "A aprovação é normalmente concluída em <strong>24 horas</strong>. Para questões, escreva para <strong>info@2mcgastro.com</strong>.",
+    "timeInfo": "A aprovação é normalmente concluída em <strong>24 horas</strong>. Para questões, escreva para <strong>info@2mcgastro.de</strong>.",
     "backToLogin": "Voltar ao início de sessão"
   },
   "dashboard": {
@@ -2426,6 +2494,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "Sem correspondência exata para “{{query}}” — a mostrar os resultados mais próximos.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2595,6 +2664,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Novo",
+      "arandi": "Contactado",
+      "ilgilendi": "Interessado",
+      "musteri": "Cliente",
+      "olumsuz": "Sem interesse"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Não enviado",
+      "gonderildi": "Enviado",
+      "yanit_geldi": "Resposta recebida"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

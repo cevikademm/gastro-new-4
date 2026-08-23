@@ -28,7 +28,7 @@ export function LandingNav() {
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 group">
             <img
-              src="/logo-2mc-gastro.png"
+              src="/logo-2mc-gastro.png" width="1208" height="288"
               alt="2MC Gastro"
               className="h-11 md:h-12 w-auto max-w-[184px] object-contain transition-transform duration-200 group-hover:scale-[1.03]"
             />

@@ -72,15 +72,33 @@ function normalizeReview(r: Record<string, unknown>) {
   };
 }
 
+// Kazınan metin: satır sonu/sekme/çift boşluk ve görünmez karakterler (NBSP,
+// zero-width, BOM) tek boşluğa iner. Ham hâliyle tabloya basılınca kopuk
+// görünüyordu; temizlik veri kaydedilirken yapılır ki tek kaynak temiz olsun.
+const cleanText = (v: unknown): string | null => {
+  // \u00A0 kırılmaz boşluk · \u200B-\u200D sıfır genişlikli · \uFEFF BOM
+  const s = String(v ?? "").replace(/[\s\u00A0\u200B-\u200D\uFEFF]+/g, " ").trim();
+  return s || null;
+};
+
+// E-posta: "mailto:" öneki, ?subject=… eki, sarmalayan/sondaki noktalama atılır.
+// Yerel kısım büyük/küçük harfe duyarlı olabilir → harf dönüşümü YAPILMAZ.
+const cleanEmail = (v: unknown): string | null => {
+  let s = cleanText(v) || "";
+  s = s.replace(/^mailto:/i, "").split("?")[0].replace(/\s+/g, "");
+  s = s.replace(/^[<("']+|[>)"'.,;:]+$/g, "");
+  return s || null;
+};
+
 function normalize(d: ApifyPlace) {
   return {
     place_id: d.placeId || d.cid || `${d.title ?? ""}|${d.address ?? ""}`,
-    isim: d.title ?? null,
-    kategori: d.categoryName ?? null,
-    adres: d.address ?? null,
-    telefon: d.phone ?? d.phoneUnformatted ?? null,
-    email: Array.isArray(d.emails) ? (d.emails[0] ?? null) : (d.email ?? null),
-    website: d.website ?? null,
+    isim: cleanText(d.title),
+    kategori: cleanText(d.categoryName),
+    adres: cleanText(d.address),
+    telefon: cleanText(d.phone ?? d.phoneUnformatted),
+    email: cleanEmail(Array.isArray(d.emails) ? d.emails[0] : d.email),
+    website: cleanText(d.website),
     place_url: d.url ?? null,
     puan: typeof d.totalScore === "number" ? d.totalScore : null,
     yorum_sayisi: typeof d.reviewsCount === "number" ? d.reviewsCount : null,

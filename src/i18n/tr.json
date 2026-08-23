@@ -1095,7 +1095,7 @@
   "pending": {
     "title": "Hesabınız Onay Bekliyor",
     "message": "Kaydınız başarıyla alındı. Hesabınız yönetici tarafından onaylandıktan sonra giriş yapabilirsiniz. Onay sürecinde size e-posta ile bilgi verilecektir.",
-    "timeInfo": "Onay genellikle <strong>24 saat</strong> içinde tamamlanır. Sorularınız için <strong>info@2mcgastro.com</strong> adresine yazabilirsiniz.",
+    "timeInfo": "Onay genellikle <strong>24 saat</strong> içinde tamamlanır. Sorularınız için <strong>info@2mcgastro.de</strong> adresine yazabilirsiniz.",
     "backToLogin": "Giriş sayfasına dön"
   },
   "dashboard": {
@@ -2496,6 +2496,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "«{{query}}» için tam eşleşme bulunamadı — en yakın sonuçlar gösteriliyor.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2665,6 +2666,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Yeni",
+      "arandi": "Arandı",
+      "ilgilendi": "İlgilendi",
+      "musteri": "Müşteri",
+      "olumsuz": "Olumsuz"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Gönderilmedi",
+      "gonderildi": "Gönderildi",
+      "yanit_geldi": "Yanıt geldi"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

@@ -9,13 +9,13 @@ import { useAuthStore } from '../../stores/authStore';
 // mailto yedeği ve ekranda gösterim içindir.
 const SUPPORT_INBOX = 'info@2mcgastro.de';
 
-const faqData = [
-  { qKey: 'faq.q1', aKey: 'faq.a1' },
-  { qKey: 'faq.q2', aKey: 'faq.a2' },
-  { qKey: 'faq.q3', aKey: 'faq.a3' },
-  { qKey: 'faq.q4', aKey: 'faq.a4' },
-  { qKey: 'faq.q5', aKey: 'faq.a5' },
-];
+// SSS içerikleri i18n'de `faq.q1..q10 / faq.a1..a10` altında yaşar (15 dilde).
+// Sıra: teklif → sipariş → ödeme → fiyat → 3D tasarım → kayıt → teslimat →
+// markalar → danışmanlık → garanti (satış hunisindeki doğal akış).
+const faqData = Array.from({ length: 10 }, (_, i) => ({
+  qKey: `faq.q${i + 1}`,
+  aKey: `faq.a${i + 1}`,
+}));
 
 export default function SupportPage() {
   const { t } = useTranslation();

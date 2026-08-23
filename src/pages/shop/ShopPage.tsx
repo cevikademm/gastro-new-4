@@ -6,6 +6,7 @@ import { AnnouncementBar } from '../../components/landing/sections/AnnouncementB
 import SiteFooter from '../../components/SiteFooter';
 import { useEquipmentStore, CATEGORIES, type EquipmentItem } from '../../stores/equipmentStore';
 import { resolvedOf, matchesSubGroup, getSubGroupsFor, isAccessory } from '../../lib/categoryTaxonomy';
+import { searchProducts } from '../../lib/productSearch';
 import { formatDims } from '../../lib/dims';
 import { useCartStore } from '../../stores/cartStore';
 import { useCompareStore, equipmentToCompareItem } from '../../stores/compareStore';
@@ -13,7 +14,7 @@ import { useProductDetailStore } from '../../stores/productDetailStore';
 import {
   Search, X, ShoppingCart, BadgeCheck, ChevronLeft, ChevronRight, ArrowUpDown,
   Package, Zap, ShieldCheck, Truck, Store, SlidersHorizontal, Check, Tag,
-  Refrigerator, Flame, Droplets, Microwave, Waves, Table, GitCompareArrows,
+  Refrigerator, Flame, Droplets, Microwave, Waves, Table, GitCompareArrows, Info,
 } from 'lucide-react';
 
 const iconMap: Record<string, any> = {
@@ -119,7 +120,8 @@ export default function ShopPage() {
   // Aksesuar/küçük parçalar katalogda gizli — yalnızca ürün detay sayfasında uyumlu aksesuar olarak görünür.
   const browseItems = useMemo(() => allItems.filter((i) => !isAccessory(i)), [allItems]);
 
-  const filtered = useMemo(() => {
+  // Önce kategori/fiyat/güç filtreleri — arama bunun üzerine uygulanır.
+  const preFiltered = useMemo(() => {
     let list = browseItems;
     if (category) list = list.filter((i) => resolvedOf(i).cat === category);
     if (category && subGroup) list = list.filter((i) => matchesSubGroup(category, subGroup, i));
@@ -127,22 +129,19 @@ export default function ShopPage() {
     if (range && range.key !== 'all') list = list.filter((i) => range.test(i.price));
     const pr = POWER_RANGES.find((r) => r.key === powerKey);
     if (pr && pr.key !== 'all') list = list.filter((i) => pr.test(Number(i.kw) || 0));
-    const q = query.trim().toLowerCase();
-    if (q) {
-      list = list.filter(
-        (i) =>
-          i.name.toLowerCase().includes(q) ||
-          i.id.toLowerCase().includes(q) ||
-          i.desc.toLowerCase().includes(q) ||
-          i.brand.toLowerCase().includes(q) ||
-          i.sub.toLowerCase().includes(q) ||
-          i.fam.toLowerCase().includes(q)
-      );
-    }
     return list;
-  }, [browseItems, category, subGroup, priceKey, powerKey, query]);
+  }, [browseItems, category, subGroup, priceKey, powerKey]);
+
+  // Çok sözcüklü arama (bkz. lib/productSearch): tüm kelimeler eşleşirse katı
+  // liste, eşleşmezse alakaya göre sıralı en yakın sonuçlar (partial = true).
+  const search = useMemo(() => searchProducts(preFiltered, query), [preFiltered, query]);
+  const filtered = search.items;
+  const partialMatch = search.partial;
 
   const sorted = useMemo(() => {
+    // Kısmî eşleşmede sıralama alaka puanıdır — fiyata göre yeniden dizmek
+    // en iyi eşleşmeleri sayfa sonuna atardı.
+    if (partialMatch && sort === 'default') return filtered;
     const priceVal = (p: number) => (p > 0 ? p : Number.POSITIVE_INFINITY);
     const arr = [...filtered];
     if (sort === 'name-asc') arr.sort((a, b) => a.name.localeCompare(b.name, 'tr'));
@@ -152,7 +151,7 @@ export default function ShopPage() {
     // Önerilen (default): önemli/yüksek değerli ürünler önce, fiyatsız ("Fiyat sorun") en sona
     else arr.sort((a, b) => (b.price > 0 ? b.price : -1) - (a.price > 0 ? a.price : -1));
     return arr;
-  }, [filtered, sort]);
+  }, [filtered, sort, partialMatch]);
 
   const totalPages = Math.max(1, Math.ceil(sorted.length / PER_PAGE));
   const safePage = Math.min(page, totalPages);
@@ -433,6 +432,14 @@ export default function ShopPage() {
                         {(() => { const r = POWER_RANGES.find((r) => r.key === powerKey); return r ? t(r.labelKey) : ''; })()} <X size={13} />
                       </button>
                     )}
+                  </div>
+                )}
+
+                {/* Tam eşleşme yoksa: en yakın sonuçlar gösteriliyor uyarısı */}
+                {partialMatch && pageItems.length > 0 && (
+                  <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-2.5 text-[12px] font-semibold text-amber-800">
+                    <Info size={14} className="mt-px shrink-0" />
+                    <span>{t('shop.partialMatchHint', { query: query.trim() })}</span>
                   </div>
                 )}
 

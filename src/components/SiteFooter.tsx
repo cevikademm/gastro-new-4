@@ -151,7 +151,7 @@ export default function SiteFooter() {
           {/* Brand Info */}
           <div className="space-y-6">
             <Link to="/" className="flex items-center gap-2 group">
-              <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-11 w-auto max-w-[180px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
+              <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-11 w-auto max-w-[180px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
             </Link>
             <p className="text-[14px] text-[var(--c-muted)] leading-relaxed">
               Profesyonel mutfak ekipmanları, 3D tasarım ve anahtar teslim projeler için Avrupa'nın güvenilir çözüm ortağı.

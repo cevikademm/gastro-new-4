@@ -590,6 +590,74 @@
     "changelog": "Co bylo opraveno"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — O nás",
+      "badge": "O nás",
+      "heroTitle": "Spolehlivý partner profesionálních kuchyní",
+      "heroSubtitle": "2MC Gastro dodává profesionálům z gastronomie vybavení pro průmyslové kuchyně, chytré plánovací nástroje a komplexní projektovou podporu — od restaurací a hotelů po kavárny a velké cateringové provozy.",
+      "ctaShop": "Prozkoumat produkty",
+      "ctaDesign": "3D plánovač kuchyně",
+      "stats": {
+        "products": { "value": "14 000+", "label": "Produktů" },
+        "brands": { "value": "3", "label": "Mezinárodních značek" },
+        "languages": { "value": "15", "label": "Podporovaných jazyků" },
+        "planning": { "value": "2D & 3D", "label": "Studio návrhu kuchyní" }
+      },
+      "story": {
+        "title": "Kdo jsme",
+        "p1": "2MC Gastro je dodavatel vybavení pro profesionální kuchyně se sídlem v Německu. S týmem, který gastronomii důvěrně zná, dodáváme správné vybavení za správnou cenu — bez ohledu na velikost vašeho provozu.",
+        "p2": "Odlišuje nás přístup, který jde nad rámec prodeje: řídíme celou cestu od výběru produktu přes uspořádání kuchyně až po nabídku a dodávku. Díky našemu studiu návrhu 2D a 3D uvidíte svou kuchyni ještě předtím, než bude postavena, a rozmístíte vybavení ve skutečném měřítku.",
+        "p3": "Pod jednou střechou soustředíme více než 14 000 produktů předních evropských značek jako Diamond, CombiSteel a HENDI — a s naším digitálním katalogem, systémem okamžitých nabídek a platformou v 15 jazycích děláme nákup transparentním a rychlým."
+      },
+      "mission": {
+        "title": "Naše mise",
+        "text": "Zbavit budování profesionální kuchyně složitosti a proměnit jej v přehledný a příjemný zážitek dostupný každému provozu — díky správnému vybavení, chytrému plánování a poctivým cenám."
+      },
+      "vision": {
+        "title": "Naše vize",
+        "text": "Stát se v Evropě digitálním partnerem první volby pro gastronomické vybavení — nově definovat standard plánování kuchyní spojením technologií a hlubokých znalostí oboru."
+      },
+      "values": {
+        "title": "Naše hodnoty",
+        "subtitle": "Principy, které nás vedou v každém projektu",
+        "quality": { "title": "Kvalita", "text": "Pracujeme výhradně s ověřeným, odolným a certifikovaným vybavením. Za každý prodaný produkt plně ručíme." },
+        "trust": { "title": "Transparentnost", "text": "Jasné ceny, jasné dodací lhůty, jasná komunikace. Skryté náklady a mlhavé sliby nejsou v našem stylu." },
+        "technology": { "title": "Technologie", "text": "Od 3D návrhu kuchyně po okamžitou nabídku v PDF — digitalizujeme naše procesy, abychom vám ušetřili čas i peníze." },
+        "partnership": { "title": "Partnerství", "text": "Vnímáme se jako řešitelský partner, nikoli jen dodavatel. Zůstáváme po vašem boku i dlouho po otevření vaší kuchyně." }
+      },
+      "services": {
+        "title": "Co děláme",
+        "subtitle": "Vše pod jednou střechou — od výběru vybavení až po den otevření vaší kuchyně",
+        "supply": { "title": "Dodávka vybavení", "text": "Více než 14 000 produktů pro profesionální kuchyně, od vaření a chlazení po mytí nádobí a přípravu — prostřednictvím naší spolehlivé dodavatelské sítě." },
+        "design": { "title": "2D a 3D návrh kuchyně", "text": "Nakreslete si kuchyni, přidejte dveře a okna, umístěte vybavení ve skutečném měřítku a projděte se jí ve 3D. Návrh zůstává automaticky synchronizovaný s vašimi projekty." },
+        "quote": { "title": "Nabídky a projektové řízení", "text": "Vytvořte během několika minut profesionální PDF nabídku z košíku nebo projektu a mějte všechny revize na jednom místě." },
+        "delivery": { "title": "Dodání a podpora", "text": "Plánované dodání od objednávky až po instalaci — a následně rychlá podpora pro vaše dotazy." }
+      },
+      "brands": {
+        "title": "Naše značky",
+        "subtitle": "Spolupracujeme s předními evropskými výrobci",
+        "diamond": "Silná evropská značka v profesionálních řadách vaření a chlazení",
+        "combisteel": "Adresa pro poměr cena–výkon s širokým sortimentem",
+        "hendi": "Světový standard v drobném vybavení a kuchyňském náčiní"
+      },
+      "identity": {
+        "title": "Naše značková identita",
+        "subtitle": "Logo a barvy, které reprezentují 2MC Gastro",
+        "mainLogo": "Hlavní logo",
+        "icon": "Ikona / Favicon",
+        "colorsTitle": "Barvy značky",
+        "colorRed": "Červená 2MC",
+        "colorDark": "Tmavá antracitová",
+        "colorLight": "Světlé pozadí",
+        "colorText": "Barva textu"
+      },
+      "cta": {
+        "title": "Naplánujme vaši kuchyni společně",
+        "text": "Získejte bezplatnou nabídku pro svůj projekt nebo začněte hned kreslit kuchyni ve 3D studiu.",
+        "contact": "Kontaktujte nás",
+        "design": "Otevřít 3D studio"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Profesionální plánování kuchyní",
     "studioVersion": "Studio v1.0",
@@ -1025,7 +1093,7 @@
   "pending": {
     "title": "Váš účet čeká na schválení",
     "message": "Vaše registrace byla přijata. Budete se moci přihlásit, jakmile administrátor účet schválí. V průběhu procesu vás budeme informovat e-mailem.",
-    "timeInfo": "Schválení obvykle proběhne do <strong>24 hodin</strong>. V případě dotazů pište na <strong>info@2mcgastro.com</strong>.",
+    "timeInfo": "Schválení obvykle proběhne do <strong>24 hodin</strong>. V případě dotazů pište na <strong>info@2mcgastro.de</strong>.",
     "backToLogin": "Zpět na přihlášení"
   },
   "dashboard": {
@@ -2426,6 +2494,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "Žádná přesná shoda pro „{{query}}“ — zobrazujeme nejbližší výsledky.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2595,6 +2664,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Nový",
+      "arandi": "Voláno",
+      "ilgilendi": "Má zájem",
+      "musteri": "Zákazník",
+      "olumsuz": "Nemá zájem"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Neodesláno",
+      "gonderildi": "Odesláno",
+      "yanit_geldi": "Přišla odpověď"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

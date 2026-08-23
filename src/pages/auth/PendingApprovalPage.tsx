@@ -44,10 +44,10 @@ export default function PendingApprovalPage() {
           </div>
 
           <a
-            href="mailto:support@2mcgastro.com"
+            href="mailto:info@2mcgastro.de"
             className="inline-flex items-center gap-2 text-on-surface-variant text-xs font-semibold hover:text-[var(--c-clay)] transition-colors mb-6"
           >
-            <Mail size={14} /> support@2mcgastro.com
+            <Mail size={14} /> info@2mcgastro.de
           </a>
 
           <div className="border-t border-outline-variant/40 pt-5">

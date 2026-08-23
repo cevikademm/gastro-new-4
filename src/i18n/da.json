@@ -590,6 +590,74 @@
     "changelog": "Hvad er rettet"
   },
   "brand": {
+    "about": {
+      "documentTitle": "2MC Gastro — Om os",
+      "badge": "Om os",
+      "heroTitle": "Den pålidelige partner for professionelle køkkener",
+      "heroSubtitle": "2MC Gastro leverer gastronomifagfolk storkøkkenudstyr, intelligente planlægningsværktøjer og fuld projektsupport — fra restauranter og hoteller til caféer og store cateringvirksomheder.",
+      "ctaShop": "Se produkter",
+      "ctaDesign": "3D-køkkenplanlægger",
+      "stats": {
+        "products": { "value": "14.000+", "label": "Produkter" },
+        "brands": { "value": "3", "label": "Internationale mærker" },
+        "languages": { "value": "15", "label": "Understøttede sprog" },
+        "planning": { "value": "2D & 3D", "label": "Køkkendesignstudie" }
+      },
+      "story": {
+        "title": "Hvem vi er",
+        "p1": "2MC Gastro er en tysk leverandør af storkøkkenudstyr. Med et team, der kender gastronomibranchen indefra og ud, leverer vi det rette udstyr til den rette pris — uanset størrelsen på din virksomhed.",
+        "p2": "Det, der adskiller os, er en tilgang, der rækker længere end blot salg: vi står for hele rejsen fra produktvalg og køkkenplan til tilbud og levering. Med vores 2D- og 3D-køkkenstudie ser du dit køkken, inden det er bygget, og placerer udstyret i naturlig størrelse.",
+        "p3": "Vi samler mere end 14.000 produkter fra førende europæiske mærker som Diamond, CombiSteel og HENDI under ét tag — og med vores digitale katalog, øjeblikkelige tilbudssystem og en platform på 15 sprog gør vi indkøbet gennemsigtigt og hurtigt."
+      },
+      "mission": {
+        "title": "Vores mission",
+        "text": "At fjerne kompleksiteten i at opbygge et professionelt køkken og gøre det til en gennemsigtig og behagelig oplevelse, som alle virksomheder kan få adgang til — med det rette udstyr, klog planlægning og ærlige priser."
+      },
+      "vision": {
+        "title": "Vores vision",
+        "text": "At blive Europas førstevalg som digital partner for gastronomiudstyr — og redefinere standarden for køkkenplanlægning ved at kombinere teknologi med dyb brancheindsigt."
+      },
+      "values": {
+        "title": "Vores værdier",
+        "subtitle": "De principper, der guider os i hvert projekt",
+        "quality": { "title": "Kvalitet", "text": "Vi arbejder udelukkende med gennemprøvet, holdbart og certificeret udstyr. Vi står inde for hvert eneste produkt, vi sælger." },
+        "trust": { "title": "Gennemsigtighed", "text": "Klare priser, klare leveringstider, klar kommunikation. Skjulte omkostninger og luftige løfter er ikke vores stil." },
+        "technology": { "title": "Teknologi", "text": "Fra 3D-køkkendesign til øjeblikkeligt PDF-tilbud — vi digitaliserer vores processer for at spare dig tid og penge." },
+        "partnership": { "title": "Partnerskab", "text": "Vi ser os selv som en løsningspartner og ikke blot en leverandør. Vi står ved din side længe efter, at dit køkken er åbnet." }
+      },
+      "services": {
+        "title": "Hvad vi gør",
+        "subtitle": "Alt under ét tag — fra valg af udstyr til dit køkkens åbningsdag",
+        "supply": { "title": "Levering af udstyr", "text": "Mere end 14.000 storkøkkenprodukter, fra madlavning og køl til opvask og forberedelse — via vores pålidelige forsyningskæde." },
+        "design": { "title": "2D- & 3D-køkkendesign", "text": "Tegn dit køkken, tilføj døre og vinduer, placer udstyret i naturlig størrelse og gå igennem det i 3D. Dit design forbliver automatisk synkroniseret med dine projekter." },
+        "quote": { "title": "Tilbud og projektstyring", "text": "Opret et professionelt PDF-tilbud fra din kurv eller dit projekt på få minutter — og hold styr på revisionerne ét sted." },
+        "delivery": { "title": "Levering og support", "text": "Planlagt levering fra bestilling til installation — og hurtig support til dine spørgsmål bagefter." }
+      },
+      "brands": {
+        "title": "Vores mærker",
+        "subtitle": "Vi samarbejder med Europas førende producenter",
+        "diamond": "Et stærkt europæisk navn inden for professionel madlavning og køl",
+        "combisteel": "Adressen for pris-ydelse med et bredt produktsortiment",
+        "hendi": "Den globale standard inden for smågrej og køkkenredskaber"
+      },
+      "identity": {
+        "title": "Vores brandidentitet",
+        "subtitle": "Logoet og farverne, der repræsenterer 2MC Gastro",
+        "mainLogo": "Hovedlogo",
+        "icon": "Ikon / Favicon",
+        "colorsTitle": "Brandfarver",
+        "colorRed": "2MC-rød",
+        "colorDark": "Mørk antracit",
+        "colorLight": "Lys baggrund",
+        "colorText": "Tekstfarve"
+      },
+      "cta": {
+        "title": "Lad os planlægge dit køkken sammen",
+        "text": "Få et gratis tilbud på dit projekt, eller begynd med det samme at tegne dit køkken i 3D-studiet.",
+        "contact": "Kontakt os",
+        "design": "Åbn 3D-studiet"
+      }
+    },
     "name": "2MC Gastro",
     "tagline": "Professionel køkkenplanlægning",
     "studioVersion": "Studio v1.0",
@@ -1025,7 +1093,7 @@
   "pending": {
     "title": "Din konto afventer godkendelse",
     "message": "Din registrering er modtaget. Du kan logge ind, så snart kontoen er godkendt af en administrator. Du får besked via e-mail i løbet af processen.",
-    "timeInfo": "Godkendelsen sker normalt inden for <strong>24 timer</strong>. For spørgsmål, skriv til <strong>info@2mcgastro.com</strong>.",
+    "timeInfo": "Godkendelsen sker normalt inden for <strong>24 timer</strong>. For spørgsmål, skriv til <strong>info@2mcgastro.de</strong>.",
     "backToLogin": "Tilbage til login"
   },
   "dashboard": {
@@ -2426,6 +2494,7 @@
     "showProducts": "{{countFormatted}} ürünü göster",
     "cartCta": "Sepetim ({{count}}) · Teklif Al",
     "noResultsHint": "Farklı bir arama, kategori veya fiyat aralığı deneyin.",
+    "partialMatchHint": "Ingen præcis match for “{{query}}” — viser de nærmeste resultater.",
     "clearFilters": "Filtreleri temizle",
     "priceOnRequest": "Fiyat sorun",
     "priceViaQuote": "Teklif ile fiyat",
@@ -2595,6 +2664,18 @@
     "title": "Rücktrittsrecht - 14 Tage Widerruf"
   },
   "customerFinder": {
+    "status": {
+      "yeni": "Ny",
+      "arandi": "Ringet op",
+      "ilgilendi": "Interesseret",
+      "musteri": "Kunde",
+      "olumsuz": "Ikke interesseret"
+    },
+    "mailStatus": {
+      "gonderilmedi": "Ikke sendt",
+      "gonderildi": "Sendt",
+      "yanit_geldi": "Svar modtaget"
+    },
     "kategori": {
       "bar": "Bar",
       "berber": "Berber",

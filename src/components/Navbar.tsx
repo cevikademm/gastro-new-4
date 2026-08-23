@@ -118,7 +118,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
         )}>
           <div className="flex items-center gap-7 lg:gap-10 min-w-0">
             <Link to="/" className="flex items-center gap-2 group relative z-50">
-              <img src="/logo-2mc-gastro.png" alt="2MC Gastro" className="h-9 sm:h-10 md:h-11 w-auto max-w-[148px] sm:max-w-[176px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
+              <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-9 sm:h-10 md:h-11 w-auto max-w-[148px] sm:max-w-[176px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
             </Link>
 
             <nav className="hidden lg:flex items-center gap-5 xl:gap-7">

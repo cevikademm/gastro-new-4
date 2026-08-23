@@ -20,21 +20,30 @@ import {
 
 const STATUS_FLOW: LeadStatus[] = ['yeni', 'arandi', 'ilgilendi', 'musteri', 'olumsuz'];
 
-const STATUS_META: Record<LeadStatus, { labelKey: string; cls: string }> = {
-  yeni:      { labelKey: 'customerFinder.status.yeni',      cls: 'bg-info-container text-on-info-container border-info/20' },
-  arandi:    { labelKey: 'customerFinder.status.arandi',    cls: 'bg-warning-container text-on-warning-container border-warning/20' },
-  ilgilendi: { labelKey: 'customerFinder.status.ilgilendi', cls: 'bg-primary-fixed text-primary border-primary/20' },
-  musteri:   { labelKey: 'customerFinder.status.musteri',   cls: 'bg-success-container text-on-success-container border-success/20' },
-  olumsuz:   { labelKey: 'customerFinder.status.olumsuz',   cls: 'bg-error-container text-error border-error/20' },
+// NOT: her etikete `fallback` şart. i18next bir anahtarı bulamazsa varsayılan
+// verilmediğinde ANAHTARIN KENDİSİNİ basar — Durum/Mail sütunlarında
+// "customerFinder.mailStatus.gonderilmedi" gibi ham metinler bu yüzden çıkıyordu.
+const STATUS_META: Record<LeadStatus, { labelKey: string; fallback: string; cls: string }> = {
+  yeni:      { labelKey: 'customerFinder.status.yeni',      fallback: 'Yeni',      cls: 'bg-info-container text-on-info-container border-info/20' },
+  arandi:    { labelKey: 'customerFinder.status.arandi',    fallback: 'Arandı',    cls: 'bg-warning-container text-on-warning-container border-warning/20' },
+  ilgilendi: { labelKey: 'customerFinder.status.ilgilendi', fallback: 'İlgilendi', cls: 'bg-primary-fixed text-primary border-primary/20' },
+  musteri:   { labelKey: 'customerFinder.status.musteri',   fallback: 'Müşteri',   cls: 'bg-success-container text-on-success-container border-success/20' },
+  olumsuz:   { labelKey: 'customerFinder.status.olumsuz',   fallback: 'Olumsuz',   cls: 'bg-error-container text-error border-error/20' },
 };
-const statusLabel = (s: LeadStatus): string => i18n.t(STATUS_META[s]?.labelKey || s);
+const statusLabel = (s: LeadStatus): string => {
+  const m = STATUS_META[s];
+  return m ? i18n.t(m.labelKey, m.fallback) : s;
+};
 
-const MAIL_META: Record<MailStatus, { labelKey: string; cls: string }> = {
-  gonderilmedi: { labelKey: 'customerFinder.mailStatus.gonderilmedi', cls: 'text-on-surface-variant' },
-  gonderildi:   { labelKey: 'customerFinder.mailStatus.gonderildi',   cls: 'text-success' },
-  yanit_geldi:  { labelKey: 'customerFinder.mailStatus.yanit_geldi',  cls: 'text-primary' },
+const MAIL_META: Record<MailStatus, { labelKey: string; fallback: string; cls: string }> = {
+  gonderilmedi: { labelKey: 'customerFinder.mailStatus.gonderilmedi', fallback: 'Gönderilmedi', cls: 'text-on-surface-variant' },
+  gonderildi:   { labelKey: 'customerFinder.mailStatus.gonderildi',   fallback: 'Gönderildi',   cls: 'text-success' },
+  yanit_geldi:  { labelKey: 'customerFinder.mailStatus.yanit_geldi',  fallback: 'Yanıt geldi',  cls: 'text-primary' },
 };
-const mailLabel = (s: MailStatus): string => i18n.t(MAIL_META[s]?.labelKey || '');
+const mailLabel = (s: MailStatus): string => {
+  const m = MAIL_META[s];
+  return m ? i18n.t(m.labelKey, m.fallback) : '';
+};
 
 // İşletmeyi Google kategorisine göre basit bir türe sınıflandırır (Restoran,
 // Otel, Berber...). Eşleşme yoksa ham kategoriyi etiket olarak gösterir.
@@ -384,7 +393,9 @@ export default function CustomerFinderPage() {
   const [fMinYorum, setFMinYorum] = useState(0);
   const [sortBy, setSortBy] = useState<'recent' | 'puan' | 'yorum' | 'isim'>('recent');
   const [selected, setSelected] = useState<Set<string>>(new Set());
-  const [detail, setDetail] = useState<CustomerLead | null>(null);
+  // Sağ panel kaydın KİMLİĞİYLE tutulur; kayıt store'dan türetilir. Böylece
+  // durum/mail/yorum güncellemeleri panelde anında görünür (kopya nesne yok).
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   // Mail + görünüm
   const [mailIds, setMailIds] = useState<string[] | null>(null);
@@ -426,6 +437,11 @@ export default function CustomerFinderPage() {
     }
     return Array.from(m.entries()).map(([key, v]) => ({ key, ...v })).sort((a, b) => b.count - a.count);
   }, [leads, searchMap]);
+
+  const detail = useMemo(
+    () => (detailId ? leads.find((l) => l.id === detailId) || null : null),
+    [leads, detailId],
+  );
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -814,24 +830,38 @@ export default function CustomerFinderPage() {
                   const tur = classifyKategori(l.kategori);
                   const loc = leadLoc(l, searchMap);
                   return (
-                  <tr key={l.id} className="hover:bg-surface-container-low transition-colors">
-                    <td className="px-3 py-3">
+                  // Satırın herhangi bir yerine tıklamak sağ paneli açar; hücre
+                  // içindeki buton/linkler kendi işini yapsın diye durduruluyor.
+                  <tr
+                    key={l.id}
+                    onClick={() => setDetailId(l.id)}
+                    className={`cursor-pointer transition-colors ${
+                      detailId === l.id ? 'bg-primary/5' : 'hover:bg-surface-container-low'
+                    }`}
+                  >
+                    <td className="px-3 py-3" onClick={(e) => e.stopPropagation()}>
                       <button onClick={() => toggleSelect(l.id)} className="align-middle">
                         {selected.has(l.id) ? <CheckSquare size={16} className="text-primary" /> : <Square size={16} />}
                       </button>
                     </td>
-                    <td className="px-4 py-3">
-                      <div className="font-bold text-on-surface">{l.isim || '—'}</div>
-                      <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-on-surface-variant">
-                        {tur && (
-                          <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${tur.cls}`} title={l.kategori || undefined}>
-                            {tur.label}
-                          </span>
-                        )}
-                        {l.kategori && (!tur || tur.label.toLowerCase() !== l.kategori.toLowerCase()) && (
-                          <span className="text-on-surface-variant/70">{l.kategori}</span>
-                        )}
-                        {l.adres && <span className="inline-flex items-center gap-0.5"><MapPin size={11} /> {l.adres}</span>}
+                    <td className="px-4 py-3 align-top">
+                      <div className="max-w-[320px]">
+                        <div className="font-bold text-on-surface break-words">{l.isim || '—'}</div>
+                        <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-on-surface-variant">
+                          {tur && (
+                            <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${tur.cls}`} title={l.kategori || undefined}>
+                              {tur.label}
+                            </span>
+                          )}
+                          {l.kategori && (!tur || tur.label.toLowerCase() !== l.kategori.toLowerCase()) && (
+                            <span className="text-on-surface-variant/70">{l.kategori}</span>
+                          )}
+                          {l.adres && (
+                            <span className="inline-flex items-start gap-0.5 min-w-0">
+                              <MapPin size={11} className="shrink-0 mt-0.5" /> <span className="break-words">{l.adres}</span>
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3 whitespace-nowrap">
@@ -846,23 +876,28 @@ export default function CustomerFinderPage() {
                         ? <span className="text-xs font-bold text-on-surface">{loc.sehir}</span>
                         : <span className="text-xs text-on-surface-variant">—</span>}
                     </td>
-                    <td className="px-4 py-3 space-y-0.5">
-                      {l.telefon && (
-                        <a href={`tel:${l.telefon}`} className="text-xs flex items-center gap-1 text-on-surface hover:text-primary">
-                          <Phone size={12} /> {l.telefon}
-                        </a>
-                      )}
-                      {l.email && (
-                        <a href={`mailto:${l.email}`} className="text-xs flex items-center gap-1 text-on-surface hover:text-primary">
-                          <Mail size={12} /> {l.email}
-                        </a>
-                      )}
-                      {l.website && (
-                        <a href={l.website} target="_blank" rel="noreferrer" className="text-xs flex items-center gap-1 text-primary hover:underline">
-                          <Globe size={12} /> Web sitesi
-                        </a>
-                      )}
-                      {!l.telefon && !l.email && !l.website && <span className="text-xs text-on-surface-variant">—</span>}
+                    {/* E-posta/telefon tek parça uzun metinlerdir: sütun genişliği
+                        sınırlanmazsa tabloyu şişirir, ikon da flex içinde ezilir.
+                        max-w + break-all + shrink-0 üçlüsü ikisini de önler. */}
+                    <td className="px-4 py-3 align-top" onClick={(e) => e.stopPropagation()}>
+                      <div className="space-y-0.5 max-w-[220px]">
+                        {l.telefon && (
+                          <a href={`tel:${l.telefon}`} className="text-xs flex items-start gap-1 text-on-surface hover:text-primary">
+                            <Phone size={12} className="shrink-0 mt-0.5" /> <span className="break-all">{l.telefon}</span>
+                          </a>
+                        )}
+                        {l.email && (
+                          <a href={`mailto:${l.email}`} title={l.email} className="text-xs flex items-start gap-1 text-on-surface hover:text-primary">
+                            <Mail size={12} className="shrink-0 mt-0.5" /> <span className="break-all">{l.email}</span>
+                          </a>
+                        )}
+                        {l.website && (
+                          <a href={l.website} target="_blank" rel="noreferrer" title={l.website} className="text-xs flex items-center gap-1 text-primary hover:underline">
+                            <Globe size={12} className="shrink-0" /> Web sitesi
+                          </a>
+                        )}
+                        {!l.telefon && !l.email && !l.website && <span className="text-xs text-on-surface-variant">—</span>}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
                       {l.puan != null ? (
@@ -880,7 +915,7 @@ export default function CustomerFinderPage() {
                     <td className={`px-4 py-3 text-xs font-medium ${MAIL_META[l.mail_durumu]?.cls}`}>
                       {mailLabel(l.mail_durumu)}
                     </td>
-                    <td className="px-4 py-3 text-right whitespace-nowrap">
+                    <td className="px-4 py-3 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
                       {l.telefon && (
                         phoneIsWhatsapp(l.telefon) ? (
                           <a href={waLink(l.telefon, fillVars(WA_TEMPLATES[0].text.de, l))} target="_blank" rel="noreferrer"
@@ -905,7 +940,7 @@ export default function CustomerFinderPage() {
                           <Send size={14} />
                         </button>
                       )}
-                      <button onClick={() => setDetail(l)} className="text-primary font-bold text-xs hover:underline">Aç</button>
+                      <button onClick={() => setDetailId(l.id)} className="text-primary font-bold text-xs hover:underline">Aç</button>
                     </td>
                   </tr>
                   );
@@ -921,12 +956,20 @@ export default function CustomerFinderPage() {
       {detail && (
         <LeadDrawer
           lead={detail}
-          onClose={() => setDetail(null)}
-          onStatus={async (s) => { await updateLeadStatus(detail.id, s); setDetail({ ...detail, durum: s }); }}
-          onNote={async (n) => { await updateLeadNote(detail.id, n); setDetail({ ...detail, notlar: n }); }}
-          onMail={() => setMailIds([detail.id])}
+          sending={sending}
+          onClose={() => setDetailId(null)}
+          onStatus={async (s) => { await updateLeadStatus(detail.id, s); }}
+          onNote={async (n) => { await updateLeadNote(detail.id, n); }}
+          onSendMail={async (subject, body) => {
+            const r = await sendMail([detail.id], subject, body);
+            setToast(r.sent
+              ? `Mail gönderildi → ${detail.email}`
+              : `Mail gönderilemedi (${r.failed} başarısız · ${r.skipped} atlandı).`);
+            return r.sent > 0;
+          }}
           onWhatsapp={() => markWhatsapp(detail.id)}
           onFetchReviews={(max) => fetchReviews(detail.id, detail.place_url || '', max)}
+          onCopied={(what) => setToast(`${what} panoya kopyalandı.`)}
         />
       )}
 
@@ -985,30 +1028,75 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
   );
 }
 
+/**
+ * Sağ panel — bir işletmenin TÜM kartı: künye, iletişim, satış durumu,
+ * hazır mesaj taslakları (e-posta + WhatsApp, 7 dil), Google yorumları ve not.
+ * Taslaklar ayrı pencerede değil burada; yer tutucular ({{isim}} vb.) canlı
+ * doldurulmuş hâliyle önizlenir, mail buradan doğrudan gönderilir.
+ */
 function LeadDrawer({
-  lead, onClose, onStatus, onNote, onMail, onWhatsapp, onFetchReviews,
+  lead, sending, onClose, onStatus, onNote, onSendMail, onWhatsapp, onFetchReviews, onCopied,
 }: {
   lead: CustomerLead;
+  sending: boolean;
   onClose: () => void;
   onStatus: (s: LeadStatus) => Promise<void>;
   onNote: (n: string) => Promise<void>;
-  onMail: () => void;
+  onSendMail: (subject: string, body: string) => Promise<boolean>;
   onWhatsapp: () => void;
   onFetchReviews: (max: number) => Promise<LeadReview[]>;
+  onCopied: (what: string) => void;
 }) {
   const [note, setNote] = useState(lead.notlar || '');
   const [saving, setSaving] = useState<string | null>(null);
-  const [waMsg, setWaMsg] = useState(WA_TEMPLATES[0].text.de);
-  const [waLang, setWaLang] = useState<Lang>('de');
-  const [waTpl, setWaTpl] = useState(0);
 
+  // ── Mesaj taslakları (tek bölüm, iki sekme) ──────────────────────────
+  const [channel, setChannel] = useState<'mail' | 'wa'>('mail');
+  const [lang, setLang] = useState<Lang>('de');
+  const [mailTpl, setMailTpl] = useState(0);
+  const [subject, setSubject] = useState(MAIL_TEMPLATES[0].subject.de);
+  const [body, setBody] = useState(MAIL_TEMPLATES[0].body.de);
+  const [waTpl, setWaTpl] = useState(0);
+  const [waMsg, setWaMsg] = useState(WA_TEMPLATES[0].text.de);
+
+  function applyMail(idx: number, lng: Lang) {
+    const t = MAIL_TEMPLATES[idx];
+    if (t) { setSubject(t.subject[lng]); setBody(t.body[lng]); }
+  }
   function applyWa(idx: number, lng: Lang) {
     const t = WA_TEMPLATES[idx];
     if (t) setWaMsg(t.text[lng]);
   }
+  /** Dil değişince açık olan kanalın taslağı o dile geçer. */
+  function pickLang(lng: Lang) {
+    setLang(lng);
+    if (channel === 'mail') applyMail(mailTpl, lng);
+    else applyWa(waTpl, lng);
+  }
+
   const [reviews, setReviews] = useState<LeadReview[] | null>(lead.yorumlar ?? null);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [reviewErr, setReviewErr] = useState<string | null>(null);
+
+  // Panel başka bir işletmeye geçtiğinde taslaklar, not ve yorumlar sıfırlansın.
+  useEffect(() => {
+    setNote(lead.notlar || '');
+    setChannel('mail');
+    setLang('de');
+    setMailTpl(0); setSubject(MAIL_TEMPLATES[0].subject.de); setBody(MAIL_TEMPLATES[0].body.de);
+    setWaTpl(0); setWaMsg(WA_TEMPLATES[0].text.de);
+    setReviews(lead.yorumlar ?? null);
+    setReviewErr(null);
+  }, [lead.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const filledSubject = fillVars(subject, lead);
+  const filledBody = fillVars(body, lead);
+  const filledWa = fillVars(waMsg, lead);
+
+  async function copy(text: string, what: string) {
+    try { await navigator.clipboard.writeText(text); onCopied(what); }
+    catch { /* pano izni yoksa sessiz geç */ }
+  }
 
   async function loadReviews() {
     if (!lead.place_url) return;
@@ -1027,32 +1115,59 @@ function LeadDrawer({
   return (
     <div className="fixed inset-0 z-50 flex justify-end" onClick={onClose}>
       <div className="absolute inset-0 bg-black/40" />
-      <div className="relative bg-surface-container-lowest w-full max-w-lg h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="sticky top-0 bg-surface-container-lowest border-b border-outline-variant/10 p-5 flex items-start justify-between">
-          <div>
-            <div className="font-black text-on-surface">{lead.isim || '—'}</div>
-            <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-on-surface-variant">
-              {(() => {
-                const tur = classifyKategori(lead.kategori);
-                return (<>
-                  {tur && <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${tur.cls}`}>{tur.label}</span>}
-                  {lead.kategori && (!tur || tur.label.toLowerCase() !== lead.kategori.toLowerCase()) && <span className="text-on-surface-variant/70">{lead.kategori}</span>}
-                </>);
-              })()}
+      {/* Taslaklar da bu panelde olduğu için biraz daha geniş (max-w-xl). */}
+      <div className="relative bg-surface-container-lowest w-full max-w-xl h-full overflow-y-auto shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        {/* ── Künye kartı ─────────────────────────────────────────────── */}
+        <div className="sticky top-0 z-10 bg-surface-container-lowest border-b border-outline-variant/10 p-5">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="font-black text-lg leading-tight text-on-surface break-words">{lead.isim || '—'}</div>
+              <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs text-on-surface-variant">
+                {(() => {
+                  const tur = classifyKategori(lead.kategori);
+                  return (<>
+                    {tur && <span className={`inline-flex items-center px-1.5 py-0.5 rounded-md border text-[10px] font-bold ${tur.cls}`}>{tur.label}</span>}
+                    {lead.kategori && (!tur || tur.label.toLowerCase() !== lead.kategori.toLowerCase()) && <span className="text-on-surface-variant/70">{lead.kategori}</span>}
+                  </>);
+                })()}
+                {lead.puan != null && (
+                  <span className="inline-flex items-center gap-0.5 font-bold text-on-surface">
+                    <Star size={12} className="text-warning fill-warning" /> {lead.puan}
+                    {lead.yorum_sayisi != null && <span className="font-normal text-on-surface-variant">({lead.yorum_sayisi})</span>}
+                  </span>
+                )}
+              </div>
             </div>
+            <button onClick={onClose} className="p-1.5 rounded-full hover:bg-surface-container-low shrink-0"><X size={18} /></button>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-full hover:bg-surface-container-low"><X size={18} /></button>
+
+          {/* Satış + iletişim durumu tek bakışta */}
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <span className={`inline-flex items-center px-2 py-1 rounded-full text-[11px] font-bold border ${STATUS_META[lead.durum]?.cls}`}>
+              {statusLabel(lead.durum)}
+            </span>
+            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold border border-outline-variant/20 ${MAIL_META[lead.mail_durumu]?.cls}`}>
+              <Mail size={11} /> {mailLabel(lead.mail_durumu)}
+            </span>
+            <span className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-[11px] font-bold border border-outline-variant/20 ${
+              lead.whatsapp_durumu === 'gonderildi' ? 'text-success' : 'text-on-surface-variant'
+            }`}>
+              <MessageCircle size={11} /> {lead.whatsapp_durumu === 'gonderildi' ? 'Ulaşıldı' : 'WhatsApp yok'}
+            </span>
+          </div>
         </div>
 
         <div className="p-5 space-y-6">
           <section>
             <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">İletişim</h3>
+            {/* Adres/e-posta/URL boşluksuz uzun metinlerdir. min-w-0 + break-all
+                olmadan çekmeceden taşar, ikonlar da flex içinde eziliyordu. */}
             <div className="bg-surface-container-low rounded-xl p-4 space-y-2 text-sm">
-              {lead.adres && <div className="flex items-start gap-2"><MapPin size={14} className="mt-0.5 text-on-surface-variant" /> {lead.adres}</div>}
-              {lead.telefon && <a href={`tel:${lead.telefon}`} className="flex items-center gap-2 hover:text-primary"><Phone size={14} /> {lead.telefon}</a>}
-              {lead.email && <a href={`mailto:${lead.email}`} className="flex items-center gap-2 hover:text-primary"><Mail size={14} /> {lead.email}</a>}
-              {lead.website && <a href={lead.website} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><Globe size={14} /> {lead.website}</a>}
-              {lead.place_url && <a href={lead.place_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><MapPin size={14} /> Google Haritalar'da aç</a>}
+              {lead.adres && <div className="flex items-start gap-2"><MapPin size={14} className="mt-0.5 shrink-0 text-on-surface-variant" /> <span className="min-w-0 break-words">{lead.adres}</span></div>}
+              {lead.telefon && <a href={`tel:${lead.telefon}`} className="flex items-start gap-2 hover:text-primary"><Phone size={14} className="mt-0.5 shrink-0" /> <span className="min-w-0 break-all">{lead.telefon}</span></a>}
+              {lead.email && <a href={`mailto:${lead.email}`} className="flex items-start gap-2 hover:text-primary"><Mail size={14} className="mt-0.5 shrink-0" /> <span className="min-w-0 break-all">{lead.email}</span></a>}
+              {lead.website && <a href={lead.website} target="_blank" rel="noreferrer" title={lead.website} className="flex items-start gap-2 text-primary hover:underline"><Globe size={14} className="mt-0.5 shrink-0" /> <span className="min-w-0 break-all">{lead.website}</span></a>}
+              {lead.place_url && <a href={lead.place_url} target="_blank" rel="noreferrer" className="flex items-center gap-2 text-primary hover:underline"><MapPin size={14} className="shrink-0" /> Google Haritalar'da aç</a>}
               {lead.puan != null && (
                 <div className="flex items-center gap-1"><Star size={14} className="text-warning fill-warning" /> {lead.puan}
                   {lead.yorum_sayisi != null && <span className="text-on-surface-variant">({lead.yorum_sayisi} yorum)</span>}
@@ -1084,63 +1199,161 @@ function LeadDrawer({
             </div>
           </section>
 
+          {/* ── Hazır mesaj taslakları: e-posta + WhatsApp aynı kartta ──── */}
           <section>
-            <button onClick={onMail} disabled={!lead.email}
-              className="w-full px-3 py-2.5 rounded-lg bg-primary text-white font-bold text-sm inline-flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50">
-              <Send size={15} /> {lead.email ? 'Mail gönder' : 'E-posta adresi yok'}
-            </button>
-            {lead.mail_durumu === 'gonderildi' && (
-              <p className="text-xs text-success mt-2 text-center">
-                Bu işletmeye mail gönderildi{lead.mail_sent_at ? ` · ${new Date(lead.mail_sent_at).toLocaleString('tr-TR')}` : ''}.
-              </p>
-            )}
-          </section>
-
-          {/* WhatsApp */}
-          <section>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2 flex items-center gap-1">
-              <MessageCircle size={12} /> WhatsApp
+            <h3 className="text-xs font-bold uppercase tracking-wider text-on-surface-variant mb-2">
+              Hazır mesaj taslakları
             </h3>
-            <div className="flex items-center gap-2 flex-wrap mb-2">
-              <span className="text-xs font-bold text-on-surface-variant">Dil:</span>
-              {LANGS.map((L) => (
-                <button key={L.code} type="button"
-                  onClick={() => { setWaLang(L.code); if (waTpl >= 0) applyWa(waTpl, L.code); }}
-                  className={`px-2.5 py-1 rounded-lg text-xs font-bold border transition-colors ${
-                    waLang === L.code ? 'bg-primary text-white border-primary' : 'border-outline-variant/20 hover:bg-surface-container-low'
+            <div className="rounded-xl border border-outline-variant/20 overflow-hidden">
+              {/* Kanal sekmeleri */}
+              <div className="flex border-b border-outline-variant/10 bg-surface-container-low">
+                {/* Sekme değişimi metni SIFIRLAMAZ — iki kanalın taslağı ayrı
+                    state'te durur, yazdıklarınız kaybolmaz. */}
+                <button
+                  type="button"
+                  onClick={() => setChannel('mail')}
+                  className={`flex-1 px-3 py-2.5 text-sm font-bold inline-flex items-center justify-center gap-1.5 border-b-2 transition-colors ${
+                    channel === 'mail' ? 'text-primary border-primary bg-surface-container-lowest' : 'text-on-surface-variant border-transparent hover:text-on-surface'
                   }`}>
-                  {L.label}
+                  <Mail size={14} /> E-posta
                 </button>
-              ))}
+                <button
+                  type="button"
+                  onClick={() => setChannel('wa')}
+                  className={`flex-1 px-3 py-2.5 text-sm font-bold inline-flex items-center justify-center gap-1.5 border-b-2 transition-colors ${
+                    channel === 'wa' ? 'text-primary border-primary bg-surface-container-lowest' : 'text-on-surface-variant border-transparent hover:text-on-surface'
+                  }`}>
+                  <MessageCircle size={14} /> WhatsApp
+                </button>
+              </div>
+
+              <div className="p-4 space-y-3">
+                {/* Dil — iki kanal için ortak */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] font-bold text-on-surface-variant mr-0.5">Dil:</span>
+                  {LANGS.map((L) => (
+                    <button key={L.code} type="button" onClick={() => pickLang(L.code)}
+                      className={`px-2 py-1 rounded-lg text-[11px] font-bold border transition-colors ${
+                        lang === L.code ? 'bg-primary text-white border-primary' : 'border-outline-variant/20 hover:bg-surface-container-low'
+                      }`}>
+                      {L.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Taslak seçimi — tüm taslaklar tek tıkla */}
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[11px] font-bold text-on-surface-variant mr-0.5">Taslak:</span>
+                  {(channel === 'mail' ? MAIL_TEMPLATES : WA_TEMPLATES).map((t, i) => {
+                    const active = (channel === 'mail' ? mailTpl : waTpl) === i;
+                    return (
+                      <button key={t.label} type="button"
+                        onClick={() => {
+                          if (channel === 'mail') { setMailTpl(i); applyMail(i, lang); }
+                          else { setWaTpl(i); applyWa(i, lang); }
+                        }}
+                        className={`px-2 py-1 rounded-lg text-[11px] font-bold border transition-colors ${
+                          active ? 'bg-primary/10 text-primary border-primary/40' : 'border-outline-variant/20 hover:bg-surface-container-low'
+                        }`}>
+                        {t.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {channel === 'mail' ? (
+                  <>
+                    <Field label="Konu">
+                      <input value={subject} onChange={(e) => setSubject(e.target.value)} className={inputCls} />
+                    </Field>
+                    <Field label="Mesaj">
+                      <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={8} className={inputCls} />
+                    </Field>
+
+                    {/* Gidecek hâli — yer tutucular doldurulmuş */}
+                    <details className="rounded-lg bg-surface-container-low p-3">
+                      <summary className="cursor-pointer select-none text-[11px] font-bold text-on-surface-variant">
+                        Önizleme — {lead.email || 'e-posta adresi yok'}
+                      </summary>
+                      <div className="mt-2 text-[12.5px] leading-relaxed">
+                        <div className="font-bold break-words">{filledSubject}</div>
+                        <p className="mt-1 whitespace-pre-wrap break-words text-on-surface-variant">{filledBody}</p>
+                      </div>
+                    </details>
+
+                    <div className="flex gap-2">
+                      <button
+                        onClick={async () => { await onSendMail(subject, body); }}
+                        disabled={!lead.email || sending || !subject.trim() || !body.trim()}
+                        className="flex-1 px-3 py-2.5 rounded-lg bg-primary text-white font-bold text-sm inline-flex items-center justify-center gap-2 hover:opacity-90 disabled:opacity-50">
+                        {sending ? <Loader2 size={15} className="animate-spin" /> : <Send size={15} />}
+                        {!lead.email ? 'E-posta adresi yok' : sending ? 'Gönderiliyor...' : 'Gönder'}
+                      </button>
+                      <button
+                        onClick={() => copy(`${filledSubject}\n\n${filledBody}`, 'Mail metni')}
+                        title="Konu + mesajı panoya kopyala"
+                        className="px-3 py-2.5 rounded-lg border border-outline-variant/20 font-bold text-sm hover:bg-surface-container-low">
+                        Kopyala
+                      </button>
+                    </div>
+                    {lead.mail_durumu === 'gonderildi' && (
+                      <p className="text-xs text-success text-center">
+                        Bu işletmeye mail gönderildi{lead.mail_sent_at ? ` · ${new Date(lead.mail_sent_at).toLocaleString('tr-TR')}` : ''}.
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <Field label="Mesaj">
+                      <textarea value={waMsg} onChange={(e) => setWaMsg(e.target.value)} rows={5} className={inputCls} />
+                    </Field>
+
+                    <details className="rounded-lg bg-surface-container-low p-3">
+                      <summary className="cursor-pointer select-none text-[11px] font-bold text-on-surface-variant">
+                        Önizleme — {lead.telefon || 'telefon yok'}
+                      </summary>
+                      <p className="mt-2 text-[12.5px] leading-relaxed whitespace-pre-wrap break-words text-on-surface-variant">
+                        {filledWa}
+                      </p>
+                    </details>
+
+                    <div className="flex gap-2">
+                      <a
+                        href={lead.telefon ? waLink(lead.telefon, filledWa) : undefined}
+                        target="_blank" rel="noreferrer"
+                        onClick={() => { if (lead.telefon) onWhatsapp(); }}
+                        className={`flex-1 px-3 py-2.5 rounded-lg font-bold text-sm inline-flex items-center justify-center gap-2 ${
+                          lead.telefon
+                            ? 'bg-[#25D366] text-white hover:opacity-90'
+                            : 'bg-surface-container-low text-on-surface-variant pointer-events-none opacity-60'
+                        }`}>
+                        <MessageCircle size={15} /> {lead.telefon ? "WhatsApp'ta aç" : 'Telefon numarası yok'}
+                      </a>
+                      <button
+                        onClick={() => copy(filledWa, 'WhatsApp mesajı')}
+                        className="px-3 py-2.5 rounded-lg border border-outline-variant/20 font-bold text-sm hover:bg-surface-container-low">
+                        Kopyala
+                      </button>
+                    </div>
+                    {lead.whatsapp_durumu === 'gonderildi' && (
+                      <p className="text-xs text-success text-center">
+                        WhatsApp ile ulaşıldı{lead.whatsapp_sent_at ? ` · ${new Date(lead.whatsapp_sent_at).toLocaleString('tr-TR')}` : ''}.
+                      </p>
+                    )}
+                    <p className="text-[11px] text-on-surface-variant text-center">
+                      WhatsApp açılır, mesaj hazır gelir; "gönder"e sen basarsın. Ücretsiz, kredi harcamaz.
+                    </p>
+                  </>
+                )}
+
+                <p className="text-[11px] text-on-surface-variant">
+                  <code className="bg-surface-container-low px-1 rounded">{'{{isim}}'}</code>{' '}
+                  <code className="bg-surface-container-low px-1 rounded">{'{{kategori}}'}</code>{' '}
+                  <code className="bg-surface-container-low px-1 rounded">{'{{adres}}'}</code>{' '}
+                  yer tutucuları gönderirken bu işletmenin bilgisiyle dolar.
+                </p>
+              </div>
             </div>
-            <Field label="Hazır mesaj">
-              <select className={inputCls} value={waTpl}
-                onChange={(e) => { const i = Number(e.target.value); setWaTpl(i); applyWa(i, waLang); }}>
-                <option value={-1} disabled>Bir şablon seç...</option>
-                {WA_TEMPLATES.map((t, i) => <option key={i} value={i}>{t.label}</option>)}
-              </select>
-            </Field>
-            <textarea value={waMsg} onChange={(e) => setWaMsg(e.target.value)} rows={3}
-              className="w-full mt-2 px-3 py-2 rounded-lg border border-outline-variant/20 bg-surface-container-lowest text-sm focus:ring-2 focus:ring-primary/30 focus:border-primary outline-none" />
-            <a
-              href={lead.telefon ? waLink(lead.telefon, fillVars(waMsg, lead)) : undefined}
-              target="_blank" rel="noreferrer"
-              onClick={() => { if (lead.telefon) onWhatsapp(); }}
-              className={`mt-2 w-full px-3 py-2.5 rounded-lg font-bold text-sm inline-flex items-center justify-center gap-2 ${
-                lead.telefon
-                  ? 'bg-[#25D366] text-white hover:opacity-90'
-                  : 'bg-surface-container-low text-on-surface-variant pointer-events-none opacity-60'
-              }`}>
-              <MessageCircle size={15} /> {lead.telefon ? "WhatsApp'ta aç ve gönder" : 'Telefon numarası yok'}
-            </a>
-            {lead.whatsapp_durumu === 'gonderildi' && (
-              <p className="text-xs text-success mt-2 text-center">
-                WhatsApp ile ulaşıldı{lead.whatsapp_sent_at ? ` · ${new Date(lead.whatsapp_sent_at).toLocaleString('tr-TR')}` : ''}.
-              </p>
-            )}
-            <p className="text-[11px] text-on-surface-variant mt-1 text-center">
-              WhatsApp açılır, mesaj hazır gelir; "gönder"e sen basarsın. Ücretsiz, kredi harcamaz.
-            </p>
           </section>
 
           {/* Google Yorumları (talep üzerine) */}
@@ -1315,9 +1528,10 @@ function MailHistory({ mailLog }: { mailLog: MailLogEntry[] }) {
               {mailLog.map((m) => (
                 <tr key={m.id} className="hover:bg-surface-container-low transition-colors">
                   <td className="px-4 py-3 text-xs text-on-surface-variant whitespace-nowrap">{new Date(m.created_at).toLocaleString('tr-TR')}</td>
-                  <td className="px-4 py-3 font-medium text-on-surface">{m.lead_isim || '—'}</td>
-                  <td className="px-4 py-3 text-xs">{m.to_email}</td>
-                  <td className="px-4 py-3 text-xs max-w-[260px] truncate">{m.subject}</td>
+                  <td className="px-4 py-3 font-medium text-on-surface align-top"><span className="block max-w-[220px] break-words">{m.lead_isim || '—'}</span></td>
+                  {/* Alıcı adresi tek parça uzun metin — sınırlanmazsa sütunu şişirir. */}
+                  <td className="px-4 py-3 text-xs align-top"><span className="block max-w-[220px] break-all">{m.to_email || '—'}</span></td>
+                  <td className="px-4 py-3 text-xs align-top"><span className="block max-w-[260px] truncate" title={m.subject || undefined}>{m.subject}</span></td>
                   <td className="px-4 py-3">
                     <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold border ${
                       m.status === 'gonderildi'
@@ -1341,14 +1555,16 @@ function MailHistory({ mailLog }: { mailLog: MailLogEntry[] }) {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4" onClick={() => setView(null)}>
           <div className="absolute inset-0 bg-black/50" />
           <div className="relative bg-surface-container-lowest rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-3" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-start justify-between">
-              <div>
-                <div className="font-black text-on-surface">{view.lead_isim || '—'}</div>
-                <div className="text-xs text-on-surface-variant">{view.to_email} · {new Date(view.created_at).toLocaleString('tr-TR')}</div>
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="font-black text-on-surface break-words">{view.lead_isim || '—'}</div>
+                <div className="text-xs text-on-surface-variant break-all">
+                  {view.to_email} · {new Date(view.created_at).toLocaleString('tr-TR')}
+                </div>
               </div>
-              <button onClick={() => setView(null)} className="p-1.5 rounded-full hover:bg-surface-container-low"><X size={18} /></button>
+              <button onClick={() => setView(null)} className="p-1.5 rounded-full hover:bg-surface-container-low shrink-0"><X size={18} /></button>
             </div>
-            <div className="text-sm"><span className="font-bold">Konu:</span> {view.subject}</div>
+            <div className="text-sm break-words"><span className="font-bold">Konu:</span> {view.subject}</div>
             <div className="bg-surface-container-low rounded-xl p-3 text-sm whitespace-pre-wrap max-h-[50vh] overflow-y-auto">{view.body}</div>
           </div>
         </div>
