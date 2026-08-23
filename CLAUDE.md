@@ -59,6 +59,13 @@ npx vitest run   # testler (NOT: 5 dosya/9 test şu an kırık — miras)
 ```
 
 ## Projeye özgü kurallar — ihlal edilirse regresyon olur
+- **Domain: `https://www.2mcgastro.de`.** Tek kaynak `src/lib/seo.ts` → `SITE_URL`.
+  `2mcgastro.com` **bize ait değil** (301 → `2mcgastro.eu/password`) — canonical,
+  hreflang, og:url, JSON-LD `@id`, robots.txt veya sitemap'te görürsen regresyondur.
+  Domain'e dokunan iş 7 dosyayı birlikte günceller: `index.html`,
+  `public/robots.txt`, `src/lib/seo.ts`, `scripts/generate-sitemap.mjs`,
+  `api/rss.ts`, `api/feed-gmc.ts`, `api/sitemap-products.ts` → sonra `npm run sitemap`
+  (sitemap üretilir, elle düzenlenmez).
 - Ürün detayı **tek** bileşenden açılır: `src/components/ProductDetailDrawer.tsx`
   (App kökünde global, `openFromItem` ile). Paralel detay görünümü yazma.
 - Karşılaştırma paneli global: `src/components/ComparePanel.tsx` — yeni gridlerde
@@ -75,6 +82,20 @@ npx vitest run   # testler (NOT: 5 dosya/9 test şu an kırık — miras)
   tekliflerinde kullanılmaz.
 - Yeni kullanıcıya görünen metin → **15 dilin tamamına** çeviri gerekir.
 - Windows'ta `npm install` rollup hatası verirse `--force` ile kurulur.
+- **Domain: `https://www.2mcgastro.de`.** `2mcgastro.com` bize ait DEĞİL (301 ile
+  `2mcgastro.eu`'ya gider) — canonical/hreflang/og/JSON-LD/sitemap/robots'ta asla
+  kullanılmaz. Tek kaynak `src/lib/seo.ts → SITE_URL`; ayrıca elle senkron tutulan
+  yerler: `scripts/generate-sitemap.mjs`, `index.html`, `public/robots.txt`,
+  `api/{rss,feed-gmc,sitemap-products}.ts`.
+- Ana sayfa kritik yolu ağır: 3B model/`three` chunk'ı **IntersectionObserver ile
+  ertelenir** (`LandingPage.tsx` → `planner3dReady` / `inspection3dReady` kalıbı).
+  Landing'e koşulsuz `KitchenModelViewer` ekleme.
+
+## Teknik SEO denetimi
+`.claude/agents/seo-agent.md` — Unlighthouse ile site geneli Lighthouse taraması,
+P0-P3 önceliklendirme, onaylı düzeltme, `--no-cache` ile doğrulama.
+Ayrıştırıcı `scripts/seo/rapor-ozet.mjs`, raporlar `docs/seo/`.
+AI/LLM görünürlüğü (llms.txt, alıntılanabilirlik) ayrı iştir → `/geo-agent`.
 
 ## Hata Merkezi (otomatik triyaj + düzeltme)
 `/admin/error-reports` — dört sekme: Bildirimler, Sistem Logları, İşlem Geçmişi,
@@ -88,4 +109,7 @@ bildirene e-posta gider.
 
 - Ham kullanıcı metni `description` sütununda **asla ezilmez**;
   AI'ın detaylandırdığı hali `description_ai`'ye yazılır.
+- Ajan tek yayıncı değil: panelden elle **Çözüldü** denince de kayıt
+  `/degisiklikler`'de yayınlanır (`publish_manual_resolution`, migration 043) —
+  "Yeniden Aç" girdiyi gizler. Yeni bir "çözüldü" yolu eklersen bu RPC'yi çağır.
 - Ajan sözleşmesi ve kuralları: **`docs/fix-agent.md`**

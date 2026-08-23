@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..');
-const SITE_URL = 'https://2mcgastro.com';
+const SITE_URL = 'https://www.2mcgastro.de';
 
 const LOCALES = ['tr', 'en', 'de', 'fr', 'nl', 'it', 'es', 'pt', 'pl', 'cs', 'da', 'el', 'hu'];
 

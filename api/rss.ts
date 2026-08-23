@@ -8,7 +8,7 @@ type Res = {
   send: (body: string) => void;
 };
 
-const SITE_URL = 'https://2mcgastro.com';
+const SITE_URL = 'https://www.2mcgastro.de';
 
 function xmlEscape(s: string) {
   return String(s || '').replace(/[<>&'"]/g, (c) =>

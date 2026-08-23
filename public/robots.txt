@@ -1,5 +1,5 @@
 # 2MC Gastro — robots.txt
-# https://2mcgastro.com
+# https://www.2mcgastro.de
 
 User-agent: *
 Allow: /
@@ -21,37 +21,60 @@ Disallow: /*?ref=
 Disallow: /*?fbclid=
 Disallow: /*?gclid=
 
-# AI crawlers — allow for GEO / AI Overviews / LLM training citations
-User-agent: GPTBot
-Allow: /
+# ─────────────────────────────────────────────────────────────────────────────
+# AI crawlers — GEO / AEO
+#
+# ALINTI (citation) botları: cevap motorlarının bizi kaynak göstermesini bunlar
+# sağlar. ASLA engellenmemeli:
+#   OAI-SearchBot · Claude-SearchBot · PerplexityBot · Googlebot · Applebot
+#
+# Not: ClaudeBot bir alıntı botu DEĞİL, Anthropic'in eğitim tarayıcısıdır.
+# Google-Extended bir user-agent değil, yalnızca Gemini/Vertex model eğitimini
+# kontrol eden bir token'dır — AI Overviews'a girmeyi Googlebot erişimi belirler.
+# ─────────────────────────────────────────────────────────────────────────────
 
+# — OpenAI / ChatGPT —
 User-agent: OAI-SearchBot
 Allow: /
 
 User-agent: ChatGPT-User
 Allow: /
 
-User-agent: Google-Extended
+User-agent: GPTBot
 Allow: /
 
+# — Anthropic / Claude —
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# — Perplexity —
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# — Google (Search + AI Overviews) —
 User-agent: Googlebot
 Allow: /
 
 User-agent: Googlebot-Image
 Allow: /
 
+User-agent: Google-Extended
+Allow: /
+
+# — Microsoft Copilot (Bing indeksi üzerinden) —
 User-agent: Bingbot
 Allow: /
 
-User-agent: ClaudeBot
-Allow: /
-
-User-agent: anthropic-ai
-Allow: /
-
-User-agent: PerplexityBot
-Allow: /
-
+# — Apple (Siri / Spotlight) —
 User-agent: Applebot
 Allow: /
 
@@ -77,6 +100,6 @@ Disallow: /
 User-agent: DotBot
 Disallow: /
 
-Sitemap: https://2mcgastro.com/sitemap.xml
-Sitemap: https://2mcgastro.com/sitemap-products.xml
-Host: https://2mcgastro.com
+Sitemap: https://www.2mcgastro.de/sitemap.xml
+Sitemap: https://www.2mcgastro.de/sitemap-products.xml
+Host: https://www.2mcgastro.de

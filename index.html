@@ -9,7 +9,7 @@
     <!-- Primary Meta Tags -->
     <title>2MC Gastro | Profesyonel Endüstriyel Mutfak Planlama Platformu</title>
     <meta name="title" content="2MC Gastro | Profesyonel Endüstriyel Mutfak Planlama Platformu" />
-    <meta name="description" content="2MC Gastro ile endüstriyel mutfak projelerinizi 3D tasarlayın, 6.800+ ekipman kataloğundan seçim yapın, HACCP uyumlu profesyonel teklifler oluşturun. Diamond, CombiSteel ve 50+ marka." />
+    <meta name="description" content="2MC Gastro ile endüstriyel mutfak projelerinizi 3D tasarlayın, 14.000+ ekipman kataloğundan seçim yapın, HACCP uyumlu profesyonel teklifler oluşturun. Diamond, CombiSteel ve HENDI ürünleri, Köln merkezli tedarik." />
     <meta name="keywords" content="endüstriyel mutfak, profesyonel mutfak ekipmanları, mutfak planlama, 3D mutfak tasarım, HACCP, Diamond mutfak, CombiSteel, restoran mutfağı, otel mutfağı, gastro ekipman, mutfak projelendirme, B2B mutfak, Köln gastro, Gewerbeküchen, Großküchentechnik, Gastronomiebedarf Köln" />
     <meta name="author" content="2MC Gastro" />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
@@ -18,22 +18,22 @@
     <meta name="rating" content="general" />
     <meta name="distribution" content="global" />
 
-    <!-- Canonical & Alternates -->
-    <link rel="canonical" href="https://2mcgastro.com/" />
-    <link rel="alternate" hreflang="tr" href="https://2mcgastro.com/" />
-    <link rel="alternate" hreflang="en" href="https://2mcgastro.com/?lang=en" />
-    <link rel="alternate" hreflang="de" href="https://2mcgastro.com/?lang=de" />
-    <link rel="alternate" hreflang="fr" href="https://2mcgastro.com/?lang=fr" />
-    <link rel="alternate" hreflang="nl" href="https://2mcgastro.com/?lang=nl" />
-    <link rel="alternate" hreflang="x-default" href="https://2mcgastro.com/" />
+    <!-- Canonical & Alternates — KASITLI OLARAK BURADA YOK.
+         Bu bir SPA: her rota aynı index.html'i alır. Buraya sabit bir canonical
+         yazılırsa /blog, /brand, /compare … hepsinin HAM HTML'i "ben ana sayfayım"
+         der. JS çalıştırmayan tarayıcılar (Bing, GPTBot, PerplexityBot, ClaudeBot)
+         tüm alt sayfaları ana sayfanın kopyası sayar ve indekslemez.
+         Ölçüldü: Unlighthouse bu yüzden 10 rotadan 6'sını "i18n kopyası" diye eledi.
+         Canonical + hreflang'i rota bazında src/components/SEO.tsx yazar
+         (data-seo-managed="1"). Kalıcı çözüm alt sayfaların prerender/SSG edilmesidir. -->
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="2MC Gastro" />
-    <meta property="og:url" content="https://2mcgastro.com/" />
+    <meta property="og:url" content="https://www.2mcgastro.de/" />
     <meta property="og:title" content="2MC Gastro | Profesyonel Endüstriyel Mutfak Planlama Platformu" />
-    <meta property="og:description" content="Endüstriyel mutfak projelerinizi 3D tasarlayın, 6.800+ ekipman kataloğundan seçim yapın, profesyonel teklifler oluşturun — hepsi tek platformda." />
-    <meta property="og:image" content="https://2mcgastro.com/logo-2mc-gastro.jpeg" />
+    <meta property="og:description" content="Endüstriyel mutfak projelerinizi 3D tasarlayın, 14.000+ ekipman kataloğundan seçim yapın, profesyonel teklifler oluşturun — hepsi tek platformda." />
+    <meta property="og:image" content="https://www.2mcgastro.de/logo-2mc-gastro.jpeg" />
     <meta property="og:image:alt" content="2MC Gastro — Profesyonel Endüstriyel Mutfak Planlama" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -48,8 +48,8 @@
     <meta name="twitter:site" content="@2mcgastro" />
     <meta name="twitter:creator" content="@2mcgastro" />
     <meta name="twitter:title" content="2MC Gastro | Profesyonel Endüstriyel Mutfak Planlama Platformu" />
-    <meta name="twitter:description" content="Endüstriyel mutfak projelerinizi 3D tasarlayın, 6.800+ ekipman kataloğundan seçim yapın, profesyonel teklifler oluşturun." />
-    <meta name="twitter:image" content="https://2mcgastro.com/logo-2mc-gastro.jpeg" />
+    <meta name="twitter:description" content="Endüstriyel mutfak projelerinizi 3D tasarlayın, 14.000+ ekipman kataloğundan seçim yapın, profesyonel teklifler oluşturun." />
+    <meta name="twitter:image" content="https://www.2mcgastro.de/logo-2mc-gastro.jpeg" />
     <meta name="twitter:image:alt" content="2MC Gastro — Profesyonel Endüstriyel Mutfak Planlama" />
 
     <!-- Icons & PWA -->
@@ -63,7 +63,10 @@
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://images.diamond-europe.com" crossorigin />
     <link rel="dns-prefetch" href="https://pim.combisteel.com" />
-    <link rel="preload" as="image" href="/logo-2mc-gastro.jpeg" fetchpriority="high" />
+    <!-- Ekranda gerçekten render edilen logo bu PNG'dir (Navbar/Layout/Footer).
+         Daha önce burada hiç kullanılmayan .jpeg preload ediliyordu → kritik yolda
+         boşa 49 KB indiriliyordu. -->
+    <link rel="preload" as="image" href="/logo-2mc-gastro.png" fetchpriority="high" />
 
     <!-- Geo meta (local SEO) -->
     <meta name="geo.region" content="DE-NW" />
@@ -76,17 +79,17 @@
     {
       "@context": "https://schema.org",
       "@type": "Organization",
-      "@id": "https://2mcgastro.com/#organization",
+      "@id": "https://www.2mcgastro.de/#organization",
       "name": "2MC Gastro",
       "legalName": "2MC Gastro",
-      "url": "https://2mcgastro.com/",
+      "url": "https://www.2mcgastro.de/",
       "logo": {
         "@type": "ImageObject",
-        "url": "https://2mcgastro.com/logo-2mc-gastro.jpeg",
+        "url": "https://www.2mcgastro.de/logo-2mc-gastro.jpeg",
         "width": 512,
         "height": 512
       },
-      "description": "Profesyonel endüstriyel mutfak planlama, 3D tasarım ve ekipman yönetim platformu. Diamond, CombiSteel ve 50+ markanın 6.800+ ekipmanı.",
+      "description": "Profesyonel endüstriyel mutfak planlama, 3D tasarım ve ekipman yönetim platformu. Diamond, CombiSteel ve HENDI markalarının 14.000+ ekipmanı.",
       "foundingDate": "2010",
       "telephone": "+49-176-70295844",
       "address": {
@@ -117,10 +120,10 @@
     {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
-      "@id": "https://2mcgastro.com/#localbusiness",
+      "@id": "https://www.2mcgastro.de/#localbusiness",
       "name": "2MC Gastro",
-      "image": "https://2mcgastro.com/logo-2mc-gastro.jpeg",
-      "url": "https://2mcgastro.com/",
+      "image": "https://www.2mcgastro.de/logo-2mc-gastro.jpeg",
+      "url": "https://www.2mcgastro.de/",
       "telephone": "+49-176-70295844",
       "priceRange": "€€€",
       "address": {
@@ -158,20 +161,93 @@
     {
       "@context": "https://schema.org",
       "@type": "WebSite",
-      "@id": "https://2mcgastro.com/#website",
-      "url": "https://2mcgastro.com/",
+      "@id": "https://www.2mcgastro.de/#website",
+      "url": "https://www.2mcgastro.de/",
       "name": "2MC Gastro",
       "description": "Profesyonel endüstriyel mutfak planlama platformu",
-      "publisher": { "@id": "https://2mcgastro.com/#organization" },
+      "publisher": { "@id": "https://www.2mcgastro.de/#organization" },
       "inLanguage": ["tr-TR","en-US","de-DE","fr-FR","nl-NL"],
       "potentialAction": {
         "@type": "SearchAction",
         "target": {
           "@type": "EntryPoint",
-          "urlTemplate": "https://2mcgastro.com/catalog?q={search_term_string}"
+          "urlTemplate": "https://www.2mcgastro.de/catalog?q={search_term_string}"
         },
         "query-input": "required name=search_term_string"
       }
+    }
+    </script>
+
+    <!-- Feed & AI discovery (GEO) -->
+    <link rel="alternate" type="application/rss+xml" title="2MC Gastro — Blog ve güncellemeler" href="https://www.2mcgastro.de/rss.xml" />
+    <link rel="alternate" type="text/plain" title="llms.txt" href="https://www.2mcgastro.de/llms.txt" />
+
+    <!-- Structured Data: FAQPage — AI cevap motorları Q&A formatını doğrudan alıntılar -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "@id": "https://www.2mcgastro.de/#faq",
+      "inLanguage": "tr",
+      "isPartOf": { "@id": "https://www.2mcgastro.de/#website" },
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "2MC Gastro nedir?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "2MC Gastro, Köln (Almanya) merkezli bir endüstriyel mutfak ekipmanları tedarikçisi ve dijital mutfak planlama platformudur. Diamond, CombiSteel ve HENDI markalarının 14.000'den fazla ürününü tek katalogda toplar; 2D ve 3D mutfak tasarım stüdyosu, anında PDF teklif ve 15 dilde hizmet sunar."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "2MC Gastro hangi markaların ürünlerini satıyor?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Üç uluslararası marka ailesi: Diamond (Belçika — Silver, Gold, Platinum, Diverso serileri), CombiSteel (Hollanda) ve HENDI (BarUp, Arktic, AmerBox alt markalarıyla). Toplam 14.000'den fazla ürün tek katalogda listelenir ve teknik özellik bazında karşılaştırılabilir."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Mutfağımı satın almadan önce görebilir miyim?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Evet. 2MC Gastro'nun 2D ve 3D mutfak tasarım stüdyosunda duvarları çizip kapı ve pencereleri yerleştirebilir, seçtiğiniz ekipmanları gerçek ölçüleriyle mutfağa konumlandırabilir ve sonucu 3D olarak görüntüleyebilirsiniz."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Kombi fırın seçerken hangi kapasiteyi almalıyım?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Kapasite servis edilen kuver sayısına göre belirlenir: 6 GN modeller yaklaşık 50–80 kuverlik kafe ve küçük restoranlar, 10 GN modeller 80–150 kuverlik orta ölçekli işletmeler, 20 GN modeller 150 kuver üzeri otel ve toplu beslenme mutfakları için uygundur."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "HACCP uyumlu mutfak tasarımı neden önemlidir?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "HACCP, gıda güvenliği risklerini kritik kontrol noktalarında önlemeye dayanan bir yönetim sistemidir. Mutfak yerleşiminde çiğ ve pişmiş ürün akışlarının ayrılmasını, doğru soğutma zincirini (şoklama/blast chiller), yeterli havalandırmayı ve temizlenebilir yüzeyleri gerektirir. Yanlış yerleşim denetimlerde uygunsuzluğa ve ürün kaybına yol açar."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "2MC Gastro hangi ülkelere hizmet veriyor?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Başta Almanya olmak üzere Hollanda, Fransa, Türkiye ve Avrupa Birliği geneline hizmet verilir. Merkez Köln'dedir ve platform 15 dilde kullanılabilir."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "2MC Gastro ile nasıl iletişime geçilir?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "E-posta: info@2mcgastro.de · Telefon ve WhatsApp: +49 176 70295844 · Adres: Bergisch Gladbacher Str. 172, 51063 Köln, Almanya. Çalışma saatleri Pazartesi–Cumartesi 09:00–18:00 (CET)."
+          }
+        }
+      ]
     }
     </script>
   </head>
@@ -208,13 +284,116 @@
       <div class="brand">2MC GASTRO</div>
       <div class="accent"></div>
     </div>
-    <div id="root"></div>
+    <!--
+      GEO / AEO — AI cevap motorları için ham HTML içeriği.
+
+      Bu site bir Vite SPA'sı; ChatGPT Search, Perplexity, Claude ve Gemini
+      JavaScript ÇALIŞTIRMAZ, yalnızca ham HTML'i okur. Aşağıdaki blok o botların
+      gördüğü tek içeriktir — React `createRoot` ilk render'da bu düğümleri
+      değiştirir, dolayısıyla kullanıcı bunu asla görmez (üstte splash da vardır).
+
+      KURAL: katalog/hizmet bilgisi değişirse burayı da güncelle, yoksa AI motorları
+      eski bilgiyi alıntılar. Bakım notu: /geo-agent ajanı, docs yok.
+    -->
+    <div id="root">
+      <main>
+        <h1>2MC Gastro — Endüstriyel Mutfak Ekipmanları ve Dijital Mutfak Planlama</h1>
+        <p>
+          2MC Gastro, Köln (Almanya) merkezli bir endüstriyel mutfak ekipmanları tedarikçisi
+          ve dijital mutfak planlama platformudur. Diamond, CombiSteel ve HENDI markalarının
+          14.000'den fazla ürününü tek katalogda toplar; restoran, otel, kafe, pastane ve
+          toplu beslenme tesisleri için ekipman seçiminden mutfak yerleşim planına, tekliften
+          teslimata kadar tüm süreci tek elden yürütür. Platform 15 dilde hizmet verir.
+        </p>
+
+        <h2>Ne yapıyoruz</h2>
+        <ul>
+          <li><strong>Ekipman tedariki:</strong> pişirme, soğutma, hazırlık, bulaşık ve havalandırma ekipmanları — <a href="/magaza">mağaza</a> ve <a href="/katalog">katalog</a>.</li>
+          <li><strong>2D ve 3D mutfak planlama:</strong> duvar çizimi, kapı/pencere yerleşimi ve gerçek ölçülü ekipman konumlandırma — <a href="/3d-design">3D tasarım stüdyosu</a>.</li>
+          <li><strong>Proje bazlı teklif:</strong> seçilen ekipmanların tamamını içeren, proje numarasıyla izlenen profesyonel PDF teklif.</li>
+          <li><strong>Seçim danışmanlığı:</strong> işletme tipi, kuver sayısı ve bütçeye göre ekipman <a href="/compare">karşılaştırma</a>.</li>
+          <li><strong>Teslimat ve satış sonrası destek:</strong> kurulum koordinasyonu ve teknik <a href="/support">destek</a>.</li>
+        </ul>
+
+        <h2>Markalar</h2>
+        <p>
+          Katalogda üç uluslararası marka ailesi bulunur:
+          <a href="/diamond">Diamond</a> (Belçika — Silver, Gold, Platinum ve Diverso serileri),
+          <a href="/combisteel">CombiSteel</a> (Hollanda) ve
+          HENDI (BarUp, Arktic ve AmerBox alt markalarıyla).
+          Tüm markalar: <a href="/marka">marka dizini</a>.
+        </p>
+
+        <h2>Ürün kategorileri</h2>
+        <ul>
+          <li><a href="/kategori/kombi-firin">Kombi fırın</a> — 6, 10 ve 20 GN kapasiteli konveksiyonlu-buharlı profesyonel fırınlar</li>
+          <li><a href="/kategori/endustriyel-fritoz">Endüstriyel fritöz</a> — tek ve çift hazneli elektrikli/gazlı modeller</li>
+          <li><a href="/kategori/endustriyel-ocak">Endüstriyel ocak</a> — gazlı ve elektrikli profesyonel pişirme ocakları</li>
+          <li><a href="/kategori/blast-chiller">Blast chiller</a> — HACCP uyumlu şoklama ve hızlı soğutma dolapları</li>
+          <li><a href="/kategori/bulasik-makinesi">Bulaşık makinesi</a> — tezgâh altı, giyotin ve konveyörlü endüstriyel modeller</li>
+          <li><a href="/kategori/davlumbaz">Davlumbaz</a> — filtreli havalandırma ve egzoz sistemleri</li>
+          <li><a href="/kategori/sogutucu">Soğutucu</a> — buzdolabı, derin dondurucu ve soğutmalı tezgâhlar</li>
+          <li><a href="/kategori">Tüm kategoriler</a></li>
+        </ul>
+
+        <h2>Sektörler ve hizmet bölgesi</h2>
+        <p>
+          <a href="/sektor/restoran">Restoran</a>, otel, kafe, pastane, fast food ve toplu
+          beslenme tesisleri için sektöre özel çözümler sunulur (<a href="/sektor">sektör dizini</a>).
+          Hizmet bölgesi Almanya, Hollanda, Fransa, Türkiye ve AB genelidir; sayfalar
+          Köln, Berlin, München, Frankfurt, Hamburg, Amsterdam, Rotterdam, Paris,
+          İstanbul, Ankara, İzmir, Antalya ve Bursa için şehir bazlı da yayınlanır.
+        </p>
+
+        <h2>Sık sorulan sorular</h2>
+        <h3>Mutfağımı satın almadan önce görebilir miyim?</h3>
+        <p>
+          Evet. 2D ve 3D mutfak tasarım stüdyosunda duvarları çizip kapı ve pencereleri
+          yerleştirebilir, seçtiğiniz ekipmanları gerçek ölçüleriyle konumlandırabilir ve
+          sonucu 3D olarak görüntüleyebilirsiniz.
+        </p>
+        <h3>Kombi fırın seçerken hangi kapasiteyi almalıyım?</h3>
+        <p>
+          Kapasite servis edilen kuver sayısına göre belirlenir: 6 GN modeller yaklaşık
+          50–80 kuverlik kafe ve küçük restoranlar, 10 GN modeller 80–150 kuverlik orta
+          ölçekli işletmeler, 20 GN modeller 150 kuver üzeri otel ve toplu beslenme
+          mutfakları için uygundur.
+          Ayrıntı: <a href="/blog/kombi-firin-secimi-6-10-20-gn-karsilastirma">kombi fırın seçim rehberi</a>.
+        </p>
+        <h3>HACCP uyumlu mutfak tasarımı neden önemlidir?</h3>
+        <p>
+          HACCP, gıda güvenliği risklerini kritik kontrol noktalarında önlemeye dayanan bir
+          yönetim sistemidir. Mutfak yerleşiminde çiğ ve pişmiş ürün akışlarının ayrılmasını,
+          doğru soğutma zincirini, yeterli havalandırmayı ve temizlenebilir yüzeyleri
+          gerektirir. Ayrıntı:
+          <a href="/blog/haccp-uyumlu-mutfak-tasarimi-10-kritik-nokta">HACCP uyumlu mutfak tasarımı</a>.
+        </p>
+
+        <h2>Rehberler</h2>
+        <ul>
+          <li><a href="/blog/endustriyel-mutfak-kurulum-rehberi-2026">Endüstriyel mutfak kurulum rehberi 2026</a></li>
+          <li><a href="/blog/kombi-firin-secimi-6-10-20-gn-karsilastirma">Kombi fırın seçimi: 6 / 10 / 20 GN karşılaştırma</a></li>
+          <li><a href="/blog/haccp-uyumlu-mutfak-tasarimi-10-kritik-nokta">HACCP uyumlu mutfak tasarımı: 10 kritik nokta</a></li>
+          <li><a href="/blog">Tüm yazılar</a></li>
+        </ul>
+
+        <h2>İletişim</h2>
+        <address>
+          <strong>2MC Gastro</strong><br />
+          Bergisch Gladbacher Str. 172, 51063 Köln, Almanya<br />
+          Tel / WhatsApp: <a href="tel:+4917670295844">+49 176 70295844</a><br />
+          E-posta: <a href="mailto:info@2mcgastro.de">info@2mcgastro.de</a><br />
+          Çalışma saatleri: Pazartesi–Cumartesi 09:00–18:00 (CET)
+        </address>
+        <p><a href="/brand">Hakkımızda</a> · <a href="/support">Destek</a> · <a href="/resources">Kaynaklar</a> · <a href="/llms.txt">llms.txt</a></p>
+      </main>
+    </div>
     <noscript>
       <div style="padding:40px;font-family:system-ui;text-align:center;background:#020817;color:#fff;min-height:100vh;">
         <h1>2MC Gastro — Profesyonel Endüstriyel Mutfak Planlama</h1>
         <p>Bu uygulama JavaScript gerektirir. Lütfen tarayıcınızda JavaScript'i etkinleştirin.</p>
-        <p>6.800+ ekipman, 50+ marka, 3D tasarım ve HACCP uyumlu teklifler.</p>
-        <p>2MC Werbung · Bergisch Gladbacher Str. 172, 51063 Köln, Almanya · Tel/WhatsApp: +49 176 70295844</p>
+        <p>14.000+ ekipman; Diamond, CombiSteel ve HENDI markaları; 2D/3D tasarım ve HACCP uyumlu teklifler.</p>
+        <p>2MC Gastro · Bergisch Gladbacher Str. 172, 51063 Köln, Almanya · Tel/WhatsApp: +49 176 70295844</p>
       </div>
     </noscript>
     <script type="module" src="/src/main.tsx"></script>

@@ -6,7 +6,7 @@ import { createClient } from '@supabase/supabase-js';
 
 const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL!;
 const SUPABASE_ANON = process.env.SUPABASE_ANON_KEY || process.env.VITE_SUPABASE_ANON_KEY!;
-const SITE_URL = 'https://2mcgastro.com';
+const SITE_URL = 'https://www.2mcgastro.de';
 
 type Req = { method?: string };
 type Res = {

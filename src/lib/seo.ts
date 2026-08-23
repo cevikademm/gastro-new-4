@@ -1,4 +1,6 @@
-export const SITE_URL = 'https://2mcgastro.com';
+// Canlı prod domain. `2mcgastro.de` → 308 ile buraya gelir; `2mcgastro.com` BİZE AİT
+// DEĞİLDİR (301 ile 2mcgastro.eu'ya gider) — SEO alanlarında asla kullanılmaz.
+export const SITE_URL = 'https://www.2mcgastro.de';
 export const SITE_NAME = '2MC Gastro';
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/logo-2mc-gastro.jpeg`;
 

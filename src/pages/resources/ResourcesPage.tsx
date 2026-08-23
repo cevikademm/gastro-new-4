@@ -6,7 +6,7 @@ import SEO from '../../components/SEO';
 import { LEAD_MAGNETS, type LeadMagnet } from '../../content/leadMagnets';
 import { submitLead } from '../../lib/leadCapture';
 import { sendEmail } from '../../lib/email';
-import { breadcrumbSchema, organizationSchema } from '../../lib/seo';
+import { absoluteUrl, breadcrumbSchema, organizationSchema } from '../../lib/seo';
 
 export default function ResourcesPage() {
   const { t } = useTranslation();
@@ -25,7 +25,7 @@ export default function ResourcesPage() {
       await sendEmail({
         template: 'lead-magnet',
         to: email.trim(),
-        data: { title: active.title, downloadUrl: `https://2mcgastro.com${active.downloadUrl}` },
+        data: { title: active.title, downloadUrl: absoluteUrl(active.downloadUrl) },
       });
       setDone(true);
     } catch (e: any) {
