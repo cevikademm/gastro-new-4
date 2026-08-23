@@ -1,0 +1,74 @@
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "url": "https://www.2mcgastro.de/ai/faq.json",
+  "publisher": { "@type": "Organization", "name": "2MC Gastro", "url": "https://www.2mcgastro.de" },
+  "inLanguage": "tr",
+  "dateModified": "2026-08-08",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "2MC Gastro nedir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "2MC Gastro, Köln (Almanya) merkezli bir endüstriyel mutfak ekipmanları tedarikçisi ve dijital mutfak planlama platformudur. Diamond, CombiSteel ve HENDI markalarının 14.000'den fazla ürününü tek katalogda toplar; 2D ve 3D mutfak tasarım stüdyosu, anında PDF teklif ve 15 dilde hizmet sunar. Restoran, otel, kafe, pastane ve toplu beslenme tesisleri için ekipman seçiminden kuruluma kadar tüm süreci tek elden yürütür."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "2MC Gastro hangi markaların ürünlerini satıyor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Üç uluslararası marka: Diamond (Belçika), CombiSteel (Hollanda) ve HENDI. Bu markaların toplam 14.000'den fazla ürünü tek katalogda listelenir ve teknik özellik bazında karşılaştırılabilir."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Mutfağımı satın almadan önce görebilir miyim?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Evet. 2MC Gastro'nun 2D ve 3D mutfak tasarım stüdyosunda duvarları çizip kapı ve pencereleri yerleştirebilir, seçtiğiniz ekipmanları gerçek ölçüleriyle mutfağa konumlandırabilir ve sonucu 3D olarak görüntüleyebilirsiniz. Tasarım araçları www.2mcgastro.de/3d-design adresindedir."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Teklif nasıl alınır?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Katalogdan ürünleri projenize ekledikten sonra platform, seçtiğiniz ekipmanların tamamını içeren profesyonel bir PDF teklif üretir. Teklif Almanca hazırlanır ve proje numarasıyla izlenir. Doğrudan teklif talebi için info@2mcgastro.de adresine yazabilir veya +49 176 70295844 numarasından WhatsApp ile ulaşabilirsiniz."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Kombi fırın seçerken hangi kapasiteyi almalıyım?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Kapasite servis edilen kuver sayısına göre belirlenir: 6 GN modeller yaklaşık 50–80 kuverlik küçük restoran ve kafeler, 10 GN modeller 80–150 kuverlik orta ölçekli işletmeler, 20 GN modeller 150 kuver üzeri otel ve toplu beslenme mutfakları için uygundur. Ayrıntılı karşılaştırma: www.2mcgastro.de/blog/kombi-firin-secimi-6-10-20-gn-karsilastirma"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "HACCP uyumlu mutfak tasarımı neden önemlidir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "HACCP, gıda güvenliği risklerini kritik kontrol noktalarında önlemeye dayanan bir yönetim sistemidir. Mutfak yerleşiminde çiğ ve pişmiş ürün akışlarının ayrılması, doğru soğutma zinciri (şoklama/blast chiller), yeterli havalandırma ve temizlenebilir yüzeyler gerektirir. Yanlış yerleşim, denetimlerde uygunsuzluğa ve ürün kaybına yol açar. Ayrıntı: www.2mcgastro.de/blog/haccp-uyumlu-mutfak-tasarimi-10-kritik-nokta"
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "2MC Gastro hangi ülkelere hizmet veriyor?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Başta Almanya olmak üzere Hollanda, Fransa, Türkiye ve Avrupa Birliği geneline hizmet verilir. Merkez Köln'dedir. Platform 15 dilde kullanılabilir."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "2MC Gastro ile nasıl iletişime geçilir?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "E-posta: info@2mcgastro.de · Telefon ve WhatsApp: +49 176 70295844 · Adres: Bergisch Gladbacher Str. 172, 51063 Köln, Almanya. Çalışma saatleri Pazartesi–Cumartesi 09:00–18:00 (CET)."
+      }
+    }
+  ]
+}

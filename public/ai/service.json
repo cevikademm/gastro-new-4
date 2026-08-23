@@ -1,0 +1,75 @@
+{
+  "@context": "https://schema.org",
+  "@type": "ItemList",
+  "name": "2MC Gastro hizmetleri",
+  "url": "https://www.2mcgastro.de/ai/service.json",
+  "inLanguage": "tr",
+  "dateModified": "2026-08-08",
+  "provider": {
+    "@type": "Organization",
+    "name": "2MC Gastro",
+    "url": "https://www.2mcgastro.de",
+    "telephone": "+49-176-70295844",
+    "email": "info@2mcgastro.de",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Bergisch Gladbacher Str. 172",
+      "addressLocality": "Köln",
+      "postalCode": "51063",
+      "addressCountry": "DE"
+    }
+  },
+  "itemListElement": [
+    {
+      "@type": "Service",
+      "name": "Endüstriyel mutfak ekipmanı tedariki",
+      "serviceType": "Ekipman tedariki",
+      "description": "Diamond, CombiSteel ve HENDI markalarının 14.000+ ürününden oluşan katalogdan pişirme, soğutma, hazırlık, bulaşık ve havalandırma ekipmanı tedariki.",
+      "areaServed": ["DE", "NL", "FR", "TR", "EU"],
+      "url": "https://www.2mcgastro.de/magaza"
+    },
+    {
+      "@type": "Service",
+      "name": "2D ve 3D mutfak planlama",
+      "serviceType": "Mutfak projelendirme",
+      "description": "Duvar çizimi, kapı/pencere yerleşimi ve gerçek ölçülü ekipman konumlandırma ile mutfağın kurulmadan önce 2D planını ve 3D görselleştirmesini üretme.",
+      "areaServed": ["DE", "NL", "FR", "TR", "EU"],
+      "url": "https://www.2mcgastro.de/3d-design"
+    },
+    {
+      "@type": "Service",
+      "name": "Proje bazlı teklif hazırlama",
+      "serviceType": "Teklif ve fiyatlandırma",
+      "description": "Seçilen ekipmanların tamamını içeren, proje numarasıyla izlenen profesyonel PDF teklif üretimi.",
+      "areaServed": ["DE", "NL", "FR", "TR", "EU"],
+      "url": "https://www.2mcgastro.de/teklifler"
+    },
+    {
+      "@type": "Service",
+      "name": "Ekipman seçim danışmanlığı",
+      "serviceType": "Danışmanlık",
+      "description": "İşletme tipi, kuver sayısı, mutfak alanı ve bütçeye göre ekipman seçimi; teknik özellik bazında karşılaştırma desteği.",
+      "areaServed": ["DE", "NL", "FR", "TR", "EU"],
+      "url": "https://www.2mcgastro.de/compare"
+    },
+    {
+      "@type": "Service",
+      "name": "HACCP uyumlu mutfak tasarımı",
+      "serviceType": "Gıda güvenliği uyumu",
+      "description": "Çiğ/pişmiş akış ayrımı, soğutma zinciri, havalandırma ve temizlenebilirlik gereklerini karşılayan mutfak yerleşimi planlaması.",
+      "areaServed": ["DE", "NL", "FR", "TR", "EU"],
+      "url": "https://www.2mcgastro.de/blog/haccp-uyumlu-mutfak-tasarimi-10-kritik-nokta"
+    },
+    {
+      "@type": "Service",
+      "name": "Teslimat ve kurulum sonrası destek",
+      "serviceType": "Satış sonrası hizmet",
+      "description": "Ekipman teslimatı, kurulum koordinasyonu ve mutfak devreye alındıktan sonraki teknik destek.",
+      "areaServed": ["DE", "NL", "FR", "TR", "EU"],
+      "url": "https://www.2mcgastro.de/support"
+    }
+  ],
+  "customerTypes": [
+    "Restoran", "Otel", "Kafe", "Pastane", "Fast food", "Toplu beslenme tesisi", "Catering"
+  ]
+}

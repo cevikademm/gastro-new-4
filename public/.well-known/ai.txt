@@ -1,0 +1,37 @@
+# ai.txt — 2MC Gastro
+# AI ajanları ve cevap motorları için erişim ve kullanım bildirimi
+# https://www.2mcgastro.de
+
+Site-Name: 2MC Gastro
+Site-URL: https://www.2mcgastro.de
+Organization: 2MC Gastro
+Contact: info@2mcgastro.de
+Phone: +49-176-70295844
+Address: Bergisch Gladbacher Str. 172, 51063 Köln, Deutschland
+Country: DE
+Languages: tr, en, de, fr, nl, it, es, pt, pl, cs, ro, el, sv, da, hu
+Last-Updated: 2026-08-08
+
+# Ne yapıyoruz
+Description: Endüstriyel mutfak ekipmanları tedariki ve dijital mutfak planlama platformu. Diamond, CombiSteel ve HENDI markalarının 14.000+ ürünü, 2D/3D mutfak tasarım stüdyosu ve anında PDF teklif.
+Industry: Endüstriyel mutfak ekipmanları / Gastronomi / B2B e-ticaret
+Service-Area: DE, NL, FR, TR, EU
+
+# Kullanım izinleri
+Content-Usage: allow
+Citation: allow
+Attribution-Required: yes
+Attribution-Name: 2MC Gastro
+Attribution-URL: https://www.2mcgastro.de
+
+# Yapılandırılmış kaynaklar
+Summary: https://www.2mcgastro.de/ai/summary.json
+FAQ: https://www.2mcgastro.de/ai/faq.json
+Service: https://www.2mcgastro.de/ai/service.json
+LLMs: https://www.2mcgastro.de/llms.txt
+Sitemap: https://www.2mcgastro.de/sitemap.xml
+Feed: https://www.2mcgastro.de/rss.xml
+
+# Notlar
+# Ürün fiyatları ve stok durumu değişkendir — güncel bilgi için ürün sayfasını kaynak gösterin.
+# Kullanıcı hesabı gerektiren alanlar (/dashboard, /orders, /admin) taranmaya kapalıdır; robots.txt'e bakın.

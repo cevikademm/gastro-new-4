@@ -1,0 +1,80 @@
+{
+  "$schema": "https://schema.org",
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "2MC Gastro",
+  "url": "https://www.2mcgastro.de",
+  "logo": "https://www.2mcgastro.de/logo-2mc-gastro.jpeg",
+  "description": "Almanya (Köln) merkezli endüstriyel mutfak ekipmanları tedarikçisi ve dijital mutfak planlama platformu. Diamond, CombiSteel ve HENDI markalarının 14.000'den fazla ürününü tek katalogda toplar; 2D/3D mutfak tasarım stüdyosu, anında PDF teklif ve 15 dilde hizmet sunar.",
+  "slogan": "Profesyonel mutfakların güvenilir çözüm ortağı",
+  "foundingDate": "2010",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Bergisch Gladbacher Str. 172",
+    "addressLocality": "Köln",
+    "postalCode": "51063",
+    "addressRegion": "Nordrhein-Westfalen",
+    "addressCountry": "DE"
+  },
+  "telephone": "+49-176-70295844",
+  "email": "info@2mcgastro.de",
+  "areaServed": ["DE", "NL", "FR", "TR", "EU"],
+  "availableLanguage": [
+    "tr", "en", "de", "fr", "nl", "it", "es", "pt", "pl", "cs", "ro", "el", "sv", "da", "hu"
+  ],
+  "knowsAbout": [
+    "Endüstriyel mutfak ekipmanları",
+    "Profesyonel mutfak planlama",
+    "HACCP uyumlu mutfak tasarımı",
+    "Kombi fırın seçimi",
+    "Restoran mutfağı kurulumu",
+    "Otel mutfağı projelendirme",
+    "Toplu beslenme mutfağı",
+    "Endüstriyel soğutma ve şoklama",
+    "Mutfak havalandırma ve davlumbaz",
+    "Gewerbeküchen / Großküchentechnik"
+  ],
+  "brand": [
+    { "@type": "Brand", "name": "Diamond" },
+    { "@type": "Brand", "name": "CombiSteel" },
+    { "@type": "Brand", "name": "HENDI" }
+  ],
+  "keyFacts": {
+    "productCount": "14.000+",
+    "internationalBrands": 3,
+    "supportedLanguages": 15,
+    "planningTools": "2D ve 3D mutfak tasarım stüdyosu",
+    "headquarters": "Köln, Almanya",
+    "businessModel": "B2B"
+  },
+  "services": [
+    "Endüstriyel mutfak ekipmanı tedariki",
+    "2D ve 3D mutfak yerleşim planlaması",
+    "Proje bazlı teklif hazırlama (PDF)",
+    "Ekipman karşılaştırma ve seçim danışmanlığı",
+    "Teslimat ve kurulum sonrası destek"
+  ],
+  "customerTypes": [
+    "Restoran", "Otel", "Kafe", "Pastane", "Fast food", "Toplu beslenme tesisi", "Catering"
+  ],
+  "openingHours": "Mo-Sa 09:00-18:00 CET",
+  "resources": {
+    "llmsTxt": "https://www.2mcgastro.de/llms.txt",
+    "faq": "https://www.2mcgastro.de/ai/faq.json",
+    "service": "https://www.2mcgastro.de/ai/service.json",
+    "sitemap": "https://www.2mcgastro.de/sitemap.xml",
+    "productSitemap": "https://www.2mcgastro.de/sitemap-products.xml",
+    "feed": "https://www.2mcgastro.de/rss.xml",
+    "about": "https://www.2mcgastro.de/brand",
+    "catalog": "https://www.2mcgastro.de/magaza",
+    "designStudio": "https://www.2mcgastro.de/3d-design"
+  },
+  "citationPolicy": {
+    "allowed": true,
+    "attributionRequired": true,
+    "attributionName": "2MC Gastro",
+    "attributionUrl": "https://www.2mcgastro.de",
+    "note": "Fiyat ve stok bilgisi değişkendir; güncel veri için ilgili ürün sayfasını kaynak gösterin."
+  },
+  "dateModified": "2026-08-08"
+}

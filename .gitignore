@@ -23,3 +23,7 @@ dist-v2/
 
 # Büyük yerel veri kaynağı (sync scriptleri kullanır; app Supabase okur)
 ürün listesi/
+
+# Unlighthouse (SEO agent) çıktıları
+.unlighthouse/
+.unlighthouse-*/
