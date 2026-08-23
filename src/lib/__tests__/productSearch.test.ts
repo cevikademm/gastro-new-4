@@ -112,3 +112,32 @@ describe('searchProducts — gerçek katalog (kabul kriterleri)', () => {
     expect(searchProducts(products, '').items).toHaveLength(products.length);
   });
 });
+
+describe('searchProducts — Türkçe sorgu (ürün verisi Almanca/NL/EN)', () => {
+  // Arayüz 15 dilde ama katalog metinleri Almanca/Felemenkçe/İngilizce. Eşanlamlı
+  // katmanı olmadan Türk kullanıcının yazdığı her terim SIFIR sonuç dönüyordu.
+  const TR_TERIMLER = [
+    'fritöz', 'buzdolabı', 'bulaşık makinesi', 'fırın', 'ocak', 'dolap',
+    'tezgah', 'davlumbaz', 'dondurucu', 'soğutucu', 'raf', 'bıçak',
+    'kahve', 'hamur', 'ızgara', 'mikrodalga', 'evye', 'vitrin', 'şoklama',
+  ];
+
+  it.each(TR_TERIMLER)('"%s" sonuç getirir', (terim) => {
+    expect(searchProducts(products, terim).items.length).toBeGreaterThan(0);
+  });
+
+  it('"fritöz" gerçekten Fritteuse/friteuse ürünlerini getirir', () => {
+    const r = searchProducts(products, 'fritöz');
+    const hit = r.items.some((i) => /frit|fry/i.test(normalizeText(i.name ?? '')));
+    expect(hit).toBe(true);
+  });
+
+  it('Almanca sorgular eşanlamlı katmanından etkilenmez', () => {
+    expect(searchProducts(products, 'fritteuse').items.length).toBeGreaterThan(0);
+    expect(searchProducts(products, 'kühlschrank').items.length).toBeGreaterThan(0);
+  });
+
+  it('anlamsız sorgu yine boş döner (eşanlamlılar her şeyi eşleştirmiyor)', () => {
+    expect(searchProducts(products, 'xyzqqq').items).toHaveLength(0);
+  });
+});
