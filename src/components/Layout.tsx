@@ -99,6 +99,13 @@ export default function Layout() {
     return () => window.removeEventListener('keydown', onKey);
   }, []);
 
+  // Üst çubuk "DXF Dışa Aktar": açık tasarımı indirir; tasarım yoksa tasarımcıya götürür.
+  // Modül tembel yüklenir — Layout her sayfada olduğu için 3B deposu paketine bağlanmasın.
+  const handleExportDxf = async () => {
+    const { exportCurrentDesignDxf } = await import('../modules/three-d-design/modules/shared/export/dxfExport');
+    if (!exportCurrentDesignDxf()) navigate('/3d-design');
+  };
+
   return (
     <div className="bg-surface font-body text-on-surface min-h-screen flex flex-col">
       {/* TopNavBar */}
@@ -134,7 +141,12 @@ export default function Layout() {
             <Link to="/projects" className="px-3 py-1.5 text-sm font-medium text-slate-500 hover:bg-slate-100 transition-colors rounded-lg">
               {t('nav.saveRevision')}
             </Link>
-            <button className="px-3 py-1.5 text-sm font-bold text-white brushed-metal rounded-lg shadow-sm hover:opacity-90 transition-all">
+            <button
+              type="button"
+              onClick={handleExportDxf}
+              title={t('nav.exportDWG')}
+              className="px-3 py-1.5 text-sm font-bold text-white brushed-metal rounded-lg shadow-sm hover:opacity-90 transition-all"
+            >
               {t('nav.exportDWG')}
             </button>
           </div>

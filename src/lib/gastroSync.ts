@@ -6,12 +6,16 @@
  */
 import { gastroDb } from './supabaseGastro';
 
+/** Giriş yapılmamışsa dönen sahte kimlik. Bu kimlikle ASLA uzak senkron yapılmaz:
+ * aksi hâlde tüm anonim ziyaretçiler Supabase'de TEK sepet/proje satırını paylaşır
+ * (ana sayfada başkasının sepeti görünüyordu, eşzamanlı yazmalar yinelenen satır üretiyordu). */
+const ANON_ID = 'anonymous';
 const USER_ID = () => {
   try {
     const raw = localStorage.getItem('2mc-gastro-auth');
     if (raw) {
       const parsed = JSON.parse(raw);
-      return parsed?.state?.user?.id || 'anonymous';
+      return parsed?.state?.user?.id || ANON_ID;
     }
   } catch { /* */ }
   return 'anonymous';
@@ -36,6 +40,7 @@ function flushAll() {
 export async function syncProjects(projects: any[], activities: any[]) {
   if (!gastroDb) { console.warn('[GastroSync] Supabase not configured'); return; }
   const uid = USER_ID();
+  if (uid === ANON_ID) return; // anonim: yalnız yerel (localStorage) kalsın
   // Upsert each project
   for (const p of projects) {
     const { error } = await gastroDb.from('gastro_projects').upsert({
@@ -79,6 +84,7 @@ export function debouncedSyncProjects(projects: any[], activities: any[]) {
 export async function loadProjects(): Promise<{ projects: any[]; activities: any[] } | null> {
   if (!gastroDb) return null;
   const uid = USER_ID();
+  if (uid === ANON_ID) return null; // anonim: yalnız yerel (localStorage) kalsın
   const { data: projects } = await gastroDb
     .from('gastro_projects')
     .select('*')
@@ -126,6 +132,7 @@ export async function loadProjects(): Promise<{ projects: any[]; activities: any
 export async function syncFloorPlan(projectId: string, data: any) {
   if (!gastroDb) return;
   const uid = USER_ID();
+  if (uid === ANON_ID) return; // anonim: yalnız yerel (localStorage) kalsın
   await gastroDb.from('gastro_floor_plans').upsert({
     user_id: uid,
     project_id: projectId || 'global',
@@ -149,6 +156,7 @@ export function debouncedSyncFloorPlan(projectId: string, data: any) {
 export async function loadFloorPlan(projectId: string): Promise<any | null> {
   if (!gastroDb) return null;
   const uid = USER_ID();
+  if (uid === ANON_ID) return null; // anonim: yalnız yerel (localStorage) kalsın
   const { data } = await gastroDb
     .from('gastro_floor_plans')
     .select('*')
@@ -175,6 +183,7 @@ export async function loadFloorPlan(projectId: string): Promise<any | null> {
 export async function syncSketches(sketches: any[]) {
   if (!gastroDb) return;
   const uid = USER_ID();
+  if (uid === ANON_ID) return; // anonim: yalnız yerel (localStorage) kalsın
   for (const s of sketches) {
     await gastroDb.from('gastro_sketches').upsert({
       user_id: uid,
@@ -193,6 +202,7 @@ export function debouncedSyncSketches(sketches: any[]) {
 export async function loadSketches(): Promise<any[] | null> {
   if (!gastroDb) return null;
   const uid = USER_ID();
+  if (uid === ANON_ID) return null; // anonim: yalnız yerel (localStorage) kalsın
   const { data } = await gastroDb
     .from('gastro_sketches')
     .select('*')
@@ -212,6 +222,7 @@ export async function loadSketches(): Promise<any[] | null> {
 export async function syncCart(items: any[]) {
   if (!gastroDb) return;
   const uid = USER_ID();
+  if (uid === ANON_ID) return; // anonim: yalnız yerel (localStorage) kalsın
   // Clear existing cart
   await gastroDb.from('gastro_cart').delete().eq('user_id', uid);
   // Insert current items
@@ -234,6 +245,7 @@ export function debouncedSyncCart(items: any[]) {
 export async function loadCart(): Promise<any[] | null> {
   if (!gastroDb) return null;
   const uid = USER_ID();
+  if (uid === ANON_ID) return null; // anonim: yalnız yerel (localStorage) kalsın
   const { data } = await gastroDb
     .from('gastro_cart')
     .select('*')
@@ -255,6 +267,7 @@ export async function syncUserPrefs(prefs: {
 }) {
   if (!gastroDb) return;
   const uid = USER_ID();
+  if (uid === ANON_ID) return; // anonim: yalnız yerel (localStorage) kalsın
   await gastroDb.from('gastro_user_prefs').upsert({
     user_id: uid,
     favorites: prefs.favorites || [],
@@ -271,6 +284,7 @@ export function debouncedSyncUserPrefs(prefs: any) {
 export async function loadUserPrefs(): Promise<any | null> {
   if (!gastroDb) return null;
   const uid = USER_ID();
+  if (uid === ANON_ID) return null; // anonim: yalnız yerel (localStorage) kalsın
   const { data } = await gastroDb
     .from('gastro_user_prefs')
     .select('*')

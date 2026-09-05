@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Book, Ruler, Refrigerator, ClipboardList, PlayCircle, ChevronRight } from 'lucide-react';
 
-const guides = [
+interface Guide {
+  id: string;
+  icon: typeof Book;
+  titleKey: string;
+  content: string;
+  /** Varsa metnin üstünde oynatılan tanıtım/eğitim videosu (public/videos). */
+  video?: string;
+}
+
+const guides: Guide[] = [
   {
     id: 'getting-started',
     icon: Book,
@@ -63,6 +72,19 @@ const guides = [
 
 **Revizyon Takibi**: Onay geçmişi bölümünden proje revizyonlarını takip edebilirsiniz.`,
   },
+  {
+    id: 'videos',
+    icon: PlayCircle,
+    titleKey: 'docs.videoTutorials',
+    video: '/videos/2mc-gastro.mp4',
+    content: `Platformun tanıtım videosunu izleyerek 2MC Gastro'nun sunduğu planlama, katalog ve teklif akışını kısaca görebilirsiniz.
+
+**Kat Planı ve 3B Tasarım**: Duvarları çizin, kapı/pencere ekleyin, ürünleri yerleştirin ve mutfağınızı 3B olarak inceleyin. Ayrıntılı adımlar için "Tasarım Kılavuzu" bölümüne bakın.
+
+**Ürün Seçimi**: Katalogdan ürünleri karşılaştırın, favorilere ekleyin ve doğrudan projenize aktarın.
+
+**Teklif ve Sipariş**: Projenizden tek tıkla teklif (Angebot) üretin, sepetten siparişe geçin ve sipariş durumunu takip edin.`,
+  },
 ];
 
 export default function DocsPage() {
@@ -93,9 +115,6 @@ export default function DocsPage() {
               </button>
             );
           })}
-          <button className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-on-surface-variant hover:bg-surface-container-high whitespace-nowrap">
-            <PlayCircle size={18} /> {t('docs.videoTutorials')}
-          </button>
         </div>
 
         <div className="flex-1 bg-surface-container-lowest rounded-xl shadow-sm p-8 border border-outline-variant/10">
@@ -103,6 +122,16 @@ export default function DocsPage() {
             <current.icon size={24} className="text-primary" />
             <h2 className="font-headline font-bold text-xl text-primary">{t(current.titleKey)}</h2>
           </div>
+          {current.video && (
+            <video
+              key={current.video}
+              src={current.video}
+              controls
+              preload="metadata"
+              playsInline
+              className="w-full rounded-xl bg-black mb-6 aspect-video"
+            />
+          )}
           <div className="prose prose-sm max-w-none">
             {current.content.split('\n\n').map((paragraph, i) => {
               if (paragraph.startsWith('**')) {

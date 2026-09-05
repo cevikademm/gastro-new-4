@@ -972,10 +972,12 @@ export function LandingPage() {
                 {/* 5-Column Products Grid */}
                 <div className="min-w-0">
                   <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
-                    {filteredProducts.slice(0, 8).map((prod) => {
+                    {filteredProducts.slice(0, 8).map((prod, prodIdx) => {
                       const added = isInCart(prod.id);
                       return (
-                        <div key={prod.id} className="h-full min-h-[300px] bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-brand-red/40 hover:shadow-[0_10px_25px_rgba(220,38,38,0.06)] transition-all duration-300 flex flex-col group relative">
+                        // products.json'da aynı SKU'lu varyantlar var (ör. DLW55-TS/D) → id tek başına
+                        // key olamaz; React "same key" uyarısı veriyordu.
+                        <div key={`${prod.id}-${prodIdx}`} className="h-full min-h-[300px] bg-white border border-slate-200 rounded-xl overflow-hidden hover:border-brand-red/40 hover:shadow-[0_10px_25px_rgba(220,38,38,0.06)] transition-all duration-300 flex flex-col group relative">
  
                            {/* Image area with Brand & Status Badges (Compacted height h-24) */}
                            <div className="h-36 sm:h-44 bg-white border-b border-slate-100 p-3 flex items-center justify-center overflow-hidden relative">
@@ -1397,8 +1399,9 @@ export function LandingPage() {
                         <span className="text-xs font-bold">Ihre Angebotsliste ist leer. Fügen Sie Bestseller aus dem Katalog hinzu.</span>
                       </li>
                     ) : (
-                      cartItems.map((item) => (
-                        <li key={item.product.id} className="flex justify-between items-center bg-slate-50 border border-slate-200/50 p-4 rounded-2xl">
+                      cartItems.map((item, itemIdx) => (
+                        // Aynı SKU'lu varyantlar sepette ayrı satır olabilir → id + sıra
+                        <li key={`${item.product.id}-${itemIdx}`} className="flex justify-between items-center bg-slate-50 border border-slate-200/50 p-4 rounded-2xl">
                           <div>
                             <span className="font-bold text-xs text-[#0F2440] block mb-1">{item.product.name}</span>
                             <span className="text-[10px] text-slate-400 uppercase tracking-widest">{item.product.id} · Menge: {item.quantity} · € {(item.product.price || 0).toLocaleString("de-DE")}</span>

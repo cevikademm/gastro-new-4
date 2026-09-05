@@ -64,6 +64,9 @@ export default function LanguageSelector({ variant = 'light', className = '' }: 
     <div ref={ref} className={`relative ${className}`}>
       <button
         onClick={() => setOpen(!open)}
+        aria-label={current.label}
+        aria-haspopup="listbox"
+        aria-expanded={open}
         className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-bold transition-all ${
           isDark
             ? 'bg-white/10 backdrop-blur-md text-white/80 hover:text-white hover:bg-white/15 border border-white/10'

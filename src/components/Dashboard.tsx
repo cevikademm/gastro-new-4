@@ -140,7 +140,7 @@ export default function Dashboard() {
             </div>
 
             <div className="grid grid-cols-2 gap-px bg-black/[0.06] border-t border-black/[0.06]">
-              <Link to="/catalog" className="bg-primary hover:bg-primary-container p-5 flex flex-col justify-between group transition-colors min-h-[100px] sm:min-h-[120px] md:min-h-[140px]">
+              <Link to="/katalog" className="bg-primary hover:bg-primary-container p-5 flex flex-col justify-between group transition-colors min-h-[100px] sm:min-h-[120px] md:min-h-[140px]">
                 <Refrigerator className="text-white mb-4" size={26} />
                 <span className="text-white font-bold text-xs uppercase tracking-[0.1em] leading-tight">{t('dashboard.equipmentCatalog')}</span>
               </Link>
@@ -169,7 +169,7 @@ export default function Dashboard() {
             ].map((item, i) => {
               const num = String(i + 1).padStart(2, '0');
               return (
-                <Link key={i} to="/catalog" className="relative group bg-white h-64 cursor-pointer overflow-hidden">
+                <Link key={i} to="/katalog" className="relative group bg-white h-64 cursor-pointer overflow-hidden">
                   <div className="w-full h-full bg-[#fafafa] flex items-center justify-center group-hover:bg-[#f0f0f0] transition-colors">
                     <Refrigerator size={72} className="text-primary/20 group-hover:text-primary/40 transition-colors" />
                   </div>

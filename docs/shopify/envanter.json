@@ -1,0 +1,292 @@
+{
+  "olusturuldu": "2026-08-24T18:30:35.174Z",
+  "kaynaklar": [
+    {
+      "kaynak": "diamond",
+      "etiket": "Diamond",
+      "tablo": "diamond_products",
+      "toplam": 6908,
+      "shopifyUygun": 6849,
+      "kargoEdilebilir": 5998,
+      "kontroller": [
+        {
+          "label": "Başlık",
+          "kind": "zorunlu",
+          "ok": 6854,
+          "eksik": 54,
+          "pct": "99.2"
+        },
+        {
+          "label": "Fiyat > 0",
+          "kind": "zorunlu",
+          "ok": 6907,
+          "eksik": 1,
+          "pct": "100.0"
+        },
+        {
+          "label": "Görsel (http)",
+          "kind": "zorunlu",
+          "ok": 6904,
+          "eksik": 4,
+          "pct": "99.9"
+        },
+        {
+          "label": "Açıklama",
+          "kind": "SEO",
+          "ok": 6150,
+          "eksik": 758,
+          "pct": "89.0"
+        },
+        {
+          "label": "Kategori",
+          "kind": "SEO",
+          "ok": 4909,
+          "eksik": 1999,
+          "pct": "71.1"
+        },
+        {
+          "label": "Ağırlık > 0",
+          "kind": "kargo",
+          "ok": 6056,
+          "eksik": 852,
+          "pct": "87.7"
+        },
+        {
+          "label": "Ölçü (en x boy)",
+          "kind": "kargo",
+          "ok": 5753,
+          "eksik": 1155,
+          "pct": "83.3"
+        },
+        {
+          "label": "Stok > 0",
+          "kind": "envanter",
+          "ok": 0,
+          "eksik": 6908,
+          "pct": "0.0"
+        },
+        {
+          "label": "Gecerli barkod",
+          "kind": "kanal",
+          "ok": 0,
+          "eksik": 6908,
+          "pct": "0.0"
+        },
+        {
+          "label": "Almanca metin",
+          "kind": "SEO",
+          "ok": 6204,
+          "eksik": 704,
+          "pct": "89.8"
+        }
+      ],
+      "medyanNet": 1477,
+      "medyanBrut": 1757.63,
+      "enDusukNet": 1,
+      "enYuksekNet": 58316.62,
+      "diller": {
+        "de": 4899,
+        "en": 579,
+        "belirsiz": 1397,
+        "karisik": 17,
+        "bos": 16
+      },
+      "mukerrerSku": 0,
+      "gecerliBarkod": 0,
+      "benzersizBarkod": 0,
+      "handleCakismasi": 0
+    },
+    {
+      "kaynak": "combisteel",
+      "etiket": "CombiSteel",
+      "tablo": "combisteel_products",
+      "toplam": 3561,
+      "shopifyUygun": 3549,
+      "kargoEdilebilir": 3321,
+      "kontroller": [
+        {
+          "label": "Başlık",
+          "kind": "zorunlu",
+          "ok": 3561,
+          "eksik": 0,
+          "pct": "100.0"
+        },
+        {
+          "label": "Fiyat > 0",
+          "kind": "zorunlu",
+          "ok": 3561,
+          "eksik": 0,
+          "pct": "100.0"
+        },
+        {
+          "label": "Görsel (http)",
+          "kind": "zorunlu",
+          "ok": 3549,
+          "eksik": 12,
+          "pct": "99.7"
+        },
+        {
+          "label": "Açıklama",
+          "kind": "SEO",
+          "ok": 3105,
+          "eksik": 456,
+          "pct": "87.2"
+        },
+        {
+          "label": "Kategori",
+          "kind": "SEO",
+          "ok": 3220,
+          "eksik": 341,
+          "pct": "90.4"
+        },
+        {
+          "label": "Ağırlık > 0",
+          "kind": "kargo",
+          "ok": 3330,
+          "eksik": 231,
+          "pct": "93.5"
+        },
+        {
+          "label": "Ölçü (en x boy)",
+          "kind": "kargo",
+          "ok": 14,
+          "eksik": 3547,
+          "pct": "0.4"
+        },
+        {
+          "label": "Stok > 0",
+          "kind": "envanter",
+          "ok": 2244,
+          "eksik": 1317,
+          "pct": "63.0"
+        },
+        {
+          "label": "Gecerli barkod",
+          "kind": "kanal",
+          "ok": 3162,
+          "eksik": 399,
+          "pct": "88.8"
+        },
+        {
+          "label": "Almanca metin",
+          "kind": "SEO",
+          "ok": 2,
+          "eksik": 3559,
+          "pct": "0.1"
+        }
+      ],
+      "medyanNet": 715,
+      "medyanBrut": 850.85,
+      "enDusukNet": 4,
+      "enYuksekNet": 38265,
+      "diller": {
+        "belirsiz": 1784,
+        "en": 844,
+        "karisik": 301,
+        "nl": 630,
+        "de": 2
+      },
+      "mukerrerSku": 0,
+      "gecerliBarkod": 3162,
+      "benzersizBarkod": 3161,
+      "handleCakismasi": 0
+    },
+    {
+      "kaynak": "hendi",
+      "etiket": "HENDI",
+      "tablo": "handi_products",
+      "toplam": 3790,
+      "shopifyUygun": 3790,
+      "kargoEdilebilir": 3790,
+      "kontroller": [
+        {
+          "label": "Başlık",
+          "kind": "zorunlu",
+          "ok": 3790,
+          "eksik": 0,
+          "pct": "100.0"
+        },
+        {
+          "label": "Fiyat > 0",
+          "kind": "zorunlu",
+          "ok": 3790,
+          "eksik": 0,
+          "pct": "100.0"
+        },
+        {
+          "label": "Görsel (http)",
+          "kind": "zorunlu",
+          "ok": 3790,
+          "eksik": 0,
+          "pct": "100.0"
+        },
+        {
+          "label": "Açıklama",
+          "kind": "SEO",
+          "ok": 3233,
+          "eksik": 557,
+          "pct": "85.3"
+        },
+        {
+          "label": "Kategori",
+          "kind": "SEO",
+          "ok": 3784,
+          "eksik": 6,
+          "pct": "99.8"
+        },
+        {
+          "label": "Ağırlık > 0",
+          "kind": "kargo",
+          "ok": 3790,
+          "eksik": 0,
+          "pct": "100.0"
+        },
+        {
+          "label": "Ölçü (en x boy)",
+          "kind": "kargo",
+          "ok": 3783,
+          "eksik": 7,
+          "pct": "99.8"
+        },
+        {
+          "label": "Stok > 0",
+          "kind": "envanter",
+          "ok": 3684,
+          "eksik": 106,
+          "pct": "97.2"
+        },
+        {
+          "label": "Gecerli barkod",
+          "kind": "kanal",
+          "ok": 0,
+          "eksik": 3790,
+          "pct": "0.0"
+        },
+        {
+          "label": "Almanca metin",
+          "kind": "SEO",
+          "ok": 0,
+          "eksik": 3790,
+          "pct": "0.0"
+        }
+      ],
+      "medyanNet": 16.75,
+      "medyanBrut": 19.93,
+      "enDusukNet": 0.6,
+      "enYuksekNet": 7595,
+      "diller": {
+        "en": 2685,
+        "belirsiz": 1105
+      },
+      "mukerrerSku": 0,
+      "gecerliBarkod": 0,
+      "benzersizBarkod": 0,
+      "handleCakismasi": 0
+    }
+  ],
+  "toplam": {
+    "toplam": 14259,
+    "uygun": 14188,
+    "kargo": 13109
+  }
+}

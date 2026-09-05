@@ -233,6 +233,41 @@ for await (const chunk of chatWithAI({
 
 ---
 
+## 6. Shopify — ürün senkronu (kurulum bekliyor)
+
+Ürün kataloğunu ayrı bir Shopify vitrinine yazar. **Mağaza henüz açılmadı.**
+
+| | |
+|---|---|
+| Yön | Supabase → Shopify (tek yönlü, yazma) |
+| API | Admin GraphQL, `productSet` mutation'ı |
+| Sürüm | `2026-07` (Shopify her çeyrekte yeni sürüm çıkarır) |
+| Kapsam | Pilot: Diamond (6.849 ürün). Sonra CombiSteel + HENDI |
+| Fiyat | **Brüt** — net × 1,19 (%19 KDV dahil) |
+| Domain | `shop.2mcgastro.de` — **ana domain'e dokunulmaz** |
+
+```bash
+npm run shopify:preflight   # envanter denetimi (yazmaz, token gerekmez)
+npm run shopify:dry         # payload önizleme (yazmaz)
+node scripts/shopify/sync-products.mjs --brand diamond --live --limit 50
+```
+
+**Gereken env:** `SHOPIFY_STORE_DOMAIN`, `SHOPIFY_ADMIN_TOKEN`,
+`SHOPIFY_API_VERSION`, `SHOPIFY_LOCATION_ID` → `.env.example`'a bak.
+
+**Kurulum ve durum:** [docs/shopify/](shopify/) — `DURUM.md` hangi fazda
+olduğumuzu tutar, `01-magaza-kurulum-rehberi.md` adım adım kurulumu anlatır.
+
+**Dikkat:**
+- Ürünler `productSet` + sabit `handle` ile yazılır → **idempotan**; ikinci
+  çalıştırma mükerrer ürün yaratmaz. Her canlı yazımdan sonra komutu tekrar
+  çalıştırıp ürün sayısının sabit kaldığını doğrula.
+- Diamond'da stok verisi yok → envanter takibi **kapalı** (`tracked: false`),
+  yoksa tüm katalog "ausverkauft" görünür.
+- HENDI barkodları bozuk (hepsi `"8,71137E+12"`) → yazılmıyor.
+
+---
+
 ## Test checklist
 
 Her entegrasyon canlıya alınmadan önce:
@@ -259,3 +294,4 @@ Her entegrasyon canlıya alınmadan önce:
 - **Meilisearch auth**: Gelecekte kullanıcıya göre filtreleme (B2B özel fiyat) gerekirse tenant token kullanılmalı.
 - **AI chat rate limiting**: Şu an yok. Kullanıcı başına dakikada N istek limiti edge function içinde eklenmeli (Supabase KV ile).
 - **Migration 005**: Henüz uygulanmadı. Staging'de dene, sonra production.
+- **Shopify mağazası**: Henüz açılmadı. Ürün senkron kodu ve denetimi hazır, canlı yazma token bekliyor (`docs/shopify/DURUM.md`).

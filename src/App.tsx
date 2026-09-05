@@ -68,6 +68,7 @@ const ChangelogPage = lazy(() => import('./pages/changelog/ChangelogPage'));
 const ApiKeysPage = lazy(() => import('./pages/account/ApiKeysPage'));
 const ApiDocsPage = lazy(() => import('./pages/developers/ApiDocsPage'));
 import LandingPage from './pages/landing/LandingPage';
+const InfoPage = lazy(() => import('./pages/info/InfoPage'));
 const FloorPlan3DPage = lazy(() => import('./pages/design/FloorPlan3DPage'));
 const ThreeDDesignPage = lazy(() => import('./pages/design/ThreeDDesignPage'));
 
@@ -177,6 +178,24 @@ export default function App() {
             {/* Neler Düzeldi — otomatik düzeltme ajanının yayınladığı changelog */}
             <Route path="degisiklikler" element={<ChangelogPage />} />
             <Route path="changelog" element={<Navigate to="/degisiklikler" replace />} />
+
+            {/* Bilgi + yasal sayfalar (SiteFooter bağlantıları) — src/pages/info/InfoPage.tsx */}
+            <Route path="about" element={<InfoPage slug="about" />} />
+            <Route path="careers" element={<InfoPage slug="careers" />} />
+            <Route path="shipping" element={<InfoPage slug="shipping" />} />
+            <Route path="newsletter" element={<InfoPage slug="newsletter" />} />
+            <Route path="imprint" element={<InfoPage slug="imprint" />} />
+            <Route path="impressum" element={<Navigate to="/imprint" replace />} />
+            <Route path="privacy" element={<InfoPage slug="privacy" />} />
+            <Route path="datenschutz" element={<Navigate to="/privacy" replace />} />
+            <Route path="terms" element={<InfoPage slug="terms" />} />
+            <Route path="agb" element={<Navigate to="/terms" replace />} />
+            <Route path="cancellation" element={<InfoPage slug="cancellation" />} />
+            <Route path="widerruf" element={<Navigate to="/cancellation" replace />} />
+            <Route path="cookies" element={<InfoPage slug="cookies" />} />
+            {/* Eski/yanlış yazımlar → gerçek rotalar */}
+            <Route path="help" element={<Navigate to="/support" replace />} />
+            <Route path="catalog" element={<Navigate to="/katalog" replace />} />
 
             {/* Developer API: self-service keys + interactive docs */}
             <Route path="account/api-keys" element={<ApiKeysPage />} />

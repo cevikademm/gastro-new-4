@@ -3,19 +3,15 @@
    Metropolis font + açık zemin + mavi aksan + uppercase başlıklar
    ============================================================ */
 
+/* Font yerel sunulur: 2mcwerbung.com CORS başlığı vermediği için tarayıcı
+   uzak dosyayı reddediyor (login/dashboard'da konsol hatası + Arial'a düşüş).
+   SemiBold dosyası kaynakta 301 döngüsünde olduğundan yalnızca Regular var;
+   600/700 ağırlıkları tarayıcı sentezler. */
 @font-face {
   font-family: "Metropolis";
-  src: url("https://www.2mcwerbung.com/wp-content/uploads/2021/10/Metropolis-Regular.woff2") format("woff2"),
-       url("https://www.2mcwerbung.com/wp-content/uploads/2021/10/Metropolis-Regular.woff") format("woff");
+  src: url("/fonts/Metropolis-Regular.woff2") format("woff2"),
+       url("/fonts/Metropolis-Regular.woff") format("woff");
   font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Metropolis";
-  src: url("https://www.2mcwerbung.com/wp-content/uploads/2021/10/Metropolis-SemiBold.woff2") format("woff2");
-  font-weight: 600;
   font-style: normal;
   font-display: swap;
 }

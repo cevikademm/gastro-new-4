@@ -12,7 +12,10 @@
     "blog:new": "node scripts/new-blog-post.mjs",
     "preview": "vite preview",
     "clean": "rm -rf dist",
-    "lint": "tsc --noEmit"
+    "lint": "tsc --noEmit",
+    "shopify:preflight": "node scripts/shopify/preflight.mjs --json docs/shopify/envanter.json",
+    "shopify:dry": "node scripts/shopify/sync-products.mjs --dry-run --limit 5",
+    "shopify:sync": "node scripts/shopify/sync-products.mjs"
   },
   "dependencies": {
     "@mlightcad/libredwg-web": "^0.7.0",

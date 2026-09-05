@@ -97,6 +97,19 @@ P0-P3 önceliklendirme, onaylı düzeltme, `--no-cache` ile doğrulama.
 Ayrıştırıcı `scripts/seo/rapor-ozet.mjs`, raporlar `docs/seo/`.
 AI/LLM görünürlüğü (llms.txt, alıntılanabilirlik) ayrı iştir → `/geo-agent`.
 
+## Shopify ürün senkronu
+`.claude/agents/shopify-agent.md` — ürünleri ayrı bir Shopify vitrinine yazar.
+Durum `docs/shopify/DURUM.md`'de; ajan her çalıştırmada oradan devam eder.
+- Vitrin **ayrı alan adında**: `shop.2mcgastro.de`. `www.2mcgastro.de` Vercel'deki
+  uygulamada kalır — Shopify'a yönlendirilirse mevcut site ve SEO kırılır.
+- Shopify'a **brüt** fiyat yazılır (net × 1,19); site B2B net gösterir
+  (`zzgl. MwSt.`) — iki kanal bilerek farklı rakam gösterir.
+- Kaynak Supabase'dir; **Diamond için products.json ile birleştirilir** (Almanca
+  metin orada, ağırlık/ölçü Supabase'de).
+- Yazma daima `productSet` + sabit `handle` ile → idempotan. Yeni bir yazma yolu
+  eklersen bunu koru, yoksa her çalıştırma katalogu kopyalar.
+- `npm run shopify:preflight` (denetim, yazmaz) · `npm run shopify:dry` (önizleme).
+
 ## Hata Merkezi (otomatik triyaj + düzeltme)
 `/admin/error-reports` — dört sekme: Bildirimler, Sistem Logları, İşlem Geçmişi,
 Otomasyon, Ajan.

@@ -77,6 +77,8 @@ export default function CombiSteelPage() {
   const { toggleItem: toggleCompareItem, isComparing: isItemComparing } = useCompareStore();
   const [showFilters, setShowFilters] = useState(false);
   const [showAllCategories, setShowAllCategories] = useState(false);
+  // Sıralama menüsü: hover'a ek olarak tıklama/klavye/dokunmatik ile de açılır
+  const [sortOpen, setSortOpen] = useState(false);
 
   useEffect(() => { fetchProducts(); fetchCategories(); fetchBrands(); }, []);
 
@@ -178,11 +180,22 @@ export default function CombiSteelPage() {
         </button>
 
         {/* Sort */}
-        <div className="relative group">
-          <button className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:border-red-200 transition-all">
+        <div className="relative group" onMouseLeave={() => setSortOpen(false)}>
+          <button
+            type="button"
+            onClick={() => setSortOpen((v) => !v)}
+            aria-haspopup="menu"
+            aria-expanded={sortOpen}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border transition-all ${sortOpen ? 'border-red-300' : 'border-slate-200 hover:border-red-200'}`}
+          >
             <ArrowUpDown size={14} /> {t('common.sort')}
           </button>
-          <div className="absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-slate-200 py-1 w-44 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-30">
+          <div
+            role="menu"
+            className={`absolute top-full left-0 mt-1 bg-white rounded-xl shadow-xl border border-slate-200 py-1 w-44 transition-all z-30 ${
+              sortOpen ? 'opacity-100 visible' : 'opacity-0 invisible group-hover:opacity-100 group-hover:visible'
+            }`}
+          >
             {[
               { key: 'title', label: t('combisteel.sortNameAsc'), order: 'asc' as const },
               { key: 'price', label: t('combisteel.sortPriceAsc'), order: 'asc' as const },
@@ -191,7 +204,8 @@ export default function CombiSteelPage() {
             ].map(s => (
               <button
                 key={`${s.key}-${s.order}`}
-                onClick={() => { setFilter('sortBy', s.key); setFilter('sortOrder', s.order); }}
+                role="menuitem"
+                onClick={() => { setFilter('sortBy', s.key); setFilter('sortOrder', s.order); setSortOpen(false); }}
                 className={`w-full text-left px-4 py-2 text-xs hover:bg-red-50 transition-colors ${
                   filters.sortBy === s.key && filters.sortOrder === s.order ? 'text-[#DC2626] font-bold bg-red-50/50' : 'text-slate-600'
                 }`}

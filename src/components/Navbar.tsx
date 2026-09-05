@@ -140,7 +140,10 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                     >
                       <button
                         type="button"
-                        onClick={() => setIsProductsOpen((v) => !v)}
+                        // Hover menüyü zaten açar; tıklama menüyü kapatmak yerine
+                        // mağazaya götürür (aksi hâlde tıklama "hiçbir şey yapmıyor" gibi görünüyordu)
+                        onClick={() => { setIsProductsOpen(false); navigate('/magaza'); }}
+                        onFocus={() => setIsProductsOpen(true)}
                         aria-expanded={isProductsOpen}
                         aria-haspopup="menu"
                         className={cn(

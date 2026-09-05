@@ -7,8 +7,16 @@ import {
   Truck, Package, PackageCheck, Forklift, Container,
   Shield,
 } from 'lucide-react';
+import { COMPANY_INFO } from '../lib/companyInfo';
 
-const INFO_LINKS = [
+/** Site iletişim e-postası (destek formu da buraya gönderir). */
+const CONTACT_EMAIL = 'info@2mcgastro.de';
+
+type FooterLink = { to: string; label: string; external?: boolean };
+
+// NOT: Buradaki her hedefin App.tsx'te gerçek bir rotası var (bilgi/yasal sayfalar
+// src/pages/info/InfoPage.tsx). Yeni bağlantı eklerken rotayı da ekle — yoksa 404.
+const INFO_LINKS: FooterLink[] = [
   { to: '/about',        label: 'Hakkımızda' },
   { to: '/careers',      label: 'Kariyer' },
   { to: '/support',      label: 'İletişim' },
@@ -17,15 +25,22 @@ const INFO_LINKS = [
   { to: '/newsletter',   label: 'Bülten' },
 ];
 
-const LEGAL_LINKS = [
-  { to: '/help',          label: 'Yardım Merkezi' },
+const LEGAL_LINKS: FooterLink[] = [
+  { to: '/support',       label: 'Yardım Merkezi' },
   { to: '/developers/api', label: 'Geliştiriciler / API' },
   { to: '/privacy',       label: 'Gizlilik' },
   { to: '/terms',         label: 'Kullanım Koşulları' },
-  { to: '/sitemap',       label: 'Site Haritası' },
+  { to: '/sitemap.xml',   label: 'Site Haritası', external: true },
   { to: '/imprint',       label: 'Künye' },
   { to: '/cancellation',  label: 'Cayma Hakkı' },
 ];
+
+function FooterLinkItem({ l }: { l: FooterLink }) {
+  const cls = 'text-sm text-[var(--c-muted)] hover:text-[var(--c-clay)] transition-colors';
+  return l.external
+    ? <a href={l.to} className={cls}>{l.label}</a>
+    : <Link to={l.to} className={cls}>{l.label}</Link>;
+}
 
 // Marka logoları — simpleicons.org CDN'den alınır (contrasting color ile brand bg üzerinde görünür).
 // simpleicons'te olmayan markalar için fallback: lucide ikon + marka adı metni.
@@ -116,7 +131,7 @@ export default function SiteFooter() {
     <footer className="bg-[var(--c-bg-alt)] border-t border-[var(--c-line)] text-[var(--c-ink)] pt-20 pb-10">
       <div className="max-w-7xl mx-auto px-4 md:px-8">
         {/* Newsletter Section — Lush background */}
-        <section className="relative overflow-hidden rounded-[32px] p-8 md:p-12 mb-20 shadow-xl" style={{ background: 'linear-gradient(135deg, var(--c-navy-deep) 0%, var(--c-navy) 100%)' }}>
+        <section id="newsletter" className="relative overflow-hidden rounded-[32px] p-8 md:p-12 mb-20 shadow-xl scroll-mt-28" style={{ background: 'linear-gradient(135deg, var(--c-navy-deep) 0%, var(--c-navy) 100%)' }}>
           <div className="absolute top-[-100px] right-[-100px] w-64 h-64 bg-[var(--c-clay)]/10 rounded-full blur-3xl" />
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className="max-w-xl text-center lg:text-left">
@@ -157,13 +172,22 @@ export default function SiteFooter() {
               Profesyonel mutfak ekipmanları, 3D tasarım ve anahtar teslim projeler için Avrupa'nın güvenilir çözüm ortağı.
             </p>
             <div className="flex gap-4">
-              {/* Social icons would go here */}
-              <div className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] cursor-pointer transition-all">
+              <a
+                href={`tel:+49${COMPANY_INFO.phone.replace(/^0/, '')}`}
+                aria-label="Telefon"
+                title={COMPANY_INFO.phone}
+                className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] transition-all"
+              >
                 <Phone size={18} />
-              </div>
-              <div className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] cursor-pointer transition-all">
+              </a>
+              <a
+                href={`mailto:${CONTACT_EMAIL}`}
+                aria-label="E-posta"
+                title={CONTACT_EMAIL}
+                className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] transition-all"
+              >
                 <Mail size={18} />
-              </div>
+              </a>
             </div>
           </div>
 
@@ -172,11 +196,7 @@ export default function SiteFooter() {
             <h4 className="serif text-lg font-bold mb-6">Kurumsal</h4>
             <ul className="space-y-4">
               {INFO_LINKS.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="text-sm text-[var(--c-muted)] hover:text-[var(--c-clay)] transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
+                <li key={l.to}><FooterLinkItem l={l} /></li>
               ))}
             </ul>
           </div>
@@ -185,11 +205,7 @@ export default function SiteFooter() {
             <h4 className="serif text-lg font-bold mb-6">Destek</h4>
             <ul className="space-y-4">
               {LEGAL_LINKS.map((l) => (
-                <li key={l.to}>
-                  <Link to={l.to} className="text-sm text-[var(--c-muted)] hover:text-[var(--c-clay)] transition-colors">
-                    {l.label}
-                  </Link>
-                </li>
+                <li key={l.to}><FooterLinkItem l={l} /></li>
               ))}
             </ul>
           </div>
