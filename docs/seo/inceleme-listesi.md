@@ -51,3 +51,27 @@ Değişiklikten sonra: `npm run build` (prerender yeniden üretir) → deploy.
 - **Şehir Dalga 2–3** — Dalga 1 GSC verisi (indeks + gösterim) geldikten sonra `published:true`.
 - **Ürün yorumları** → gerçek `AggregateRating` (product_reviews doluysa).
 - **Merchant Center**: net-fiyat kararı nedeniyle feed gönderilmiyor (`/feed-gmc.xml?gross=1` brüt sürüm hazır).
+
+## 5. Önizleme doğrulaması (2026-09-06, Vercel preview 609m2vxqq)
+
+| Kontrol | Sonuç |
+|---|---|
+| `/kuehlung` (fonksiyon, CDN cache) | 200, Almanca title/H1, 24 ürün linki, CollectionPage+ItemList+FAQ JSON-LD |
+| `/kuehlung?page=2` | 200, "– Seite 2", self-canonical `?page=2` |
+| `/kuehlung?sort=price-asc` | 200, `noindex,follow`, canonical temiz |
+| `/produkt/{slug}` | 200, Product+Offer JSON-LD, 8 benzer ürün |
+| `/product/03D/6H` (eski) | 301 → `/produkt/diamond-spuelmaschinen-…-03d-6h` |
+| `/magaza`, `/blog`, `/de/kuehlung`, `/kuehlung/` | 308 → `/produkte`, `/ratgeber`, `/kuehlung`, `/kuehlung` |
+| `/foo-bar-xyz` | gerçek **404** (Almanca 404 sayfası, noindex) |
+| `/dashboard` | 200 kabuk, `noindex` |
+| `/sitemap.xml` → 6 alt sitemap; `sitemap-pages.xml` 170 URL; `sitemap-produkte-hendi.xml` 3.781 URL | ✓ |
+| `/impressum`, `/branche/pizzeria`, `/tr/blog` | 200, doğru title |
+
+Notlar:
+- Vercel **Preview** ortamına `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_URL`, `SUPABASE_ANON_KEY`
+  (yalnız anon) eklendi — önizlemelerde ürün verisi görünsün diye. Production'da zaten vardı.
+- Fonksiyonlar esbuild ile `api/*.js` olarak paketlenir (`npm run seo:bundle`, build içinde otomatik);
+  `src/seo/server/*.ts` kaynaktır. Neden: Vercel Node ESM'de göreli TS/JSON import çalışmıyor (500).
+- Kategori/marka sayfaları statik prerender EDİLMEZ (sayfalama query'si statik dosyaya takılıyordu);
+  `api/render.js` üretir, CDN `s-maxage=3600` ile önbellekler.
+- Preview URL'lerinde `x-robots-tag: noindex` Vercel'in kendi koruması — prod'da yok.
