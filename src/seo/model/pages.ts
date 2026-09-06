@@ -15,7 +15,7 @@ import { BRANCHEN_DE, findBranche } from '../../content/seo/branchen.de';
 import { STAEDTE_DE, findCity } from '../../content/seo/staedte.de';
 import { BLOG_POSTS } from '../../content/blog/posts';
 import { COMPETITORS } from '../../content/compare/competitors';
-import ratgeberIndex from '../../content/ratgeber/index.generated.json';
+import { RATGEBER_INDEX as ratgeberIndex } from '../../content/ratgeber/index.generated';
 import type { RatgeberEntry } from '../../content/ratgeber/types';
 import { RATGEBER_CATEGORY_LABEL } from '../../content/ratgeber/types';
 import { STATIC_PAGES } from '../routes';

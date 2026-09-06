@@ -3,9 +3,9 @@
   "trailingSlash": false,
   "regions": ["fra1"],
   "functions": {
-    "api/render.ts": { "includeFiles": "dist/index.html", "memory": 1024, "maxDuration": 10 },
-    "api/sitemap.ts": { "maxDuration": 30 },
-    "api/feed-gmc.ts": { "maxDuration": 30 },
+    "api/render.js": { "includeFiles": "dist/index.html", "memory": 1024, "maxDuration": 10 },
+    "api/sitemap.js": { "maxDuration": 30 },
+    "api/feed-gmc.js": { "maxDuration": 30 },
     "api/sync-diamond.ts": { "maxDuration": 300 },
     "api/sync-combisteel.ts": { "maxDuration": 300 }
   },

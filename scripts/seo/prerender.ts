@@ -2,7 +2,7 @@
  * prerender.ts — `vite build` SONRASI çalışır (package.json "build").
  *
  * 1) dist/index.html (saf kabuk, hash'li asset linkleriyle) → api/_shell.generated.ts
- *    (api/render.ts yedeği; Vercel'de dist/ fonksiyona includeFiles ile de girer).
+ *    (fonksiyon paketine gömülür; Vercel'de dist/ ayrıca includeFiles ile de girer).
  * 2) Sonlu Almanca rotaların (ana sayfa, kategori, marka, branche, şehir, yasal,
  *    vergleich, ratgeber) tam HTML'i dist/<yol>.html olarak yazılır → Vercel
  *    dosya sistemi bu istekleri fonksiyona hiç uğratmadan statik servis eder
@@ -45,7 +45,7 @@ async function main() {
     `// dist/index.html kopyası (hash'li asset linkleri). api/render.ts yedek olarak kullanır.\n` +
     `export const SHELL = ${JSON.stringify(shell)};\n` +
     `export const SHELL_BUILT_AT = ${JSON.stringify(new Date().toISOString())};\n`;
-  writeFileSync(resolve(ROOT, 'api', '_shell.generated.ts'), gen, 'utf8');
+  writeFileSync(resolve(ROOT, 'src', 'seo', 'server', '_shell.generated.ts'), gen, 'utf8');
 
   // 2) Statik rotalar
   const paths = enumerateStaticPaths().map((r) => r.path);

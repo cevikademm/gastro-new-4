@@ -1,10 +1,13 @@
 /**
- * build-ratgeber-index.ts — src/content/ratgeber/*.md → index.generated.json
+ * build-ratgeber-index.ts — src/content/ratgeber/*.md → index.generated.ts (TS modülü)
  *
  * Frontmatter (YAML) + Markdown. `status: published` yazılar için zorunlu alanlar
  * kontrol edilir (description, image, ≥1 sources, ≥2 relatedCategories) — eksikse
  * build durur. Draft/review yazılar index'e `status` ile girer; React tarafı
  * yalnızca `?preview=1` ile gösterir, sitemap/renderer görmezden gelir.
+ *
+ * Çıktı TS modülüdür (JSON değil): Vercel Node ESM'de JSON import "import attribute"
+ * ister → fonksiyon çöker. TS modülü hem Vite hem esbuild paketinde sorunsuz.
  *
  * Kullanım: npx tsx scripts/seo/build-ratgeber-index.ts
  */
@@ -19,9 +22,15 @@ import type { RatgeberEntry, RatgeberMeta } from '../../src/content/ratgeber/typ
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const ROOT = resolve(__dirname, '..', '..');
 const DIR = resolve(ROOT, 'src/content/ratgeber');
-const OUT = resolve(DIR, 'index.generated.json');
+const OUT = resolve(DIR, 'index.generated.ts');
 
+const HEADER = `// Otomatik üretilir: scripts/seo/build-ratgeber-index.ts — ELLE DÜZENLEMEYİN.\nimport type { RatgeberEntry } from './types';\n`;
 const slugify = (s: string) => s.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+
+/** JSON → TS kaynak literali: U+2028/U+2029 satır ayırıcılarını kaçır (JS kaynakta geçersiz). */
+function toSourceLiteral(value: unknown): string {
+  return JSON.stringify(value).replace(/ /g, '\\u2028').replace(/ /g, '\\u2029');
+}
 
 function toEntry(file: string): RatgeberEntry {
   const raw = readFileSync(resolve(DIR, file), 'utf8');
@@ -82,10 +91,10 @@ function toEntry(file: string): RatgeberEntry {
 }
 
 function main() {
-  if (!existsSync(DIR)) { writeFileSync(OUT, '[]\n'); return; }
+  if (!existsSync(DIR)) { writeFileSync(OUT, `${HEADER}export const RATGEBER_INDEX: RatgeberEntry[] = [];\n`); return; }
   const files = readdirSync(DIR).filter((f) => f.endsWith('.md'));
   const entries = files.map(toEntry).sort((a, b) => (a.datePublished < b.datePublished ? 1 : -1));
-  writeFileSync(OUT, JSON.stringify(entries, null, 0) + '\n', 'utf8');
+  writeFileSync(OUT, `${HEADER}export const RATGEBER_INDEX: RatgeberEntry[] = ${toSourceLiteral(entries)};\n`, 'utf8');
   const pub = entries.filter((e) => e.status === 'published').length;
   console.log(`✅ ratgeber index: ${entries.length} yazı (${pub} yayında) → ${OUT}`);
 }

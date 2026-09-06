@@ -1,6 +1,6 @@
 /**
  * RatgeberPage — /ratgeber ve /ratgeber/{slug} (Almanca rehber motoru).
- * Kaynak: src/content/ratgeber/index.generated.json (build: npm run seo:ratgeber).
+ * Kaynak: src/content/ratgeber/index.generated.ts (build: npm run seo:ratgeber).
  * Draft/review yazılar yalnızca ?preview=1 ile görünür (noindex).
  */
 import { useMemo } from 'react';
@@ -14,7 +14,7 @@ import { PageHero } from '../../components/MarketingLayout';
 import { useLocalePath } from '../../lib/useLocalePath';
 import { findCategory, findSubcategory } from '../../content/seo/categoryTree.de';
 import { breadcrumbSchema, collectionPageSchema, articleSchema, faqSchema, absoluteUrl } from '../../lib/seo';
-import ratgeberIndex from '../../content/ratgeber/index.generated.json';
+import { RATGEBER_INDEX as ratgeberIndex } from '../../content/ratgeber/index.generated';
 import { RATGEBER_CATEGORY_LABEL, type RatgeberEntry } from '../../content/ratgeber/types';
 
 const ALL = ratgeberIndex as unknown as RatgeberEntry[];

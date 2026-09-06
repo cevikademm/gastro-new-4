@@ -6,8 +6,8 @@
 // bu feed Merchant Center'a GÖNDERİLMEZ; hazır tutulur. Brüt gösterim kararı
 // gelirse: g:price = price_net * 1.19 ve ürün sayfasına brüt satır eklenir.
 // Feed yine de B2B pazar yerleri / partner katalogları için kullanılabilir.
-import { rest } from '../src/seo/data/supabase';
-import type { ProductSeoRow } from '../src/seo/types';
+import { rest } from '../data/supabase';
+import type { ProductSeoRow } from '../types';
 
 const SITE_URL = 'https://www.2mcgastro.de';
 

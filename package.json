@@ -6,10 +6,11 @@
   "description": "2MC Gastro - Professional commercial kitchen planning and equipment management platform for the European market",
   "scripts": {
     "dev": "vite --port=3000 --host=0.0.0.0",
-    "build": "vite build && tsx scripts/seo/prerender.ts && tsx scripts/seo/generate-sitemaps.ts",
+    "build": "vite build && tsx scripts/seo/prerender.ts && tsx scripts/seo/generate-sitemaps.ts && tsx scripts/seo/bundle-api.ts",
     "build:spa": "vite build",
     "seo:prerender": "tsx scripts/seo/prerender.ts",
     "seo:sitemap": "tsx scripts/seo/generate-sitemaps.ts",
+    "seo:bundle": "tsx scripts/seo/bundle-api.ts",
     "seo:products": "tsx scripts/seo/build-product-seo.ts",
     "seo:products:dry": "tsx scripts/seo/build-product-seo.ts --dry --limit 200",
     "seo:ratgeber": "tsx scripts/seo/build-ratgeber-index.ts",

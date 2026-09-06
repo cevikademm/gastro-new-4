@@ -12,9 +12,6 @@
     "src/lib/categoryTaxonomy.core.ts",
     "src/content/seo/**/*.ts",
     "src/content/ratgeber/types.ts",
-    "api/render.ts",
-    "api/sitemap.ts",
-    "api/_shell.generated.ts",
     "scripts/seo/*.ts"
   ],
   "exclude": ["node_modules", "dist"]

@@ -12,7 +12,7 @@
 // Güvenlik ağı: her hata ham kabuk + 200 döndürür — site renderer yüzünden düşmez.
 import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { renderPage } from '../src/seo/render/page';
+import { renderPage } from '../render/page';
 import { SHELL as FALLBACK_SHELL } from './_shell.generated';
 
 type Req = { url?: string; method?: string; query?: Record<string, string | string[] | undefined>; headers?: Record<string, string | string[] | undefined> };

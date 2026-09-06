@@ -18,7 +18,7 @@ import { CATEGORY_TREE, findCategory, findSubcategory } from '../../content/seo/
 import { BRANDS_DE } from '../../content/seo/brands.de';
 import { breadcrumbSchema, collectionPageSchema, itemListSchema, faqSchema } from '../../lib/seo';
 import { fetchProductList, fetchCounts, sumCounts, type ProductSeoCardRow, type CountRow } from '../../lib/productSeoAdapter';
-import ratgeberIndex from '../../content/ratgeber/index.generated.json';
+import { RATGEBER_INDEX as ratgeberIndex } from '../../content/ratgeber/index.generated';
 import type { RatgeberEntry } from '../../content/ratgeber/types';
 
 const PER_PAGE = 24;

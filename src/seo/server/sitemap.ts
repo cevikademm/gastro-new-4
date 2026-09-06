@@ -7,13 +7,13 @@
 // /sitemap-produkte-{diamond|combisteel|hendi}.xml → product_seo (indexable)
 //
 // vercel.json rewrite: /sitemap.xml → /api/sitemap?name=index · /sitemap-:name.xml → /api/sitemap?name=:name
-import { SITE_URL, absoluteUrl, buildHreflangs } from '../src/lib/seo';
-import { localePath } from '../src/lib/locales';
-import { enumerateStaticPaths } from '../src/seo/routes';
-import { BRANDS_DE } from '../src/content/seo/brands.de';
-import { BLOG_POSTS } from '../src/content/blog/posts';
-import ratgeberIndex from '../src/content/ratgeber/index.generated.json';
-import { listProductSlugs } from '../src/seo/data/supabase';
+import { SITE_URL, absoluteUrl, buildHreflangs } from '../../lib/seo';
+import { localePath } from '../../lib/locales';
+import { enumerateStaticPaths } from '../routes';
+import { BRANDS_DE } from '../../content/seo/brands.de';
+import { BLOG_POSTS } from '../../content/blog/posts';
+import { RATGEBER_INDEX as ratgeberIndex } from '../../content/ratgeber/index.generated';
+import { listProductSlugs } from '../data/supabase';
 
 type Req = { query?: Record<string, string | string[] | undefined> };
 type Res = { setHeader: (k: string, v: string) => void; status: (n: number) => Res; send: (b: string) => void };

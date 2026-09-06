@@ -1,7 +1,7 @@
 /**
  * Ratgeber (Almanca rehber) içerik motoru — tipler.
  * Kaynak: src/content/ratgeber/*.md (frontmatter + Markdown)
- * Build:  scripts/seo/build-ratgeber-index.ts → index.generated.json
+ * Build:  scripts/seo/build-ratgeber-index.ts → index.generated.ts
  */
 export type RatgeberCategory = 'kaufberatung' | 'planung' | 'hygiene-haccp' | 'technik' | 'recht-foerderung' | 'news';
 export type RatgeberStatus = 'draft' | 'review' | 'published';
