@@ -28,8 +28,19 @@ const CONTACT_EMAIL = 'info@2mcgastro.de';
 const C = COMPANY_INFO;
 const ADDRESS = `${C.street}, ${C.zipCity}`;
 /** İçerikten sorumlu gerçek kişi — legalName'in parantezsiz hâli ("Metehan Çevik"). */
-const RESPONSIBLE_PERSON = C.legalName.replace(/\s*\(.*\)\s*$/, '');
+const RESPONSIBLE_PERSON = C.register.managingDirector || C.legalName.replace(/s*(.*)s*$/, '');
 const UPDATED = '2026-09-06';
+/** Sicil satırları — yalnızca dolu alanlar (HRB gelene kadar numara satırı çıkmaz). */
+const REGISTER_DE = [
+  C.register.managingDirector ? `Vertreten durch den Geschäftsführer: ${C.register.managingDirector}` : '',
+  C.register.court ? `Registergericht: ${C.register.court}` : '',
+  C.register.number ? `Handelsregisternummer: ${C.register.number}` : '',
+].filter(Boolean);
+const REGISTER_TR = [
+  C.register.managingDirector ? `Şirket müdürü (Geschäftsführer): ${C.register.managingDirector}` : '',
+  C.register.court ? `Sicil mahkemesi (Registergericht): ${C.register.court}` : '',
+  C.register.number ? `Ticaret sicil no. (HRB): ${C.register.number}` : '',
+].filter(Boolean);
 
 const CONTENT: Record<InfoSlug, Record<Lang, PageContent>> = {
   about: {
@@ -157,7 +168,7 @@ const CONTENT: Record<InfoSlug, Record<Lang, PageContent>> = {
       title: 'Künye (Impressum)',
       subtitle: 'Alman Dijital Hizmetler Kanunu (§ 5 DDG) gereği sağlayıcı bilgileri.',
       sections: [
-        { h: 'Sağlayıcı', p: [], list: [C.legalName, ADDRESS, `Telefon: ${C.phone}`, `E-posta: ${CONTACT_EMAIL}`] },
+        { h: 'Sağlayıcı', p: [], list: [C.legalName, ADDRESS, ...REGISTER_TR, `Telefon: ${C.phone}`, `E-posta: ${CONTACT_EMAIL}`] },
         { h: 'Vergi bilgileri', p: [], list: [`USt-IdNr. (KDV kimlik no.): ${C.vat}`, `Steuernummer (vergi no.): ${C.taxNumber}`] },
         { h: 'İçerikten sorumlu (§ 18 Abs. 2 MStV)', p: [], list: [RESPONSIBLE_PERSON, ADDRESS] },
         { h: 'AB çevrimiçi uyuşmazlık çözümü', p: [
@@ -172,7 +183,7 @@ const CONTENT: Record<InfoSlug, Record<Lang, PageContent>> = {
       title: 'Impressum',
       subtitle: 'Angaben gemäß § 5 DDG.',
       sections: [
-        { h: 'Anbieter', p: [], list: [C.legalName, ADDRESS, `Telefon: ${C.phone}`, `E-Mail: ${CONTACT_EMAIL}`] },
+        { h: 'Anbieter', p: [], list: [C.legalName, ADDRESS, ...REGISTER_DE, `Telefon: ${C.phone}`, `E-Mail: ${CONTACT_EMAIL}`] },
         { h: 'Steuerangaben', p: [], list: [`Umsatzsteuer-Identifikationsnummer gemäß § 27a UStG: ${C.vat}`, `Steuernummer: ${C.taxNumber}`] },
         { h: 'Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV', p: [], list: [RESPONSIBLE_PERSON, ADDRESS] },
         { h: 'EU-Streitschlichtung', p: [

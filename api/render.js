@@ -1536,12 +1536,11 @@ var COMPANY_INFO = {
   taxNumber: "217/5338/1052",
   /** Ticaret sicili — Adem'den gelince doldurulacak (boş = Impressum'da gösterilmez). */
   register: {
-    court: "",
-    // örn. 'Amtsgericht Köln'
+    court: "Amtsgericht K\xF6ln",
+    /** HRB numarası — GmbH yeni kuruldu, numara Adem'den gelince doldurulacak (2026-09-06). */
     number: "",
     // örn. 'HRB 123456'
-    managingDirector: ""
-    // örn. 'Metehan Çevik'
+    managingDirector: "Metehan \xC7evik"
   },
   geo: { lat: 50.9648, lng: 7.0273 },
   /** Google/Schema açılış saatleri. */
@@ -2886,16 +2885,16 @@ var SHELL = `<!doctype html>
     <!-- Feed & AI discovery (GEO) -->
     <link rel="alternate" type="application/rss+xml" title="2MC Gastro \u2014 Ratgeber & Neuigkeiten" href="https://www.2mcgastro.de/rss.xml" />
     <link rel="alternate" type="text/plain" title="llms.txt" href="https://www.2mcgastro.de/llms.txt" />
-    <script type="module" crossorigin src="/assets/index-DybW0KMI.js"></script>
+    <script type="module" crossorigin src="/assets/index-CqiqggvZ.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-DVs2NkFc.js">
     <link rel="modulepreload" crossorigin href="/assets/pdf-BNMWRwDm.js">
     <link rel="modulepreload" crossorigin href="/assets/i18n-BvNubqYy.js">
     <link rel="modulepreload" crossorigin href="/assets/state-BvHujI36.js">
     <link rel="modulepreload" crossorigin href="/assets/supabase-Dsb38-Dp.js">
-    <link rel="modulepreload" crossorigin href="/assets/icons-B0hk7Axr.js">
+    <link rel="modulepreload" crossorigin href="/assets/icons-Cc2T78SC.js">
     <link rel="modulepreload" crossorigin href="/assets/motion-m847y5Lc.js">
     <link rel="modulepreload" crossorigin href="/assets/data-products-C_Sx8pgF.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-DNCZGoqW.css">
+    <link rel="stylesheet" crossorigin href="/assets/index-DsIhZmEj.css">
   </head>
   <body>
     <style>

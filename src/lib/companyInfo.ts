@@ -37,9 +37,10 @@ export const COMPANY_INFO = {
   taxNumber: '217/5338/1052',
   /** Ticaret sicili — Adem'den gelince doldurulacak (boş = Impressum'da gösterilmez). */
   register: {
-    court: '',      // örn. 'Amtsgericht Köln'
+    court: 'Amtsgericht Köln',
+    /** HRB numarası — GmbH yeni kuruldu, numara Adem'den gelince doldurulacak (2026-09-06). */
     number: '',     // örn. 'HRB 123456'
-    managingDirector: '', // örn. 'Metehan Çevik'
+    managingDirector: 'Metehan Çevik',
   },
   geo: { lat: 50.9648, lng: 7.0273 },
   /** Google/Schema açılış saatleri. */
