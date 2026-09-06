@@ -13,7 +13,10 @@ function env(name: string): string | undefined {
 export function supabaseConfig(): { url: string; key: string } | null {
   const url = env('SUPABASE_URL') || env('VITE_SUPABASE_URL');
   const key = env('SUPABASE_SERVICE_ROLE_KEY') || env('SUPABASE_ANON_KEY') || env('VITE_SUPABASE_ANON_KEY');
-  if (!url || !key) return null;
+  if (!url || !key) {
+    console.warn('[seo/supabase] env eksik: SUPABASE_URL/VITE_SUPABASE_URL + anahtar');
+    return null;
+  }
   return { url: url.replace(/\/$/, ''), key };
 }
 
@@ -37,7 +40,10 @@ export async function rest<T = unknown>(
       },
       signal: ctrl.signal,
     });
-    if (!res.ok) return { data: [], count: null };
+    if (!res.ok) {
+      console.warn(`[seo/supabase] ${res.status} ${res.statusText} for ${pathWithQuery.slice(0, 120)}`);
+      return { data: [], count: null };
+    }
     const data = (await res.json()) as T[];
     let count: number | null = null;
     const cr = res.headers.get('content-range');
@@ -46,7 +52,8 @@ export async function rest<T = unknown>(
       count = total === '*' ? null : Number(total);
     }
     return { data: Array.isArray(data) ? data : [], count };
-  } catch {
+  } catch (err) {
+    console.warn(`[seo/supabase] fetch failed for ${pathWithQuery.slice(0, 120)}: ${(err as Error)?.message || err}`);
     return { data: [], count: null };
   } finally {
     clearTimeout(timer);

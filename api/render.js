@@ -2013,7 +2013,10 @@ function env(name) {
 function supabaseConfig() {
   const url = env("SUPABASE_URL") || env("VITE_SUPABASE_URL");
   const key = env("SUPABASE_SERVICE_ROLE_KEY") || env("SUPABASE_ANON_KEY") || env("VITE_SUPABASE_ANON_KEY");
-  if (!url || !key) return null;
+  if (!url || !key) {
+    console.warn("[seo/supabase] env eksik: SUPABASE_URL/VITE_SUPABASE_URL + anahtar");
+    return null;
+  }
   return { url: url.replace(/\/$/, ""), key };
 }
 async function rest(pathWithQuery, opts = {}) {
@@ -2031,7 +2034,10 @@ async function rest(pathWithQuery, opts = {}) {
       },
       signal: ctrl.signal
     });
-    if (!res.ok) return { data: [], count: null };
+    if (!res.ok) {
+      console.warn(`[seo/supabase] ${res.status} ${res.statusText} for ${pathWithQuery.slice(0, 120)}`);
+      return { data: [], count: null };
+    }
     const data = await res.json();
     let count = null;
     const cr = res.headers.get("content-range");
@@ -2040,7 +2046,8 @@ async function rest(pathWithQuery, opts = {}) {
       count = total === "*" ? null : Number(total);
     }
     return { data: Array.isArray(data) ? data : [], count };
-  } catch {
+  } catch (err) {
+    console.warn(`[seo/supabase] fetch failed for ${pathWithQuery.slice(0, 120)}: ${err?.message || err}`);
     return { data: [], count: null };
   } finally {
     clearTimeout(timer);

@@ -47,8 +47,12 @@ async function main() {
     `export const SHELL_BUILT_AT = ${JSON.stringify(new Date().toISOString())};\n`;
   writeFileSync(resolve(ROOT, 'src', 'seo', 'server', '_shell.generated.ts'), gen, 'utf8');
 
-  // 2) Statik rotalar
-  const paths = enumerateStaticPaths().map((r) => r.path);
+  // 2) Statik rotalar — SAYFALAMALI türler (kategori, marka) statik YAZILMAZ:
+  // Vercel dosya sistemi query string'i yok sayar (/kuehlung?page=2 → kuehlung.html),
+  // sayfalama fonksiyona hiç ulaşamazdı. Bu sayfalar api/render.js'den gelir ve
+  // CDN'de s-maxage ile önbelleklenir; sitemap'te yine listelenir.
+  const PAGINATED = new Set(['category', 'subcategory', 'brand', 'brandCategory']);
+  const paths = enumerateStaticPaths().filter((r) => !PAGINATED.has(r.kind)).map((r) => r.path);
   // /tr/blog (Türkçe) de statik
   const extra = [localePath('tr', '/blog'), ...BLOG_POSTS.map((p) => localePath('tr', `/blog/${p.slug}`))];
   const all = Array.from(new Set([...paths, ...extra]));
