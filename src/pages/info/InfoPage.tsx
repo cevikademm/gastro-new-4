@@ -28,7 +28,7 @@ const CONTACT_EMAIL = 'info@2mcgastro.de';
 const C = COMPANY_INFO;
 const ADDRESS = `${C.street}, ${C.zipCity}`;
 /** İçerikten sorumlu gerçek kişi — legalName'in parantezsiz hâli ("Metehan Çevik"). */
-const RESPONSIBLE_PERSON = C.register.managingDirector || C.legalName.replace(/s*(.*)s*$/, '');
+const RESPONSIBLE_PERSON = C.register.managingDirector || C.legalName;
 const UPDATED = '2026-09-06';
 /** Sicil satırları — yalnızca dolu alanlar (HRB gelene kadar numara satırı çıkmaz). */
 const REGISTER_DE = [
