@@ -1,37 +1,44 @@
 # ai.txt — 2MC Gastro
-# AI ajanları ve cevap motorları için erişim ve kullanım bildirimi
+# Zugriffs- und Nutzungshinweis für KI-Agenten und Antwortmaschinen
 # https://www.2mcgastro.de
 
 Site-Name: 2MC Gastro
 Site-URL: https://www.2mcgastro.de
-Organization: 2MC Gastro
+Organization: 2MC Gastro GmbH
 Contact: info@2mcgastro.de
-Phone: +49-176-70295844
+Phone: +4917670295844
 Address: Bergisch Gladbacher Str. 172, 51063 Köln, Deutschland
 Country: DE
-Languages: tr, en, de, fr, nl, it, es, pt, pl, cs, ro, el, sv, da, hu
-Last-Updated: 2026-08-08
+Primary-Language: de
+Languages: de, tr, en, fr, nl, it, es, pt, pl, cs, ro, el, sv, da, hu
+URL-Scheme: Deutsch = Root (/kuehlung); andere Sprachen = /xx/ (z. B. /tr/kuehlung)
+Last-Updated: 2026-09-06
 
-# Ne yapıyoruz
-Description: Endüstriyel mutfak ekipmanları tedariki ve dijital mutfak planlama platformu. Diamond, CombiSteel ve HENDI markalarının 14.000+ ürünü, 2D/3D mutfak tasarım stüdyosu ve anında PDF teklif.
-Industry: Endüstriyel mutfak ekipmanları / Gastronomi / B2B e-ticaret
-Service-Area: DE, NL, FR, TR, EU
+# Was wir tun
+Description: Fachhandel für Gastronomiebedarf und Großküchentechnik aus Köln. Über 14.000 Produkte von Diamond, CombiSteel und HENDI, kostenloser 2D/3D-Küchenplaner, Angebot direkt aus dem Projekt, Lieferung in ganz Deutschland (NRW mit eigenem Fahrzeug und Montage). Nettopreise zzgl. MwSt. (B2B).
+Industry: Großküchentechnik / Gastronomiebedarf / B2B-Fachhandel
+Service-Area: DE, AT, CH, NL, BE, FR, EU
 
-# Kullanım izinleri
+# Nutzungsrechte
 Content-Usage: allow
 Citation: allow
 Attribution-Required: yes
 Attribution-Name: 2MC Gastro
 Attribution-URL: https://www.2mcgastro.de
 
-# Yapılandırılmış kaynaklar
+# Strukturierte Ressourcen
 Summary: https://www.2mcgastro.de/ai/summary.json
 FAQ: https://www.2mcgastro.de/ai/faq.json
 Service: https://www.2mcgastro.de/ai/service.json
 LLMs: https://www.2mcgastro.de/llms.txt
 Sitemap: https://www.2mcgastro.de/sitemap.xml
+Product-Feed: https://www.2mcgastro.de/feed-gmc.xml
 Feed: https://www.2mcgastro.de/rss.xml
+Categories: https://www.2mcgastro.de/produkte
+Industries: https://www.2mcgastro.de/branche
+Regions: https://www.2mcgastro.de/gastronomiebedarf
+Guides: https://www.2mcgastro.de/ratgeber
 
-# Notlar
-# Ürün fiyatları ve stok durumu değişkendir — güncel bilgi için ürün sayfasını kaynak gösterin.
-# Kullanıcı hesabı gerektiren alanlar (/dashboard, /orders, /admin) taranmaya kapalıdır; robots.txt'e bakın.
+# Hinweise
+# Preise und Lagerbestände ändern sich täglich – bitte die Produktseite (/produkt/{slug}) als Quelle angeben.
+# Bereiche mit Login (/dashboard, /orders, /admin, /projects) sind nicht zum Crawlen bestimmt; siehe robots.txt.

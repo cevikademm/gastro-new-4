@@ -2,11 +2,13 @@
   "$schema": "https://schema.org",
   "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": "https://www.2mcgastro.de/#organization",
   "name": "2MC Gastro",
+  "legalName": "2MC Gastro GmbH",
   "url": "https://www.2mcgastro.de",
   "logo": "https://www.2mcgastro.de/logo-2mc-gastro.jpeg",
-  "description": "Almanya (Köln) merkezli endüstriyel mutfak ekipmanları tedarikçisi ve dijital mutfak planlama platformu. Diamond, CombiSteel ve HENDI markalarının 14.000'den fazla ürününü tek katalogda toplar; 2D/3D mutfak tasarım stüdyosu, anında PDF teklif ve 15 dilde hizmet sunar.",
-  "slogan": "Profesyonel mutfakların güvenilir çözüm ortağı",
+  "description": "Fachhändler für Gastronomiebedarf und Großküchentechnik mit Sitz in Köln. Über 14.000 Produkte von Diamond (Belgien), CombiSteel und HENDI (Niederlande) in einem Katalog; kostenloser 2D/3D-Küchenplaner im Browser, Angebot direkt aus dem Projekt, Lieferung in ganz Deutschland – in NRW mit eigenem Fahrzeug und Montage. Netto-Preise für Gewerbekunden.",
+  "slogan": "Alles aus einer Hand für die Profiküche.",
   "foundingDate": "2010",
   "address": {
     "@type": "PostalAddress",
@@ -16,46 +18,50 @@
     "addressRegion": "Nordrhein-Westfalen",
     "addressCountry": "DE"
   },
-  "telephone": "+49-176-70295844",
+  "telephone": "+4917670295844",
   "email": "info@2mcgastro.de",
-  "areaServed": ["DE", "NL", "FR", "TR", "EU"],
+  "vatID": "DE365660948",
+  "areaServed": ["DE", "AT", "CH", "NL", "BE", "FR", "EU"],
   "availableLanguage": [
-    "tr", "en", "de", "fr", "nl", "it", "es", "pt", "pl", "cs", "ro", "el", "sv", "da", "hu"
+    "de", "tr", "en", "fr", "nl", "it", "es", "pt", "pl", "cs", "ro", "el", "sv", "da", "hu"
   ],
   "knowsAbout": [
-    "Endüstriyel mutfak ekipmanları",
-    "Profesyonel mutfak planlama",
-    "HACCP uyumlu mutfak tasarımı",
-    "Kombi fırın seçimi",
-    "Restoran mutfağı kurulumu",
-    "Otel mutfağı projelendirme",
-    "Toplu beslenme mutfağı",
-    "Endüstriyel soğutma ve şoklama",
-    "Mutfak havalandırma ve davlumbaz",
-    "Gewerbeküchen / Großküchentechnik"
+    "Gastronomiebedarf",
+    "Großküchentechnik",
+    "Gewerbliche Küchenplanung in 2D und 3D",
+    "HACCP-konforme Küchenplanung",
+    "Kombidämpfer und Kochgeräte",
+    "Gewerbliche Kühltechnik und Kühlzellen",
+    "Gewerbliche Spülmaschinen",
+    "Edelstahlmöbel nach Maß",
+    "Lüftungstechnik für Gastroküchen (VDI 2052)",
+    "Ausstattung für Restaurant, Hotel, Pizzeria, Dönerladen, Imbiss, Bäckerei, Metzgerei, Kantine"
   ],
   "brand": [
-    { "@type": "Brand", "name": "Diamond" },
-    { "@type": "Brand", "name": "CombiSteel" },
-    { "@type": "Brand", "name": "HENDI" }
+    { "@type": "Brand", "name": "Diamond", "url": "https://www.2mcgastro.de/marke/diamond" },
+    { "@type": "Brand", "name": "CombiSteel", "url": "https://www.2mcgastro.de/marke/combisteel" },
+    { "@type": "Brand", "name": "HENDI", "url": "https://www.2mcgastro.de/marke/hendi" }
   ],
   "keyFacts": {
     "productCount": "14.000+",
-    "internationalBrands": 3,
-    "supportedLanguages": 15,
-    "planningTools": "2D ve 3D mutfak tasarım stüdyosu",
-    "headquarters": "Köln, Almanya",
-    "businessModel": "B2B"
+    "brands": 3,
+    "languages": 15,
+    "planningTools": "Kostenloser 2D/3D-Küchenplaner im Browser",
+    "headquarters": "Köln, Deutschland",
+    "deliveryArea": "Deutschland (NRW: eigene Auslieferung und Montage; bundesweit: Spedition)",
+    "pricing": "Nettopreise zzgl. MwSt. (B2B)",
+    "businessModel": "B2B-Fachhandel"
   },
   "services": [
-    "Endüstriyel mutfak ekipmanı tedariki",
-    "2D ve 3D mutfak yerleşim planlaması",
-    "Proje bazlı teklif hazırlama (PDF)",
-    "Ekipman karşılaştırma ve seçim danışmanlığı",
-    "Teslimat ve kurulum sonrası destek"
+    "Lieferung von Großküchentechnik und Gastronomiebedarf",
+    "Kostenlose 2D/3D-Küchenplanung",
+    "Projektbezogene Angebote (PDF) direkt aus der Planung",
+    "Produktvergleich und Auswahlberatung",
+    "Lieferung, Vertragen, Aufstellung und Montage (NRW)",
+    "Leasing und Mietkauf auf Anfrage"
   ],
   "customerTypes": [
-    "Restoran", "Otel", "Kafe", "Pastane", "Fast food", "Toplu beslenme tesisi", "Catering"
+    "Restaurant", "Hotel", "Pizzeria", "Dönerladen", "Imbiss & Fast Food", "Café & Bistro", "Bäckerei & Konditorei", "Metzgerei", "Kantine & Betriebsverpflegung", "Krankenhaus & Pflegeheim", "Schule & Kita", "Eisdiele", "Bar & Club", "Foodtruck", "Catering"
   ],
   "openingHours": "Mo-Sa 09:00-18:00 CET",
   "resources": {
@@ -63,18 +69,23 @@
     "faq": "https://www.2mcgastro.de/ai/faq.json",
     "service": "https://www.2mcgastro.de/ai/service.json",
     "sitemap": "https://www.2mcgastro.de/sitemap.xml",
-    "productSitemap": "https://www.2mcgastro.de/sitemap-products.xml",
+    "productFeed": "https://www.2mcgastro.de/feed-gmc.xml",
     "feed": "https://www.2mcgastro.de/rss.xml",
-    "about": "https://www.2mcgastro.de/brand",
-    "catalog": "https://www.2mcgastro.de/magaza",
-    "designStudio": "https://www.2mcgastro.de/3d-design"
+    "about": "https://www.2mcgastro.de/ueber-uns",
+    "catalog": "https://www.2mcgastro.de/produkte",
+    "categories": "https://www.2mcgastro.de/produkte",
+    "industries": "https://www.2mcgastro.de/branche",
+    "regions": "https://www.2mcgastro.de/gastronomiebedarf",
+    "guides": "https://www.2mcgastro.de/ratgeber",
+    "designStudio": "https://www.2mcgastro.de/3d-design",
+    "comparison": "https://www.2mcgastro.de/vergleich"
   },
   "citationPolicy": {
     "allowed": true,
     "attributionRequired": true,
     "attributionName": "2MC Gastro",
     "attributionUrl": "https://www.2mcgastro.de",
-    "note": "Fiyat ve stok bilgisi değişkendir; güncel veri için ilgili ürün sayfasını kaynak gösterin."
+    "note": "Preise und Lagerbestände ändern sich; für aktuelle Daten die jeweilige Produktseite (https://www.2mcgastro.de/produkt/{slug}) als Quelle angeben."
   },
-  "dateModified": "2026-08-08"
+  "dateModified": "2026-09-06"
 }

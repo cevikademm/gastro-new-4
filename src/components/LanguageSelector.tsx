@@ -1,11 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Check } from 'lucide-react';
+import { splitLocale, localePath, isLocale, type Locale } from '../lib/locales';
 
-const LANGUAGES = [
+const LANGUAGES: Array<{ code: Locale; label: string; country: string }> = [
+  { code: 'de', label: 'Deutsch', country: 'de' },
   { code: 'tr', label: 'Türkçe', country: 'tr' },
   { code: 'en', label: 'English', country: 'gb' },
-  { code: 'de', label: 'Deutsch', country: 'de' },
   { code: 'fr', label: 'Français', country: 'fr' },
   { code: 'nl', label: 'Nederlands', country: 'nl' },
   { code: 'it', label: 'Italiano', country: 'it' },
@@ -19,6 +21,14 @@ const LANGUAGES = [
   { code: 'da', label: 'Dansk', country: 'dk' },
   { code: 'hu', label: 'Magyar', country: 'hu' },
 ];
+
+/** Herkese açık (locale önekli) rota mı? Uygulama rotalarında URL değişmez. */
+function isPublicPath(pathname: string): boolean {
+  const { path } = splitLocale(pathname);
+  const first = path.split('/').filter(Boolean)[0] || '';
+  const APP = ['dashboard', 'design', '3d-design', 'bom', 'katalog', 'checkout', 'kitchen-planner', 'cart', 'favorites', 'orders', 'teklifler', 'projects', 'settings', 'support', 'docs', 'profile', 'payment', 'brand-kit', 'account', 'developers', 'admin', 'login', 'register', 'pending-approval', 'forgot-password', 'old-welcome', 'tools', 'resources', 'degisiklikler'];
+  return !APP.includes(first);
+}
 
 const FlagIcon = ({ country, size = 20 }: { country: string; size?: number }) => (
   <img
@@ -39,15 +49,23 @@ interface Props {
 
 export default function LanguageSelector({ variant = 'light', className = '' }: Props) {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   const current = LANGUAGES.find(l => l.code === i18n.language) || LANGUAGES[0];
 
-  const changeLang = (code: string) => {
-    i18n.changeLanguage(code);
-    try { localStorage.setItem('2mc_lang', code); } catch {}
+  const changeLang = (code: Locale) => {
     setOpen(false);
+    try { localStorage.setItem('2mc_lang', code); } catch {}
+    if (isPublicPath(location.pathname)) {
+      // Dil = URL: /kuehlung → /tr/kuehlung (LocaleLayout i18n'i URL'den ayarlar)
+      const { path } = splitLocale(location.pathname);
+      navigate(localePath(code, path) + location.search + location.hash);
+    } else {
+      i18n.changeLanguage(code);
+    }
   };
 
   useEffect(() => {
@@ -94,6 +112,7 @@ export default function LanguageSelector({ variant = 'light', className = '' }: 
               <button
                 key={lang.code}
                 onClick={() => changeLang(lang.code)}
+                lang={isLocale(lang.code) ? lang.code : undefined}
                 className={`w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium transition-colors ${
                   isDark
                     ? isActive

@@ -600,10 +600,22 @@
       "ctaShop": "Ürünleri Keşfet",
       "ctaDesign": "3D Mutfak Planlayıcı",
       "stats": {
-        "products": { "value": "14.000+", "label": "Ürün çeşidi" },
-        "brands": { "value": "3", "label": "Uluslararası marka" },
-        "languages": { "value": "15", "label": "Dil desteği" },
-        "planning": { "value": "2D & 3D", "label": "Mutfak planlama stüdyosu" }
+        "products": {
+          "value": "14.000+",
+          "label": "Ürün çeşidi"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Uluslararası marka"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Dil desteği"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Mutfak planlama stüdyosu"
+        }
       },
       "story": {
         "title": "Biz Kimiz?",
@@ -622,18 +634,42 @@
       "values": {
         "title": "Değerlerimiz",
         "subtitle": "Her projede bize yön veren ilkeler",
-        "quality": { "title": "Kalite", "text": "Yalnızca kendini kanıtlamış, dayanıklı ve sertifikalı ekipmanlarla çalışırız. Sattığımız her ürünün arkasında dururuz." },
-        "trust": { "title": "Şeffaflık", "text": "Net fiyat, net teslimat süresi, net iletişim. Sürpriz maliyetler ve belirsiz vaatler bize göre değil." },
-        "technology": { "title": "Teknoloji", "text": "3D mutfak tasarımından anında PDF teklife — süreçlerimizi dijitalleştirerek size zaman ve maliyet kazandırırız." },
-        "partnership": { "title": "Ortaklık", "text": "Kendimizi tedarikçi değil, çözüm ortağı olarak görürüz. Mutfağınız açıldıktan sonra da yanınızdayız." }
+        "quality": {
+          "title": "Kalite",
+          "text": "Yalnızca kendini kanıtlamış, dayanıklı ve sertifikalı ekipmanlarla çalışırız. Sattığımız her ürünün arkasında dururuz."
+        },
+        "trust": {
+          "title": "Şeffaflık",
+          "text": "Net fiyat, net teslimat süresi, net iletişim. Sürpriz maliyetler ve belirsiz vaatler bize göre değil."
+        },
+        "technology": {
+          "title": "Teknoloji",
+          "text": "3D mutfak tasarımından anında PDF teklife — süreçlerimizi dijitalleştirerek size zaman ve maliyet kazandırırız."
+        },
+        "partnership": {
+          "title": "Ortaklık",
+          "text": "Kendimizi tedarikçi değil, çözüm ortağı olarak görürüz. Mutfağınız açıldıktan sonra da yanınızdayız."
+        }
       },
       "services": {
         "title": "Neler Yapıyoruz?",
         "subtitle": "Ekipman seçiminden mutfağınızın açılışına kadar tek çatı altında",
-        "supply": { "title": "Ekipman Tedariki", "text": "Pişirmeden soğutmaya, bulaşıktan hazırlığa 14.000'den fazla endüstriyel mutfak ekipmanı — güvenilir tedarik zincirimizden." },
-        "design": { "title": "2D & 3D Mutfak Tasarımı", "text": "Mutfağınızı çizin, kapı ve pencere ekleyin, ekipmanları gerçek ölçüleriyle yerleştirin ve 3D olarak gezin. Tasarımınız projelerinizle otomatik senkronize olur." },
-        "quote": { "title": "Teklif & Proje Yönetimi", "text": "Sepetinizden veya projenizden dakikalar içinde profesyonel PDF teklif oluşturun; revizyonları tek yerden takip edin." },
-        "delivery": { "title": "Teslimat & Destek", "text": "Siparişten kuruluma planlı teslimat, sonrasında da soru ve ihtiyaçlarınız için hızlı destek." }
+        "supply": {
+          "title": "Ekipman Tedariki",
+          "text": "Pişirmeden soğutmaya, bulaşıktan hazırlığa 14.000'den fazla endüstriyel mutfak ekipmanı — güvenilir tedarik zincirimizden."
+        },
+        "design": {
+          "title": "2D & 3D Mutfak Tasarımı",
+          "text": "Mutfağınızı çizin, kapı ve pencere ekleyin, ekipmanları gerçek ölçüleriyle yerleştirin ve 3D olarak gezin. Tasarımınız projelerinizle otomatik senkronize olur."
+        },
+        "quote": {
+          "title": "Teklif & Proje Yönetimi",
+          "text": "Sepetinizden veya projenizden dakikalar içinde profesyonel PDF teklif oluşturun; revizyonları tek yerden takip edin."
+        },
+        "delivery": {
+          "title": "Teslimat & Destek",
+          "text": "Siparişten kuruluma planlı teslimat, sonrasında da soru ve ihtiyaçlarınız için hızlı destek."
+        }
       },
       "brands": {
         "title": "Markalarımız",
@@ -1891,14 +1927,14 @@
           "3": "sıfır komisyonla."
         }
       },
-      "sub": "5.265+ premium ekipman, 15 marka, 15 ülke. Mutfağınızı dakikalar içinde planlayın, ücretsiz teklif alın, 48 saatte teslim alın.",
+      "sub": "14.000+ premium ekipman, 15 marka, 15 ülke. Mutfağınızı dakikalar içinde planlayın, ücretsiz teklif alın, 48 saatte teslim alın.",
       "cta": {
         "primary": "Ücretsiz Teklif Alın",
         "secondary": "Demo İzle"
       },
       "microtrust": "Kayıt ücretsiz · Kredi kartı yok · 1 dakikada başla",
       "trust": {
-        "products": "5.265+ Ürün",
+        "products": "14.000+ Ürün",
         "brands": "15 Marka",
         "countries": "15 Ülke",
         "delivery": "24-48s Teslimat"
@@ -2529,7 +2565,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Gastronomi ve endüstriyel mutfak için 14.000’den fazla ürün: pişirme, soğutma, bulaşık, paslanmaz mobilya, havalandırma. Diamond, CombiSteel, HENDI – net fiyat, hızlı teslimat."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2812,5 +2849,67 @@
     "technical": "Teknik detay",
     "reverted": "Geri alındı",
     "revertedHint": "Bu düzeltme sorun çıkardığı için geri alındı."
+  },
+  "seo": {
+    "home": "Ana sayfa",
+    "page": "Sayfa",
+    "products": "Ürün",
+    "subcategories": "Alt kategoriler",
+    "categoryEyebrow": "Ürün kategorisi",
+    "brand": "Marka",
+    "allBrands": "Tüm markalar",
+    "sort": "Sıralama",
+    "noProducts": "Bu seçimde şu an ürün yok.",
+    "pagination": "Sayfalar",
+    "byBrand": "markaya göre",
+    "byCategory": "kategoriye göre",
+    "guides": "Rehberler",
+    "more": "Diğer",
+    "moreCategories": "Diğer kategoriler",
+    "brands": "Markalar",
+    "brandsTitle": "Markalar – Diamond, CombiSteel, HENDI",
+    "brandsH1": "2MC Gastro markaları",
+    "subBrands": "Seriler ve alt markalar",
+    "allIn": "Tüm",
+    "allFrom": "Tüm ürünler:",
+    "branchen": "Sektörler",
+    "brancheEyebrow": "Sektör çözümü",
+    "regions": "Teslimat bölgeleri",
+    "faqTitle": "Sık sorulan sorular",
+    "netPrice": "KDV hariç net",
+    "serviceNet": "Kurumsal müşteriler için net fiyat, KDV gösterilen B2B fatura.",
+    "serviceDelivery": "Kargo veya nakliye ile kaldırım kenarına teslim; NRW’de taşıma ve kurulum dahil.",
+    "serviceLeasing": "Talep üzerine leasing ve kiralama-satın alma.",
+    "servicePlanner": "Cihaz mutfağınıza sığıyor mu? 3D mutfak planlayıcıda kontrol edin."
+  },
+  "footer": {
+    "company": "Kurumsal",
+    "support": "Destek",
+    "trust": "Ödeme & Güven",
+    "about": "Hakkımızda",
+    "careers": "Kariyer",
+    "contact": "İletişim",
+    "payment": "Ödeme seçenekleri",
+    "shipping": "Kargo & Teslimat",
+    "newsletter": "Bülten",
+    "help": "Yardım merkezi",
+    "developers": "Geliştiriciler / API",
+    "privacy": "Gizlilik",
+    "terms": "Kullanım koşulları",
+    "sitemap": "Site haritası",
+    "imprint": "Künye",
+    "cancellation": "Cayma hakkı",
+    "cookies": "Çerezler",
+    "securePay": "Güvenli ödeme",
+    "ssl": "%100 SSL korumalı",
+    "tagline": "Profesyonel mutfak ekipmanları, 3D tasarım ve anahtar teslim projeler için Köln merkezli çözüm ortağınız.",
+    "newsletterTitle": "Profesyonel mutfak dünyasından",
+    "newsletterAccent": "en yeni haberleri alın.",
+    "newsletterText": "Yeni ürünler, kampanyalar ve sektör trendleri ayda bir. İstediğiniz zaman ayrılabilirsiniz.",
+    "emailPlaceholder": "E-posta adresiniz",
+    "subscribe": "Abone ol",
+    "subscribed": "Abone olundu ✓",
+    "rights": "Tüm hakları saklıdır.",
+    "madeIn": "Köln’de tutkuyla yapıldı."
   }
 }

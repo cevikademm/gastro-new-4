@@ -4,6 +4,8 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { Navbar } from '../../components/Navbar';
 import { AnnouncementBar } from '../../components/landing/sections/AnnouncementBar';
 import SiteFooter from '../../components/SiteFooter';
+import SEO from '../../components/SEO';
+import { breadcrumbSchema, collectionPageSchema } from '../../lib/seo';
 import { useEquipmentStore, CATEGORIES, type EquipmentItem } from '../../stores/equipmentStore';
 import { resolvedOf, matchesSubGroup, getSubGroupsFor, isAccessory } from '../../lib/categoryTaxonomy';
 import { searchProducts } from '../../lib/productSearch';
@@ -103,7 +105,6 @@ export default function ShopPage() {
   const [page, setPage] = useState(1);
   const [mobileFilters, setMobileFilters] = useState(false);
 
-  useEffect(() => { document.title = t('shop.documentTitle'); }, [t]);
 
   useEffect(() => {
     setQuery(searchParams.get('q') || '');
@@ -322,6 +323,14 @@ export default function ShopPage() {
   return (
     <div className="landing-page relative text-[#0F2440] bg-[#F4F5F7] min-h-screen selection:bg-brand-red selection:text-white">
       <div className="relative">
+        <SEO
+          title={t('shop.documentTitle', 'Alle Produkte – Gastronomiebedarf & Großküchentechnik')}
+          rawTitle
+          description={t('shop.seoDescription', 'Über 14.000 Produkte für Gastronomie und Großküche: Kochgeräte, Kühlung, Spültechnik, Edelstahlmöbel, Lüftung, Kleingeräte. Diamond, CombiSteel, HENDI – Netto-Preise, schnelle Lieferung.')}
+          canonical="/produkte"
+          noindex={searchParams.toString().length > 0}
+          jsonLd={[breadcrumbSchema([{ name: 'Startseite', url: '/' }, { name: 'Alle Produkte', url: '/produkte' }]), collectionPageSchema({ name: 'Alle Produkte', url: '/produkte' })]}
+        />
         <AnnouncementBar />
         <Navbar />
 

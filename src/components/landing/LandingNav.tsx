@@ -36,12 +36,12 @@ export function LandingNav() {
 
           {/* Desktop Links */}
           <div className="hidden lg:flex items-center gap-7">
-            <Link to="/kategori" className="flex items-center gap-1.5 text-sm font-semibold text-[var(--c-ink-soft)] hover:text-[var(--c-clay)] transition-colors relative group/link">
+            <Link to="/produkte" className="flex items-center gap-1.5 text-sm font-semibold text-[var(--c-ink-soft)] hover:text-[var(--c-clay)] transition-colors relative group/link">
               Kategoriler
               <ChevronDown size={14} className="opacity-60" />
               <span className="absolute bottom-[-4px] left-0 w-full h-0.5 bg-[var(--c-clay)] scale-x-0 group-hover/link:scale-x-100 transition-transform origin-left" />
             </Link>
-            <Link to="/kategori" className="text-sm font-semibold text-[var(--c-ink-soft)] hover:text-[var(--c-clay)] transition-colors relative group/link">
+            <Link to="/produkte" className="text-sm font-semibold text-[var(--c-ink-soft)] hover:text-[var(--c-clay)] transition-colors relative group/link">
               En Çok Satanlar
               <span className="absolute bottom-[-4px] left-0 w-full h-0.5 bg-[var(--c-clay)] scale-x-0 group-hover/link:scale-x-100 transition-transform origin-left" />
             </Link>
@@ -53,7 +53,7 @@ export function LandingNav() {
               Projeler
               <span className="absolute bottom-[-4px] left-0 w-full h-0.5 bg-[var(--c-clay)] scale-x-0 group-hover/link:scale-x-100 transition-transform origin-left" />
             </Link>
-            <Link to="/blog" className="text-sm font-semibold text-[var(--c-ink-soft)] hover:text-[var(--c-clay)] transition-colors relative group/link">
+            <Link to="/ratgeber" className="text-sm font-semibold text-[var(--c-ink-soft)] hover:text-[var(--c-clay)] transition-colors relative group/link">
               Blog
               <span className="absolute bottom-[-4px] left-0 w-full h-0.5 bg-[var(--c-clay)] scale-x-0 group-hover/link:scale-x-100 transition-transform origin-left" />
             </Link>

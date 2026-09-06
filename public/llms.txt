@@ -1,79 +1,51 @@
 # 2MC Gastro
 
-> Almanya (Köln) merkezli endüstriyel mutfak ekipmanları tedarikçisi ve dijital mutfak planlama platformu. Diamond, CombiSteel ve HENDI markalarının 14.000'den fazla ürününü tek katalogda toplar; 2D/3D mutfak tasarım stüdyosu, anında PDF teklif ve 15 dilde hizmet sunar.
+> Fachhändler für Gastronomiebedarf und Großküchentechnik mit Sitz in Köln (Deutschland). Über 14.000 Produkte von Diamond (Belgien), CombiSteel und HENDI (Niederlande) in einem Katalog; kostenloser 2D/3D-Küchenplaner im Browser, Angebot direkt aus dem Projekt, Lieferung in ganz Deutschland – in NRW mit eigenem Fahrzeug und Montage. Alle Preise netto zzgl. MwSt. (B2B). Website in 15 Sprachen; Hauptsprache Deutsch.
 
-2MC Gastro, restoran, otel, kafe, pastane ve toplu beslenme tesisleri için profesyonel
-mutfak kurulumunun tamamını tek elden yürütür: ekipman seçimi, mutfak yerleşim planı,
-teklif, teslimat ve kurulum sonrası destek. Platform, mutfağı daha kurulmadan gerçek
-ölçülerle 2D ve 3D olarak görmeyi sağlar.
+2MC Gastro GmbH · Bergisch Gladbacher Str. 172 · 51063 Köln · Tel. +49 176 70295844 · info@2mcgastro.de · Mo–Sa 09:00–18:00
 
-**Künye:** 2MC Gastro · Bergisch Gladbacher Str. 172, 51063 Köln, Almanya ·
-Tel/WhatsApp: +49 176 70295844 · E-posta: info@2mcgastro.de ·
-Hizmet bölgesi: Almanya, Hollanda, Fransa, Türkiye ve AB geneli ·
-Çalışma saatleri: Pazartesi–Cumartesi 09:00–18:00 (CET)
+## Produktkategorien
 
-## Hakkında
+- [Kochgeräte](https://www.2mcgastro.de/kochgeraete): Kombidämpfer, Herde, Fritteusen, Grills, Kochkessel, Warmhaltegeräte
+- [Kühlung](https://www.2mcgastro.de/kuehlung): Gastro-Kühlschränke, Kühltische, Kühlzellen, Schockfroster, Eiswürfelbereiter, Kühlvitrinen
+- [Spültechnik](https://www.2mcgastro.de/spueltechnik): Haubenspülmaschinen, Geschirrspüler, Gläserspüler, Bandspülmaschinen
+- [Edelstahlmöbel](https://www.2mcgastro.de/edelstahlmoebel): Arbeitstische, Spültische, Regale, Schränke
+- [Pizza & Teig](https://www.2mcgastro.de/pizza-und-teig): Pizzaöfen, Teigknetmaschinen, Teigausroller
+- [Lüftung](https://www.2mcgastro.de/lueftung): Wandhauben, Inselhauben, Abluftventilatoren
+- [Lebensmittelverarbeitung](https://www.2mcgastro.de/lebensmittelverarbeitung): Vakuumierer, Fleischwölfe, Schneidemaschinen, Mixer
+- [Ausgabe & Buffet](https://www.2mcgastro.de/ausgabe-und-buffet): Drop-in-Elemente, Self-Service-Theken, Salatbars
+- [Bäckereitechnik](https://www.2mcgastro.de/baeckereitechnik) · [Cook & Chill](https://www.2mcgastro.de/cook-and-chill) · [Kaffee & Bar](https://www.2mcgastro.de/kaffee-und-bar) · [Eismaschinen](https://www.2mcgastro.de/eismaschinen-und-eisvitrinen) · [Wäschereitechnik](https://www.2mcgastro.de/waeschereitechnik) · [GN-Behälter & Wagen](https://www.2mcgastro.de/gn-behaelter-und-wagen) · [Hotelbedarf](https://www.2mcgastro.de/hotelbedarf)
+- [Alle Produkte](https://www.2mcgastro.de/produkte) · Produktseiten: https://www.2mcgastro.de/produkt/{slug}
 
-- [Hakkımızda](https://www.2mcgastro.de/brand): Şirket profili, misyon, vizyon, değerler ve hizmet kapsamı. 14.000+ ürün çeşidi, 3 uluslararası marka, 15 dil desteği.
-- [Destek ve iletişim](https://www.2mcgastro.de/support): Teklif talebi, teknik destek ve iletişim kanalları.
-- [Kaynaklar](https://www.2mcgastro.de/resources): Katalog PDF'leri, teknik dokümanlar ve planlama kılavuzları.
-- [Dokümantasyon](https://www.2mcgastro.de/docs): Platformun kullanım rehberi.
-- [Değişiklikler](https://www.2mcgastro.de/degisiklikler): Platform sürüm notları ve yayınlanan iyileştirmeler.
+## Marken
 
-## Ürün kataloğu
+- [Diamond](https://www.2mcgastro.de/marke/diamond): Belgien – Kochserien 600/700/900, Kombidämpfer, Kühlung, Spültechnik (Linien Diverso, Silver, Gold, Platinum)
+- [CombiSteel](https://www.2mcgastro.de/marke/combisteel): Niederlande – Kühltechnik, Edelstahlmöbel, Kochgeräte (Ecofrost, Chef's Heat, CS Professional)
+- [HENDI](https://www.2mcgastro.de/marke/hendi): Niederlande – Kleingeräte, Bar (BarUp), GN-Behälter (Arktic), Buffet (AmerBox)
 
-- [Mağaza](https://www.2mcgastro.de/magaza): Tüm markaların birleşik ürün kataloğu; kategori, marka ve teknik özelliğe göre filtreleme.
-- [Ürün kataloğu](https://www.2mcgastro.de/katalog): Diamond, CombiSteel ve HENDI ürünlerinin tek panelde karşılaştırmalı listesi.
-- [Diamond](https://www.2mcgastro.de/diamond): Belçika merkezli Diamond'ın profesyonel pişirme, soğutma ve hazırlık ekipmanları.
-- [CombiSteel](https://www.2mcgastro.de/combisteel): Hollanda merkezli CombiSteel'in endüstriyel mutfak ekipmanları.
-- [Markalar](https://www.2mcgastro.de/marka): Marka bazlı ürün grupları ve marka karşılaştırmaları.
+## Branchenlösungen
 
-## Ürün kategorileri
+- [Restaurant](https://www.2mcgastro.de/branche/restaurant) · [Hotel](https://www.2mcgastro.de/branche/hotel) · [Pizzeria](https://www.2mcgastro.de/branche/pizzeria) · [Dönerladen](https://www.2mcgastro.de/branche/doener-kebab-betrieb) · [Imbiss & Fast Food](https://www.2mcgastro.de/branche/imbiss-fast-food) · [Café & Bistro](https://www.2mcgastro.de/branche/cafe-bistro) · [Bäckerei](https://www.2mcgastro.de/branche/baeckerei-konditorei) · [Metzgerei](https://www.2mcgastro.de/branche/metzgerei) · [Kantine](https://www.2mcgastro.de/branche/kantine-betriebsverpflegung) · [Krankenhaus & Pflegeheim](https://www.2mcgastro.de/branche/krankenhaus-pflegeheim) · [Schule & Kita](https://www.2mcgastro.de/branche/schule-kita) · [Eisdiele](https://www.2mcgastro.de/branche/eisdiele) · [Bar & Club](https://www.2mcgastro.de/branche/bar-club) · [Foodtruck](https://www.2mcgastro.de/branche/foodtruck) · [Catering](https://www.2mcgastro.de/branche/catering-partyservice)
+- [Übersicht Branchen](https://www.2mcgastro.de/branche)
 
-- [Kombi fırın](https://www.2mcgastro.de/kategori/kombi-firin): 6/10/20 GN kapasiteli konveksiyonlu-buharlı profesyonel fırınlar.
-- [Endüstriyel fritöz](https://www.2mcgastro.de/kategori/endustriyel-fritoz): Tek ve çift hazneli elektrikli/gazlı fritözler.
-- [Endüstriyel ocak](https://www.2mcgastro.de/kategori/endustriyel-ocak): Gazlı ve elektrikli profesyonel pişirme ocakları.
-- [Blast chiller](https://www.2mcgastro.de/kategori/blast-chiller): HACCP uyumlu şoklama ve hızlı soğutma dolapları.
-- [Bulaşık makinesi](https://www.2mcgastro.de/kategori/bulasik-makinesi): Tezgâh altı, giyotin ve konveyörlü endüstriyel bulaşık makineleri.
-- [Davlumbaz](https://www.2mcgastro.de/kategori/davlumbaz): Filtreli havalandırma ve egzoz sistemleri.
-- [Soğutucu](https://www.2mcgastro.de/kategori/sogutucu): Buzdolabı, derin dondurucu ve soğutmalı tezgâhlar.
-- [Tüm kategoriler](https://www.2mcgastro.de/kategori): Kategori dizininin tamamı.
+## Lieferregionen
 
-## Sektör çözümleri
+- [Gastronomiebedarf Köln](https://www.2mcgastro.de/gastronomiebedarf/koeln), [Bonn](https://www.2mcgastro.de/gastronomiebedarf/bonn), [Düsseldorf](https://www.2mcgastro.de/gastronomiebedarf/duesseldorf), [Essen](https://www.2mcgastro.de/gastronomiebedarf/essen), [Dortmund](https://www.2mcgastro.de/gastronomiebedarf/dortmund) und weitere: [alle Regionen](https://www.2mcgastro.de/gastronomiebedarf)
 
-- [Restoran mutfağı](https://www.2mcgastro.de/sektor/restoran): À la carte restoranlar için mutfak kurulumu ve ekipman seti.
-- [Sektör dizini](https://www.2mcgastro.de/sektor): Otel, kafe, pastane, fast food ve toplu beslenme dahil tüm sektör sayfaları.
+## Planung & Service
 
-Sektör ve kategori sayfaları şehir bazlı da yayınlanır — örneğin
-`/sektor/restoran/koln`, `/sektor/restoran/berlin`, `/kategori/kombi-firin/istanbul`.
-Kapsanan şehirler: Köln, Berlin, München, Frankfurt, Hamburg (DE); Amsterdam,
-Rotterdam (NL); Paris (FR); İstanbul, Ankara, İzmir, Antalya, Bursa (TR).
+- [3D-Küchenplaner](https://www.2mcgastro.de/3d-design): Wände zeichnen, Türen/Fenster setzen, Geräte in Originalmaßen platzieren, Angebot aus dem Projekt
+- [Anbietervergleich](https://www.2mcgastro.de/vergleich): 2MC Gastro vs. GGM Gastro, Nisbets, BigGastro
+- [Ratgeber](https://www.2mcgastro.de/ratgeber): Kaufberatung, Küchenplanung, HACCP, Technik
+- [Über uns](https://www.2mcgastro.de/ueber-uns) · [Versand](https://www.2mcgastro.de/versand) · [Impressum](https://www.2mcgastro.de/impressum)
 
-## Planlama araçları
+## Sprachen
 
-- [3D mutfak tasarımı](https://www.2mcgastro.de/3d-design): Duvar çizimi, kapı/pencere yerleşimi, gerçek ölçülü ekipman yerleştirme ve 3D görselleştirme.
-- [Tasarım stüdyosu](https://www.2mcgastro.de/design): 2D mutfak yerleşim planı editörü.
-- [Mutfak planlayıcı](https://www.2mcgastro.de/kitchen-planner): Adım adım mutfak planlama sihirbazı.
-- [Ürün karşılaştırma](https://www.2mcgastro.de/compare): Ekipmanları teknik özellik bazında yan yana karşılaştırma.
+Deutsch (Standard, Root-URLs) · Türkçe (/tr/) · English (/en/) · Français (/fr/) · Nederlands (/nl/) · Italiano (/it/) · Español (/es/) · Português (/pt/) · Polski (/pl/) · Čeština (/cs/) · Română (/ro/) · Ελληνικά (/el/) · Svenska (/sv/) · Dansk (/da/) · Magyar (/hu/)
 
-## Rehberler
+## Maschinenlesbare Ressourcen
 
-- [Endüstriyel mutfak kurulum rehberi 2026](https://www.2mcgastro.de/blog/endustriyel-mutfak-kurulum-rehberi-2026): Sıfırdan profesyonel mutfak kurulumunun adımları, bütçe ve alan planlaması.
-- [Kombi fırın seçimi: 6 / 10 / 20 GN karşılaştırma](https://www.2mcgastro.de/blog/kombi-firin-secimi-6-10-20-gn-karsilastirma): Kapasite, kuver sayısı ve enerji tüketimine göre kombi fırın seçimi.
-- [HACCP uyumlu mutfak tasarımı: 10 kritik nokta](https://www.2mcgastro.de/blog/haccp-uyumlu-mutfak-tasarimi-10-kritik-nokta): Gıda güvenliği mevzuatına uygun mutfak yerleşimi.
-- [Blog](https://www.2mcgastro.de/blog): Tüm rehber ve teknik yazılar.
-
-## Diller
-
-Platform 15 dilde hizmet verir: Türkçe, İngilizce, Almanca, Fransızca, Felemenkçe,
-İtalyanca, İspanyolca, Portekizce, Lehçe, Çekçe, Rumence, Yunanca, İsveççe, Danca,
-Macarca. Almanca ve İngilizce sürümler `/de/` ve `/en/` önekiyle yayınlanır.
-
-## Makine tarafından okunabilir kaynaklar
-
-- [Sitemap](https://www.2mcgastro.de/sitemap.xml): Tüm sayfaların dizini.
-- [Ürün sitemap](https://www.2mcgastro.de/sitemap-products.xml): Ürün sayfaları dizini.
-- [RSS](https://www.2mcgastro.de/rss.xml): Blog ve güncelleme akışı.
-- [Site özeti (JSON)](https://www.2mcgastro.de/ai/summary.json): Yapılandırılmış kurum ve hizmet özeti.
-- [SSS (JSON)](https://www.2mcgastro.de/ai/faq.json): Sık sorulan sorular.
-- [Hizmet tanımı (JSON)](https://www.2mcgastro.de/ai/service.json): Hizmet kapsamı ve bölgeler.
+- Sitemap: https://www.2mcgastro.de/sitemap.xml
+- Produktfeed (Google Merchant Format): https://www.2mcgastro.de/feed-gmc.xml
+- Organisation (JSON): https://www.2mcgastro.de/ai/summary.json
+- FAQ (JSON): https://www.2mcgastro.de/ai/faq.json

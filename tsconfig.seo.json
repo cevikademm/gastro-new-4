@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "types": ["vite/client", "node"],
+    "lib": ["ES2022", "DOM"]
+  },
+  "include": [
+    "src/seo/**/*.ts",
+    "src/lib/seo.ts",
+    "src/lib/locales.ts",
+    "src/lib/companyInfo.ts",
+    "src/lib/categoryTaxonomy.core.ts",
+    "src/content/seo/**/*.ts",
+    "src/content/ratgeber/types.ts",
+    "api/render.ts",
+    "api/sitemap.ts",
+    "api/_shell.generated.ts",
+    "scripts/seo/*.ts"
+  ],
+  "exclude": ["node_modules", "dist"]
+}

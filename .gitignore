@@ -27,3 +27,6 @@ dist-v2/
 # Unlighthouse (SEO agent) çıktıları
 .unlighthouse/
 .unlighthouse-*/
+
+# Üretilen sitemap (build: scripts/seo/generate-sitemaps.ts → dist/)
+public/sitemap.xml

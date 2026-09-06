@@ -1,74 +1,139 @@
 {
+  "cleanUrls": true,
+  "trailingSlash": false,
+  "regions": ["fra1"],
   "functions": {
-    "api/sync-diamond.ts": {
-      "maxDuration": 300
-    },
-    "api/sync-combisteel.ts": {
-      "maxDuration": 300
-    }
+    "api/render.ts": { "includeFiles": "dist/index.html", "memory": 1024, "maxDuration": 10 },
+    "api/sitemap.ts": { "maxDuration": 30 },
+    "api/feed-gmc.ts": { "maxDuration": 30 },
+    "api/sync-diamond.ts": { "maxDuration": 300 },
+    "api/sync-combisteel.ts": { "maxDuration": 300 }
   },
+  "redirects": [
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "cooking" }], "destination": "/kochgeraete", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "cooling" }], "destination": "/kuehlung", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "dishwash" }], "destination": "/spueltechnik", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "prep_hygiene" }], "destination": "/edelstahlmoebel", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "self_service" }], "destination": "/ausgabe-und-buffet", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "pizza_pasta" }], "destination": "/pizza-und-teig", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "dynamic_prep" }], "destination": "/lebensmittelverarbeitung", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "cook_chill" }], "destination": "/cook-and-chill", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "ventilation" }], "destination": "/lueftung", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "bakery" }], "destination": "/baeckereitechnik", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "trolley_gn" }], "destination": "/gn-behaelter-und-wagen", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "coffee_tea" }], "destination": "/kaffee-und-bar", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "laundry" }], "destination": "/waeschereitechnik", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "ice_cream" }], "destination": "/eismaschinen-und-eisvitrinen", "permanent": true },
+    { "source": "/magaza", "has": [{ "type": "query", "key": "cat", "value": "hospitality" }], "destination": "/hotelbedarf", "permanent": true },
+    { "source": "/magaza", "destination": "/produkte", "permanent": true },
+    { "source": "/urunler", "destination": "/produkte", "permanent": true },
+    { "source": "/kategori", "destination": "/produkte", "permanent": true },
+    { "source": "/kategori/kombi-firin/:rest*", "destination": "/kochgeraete/kombidaempfer", "permanent": true },
+    { "source": "/kategori/endustriyel-fritoz/:rest*", "destination": "/kochgeraete/fritteusen", "permanent": true },
+    { "source": "/kategori/endustriyel-ocak/:rest*", "destination": "/kochgeraete/herde-und-kochkessel", "permanent": true },
+    { "source": "/kategori/blast-chiller/:rest*", "destination": "/kuehlung/schockfroster", "permanent": true },
+    { "source": "/kategori/bulasik-makinesi/:rest*", "destination": "/spueltechnik", "permanent": true },
+    { "source": "/kategori/davlumbaz/:rest*", "destination": "/lueftung", "permanent": true },
+    { "source": "/kategori/sogutucu/:rest*", "destination": "/kuehlung", "permanent": true },
+    { "source": "/kategori/izgara/:rest*", "destination": "/kochgeraete/grillgeraete", "permanent": true },
+    { "source": "/kategori/:rest*", "destination": "/produkte", "permanent": true },
+    { "source": "/sektor/restoran/:rest*", "destination": "/branche/restaurant", "permanent": true },
+    { "source": "/sektor/otel/:rest*", "destination": "/branche/hotel", "permanent": true },
+    { "source": "/sektor/catering/:rest*", "destination": "/branche/catering-partyservice", "permanent": true },
+    { "source": "/sektor/kafe/:rest*", "destination": "/branche/cafe-bistro", "permanent": true },
+    { "source": "/sektor/hastane/:rest*", "destination": "/branche/krankenhaus-pflegeheim", "permanent": true },
+    { "source": "/sektor/okul/:rest*", "destination": "/branche/schule-kita", "permanent": true },
+    { "source": "/sektor/:rest*", "destination": "/branche", "permanent": true },
+    { "source": "/de/branche/restoran/:rest*", "destination": "/branche/restaurant", "permanent": true },
+    { "source": "/de/branche/otel/:rest*", "destination": "/branche/hotel", "permanent": true },
+    { "source": "/de/branche/catering/:rest*", "destination": "/branche/catering-partyservice", "permanent": true },
+    { "source": "/de/branche/kafe/:rest*", "destination": "/branche/cafe-bistro", "permanent": true },
+    { "source": "/de/branche/hastane/:rest*", "destination": "/branche/krankenhaus-pflegeheim", "permanent": true },
+    { "source": "/de/branche/okul/:rest*", "destination": "/branche/schule-kita", "permanent": true },
+    { "source": "/en/industry/restoran/:rest*", "destination": "/en/branche/restaurant", "permanent": true },
+    { "source": "/en/industry/otel/:rest*", "destination": "/en/branche/hotel", "permanent": true },
+    { "source": "/en/industry/catering/:rest*", "destination": "/en/branche/catering-partyservice", "permanent": true },
+    { "source": "/en/industry/kafe/:rest*", "destination": "/en/branche/cafe-bistro", "permanent": true },
+    { "source": "/en/industry/hastane/:rest*", "destination": "/en/branche/krankenhaus-pflegeheim", "permanent": true },
+    { "source": "/en/industry/okul/:rest*", "destination": "/en/branche/schule-kita", "permanent": true },
+    { "source": "/de/:path*", "destination": "/:path*", "permanent": true },
+    { "source": "/de", "destination": "/", "permanent": true },
+    { "source": "/marka", "destination": "/marke", "permanent": true },
+    { "source": "/marka/:brand/:rest*", "destination": "/marke/:brand", "permanent": true },
+    { "source": "/marka/:brand", "destination": "/marke/:brand", "permanent": true },
+    { "source": "/diamond", "destination": "/marke/diamond", "permanent": true },
+    { "source": "/combisteel", "destination": "/marke/combisteel", "permanent": true },
+    { "source": "/blog/endustriyel-mutfak-kurulum-rehberi-2026", "destination": "/tr/blog/endustriyel-mutfak-kurulum-rehberi-2026", "permanent": true },
+    { "source": "/blog/kombi-firin-secimi-6-10-20-gn-karsilastirma", "destination": "/tr/blog/kombi-firin-secimi-6-10-20-gn-karsilastirma", "permanent": true },
+    { "source": "/blog/haccp-uyumlu-mutfak-tasarimi-10-kritik-nokta", "destination": "/tr/blog/haccp-uyumlu-mutfak-tasarimi-10-kritik-nokta", "permanent": true },
+    { "source": "/blog/:rest*", "destination": "/ratgeber", "permanent": true },
+    { "source": "/blog", "destination": "/ratgeber", "permanent": true },
+    { "source": "/compare", "destination": "/vergleich", "permanent": true },
+    { "source": "/compare/:slug", "destination": "/vergleich/:slug", "permanent": true },
+    { "source": "/brand", "destination": "/ueber-uns", "permanent": true },
+    { "source": "/about", "destination": "/ueber-uns", "permanent": true },
+    { "source": "/careers", "destination": "/karriere", "permanent": true },
+    { "source": "/shipping", "destination": "/versand", "permanent": true },
+    { "source": "/imprint", "destination": "/impressum", "permanent": true },
+    { "source": "/privacy", "destination": "/datenschutz", "permanent": true },
+    { "source": "/terms", "destination": "/agb", "permanent": true },
+    { "source": "/cancellation", "destination": "/widerruf", "permanent": true },
+    { "source": "/cookies", "destination": "/cookie-richtlinie", "permanent": true },
+    { "source": "/welcome", "destination": "/", "permanent": true },
+    { "source": "/old-welcome", "destination": "/", "permanent": true },
+    { "source": "/changelog", "destination": "/degisiklikler", "permanent": true },
+    { "source": "/help", "destination": "/support", "permanent": true },
+    { "source": "/catalog", "destination": "/katalog", "permanent": true },
+    { "source": "/sitemap-products.xml", "destination": "/sitemap.xml", "permanent": true }
+  ],
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" },
-    { "source": "/sitemap-products.xml", "destination": "/api/sitemap-products" },
+    { "source": "/sitemap.xml", "destination": "/api/sitemap?name=index" },
+    { "source": "/sitemap-:name.xml", "destination": "/api/sitemap?name=:name" },
     { "source": "/feed-gmc.xml", "destination": "/api/feed-gmc" },
     { "source": "/rss.xml", "destination": "/api/rss" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/(.*)", "destination": "/api/render?path=$1" }
   ],
   "headers": [
     {
-      "source": "/assets/(.*)",
+      "source": "/(.*)",
       "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=31536000, immutable"
-        }
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "SAMEORIGIN" },
+        { "key": "Referrer-Policy", "value": "strict-origin-when-cross-origin" },
+        { "key": "Permissions-Policy", "value": "geolocation=(), microphone=(), camera=(), payment=(self), usb=()" },
+        { "key": "Strict-Transport-Security", "value": "max-age=31536000; includeSubDomains; preload" },
+        { "key": "X-Permitted-Cross-Domain-Policies", "value": "none" },
+        { "key": "Content-Security-Policy-Report-Only", "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://www.googletagmanager.com https://www.clarity.ms https://js.stripe.com https://*.posthog.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob: https:; media-src 'self' https: blob:; connect-src 'self' https: wss:; frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://www.youtube.com; worker-src 'self' blob:; frame-ancestors 'self'; base-uri 'self'; form-action 'self' https://checkout.stripe.com" }
       ]
+    },
+    {
+      "source": "/assets/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
     },
     {
       "source": "/models/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=2592000"
-        }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }]
     },
     {
       "source": "/landing/(.*)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=2592000"
-        }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }]
     },
     {
       "source": "/(.*)\\.(png|jpg|jpeg|webp|avif|svg|ico|gif|woff|woff2|glb|gltf)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=2592000"
-        }
-      ]
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=2592000" }]
     },
     {
-      "source": "/(sitemap.xml|sitemap-products.xml|robots.txt|llms.txt)",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
-        }
-      ]
+      "source": "/(sitemap.xml|sitemap-:name.xml|robots.txt|llms.txt|feed-gmc.xml|rss.xml)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=3600" }]
+    },
+    {
+      "source": "/api/(.*)",
+      "headers": [{ "key": "X-Content-Type-Options", "value": "nosniff" }]
     }
   ],
   "crons": [
-    {
-      "path": "/api/sync-diamond",
-      "schedule": "0 6 * * *"
-    },
-    {
-      "path": "/api/sync-combisteel",
-      "schedule": "0 6 * * *"
-    }
+    { "path": "/api/sync-diamond", "schedule": "0 6 * * *" },
+    { "path": "/api/sync-combisteel", "schedule": "0 6 * * *" }
   ]
 }

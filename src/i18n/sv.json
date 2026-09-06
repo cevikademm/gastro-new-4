@@ -598,10 +598,22 @@
       "ctaShop": "Utforska produkter",
       "ctaDesign": "3D-köksplanerare",
       "stats": {
-        "products": { "value": "14 000+", "label": "Produkter" },
-        "brands": { "value": "3", "label": "Internationella varumärken" },
-        "languages": { "value": "15", "label": "Språk som stöds" },
-        "planning": { "value": "2D & 3D", "label": "Köksdesignstudio" }
+        "products": {
+          "value": "14 000+",
+          "label": "Produkter"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Internationella varumärken"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Språk som stöds"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Köksdesignstudio"
+        }
       },
       "story": {
         "title": "Vilka vi är",
@@ -620,18 +632,42 @@
       "values": {
         "title": "Våra värderingar",
         "subtitle": "Principerna som vägleder oss i varje projekt",
-        "quality": { "title": "Kvalitet", "text": "Vi arbetar uteslutande med beprövad, hållbar och certifierad utrustning. Vi står bakom varje produkt vi säljer." },
-        "trust": { "title": "Transparens", "text": "Tydliga priser, tydliga leveranstider, tydlig kommunikation. Överraskningskostnader och vaga löften är inte vår stil." },
-        "technology": { "title": "Teknik", "text": "Från 3D-köksdesign till direkt PDF-offert — vi digitaliserar våra processer för att spara dig tid och pengar." },
-        "partnership": { "title": "Partnerskap", "text": "Vi ser oss som en lösningspartner, inte bara en leverantör. Vi finns kvar vid din sida långt efter att ditt kök har öppnat." }
+        "quality": {
+          "title": "Kvalitet",
+          "text": "Vi arbetar uteslutande med beprövad, hållbar och certifierad utrustning. Vi står bakom varje produkt vi säljer."
+        },
+        "trust": {
+          "title": "Transparens",
+          "text": "Tydliga priser, tydliga leveranstider, tydlig kommunikation. Överraskningskostnader och vaga löften är inte vår stil."
+        },
+        "technology": {
+          "title": "Teknik",
+          "text": "Från 3D-köksdesign till direkt PDF-offert — vi digitaliserar våra processer för att spara dig tid och pengar."
+        },
+        "partnership": {
+          "title": "Partnerskap",
+          "text": "Vi ser oss som en lösningspartner, inte bara en leverantör. Vi finns kvar vid din sida långt efter att ditt kök har öppnat."
+        }
       },
       "services": {
         "title": "Vad vi gör",
         "subtitle": "Allt under ett tak — från utrustningsval till din köksinvigning",
-        "supply": { "title": "Utrustningsleverans", "text": "Mer än 14 000 produkter för storkök, från matlagning och kyla till disk och beredning — via vår tillförlitliga försörjningskedja." },
-        "design": { "title": "2D- & 3D-köksdesign", "text": "Rita ditt kök, lägg till dörrar och fönster, placera utrustningen i verklig skala och vandra genom det i 3D. Din design synkroniseras automatiskt med dina projekt." },
-        "quote": { "title": "Offerter och projektledning", "text": "Skapa en professionell PDF-offert från din varukorg eller ditt projekt på några minuter och håll koll på revideringar på ett ställe." },
-        "delivery": { "title": "Leverans och support", "text": "Planerad leverans från beställning till installation — och snabb support för dina frågor efteråt." }
+        "supply": {
+          "title": "Utrustningsleverans",
+          "text": "Mer än 14 000 produkter för storkök, från matlagning och kyla till disk och beredning — via vår tillförlitliga försörjningskedja."
+        },
+        "design": {
+          "title": "2D- & 3D-köksdesign",
+          "text": "Rita ditt kök, lägg till dörrar och fönster, placera utrustningen i verklig skala och vandra genom det i 3D. Din design synkroniseras automatiskt med dina projekt."
+        },
+        "quote": {
+          "title": "Offerter och projektledning",
+          "text": "Skapa en professionell PDF-offert från din varukorg eller ditt projekt på några minuter och håll koll på revideringar på ett ställe."
+        },
+        "delivery": {
+          "title": "Leverans och support",
+          "text": "Planerad leverans från beställning till installation — och snabb support för dina frågor efteråt."
+        }
       },
       "brands": {
         "title": "Våra varumärken",
@@ -1884,9 +1920,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "utan provision."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1895,7 +1931,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2527,7 +2563,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Över 14 000 produkter för restaurang och storkök: matlagning, kyla, disk, rostfria möbler, ventilation. Diamond, CombiSteel, HENDI – nettopriser, snabb leverans."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2783,5 +2820,67 @@
     "technical": "Teknisk detalj",
     "reverted": "Återställd",
     "revertedHint": "Denna åtgärd orsakade ett problem och återställdes."
+  },
+  "seo": {
+    "home": "Start",
+    "page": "Sida",
+    "products": "produkter",
+    "subcategories": "Underkategorier",
+    "categoryEyebrow": "Produktkategori",
+    "brand": "Märke",
+    "allBrands": "Alla märken",
+    "sort": "Sortering",
+    "noProducts": "Inga produkter i detta urval just nu.",
+    "pagination": "Sidor",
+    "byBrand": "per märke",
+    "byCategory": "per kategori",
+    "guides": "Guider",
+    "more": "Fler",
+    "moreCategories": "Fler kategorier",
+    "brands": "Märken",
+    "brandsTitle": "Märken – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Märken hos 2MC Gastro",
+    "subBrands": "Serier & undermärken",
+    "allIn": "Alla",
+    "allFrom": "Alla produkter från",
+    "branchen": "Branscher",
+    "brancheEyebrow": "Branschlösning",
+    "regions": "Leveransregioner",
+    "faqTitle": "Vanliga frågor",
+    "netPrice": "netto exkl. moms",
+    "serviceNet": "Nettopris för företagskunder, B2B-faktura med moms specificerad.",
+    "serviceDelivery": "Leverans med paket eller spedition till trottoarkant; i NRW med inbärning och uppställning.",
+    "serviceLeasing": "Leasing och hyrköp på förfrågan.",
+    "servicePlanner": "Får apparaten plats i ditt kök? Kontrollera i 3D-köksplaneraren."
+  },
+  "footer": {
+    "company": "Företag",
+    "support": "Support",
+    "trust": "Betalning & trygghet",
+    "about": "Om oss",
+    "careers": "Karriär",
+    "contact": "Kontakt",
+    "payment": "Betalsätt",
+    "shipping": "Frakt & leverans",
+    "newsletter": "Nyhetsbrev",
+    "help": "Hjälpcenter",
+    "developers": "Utvecklare / API",
+    "privacy": "Integritet",
+    "terms": "Villkor",
+    "sitemap": "Webbkarta",
+    "imprint": "Impressum",
+    "cancellation": "Ångerrätt",
+    "cookies": "Cookies",
+    "securePay": "Säker betalning",
+    "ssl": "100 % SSL",
+    "tagline": "Storköksutrustning, 3D-köksplanering och nyckelfärdiga projekt – din partner för det professionella köket i Köln och hela Europa.",
+    "newsletterTitle": "Nyheter från proffsköket",
+    "newsletterAccent": "direkt i din inkorg.",
+    "newsletterText": "Nya produkter, kampanjer och trender en gång i månaden. Avsluta när som helst.",
+    "emailPlaceholder": "Din e-postadress",
+    "subscribe": "Prenumerera",
+    "subscribed": "Prenumererar ✓",
+    "rights": "Alla rättigheter förbehållna.",
+    "madeIn": "Gjort med passion i Köln."
   }
 }

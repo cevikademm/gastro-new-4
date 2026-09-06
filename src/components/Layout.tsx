@@ -29,7 +29,7 @@ const NAV_ITEMS = [
   { path: '/dashboard', labelKey: 'nav.project', id: 'project' },
   { path: '/design', labelKey: 'nav.design', id: 'design' },
   { path: '/support', labelKey: 'nav.contact', id: 'contact' },
-  { path: '/brand', labelKey: 'nav.about', id: 'about' },
+  { path: '/ueber-uns', labelKey: 'nav.about', id: 'about' },
 ];
 
 const SIDE_ITEMS = [
@@ -44,15 +44,15 @@ const SIDE_ITEMS = [
 
   { path: '/settings', labelKey: 'nav.settings', icon: SlidersHorizontal, id: 'settings' },
   { path: '/payment', labelKey: 'nav.payment', icon: CreditCard, id: 'payment' },
-  { path: '/brand', labelKey: 'nav.brand', icon: Palette, id: 'brand' },
+  { path: '/brand-kit', labelKey: 'nav.brand', icon: Palette, id: 'brand' },
   { path: '/degisiklikler', labelKey: 'nav.changelog', icon: Sparkles, id: 'changelog' },
-  { path: '/blog', labelKey: 'nav.blog', icon: Pencil, id: 'blog' },
+  { path: '/ratgeber', labelKey: 'nav.blog', icon: Pencil, id: 'blog' },
   { path: '/tools/kitchen-calculator', labelKey: 'nav.calculator', icon: Box, id: 'calc' },
 ];
 
 // Alt tab bar için sadece önemli 5 sayfa
 const BOTTOM_NAV = [
-  { path: '/welcome', icon: Home, labelKey: 'nav.home' },
+  { path: '/', icon: Home, labelKey: 'nav.home' },
   { path: '/dashboard', icon: LayoutDashboard, labelKey: 'nav.panel' },
   { path: '/design', icon: Ruler, labelKey: 'nav.drawing' },
   { path: '/cart', icon: ShoppingCart, labelKey: 'nav.cart' },

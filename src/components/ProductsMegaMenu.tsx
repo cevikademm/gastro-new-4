@@ -4,6 +4,7 @@ import { ChevronRight, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { CATEGORIES, useEquipmentStore } from '../stores/equipmentStore';
 import { getSubGroupsFor } from '../lib/categoryTaxonomy';
+import { pathForTaxonomy, subcategoryPath } from '../content/seo/categoryTree.de';
 import { CategoryIcon, type CategoryKey } from './icons/CategoryIcon';
 
 /**
@@ -71,7 +72,7 @@ export function ProductsMegaMenu({ onClose }: Props) {
           <span className="font-display text-lg font-black tracking-tight text-brand-red">ÜRÜNLER</span>
           <button
             type="button"
-            onClick={() => go('/magaza')}
+            onClick={() => go('/produkte')}
             className="inline-flex items-center gap-1.5 rounded-full bg-[#0F2440] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-brand-red"
           >
             Tüm Ürünler
@@ -93,7 +94,7 @@ export function ProductsMegaMenu({ onClose }: Props) {
                   type="button"
                   onMouseEnter={() => setActiveCat(cat.id)}
                   onFocus={() => setActiveCat(cat.id)}
-                  onClick={() => go(`/magaza?cat=${cat.id}`)}
+                  onClick={() => go(pathForTaxonomy(cat.id) || '/produkte')}
                   className={`group flex w-full items-center gap-2.5 rounded-xl px-2.5 py-2 text-left transition-colors ${
                     isActive ? 'bg-white shadow-sm ring-1 ring-slate-200' : 'hover:bg-white/70'
                   }`}
@@ -135,7 +136,7 @@ export function ProductsMegaMenu({ onClose }: Props) {
             <>
               <button
                 type="button"
-                onClick={() => go(`/magaza?cat=${activeCategory.id}`)}
+                onClick={() => go(pathForTaxonomy(activeCategory.id) || '/produkte')}
                 className="mb-2 flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-left transition-colors hover:bg-brand-red/[0.06]"
               >
                 <span className="text-[12px] font-black uppercase tracking-[0.1em] text-[#0F2440]">
@@ -152,7 +153,7 @@ export function ProductsMegaMenu({ onClose }: Props) {
                     <button
                       key={sg.id}
                       type="button"
-                      onClick={() => go(`/magaza?cat=${activeCategory.id}&sub=${encodeURIComponent(sg.id)}`)}
+                      onClick={() => go(subcategoryPath(activeCategory.id, sg.id) || `/produkte?cat=${activeCategory.id}&sub=${encodeURIComponent(sg.id)}`)}
                       className="group flex items-center gap-2 rounded-lg px-2.5 py-2 text-left transition-colors hover:bg-brand-red/[0.06]"
                       role="menuitem"
                     >

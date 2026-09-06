@@ -600,10 +600,22 @@
       "ctaShop": "Produkte entdecken",
       "ctaDesign": "3D-Küchenplaner",
       "stats": {
-        "products": { "value": "14.000+", "label": "Produkte" },
-        "brands": { "value": "3", "label": "Internationale Marken" },
-        "languages": { "value": "15", "label": "Sprachen" },
-        "planning": { "value": "2D & 3D", "label": "Küchenplanungs-Studio" }
+        "products": {
+          "value": "14.000+",
+          "label": "Produkte"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Internationale Marken"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Sprachen"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Küchenplanungs-Studio"
+        }
       },
       "story": {
         "title": "Wer wir sind",
@@ -622,18 +634,42 @@
       "values": {
         "title": "Unsere Werte",
         "subtitle": "Die Prinzipien, die uns in jedem Projekt leiten",
-        "quality": { "title": "Qualität", "text": "Wir arbeiten ausschließlich mit bewährter, langlebiger und zertifizierter Technik. Hinter jedem verkauften Produkt stehen wir voll und ganz." },
-        "trust": { "title": "Transparenz", "text": "Klare Preise, klare Lieferzeiten, klare Kommunikation. Überraschungskosten und vage Versprechen sind nicht unser Stil." },
-        "technology": { "title": "Technologie", "text": "Von der 3D-Küchenplanung bis zum sofortigen PDF-Angebot — wir digitalisieren unsere Prozesse und sparen Ihnen Zeit und Kosten." },
-        "partnership": { "title": "Partnerschaft", "text": "Wir verstehen uns als Lösungspartner, nicht nur als Lieferant. Auch nach der Eröffnung Ihrer Küche bleiben wir an Ihrer Seite." }
+        "quality": {
+          "title": "Qualität",
+          "text": "Wir arbeiten ausschließlich mit bewährter, langlebiger und zertifizierter Technik. Hinter jedem verkauften Produkt stehen wir voll und ganz."
+        },
+        "trust": {
+          "title": "Transparenz",
+          "text": "Klare Preise, klare Lieferzeiten, klare Kommunikation. Überraschungskosten und vage Versprechen sind nicht unser Stil."
+        },
+        "technology": {
+          "title": "Technologie",
+          "text": "Von der 3D-Küchenplanung bis zum sofortigen PDF-Angebot — wir digitalisieren unsere Prozesse und sparen Ihnen Zeit und Kosten."
+        },
+        "partnership": {
+          "title": "Partnerschaft",
+          "text": "Wir verstehen uns als Lösungspartner, nicht nur als Lieferant. Auch nach der Eröffnung Ihrer Küche bleiben wir an Ihrer Seite."
+        }
       },
       "services": {
         "title": "Was wir tun",
         "subtitle": "Alles aus einer Hand — von der Geräteauswahl bis zur Eröffnung Ihrer Küche",
-        "supply": { "title": "Gerätelieferung", "text": "Über 14.000 Produkte der gewerblichen Küchentechnik, vom Kochen übers Kühlen bis zu Spültechnik und Vorbereitung — über unsere zuverlässige Lieferkette." },
-        "design": { "title": "2D- & 3D-Küchenplanung", "text": "Zeichnen Sie Ihre Küche, fügen Sie Türen und Fenster hinzu, platzieren Sie Geräte maßstabsgetreu und begehen Sie alles in 3D. Ihre Planung bleibt automatisch mit Ihren Projekten synchron." },
-        "quote": { "title": "Angebote & Projektmanagement", "text": "Erstellen Sie in Minuten ein professionelles PDF-Angebot aus Warenkorb oder Projekt — und verfolgen Sie Revisionen an einem Ort." },
-        "delivery": { "title": "Lieferung & Support", "text": "Geplante Lieferung von der Bestellung bis zur Montage — und danach schneller Support für Ihre Fragen." }
+        "supply": {
+          "title": "Gerätelieferung",
+          "text": "Über 14.000 Produkte der gewerblichen Küchentechnik, vom Kochen übers Kühlen bis zu Spültechnik und Vorbereitung — über unsere zuverlässige Lieferkette."
+        },
+        "design": {
+          "title": "2D- & 3D-Küchenplanung",
+          "text": "Zeichnen Sie Ihre Küche, fügen Sie Türen und Fenster hinzu, platzieren Sie Geräte maßstabsgetreu und begehen Sie alles in 3D. Ihre Planung bleibt automatisch mit Ihren Projekten synchron."
+        },
+        "quote": {
+          "title": "Angebote & Projektmanagement",
+          "text": "Erstellen Sie in Minuten ein professionelles PDF-Angebot aus Warenkorb oder Projekt — und verfolgen Sie Revisionen an einem Ort."
+        },
+        "delivery": {
+          "title": "Lieferung & Support",
+          "text": "Geplante Lieferung von der Bestellung bis zur Montage — und danach schneller Support für Ihre Fragen."
+        }
       },
       "brands": {
         "title": "Unsere Marken",
@@ -1886,9 +1922,9 @@
         "static": "Für professionelle Küchen,",
         "words": {
           "0": "smarte Lösungen.",
-          "1": "5.265+ Produkte.",
+          "1": "14.000+ Produkte.",
           "2": "schnelle Lieferung.",
-          "3": "sıfır komisyonla."
+          "3": "ohne Provision."
         }
       },
       "sub": "15 Marken auf einer Plattform. BOM erstellen, Küchenplanung, Angebot anfragen.",
@@ -1897,7 +1933,7 @@
         "secondary": "Demo ansehen"
       },
       "trust": {
-        "products": "5.265+ Produkte",
+        "products": "14.000+ Produkte",
         "brands": "15 Marken",
         "countries": "15 Länder",
         "delivery": "24-48h Lieferung"
@@ -2529,7 +2565,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW und mehr"
-    }
+    },
+    "seoDescription": "Über 14.000 Produkte für Gastronomie und Großküche: Kochgeräte, Kühlung, Spültechnik, Edelstahlmöbel, Lüftung, Kleingeräte. Diamond, CombiSteel, HENDI – Netto-Preise, schnelle Lieferung."
   },
   "tools": {
     "calcSeoTitle": "Küchenkapazitäts- und ROI-Rechner",
@@ -2812,5 +2849,67 @@
     "technical": "Technische Details",
     "reverted": "Zurückgenommen",
     "revertedHint": "Diese Korrektur verursachte ein Problem und wurde zurückgenommen."
+  },
+  "seo": {
+    "home": "Startseite",
+    "page": "Seite",
+    "products": "Produkte",
+    "subcategories": "Unterkategorien",
+    "categoryEyebrow": "Produktkategorie",
+    "brand": "Marke",
+    "allBrands": "Alle Marken",
+    "sort": "Sortierung",
+    "noProducts": "Aktuell keine Produkte in dieser Auswahl.",
+    "pagination": "Seiten",
+    "byBrand": "nach Marke",
+    "byCategory": "nach Kategorie",
+    "guides": "Ratgeber",
+    "more": "Weitere",
+    "moreCategories": "Weitere Kategorien",
+    "brands": "Marken",
+    "brandsTitle": "Marken – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Marken bei 2MC Gastro",
+    "subBrands": "Linien & Untermarken",
+    "allIn": "Alle",
+    "allFrom": "Alle Produkte von",
+    "branchen": "Branchen",
+    "brancheEyebrow": "Branchenlösung",
+    "regions": "Lieferregionen",
+    "faqTitle": "Häufige Fragen",
+    "netPrice": "netto zzgl. MwSt.",
+    "serviceNet": "Netto-Preis für Gewerbekunden, B2B-Rechnung mit ausgewiesener MwSt.",
+    "serviceDelivery": "Lieferung per Paket oder Spedition frei Bordsteinkante; in NRW mit Vertragen und Aufstellung.",
+    "serviceLeasing": "Leasing und Mietkauf auf Anfrage.",
+    "servicePlanner": "Passt das Gerät in Ihre Küche? Im 3D-Küchenplaner prüfen."
+  },
+  "footer": {
+    "company": "Unternehmen",
+    "support": "Service",
+    "trust": "Zahlung & Sicherheit",
+    "about": "Über uns",
+    "careers": "Karriere",
+    "contact": "Kontakt",
+    "payment": "Zahlungsarten",
+    "shipping": "Versand & Lieferung",
+    "newsletter": "Newsletter",
+    "help": "Hilfe-Center",
+    "developers": "Entwickler / API",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "sitemap": "Sitemap",
+    "imprint": "Impressum",
+    "cancellation": "Widerrufsrecht",
+    "cookies": "Cookies",
+    "securePay": "Sichere Zahlung",
+    "ssl": "100 % SSL-verschlüsselt",
+    "tagline": "Gastronomiebedarf, 3D-Küchenplanung und schlüsselfertige Projekte – Ihr Partner für die Profiküche in Köln und ganz Europa.",
+    "newsletterTitle": "Neuigkeiten aus der Profiküche",
+    "newsletterAccent": "direkt ins Postfach.",
+    "newsletterText": "Neue Produkte, Aktionen und Branchentrends einmal im Monat. Jederzeit abbestellbar.",
+    "emailPlaceholder": "Ihre E-Mail-Adresse",
+    "subscribe": "Abonnieren",
+    "subscribed": "Abonniert ✓",
+    "rights": "Alle Rechte vorbehalten.",
+    "madeIn": "Mit Leidenschaft in Köln gemacht."
   }
 }

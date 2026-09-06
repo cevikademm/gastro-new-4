@@ -598,10 +598,22 @@
       "ctaShop": "Termékek felfedezése",
       "ctaDesign": "3D konyhatervező",
       "stats": {
-        "products": { "value": "14 000+", "label": "Termék" },
-        "brands": { "value": "3", "label": "Nemzetközi márka" },
-        "languages": { "value": "15", "label": "Támogatott nyelv" },
-        "planning": { "value": "2D & 3D", "label": "Konyhatervező stúdió" }
+        "products": {
+          "value": "14 000+",
+          "label": "Termék"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Nemzetközi márka"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Támogatott nyelv"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Konyhatervező stúdió"
+        }
       },
       "story": {
         "title": "Kik vagyunk",
@@ -620,18 +632,42 @@
       "values": {
         "title": "Értékeink",
         "subtitle": "Az elvek, amelyek minden projektben vezérelnek minket",
-        "quality": { "title": "Minőség", "text": "Kizárólag bevált, tartós és tanúsított berendezésekkel dolgozunk. Minden eladott termékünkért teljes felelősséget vállalunk." },
-        "trust": { "title": "Átláthatóság", "text": "Tiszta árak, tiszta szállítási határidők, tiszta kommunikáció. A meglepetésköltségek és a homályos ígéretek nem a mi stílusunk." },
-        "technology": { "title": "Technológia", "text": "A 3D konyhatervezéstől az azonnali PDF-ajánlatig — folyamatainkat digitalizáljuk, hogy Ön időt és pénzt spóroljon." },
-        "partnership": { "title": "Partnerség", "text": "Megoldáspartnernek tekintjük magunkat, nem csupán beszállítónak. Az Ön konyhájának megnyitása után is hosszú ideig az Ön oldalán maradunk." }
+        "quality": {
+          "title": "Minőség",
+          "text": "Kizárólag bevált, tartós és tanúsított berendezésekkel dolgozunk. Minden eladott termékünkért teljes felelősséget vállalunk."
+        },
+        "trust": {
+          "title": "Átláthatóság",
+          "text": "Tiszta árak, tiszta szállítási határidők, tiszta kommunikáció. A meglepetésköltségek és a homályos ígéretek nem a mi stílusunk."
+        },
+        "technology": {
+          "title": "Technológia",
+          "text": "A 3D konyhatervezéstől az azonnali PDF-ajánlatig — folyamatainkat digitalizáljuk, hogy Ön időt és pénzt spóroljon."
+        },
+        "partnership": {
+          "title": "Partnerség",
+          "text": "Megoldáspartnernek tekintjük magunkat, nem csupán beszállítónak. Az Ön konyhájának megnyitása után is hosszú ideig az Ön oldalán maradunk."
+        }
       },
       "services": {
         "title": "Amit csinálunk",
         "subtitle": "Minden egy fedél alatt — a berendezés kiválasztásától a konyha megnyitásának napjáig",
-        "supply": { "title": "Berendezésbeszerzés", "text": "Több mint 14 000 ipari konyhai termék főzéstől hűtésen át mosogatásig és előkészítésig — megbízható ellátási láncunkon keresztül." },
-        "design": { "title": "2D és 3D konyhatervezés", "text": "Rajzolja meg konyháját, helyezzen el ajtókat és ablakokat, tegye el a berendezéseket valós méretben, és járja körbe 3D-ben. A terve automatikusan szinkronban marad projektjeivel." },
-        "quote": { "title": "Ajánlatok és projektmenedzsment", "text": "Percek alatt készítsen professzionális PDF-ajánlatot kosarából vagy projektjéből, és kövesse a felülvizsgálatokat egy helyen." },
-        "delivery": { "title": "Szállítás és támogatás", "text": "Tervezett szállítás a rendeléstől a telepítésig — és gyors támogatás az azt követő kérdéseihez." }
+        "supply": {
+          "title": "Berendezésbeszerzés",
+          "text": "Több mint 14 000 ipari konyhai termék főzéstől hűtésen át mosogatásig és előkészítésig — megbízható ellátási láncunkon keresztül."
+        },
+        "design": {
+          "title": "2D és 3D konyhatervezés",
+          "text": "Rajzolja meg konyháját, helyezzen el ajtókat és ablakokat, tegye el a berendezéseket valós méretben, és járja körbe 3D-ben. A terve automatikusan szinkronban marad projektjeivel."
+        },
+        "quote": {
+          "title": "Ajánlatok és projektmenedzsment",
+          "text": "Percek alatt készítsen professzionális PDF-ajánlatot kosarából vagy projektjéből, és kövesse a felülvizsgálatokat egy helyen."
+        },
+        "delivery": {
+          "title": "Szállítás és támogatás",
+          "text": "Tervezett szállítás a rendeléstől a telepítésig — és gyors támogatás az azt követő kérdéseihez."
+        }
       },
       "brands": {
         "title": "Márkáink",
@@ -1884,9 +1920,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "jutalék nélkül."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1895,7 +1931,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2527,7 +2563,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Több mint 14 000 termék vendéglátáshoz és nagykonyhákhoz: főzés, hűtés, mosogatás, rozsdamentes bútorok, szellőzés. Diamond, CombiSteel, HENDI – nettó árak, gyors szállítás."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2783,5 +2820,67 @@
     "technical": "Technikai részletek",
     "reverted": "Visszavonva",
     "revertedHint": "Ez a javítás problémát okozott, ezért visszavontuk."
+  },
+  "seo": {
+    "home": "Főoldal",
+    "page": "Oldal",
+    "products": "termék",
+    "subcategories": "Alkategóriák",
+    "categoryEyebrow": "Termékkategória",
+    "brand": "Márka",
+    "allBrands": "Minden márka",
+    "sort": "Rendezés",
+    "noProducts": "Jelenleg nincs termék ebben a válogatásban.",
+    "pagination": "Oldalak",
+    "byBrand": "márka szerint",
+    "byCategory": "kategória szerint",
+    "guides": "Útmutatók",
+    "more": "További",
+    "moreCategories": "További kategóriák",
+    "brands": "Márkák",
+    "brandsTitle": "Márkák – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Márkák a 2MC Gastrónál",
+    "subBrands": "Sorozatok és almárkák",
+    "allIn": "Minden",
+    "allFrom": "Minden termék tőle:",
+    "branchen": "Ágazatok",
+    "brancheEyebrow": "Ágazati megoldás",
+    "regions": "Szállítási régiók",
+    "faqTitle": "Gyakori kérdések",
+    "netPrice": "nettó + áfa",
+    "serviceNet": "Nettó ár cégeknek, B2B számla feltüntetett áfával.",
+    "serviceDelivery": "Csomag- vagy speditőrszállítás a járdaszegélyig; NRW-ben behordással és elhelyezéssel.",
+    "serviceLeasing": "Lízing és részletfizetés kérésre.",
+    "servicePlanner": "Elfér a készülék a konyhájában? Ellenőrizze a 3D konyhatervezőben."
+  },
+  "footer": {
+    "company": "Cég",
+    "support": "Ügyfélszolgálat",
+    "trust": "Fizetés és biztonság",
+    "about": "Rólunk",
+    "careers": "Karrier",
+    "contact": "Kapcsolat",
+    "payment": "Fizetési módok",
+    "shipping": "Szállítás",
+    "newsletter": "Hírlevél",
+    "help": "Súgóközpont",
+    "developers": "Fejlesztők / API",
+    "privacy": "Adatvédelem",
+    "terms": "ÁSZF",
+    "sitemap": "Oldaltérkép",
+    "imprint": "Impresszum",
+    "cancellation": "Elállási jog",
+    "cookies": "Sütik",
+    "securePay": "Biztonságos fizetés",
+    "ssl": "100% SSL",
+    "tagline": "Vendéglátóipari berendezések, 3D konyhatervezés és kulcsrakész projektek – partnere a professzionális konyhához Kölnben és egész Európában.",
+    "newsletterTitle": "Újdonságok a profi konyhából",
+    "newsletterAccent": "egyenesen a postaládájába.",
+    "newsletterText": "Új termékek, akciók és trendek havonta egyszer. Bármikor leiratkozhat.",
+    "emailPlaceholder": "Az Ön e-mail-címe",
+    "subscribe": "Feliratkozás",
+    "subscribed": "Feliratkozva ✓",
+    "rights": "Minden jog fenntartva.",
+    "madeIn": "Szenvedéllyel készült Kölnben."
   }
 }

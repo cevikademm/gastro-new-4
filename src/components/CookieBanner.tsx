@@ -1,4 +1,5 @@
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { useUIStore } from '../stores/uiStore';
 import { Shield } from 'lucide-react';
 
@@ -16,9 +17,10 @@ export default function CookieBanner() {
           <div className="min-w-0">
             <p className="text-sm text-on-surface">{t('gdpr.cookieConsent')}</p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-              <a href="#" className="text-xs text-primary hover:underline">{t('gdpr.privacyPolicy')}</a>
-              <a href="#" className="text-xs text-primary hover:underline">{t('gdpr.cookiePolicy')}</a>
-              <a href="#" className="text-xs text-primary hover:underline">{t('gdpr.impressum')}</a>
+              {/* Rotalar: src/pages/info/InfoPage.tsx — daha önce href="#" ile ölü bağlantıydı */}
+              <Link to="/privacy" className="text-xs text-primary hover:underline">{t('gdpr.privacyPolicy')}</Link>
+              <Link to="/cookies" className="text-xs text-primary hover:underline">{t('gdpr.cookiePolicy')}</Link>
+              <Link to="/imprint" className="text-xs text-primary hover:underline">{t('gdpr.impressum')}</Link>
             </div>
           </div>
         </div>

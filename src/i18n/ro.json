@@ -598,10 +598,22 @@
       "ctaShop": "Descoperă produsele",
       "ctaDesign": "Planificator bucătărie 3D",
       "stats": {
-        "products": { "value": "14.000+", "label": "Produse" },
-        "brands": { "value": "3", "label": "Mărci internaționale" },
-        "languages": { "value": "15", "label": "Limbi disponibile" },
-        "planning": { "value": "2D & 3D", "label": "Studio de design bucătării" }
+        "products": {
+          "value": "14.000+",
+          "label": "Produse"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Mărci internaționale"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Limbi disponibile"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Studio de design bucătării"
+        }
       },
       "story": {
         "title": "Cine suntem",
@@ -620,18 +632,42 @@
       "values": {
         "title": "Valorile noastre",
         "subtitle": "Principiile care ne ghidează în fiecare proiect",
-        "quality": { "title": "Calitate", "text": "Lucrăm exclusiv cu echipamente verificate, durabile și certificate. Ne asumăm responsabilitatea pentru fiecare produs pe care îl vindem." },
-        "trust": { "title": "Transparență", "text": "Prețuri clare, termene de livrare clare, comunicare clară. Costurile-surpriză și promisiunile vagi nu sunt în stilul nostru." },
-        "technology": { "title": "Tehnologie", "text": "De la designul bucătăriei în 3D la oferta PDF instant — digitalizăm procesele pentru a vă economisi timp și bani." },
-        "partnership": { "title": "Parteneriat", "text": "Ne considerăm un partener de soluții, nu doar un furnizor. Rămânem alături de dumneavoastră și mult după deschiderea bucătăriei." }
+        "quality": {
+          "title": "Calitate",
+          "text": "Lucrăm exclusiv cu echipamente verificate, durabile și certificate. Ne asumăm responsabilitatea pentru fiecare produs pe care îl vindem."
+        },
+        "trust": {
+          "title": "Transparență",
+          "text": "Prețuri clare, termene de livrare clare, comunicare clară. Costurile-surpriză și promisiunile vagi nu sunt în stilul nostru."
+        },
+        "technology": {
+          "title": "Tehnologie",
+          "text": "De la designul bucătăriei în 3D la oferta PDF instant — digitalizăm procesele pentru a vă economisi timp și bani."
+        },
+        "partnership": {
+          "title": "Parteneriat",
+          "text": "Ne considerăm un partener de soluții, nu doar un furnizor. Rămânem alături de dumneavoastră și mult după deschiderea bucătăriei."
+        }
       },
       "services": {
         "title": "Ce facem",
         "subtitle": "Totul sub același acoperiș — de la alegerea echipamentelor până la ziua deschiderii bucătăriei",
-        "supply": { "title": "Furnizare de echipamente", "text": "Peste 14.000 de produse pentru bucătăria profesională, de la gătit și refrigerare la spălare și pregătire — prin lanțul nostru de aprovizionare de încredere." },
-        "design": { "title": "Design bucătărie 2D & 3D", "text": "Desenați-vă bucătăria, adăugați uși și ferestre, poziționați echipamentele la scară reală și plimbați-vă prin ea în 3D. Designul rămâne automat sincronizat cu proiectele dumneavoastră." },
-        "quote": { "title": "Oferte și management de proiect", "text": "Creați într-un minut o ofertă PDF profesională din coș sau din proiect și urmăriți toate reviziile într-un singur loc." },
-        "delivery": { "title": "Livrare și asistență", "text": "Livrare planificată de la comandă la instalare — și asistență rapidă pentru întrebările ulterioare." }
+        "supply": {
+          "title": "Furnizare de echipamente",
+          "text": "Peste 14.000 de produse pentru bucătăria profesională, de la gătit și refrigerare la spălare și pregătire — prin lanțul nostru de aprovizionare de încredere."
+        },
+        "design": {
+          "title": "Design bucătărie 2D & 3D",
+          "text": "Desenați-vă bucătăria, adăugați uși și ferestre, poziționați echipamentele la scară reală și plimbați-vă prin ea în 3D. Designul rămâne automat sincronizat cu proiectele dumneavoastră."
+        },
+        "quote": {
+          "title": "Oferte și management de proiect",
+          "text": "Creați într-un minut o ofertă PDF profesională din coș sau din proiect și urmăriți toate reviziile într-un singur loc."
+        },
+        "delivery": {
+          "title": "Livrare și asistență",
+          "text": "Livrare planificată de la comandă la instalare — și asistență rapidă pentru întrebările ulterioare."
+        }
       },
       "brands": {
         "title": "Mărcile noastre",
@@ -1884,9 +1920,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "fără comision."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1895,7 +1931,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2527,7 +2563,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Peste 14.000 de produse pentru HoReCa și bucătării industriale: gătit, refrigerare, spălare, mobilier inox, ventilație. Diamond, CombiSteel, HENDI – prețuri nete, livrare rapidă."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2783,5 +2820,67 @@
     "technical": "Detalii tehnice",
     "reverted": "Anulată",
     "revertedHint": "Această remediere a cauzat o problemă și a fost anulată."
+  },
+  "seo": {
+    "home": "Acasă",
+    "page": "Pagina",
+    "products": "produse",
+    "subcategories": "Subcategorii",
+    "categoryEyebrow": "Categorie de produse",
+    "brand": "Marcă",
+    "allBrands": "Toate mărcile",
+    "sort": "Sortare",
+    "noProducts": "Momentan nu există produse în această selecție.",
+    "pagination": "Pagini",
+    "byBrand": "după marcă",
+    "byCategory": "după categorie",
+    "guides": "Ghiduri",
+    "more": "Alte",
+    "moreCategories": "Alte categorii",
+    "brands": "Mărci",
+    "brandsTitle": "Mărci – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Mărci la 2MC Gastro",
+    "subBrands": "Linii și submărci",
+    "allIn": "Toate",
+    "allFrom": "Toate produsele de la",
+    "branchen": "Sectoare",
+    "brancheEyebrow": "Soluție sectorială",
+    "regions": "Zone de livrare",
+    "faqTitle": "Întrebări frecvente",
+    "netPrice": "net + TVA",
+    "serviceNet": "Preț net pentru firme, factură B2B cu TVA evidențiat.",
+    "serviceDelivery": "Livrare prin curier sau transportator la bordură; în NRW cu transport în bucătărie și amplasare.",
+    "serviceLeasing": "Leasing și închiriere cu opțiune de cumpărare la cerere.",
+    "servicePlanner": "Încape echipamentul în bucătăria dvs.? Verificați în planificatorul 3D."
+  },
+  "footer": {
+    "company": "Companie",
+    "support": "Asistență",
+    "trust": "Plată și încredere",
+    "about": "Despre noi",
+    "careers": "Cariere",
+    "contact": "Contact",
+    "payment": "Metode de plată",
+    "shipping": "Livrare",
+    "newsletter": "Newsletter",
+    "help": "Centru de ajutor",
+    "developers": "Dezvoltatori / API",
+    "privacy": "Confidențialitate",
+    "terms": "Termeni",
+    "sitemap": "Harta site-ului",
+    "imprint": "Date de identificare",
+    "cancellation": "Dreptul de retragere",
+    "cookies": "Cookie-uri",
+    "securePay": "Plată sigură",
+    "ssl": "100% SSL",
+    "tagline": "Echipamente HoReCa, planificare 3D și proiecte la cheie – partenerul dvs. pentru bucătăria profesională în Köln și în toată Europa.",
+    "newsletterTitle": "Noutăți din bucătăria profesională",
+    "newsletterAccent": "direct în inbox.",
+    "newsletterText": "Produse noi, oferte și tendințe o dată pe lună. Dezabonare oricând.",
+    "emailPlaceholder": "Adresa dvs. de e-mail",
+    "subscribe": "Abonare",
+    "subscribed": "Abonat ✓",
+    "rights": "Toate drepturile rezervate.",
+    "madeIn": "Realizat cu pasiune în Köln."
   }
 }

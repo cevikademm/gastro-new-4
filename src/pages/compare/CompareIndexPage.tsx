@@ -16,7 +16,7 @@ export default function CompareIndexPage() {
           organizationSchema(),
           breadcrumbSchema([
             { name: t('compare.homeCrumb', 'Ana Sayfa'), url: '/' },
-            { name: t('compare.breadcrumb', 'Karşılaştırma'), url: '/compare' },
+            { name: t('compare.breadcrumb', 'Karşılaştırma'), url: '/vergleich' },
           ]),
         ]}
       />
@@ -37,7 +37,7 @@ export default function CompareIndexPage() {
         {COMPETITORS.map((c) => (
           <Link
             key={c.slug}
-            to={`/compare/${c.slug}`}
+            to={`/vergleich/${c.slug}`}
             className="bg-white border border-slate-200 rounded-2xl p-6 hover:border-[#DC2626] hover:shadow-md transition group"
           >
             <div className="text-xs text-slate-500 mb-1">{t('compare.vs', 'vs')}</div>

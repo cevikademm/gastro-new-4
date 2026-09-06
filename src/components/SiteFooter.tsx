@@ -1,45 +1,46 @@
 import type React from 'react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
-  Mail, Phone, MapPin,
-  CreditCard, Banknote, Landmark,
+  Mail, Phone,
+  Banknote, Landmark,
   Truck, Package, PackageCheck, Forklift, Container,
   Shield,
 } from 'lucide-react';
 import { COMPANY_INFO } from '../lib/companyInfo';
+import { useLocalePath } from '../lib/useLocalePath';
 
-/** Site iletişim e-postası (destek formu da buraya gönderir). */
-const CONTACT_EMAIL = 'info@2mcgastro.de';
-
-type FooterLink = { to: string; label: string; external?: boolean };
+type FooterLink = { to: string; key: string; fallback: string; external?: boolean; app?: boolean };
 
 // NOT: Buradaki her hedefin App.tsx'te gerçek bir rotası var (bilgi/yasal sayfalar
-// src/pages/info/InfoPage.tsx). Yeni bağlantı eklerken rotayı da ekle — yoksa 404.
+// Almanca canonical slug'larla → src/pages/info/InfoPage.tsx). `app` = öneksiz uygulama rotası.
 const INFO_LINKS: FooterLink[] = [
-  { to: '/about',        label: 'Hakkımızda' },
-  { to: '/careers',      label: 'Kariyer' },
-  { to: '/support',      label: 'İletişim' },
-  { to: '/payment',      label: 'Ödeme Seçenekleri' },
-  { to: '/shipping',     label: 'Kargo & Teslimat' },
-  { to: '/newsletter',   label: 'Bülten' },
+  { to: '/ueber-uns',   key: 'footer.about',      fallback: 'Über uns' },
+  { to: '/karriere',    key: 'footer.careers',    fallback: 'Karriere' },
+  { to: '/support',     key: 'footer.contact',    fallback: 'Kontakt', app: true },
+  { to: '/payment',     key: 'footer.payment',    fallback: 'Zahlungsarten', app: true },
+  { to: '/versand',     key: 'footer.shipping',   fallback: 'Versand & Lieferung' },
+  { to: '/newsletter',  key: 'footer.newsletter', fallback: 'Newsletter' },
 ];
 
 const LEGAL_LINKS: FooterLink[] = [
-  { to: '/support',       label: 'Yardım Merkezi' },
-  { to: '/developers/api', label: 'Geliştiriciler / API' },
-  { to: '/privacy',       label: 'Gizlilik' },
-  { to: '/terms',         label: 'Kullanım Koşulları' },
-  { to: '/sitemap.xml',   label: 'Site Haritası', external: true },
-  { to: '/imprint',       label: 'Künye' },
-  { to: '/cancellation',  label: 'Cayma Hakkı' },
+  { to: '/support',        key: 'footer.help',         fallback: 'Hilfe-Center', app: true },
+  { to: '/developers/api', key: 'footer.developers',   fallback: 'Entwickler / API', app: true },
+  { to: '/datenschutz',    key: 'footer.privacy',      fallback: 'Datenschutz' },
+  { to: '/agb',            key: 'footer.terms',        fallback: 'AGB' },
+  { to: '/sitemap.xml',    key: 'footer.sitemap',      fallback: 'Sitemap', external: true },
+  { to: '/impressum',      key: 'footer.imprint',      fallback: 'Impressum' },
+  { to: '/widerruf',       key: 'footer.cancellation', fallback: 'Widerrufsrecht' },
 ];
 
 function FooterLinkItem({ l }: { l: FooterLink }) {
+  const { t } = useTranslation();
+  const lp = useLocalePath();
   const cls = 'text-sm text-[var(--c-muted)] hover:text-[var(--c-clay)] transition-colors';
-  return l.external
-    ? <a href={l.to} className={cls}>{l.label}</a>
-    : <Link to={l.to} className={cls}>{l.label}</Link>;
+  const label = t(l.key, l.fallback);
+  if (l.external) return <a href={l.to} className={cls}>{label}</a>;
+  return <Link to={l.app ? l.to : lp(l.to)} className={cls}>{label}</Link>;
 }
 
 // Marka logoları — simpleicons.org CDN'den alınır (contrasting color ile brand bg üzerinde görünür).
@@ -72,7 +73,8 @@ const PAYMENT_METHODS: Brand[] = [
   { name: 'Leasing',                                    logoColor: '475569', bg: PM_BG, text: PM_TEXT, Icon: Banknote },
 ];
 
-const SHIPPING_CARRIERS: Brand[] = [
+// Kargo/nakliye markaları — ileride "Versand" bölümünde kullanılmak üzere korunur.
+export const SHIPPING_CARRIERS: Brand[] = [
   { name: 'DHL',        slug: 'dhl',        logoColor: 'D40511', bg: 'bg-[#FFCC00]',                                   text: 'text-[#D40511]', Icon: Truck        },
   { name: 'UPS',        slug: 'ups',        logoColor: 'FFB500', bg: 'bg-[#351C15]',                                   text: 'text-[#FFB500]', Icon: Package      },
   { name: 'DPD',        slug: 'dpd',        logoColor: 'FFFFFF', bg: 'bg-[#DC0032]',                                   text: 'text-white',     Icon: PackageCheck },
@@ -116,6 +118,8 @@ function BrandCard({ b }: { b: Brand }) {
 }
 
 export default function SiteFooter() {
+  const { t } = useTranslation();
+  const lp = useLocalePath();
   const [email, setEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -136,11 +140,11 @@ export default function SiteFooter() {
           <div className="relative z-10 flex flex-col lg:flex-row items-center justify-between gap-10">
             <div className="max-w-xl text-center lg:text-left">
               <h3 className="serif text-3xl md:text-4xl text-white font-medium leading-tight">
-                Profesyonel mutfak dünyasından <br/>
-                <em className="text-[var(--c-clay-soft)] not-italic">en yeni haberleri</em> alın.
+                {t('footer.newsletterTitle', 'Neuigkeiten aus der Profiküche')} <br/>
+                <em className="text-[var(--c-clay-soft)] not-italic">{t('footer.newsletterAccent', 'direkt ins Postfach.')}</em>
               </h3>
               <p className="text-white/70 mt-4 text-sm md:text-base">
-                Yeni ürünler, özel indirimler ve sektör trendleri her ay kapınızda. İstediğiniz zaman ayrılabilirsiniz.
+                {t('footer.newsletterText', 'Neue Produkte, Aktionen und Branchentrends einmal im Monat. Jederzeit abbestellbar.')}
               </p>
             </div>
             <form onSubmit={handleSubscribe} className="w-full lg:w-auto flex flex-col sm:flex-row gap-3">
@@ -149,14 +153,15 @@ export default function SiteFooter() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="E-posta adresiniz"
+                placeholder={t('footer.emailPlaceholder', 'Ihre E-Mail-Adresse')}
+                aria-label={t('footer.emailPlaceholder', 'Ihre E-Mail-Adresse')}
                 className="w-full sm:w-80 px-6 py-4 rounded-full bg-white/10 border border-white/20 text-white placeholder:text-white/40 focus:outline-none focus:bg-white/15 focus:border-[var(--c-clay)] transition-all"
               />
               <button
                 type="submit"
                 className="px-8 py-4 rounded-full bg-[var(--c-clay)] text-white font-bold hover:bg-[var(--c-clay-deep)] hover:-translate-y-0.5 transition-all shadow-lg whitespace-nowrap"
               >
-                {subscribed ? 'Abone Olundu ✓' : 'Abone Ol'}
+                {subscribed ? t('footer.subscribed', 'Abonniert ✓') : t('footer.subscribe', 'Abonnieren')}
               </button>
             </form>
           </div>
@@ -165,25 +170,30 @@ export default function SiteFooter() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
           {/* Brand Info */}
           <div className="space-y-6">
-            <Link to="/" className="flex items-center gap-2 group">
+            <Link to={lp('/')} className="flex items-center gap-2 group">
               <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-11 w-auto max-w-[180px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
             </Link>
             <p className="text-[14px] text-[var(--c-muted)] leading-relaxed">
-              Profesyonel mutfak ekipmanları, 3D tasarım ve anahtar teslim projeler için Avrupa'nın güvenilir çözüm ortağı.
+              {t('footer.tagline', 'Gastronomiebedarf, 3D-Küchenplanung und schlüsselfertige Projekte – Ihr Partner für die Profiküche in Köln und ganz Europa.')}
             </p>
+            <address className="not-italic text-[13px] text-[var(--c-muted)] leading-relaxed">
+              <strong className="text-[var(--c-ink)]">{COMPANY_INFO.legalName}</strong><br />
+              {COMPANY_INFO.street}<br />
+              {COMPANY_INFO.zipCity}, Deutschland
+            </address>
             <div className="flex gap-4">
               <a
-                href={`tel:+49${COMPANY_INFO.phone.replace(/^0/, '')}`}
-                aria-label="Telefon"
-                title={COMPANY_INFO.phone}
+                href={`tel:${COMPANY_INFO.phoneE164}`}
+                aria-label={t('footer.contact', 'Kontakt')}
+                title={COMPANY_INFO.phoneDisplay}
                 className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] transition-all"
               >
                 <Phone size={18} />
               </a>
               <a
-                href={`mailto:${CONTACT_EMAIL}`}
-                aria-label="E-posta"
-                title={CONTACT_EMAIL}
+                href={`mailto:${COMPANY_INFO.email}`}
+                aria-label="E-Mail"
+                title={COMPANY_INFO.email}
                 className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] transition-all"
               >
                 <Mail size={18} />
@@ -193,7 +203,7 @@ export default function SiteFooter() {
 
           {/* Links Grid */}
           <div>
-            <h4 className="serif text-lg font-bold mb-6">Kurumsal</h4>
+            <h4 className="serif text-lg font-bold mb-6">{t('footer.company', 'Unternehmen')}</h4>
             <ul className="space-y-4">
               {INFO_LINKS.map((l) => (
                 <li key={l.to}><FooterLinkItem l={l} /></li>
@@ -202,7 +212,7 @@ export default function SiteFooter() {
           </div>
 
           <div>
-            <h4 className="serif text-lg font-bold mb-6">Destek</h4>
+            <h4 className="serif text-lg font-bold mb-6">{t('footer.support', 'Service')}</h4>
             <ul className="space-y-4">
               {LEGAL_LINKS.map((l) => (
                 <li key={l.to}><FooterLinkItem l={l} /></li>
@@ -212,7 +222,7 @@ export default function SiteFooter() {
 
           {/* Trust/Payments */}
           <div>
-            <h4 className="serif text-lg font-bold mb-6">Ödeme & Güven</h4>
+            <h4 className="serif text-lg font-bold mb-6">{t('footer.trust', 'Zahlung & Sicherheit')}</h4>
             <div className="grid grid-cols-3 gap-2 mb-6">
               {PAYMENT_METHODS.slice(0, 6).map((p) => <BrandCard key={p.name} b={p} />)}
             </div>
@@ -221,8 +231,8 @@ export default function SiteFooter() {
                 <Shield size={20} />
               </div>
               <div className="flex flex-col">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--c-muted)] leading-none">Güvenli Ödeme</span>
-                <span className="text-[12px] font-semibold mt-1">%100 SSL Korumalı</span>
+                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--c-muted)] leading-none">{t('footer.securePay', 'Sichere Zahlung')}</span>
+                <span className="text-[12px] font-semibold mt-1">{t('footer.ssl', '100 % SSL-verschlüsselt')}</span>
               </div>
             </div>
           </div>
@@ -231,12 +241,12 @@ export default function SiteFooter() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[var(--c-line)] flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-[13px] text-[var(--c-muted)]">
-            © {new Date().getFullYear()} 2MC Gastro GmbH. Tüm hakları saklıdır. <span className="mx-2 opacity-30">|</span> Made with passion in Cologne & Istanbul.
+            © {new Date().getFullYear()} {COMPANY_INFO.legalName}. {t('footer.rights', 'Alle Rechte vorbehalten.')} <span className="mx-2 opacity-30">|</span> {t('footer.madeIn', 'Mit Leidenschaft in Köln gemacht.')}
           </div>
           <div className="flex gap-6">
-            <Link to="/privacy" className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">Gizlilik</Link>
-            <Link to="/terms" className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">Şartlar</Link>
-            <Link to="/cookies" className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">Çerezler</Link>
+            <Link to={lp('/datenschutz')} className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">{t('footer.privacy', 'Datenschutz')}</Link>
+            <Link to={lp('/agb')} className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">{t('footer.terms', 'AGB')}</Link>
+            <Link to={lp('/cookie-richtlinie')} className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">{t('footer.cookies', 'Cookies')}</Link>
           </div>
         </div>
       </div>

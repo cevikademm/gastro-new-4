@@ -600,10 +600,22 @@
       "ctaShop": "Explore Products",
       "ctaDesign": "3D Kitchen Planner",
       "stats": {
-        "products": { "value": "14,000+", "label": "Products" },
-        "brands": { "value": "3", "label": "International brands" },
-        "languages": { "value": "15", "label": "Languages supported" },
-        "planning": { "value": "2D & 3D", "label": "Kitchen design studio" }
+        "products": {
+          "value": "14,000+",
+          "label": "Products"
+        },
+        "brands": {
+          "value": "3",
+          "label": "International brands"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Languages supported"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Kitchen design studio"
+        }
       },
       "story": {
         "title": "Who We Are",
@@ -622,18 +634,42 @@
       "values": {
         "title": "Our Values",
         "subtitle": "The principles that guide us in every project",
-        "quality": { "title": "Quality", "text": "We only work with proven, durable and certified equipment. We stand behind every product we sell." },
-        "trust": { "title": "Transparency", "text": "Clear prices, clear delivery times, clear communication. Surprise costs and vague promises are not our style." },
-        "technology": { "title": "Technology", "text": "From 3D kitchen design to instant PDF quotes — we digitalize our processes to save you time and money." },
-        "partnership": { "title": "Partnership", "text": "We see ourselves as a solution partner, not just a supplier. We stay at your side long after your kitchen opens." }
+        "quality": {
+          "title": "Quality",
+          "text": "We only work with proven, durable and certified equipment. We stand behind every product we sell."
+        },
+        "trust": {
+          "title": "Transparency",
+          "text": "Clear prices, clear delivery times, clear communication. Surprise costs and vague promises are not our style."
+        },
+        "technology": {
+          "title": "Technology",
+          "text": "From 3D kitchen design to instant PDF quotes — we digitalize our processes to save you time and money."
+        },
+        "partnership": {
+          "title": "Partnership",
+          "text": "We see ourselves as a solution partner, not just a supplier. We stay at your side long after your kitchen opens."
+        }
       },
       "services": {
         "title": "What We Do",
         "subtitle": "Everything under one roof — from equipment selection to your kitchen's opening day",
-        "supply": { "title": "Equipment Supply", "text": "More than 14,000 commercial kitchen products, from cooking to refrigeration, warewashing to preparation — through our reliable supply chain." },
-        "design": { "title": "2D & 3D Kitchen Design", "text": "Draw your kitchen, add doors and windows, place equipment at true scale and walk through it in 3D. Your design stays in sync with your projects automatically." },
-        "quote": { "title": "Quotes & Project Management", "text": "Create a professional PDF quote from your cart or project in minutes, and track revisions in one place." },
-        "delivery": { "title": "Delivery & Support", "text": "Planned delivery from order to installation — and fast support for your questions afterwards." }
+        "supply": {
+          "title": "Equipment Supply",
+          "text": "More than 14,000 commercial kitchen products, from cooking to refrigeration, warewashing to preparation — through our reliable supply chain."
+        },
+        "design": {
+          "title": "2D & 3D Kitchen Design",
+          "text": "Draw your kitchen, add doors and windows, place equipment at true scale and walk through it in 3D. Your design stays in sync with your projects automatically."
+        },
+        "quote": {
+          "title": "Quotes & Project Management",
+          "text": "Create a professional PDF quote from your cart or project in minutes, and track revisions in one place."
+        },
+        "delivery": {
+          "title": "Delivery & Support",
+          "text": "Planned delivery from order to installation — and fast support for your questions afterwards."
+        }
       },
       "brands": {
         "title": "Our Brands",
@@ -1886,9 +1922,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "commission-free."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1897,7 +1933,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2529,7 +2565,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Over 14,000 products for restaurants and commercial kitchens: cooking, refrigeration, dishwashing, stainless steel furniture, ventilation. Diamond, CombiSteel, HENDI – net prices, fast delivery."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2812,5 +2849,67 @@
     "technical": "Technical detail",
     "reverted": "Reverted",
     "revertedHint": "This fix caused a problem and was rolled back."
+  },
+  "seo": {
+    "home": "Home",
+    "page": "Page",
+    "products": "products",
+    "subcategories": "Subcategories",
+    "categoryEyebrow": "Product category",
+    "brand": "Brand",
+    "allBrands": "All brands",
+    "sort": "Sort",
+    "noProducts": "No products in this selection right now.",
+    "pagination": "Pages",
+    "byBrand": "by brand",
+    "byCategory": "by category",
+    "guides": "Guides",
+    "more": "More",
+    "moreCategories": "More categories",
+    "brands": "Brands",
+    "brandsTitle": "Brands – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Brands at 2MC Gastro",
+    "subBrands": "Lines & sub-brands",
+    "allIn": "All",
+    "allFrom": "All products by",
+    "branchen": "Industries",
+    "brancheEyebrow": "Industry solution",
+    "regions": "Delivery regions",
+    "faqTitle": "Frequently asked questions",
+    "netPrice": "net, plus VAT",
+    "serviceNet": "Net price for business customers, B2B invoice with VAT shown.",
+    "serviceDelivery": "Parcel or freight delivery to the kerb; in NRW carried in and set up.",
+    "serviceLeasing": "Leasing and hire purchase on request.",
+    "servicePlanner": "Will it fit your kitchen? Check in the 3D kitchen planner."
+  },
+  "footer": {
+    "company": "Company",
+    "support": "Support",
+    "trust": "Payment & Trust",
+    "about": "About us",
+    "careers": "Careers",
+    "contact": "Contact",
+    "payment": "Payment options",
+    "shipping": "Shipping & delivery",
+    "newsletter": "Newsletter",
+    "help": "Help centre",
+    "developers": "Developers / API",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "sitemap": "Sitemap",
+    "imprint": "Imprint",
+    "cancellation": "Right of withdrawal",
+    "cookies": "Cookies",
+    "securePay": "Secure payment",
+    "ssl": "100% SSL encrypted",
+    "tagline": "Commercial kitchen equipment, 3D kitchen planning and turnkey projects – your partner for professional kitchens in Cologne and across Europe.",
+    "newsletterTitle": "News from the professional kitchen",
+    "newsletterAccent": "straight to your inbox.",
+    "newsletterText": "New products, offers and industry trends once a month. Unsubscribe anytime.",
+    "emailPlaceholder": "Your email address",
+    "subscribe": "Subscribe",
+    "subscribed": "Subscribed ✓",
+    "rights": "All rights reserved.",
+    "madeIn": "Made with passion in Cologne."
   }
 }

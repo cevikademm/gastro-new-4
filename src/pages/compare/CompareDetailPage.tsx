@@ -9,7 +9,7 @@ import { breadcrumbSchema, faqSchema, organizationSchema } from '../../lib/seo';
 const TWO_MC = {
   name: '2MC Gastro',
   originKey: 'compare.twoMcOrigin',
-  productCount: 10000,
+  productCount: 14000,
   brands: ['Diamond', 'CombiSteel', '50+ marka'],
   hasDesignTool: true,
   hasROICalc: true,
@@ -28,7 +28,7 @@ export default function CompareDetailPage() {
   const { t } = useTranslation();
   const { slug } = useParams<{ slug: string }>();
   const c = slug ? getCompetitor(slug) : undefined;
-  if (!c) return <Navigate to="/compare" replace />;
+  if (!c) return <Navigate to="/vergleich" replace />;
 
   const title = t('compare.detailSeoTitle', '2MC Gastro vs {{name}} — Hangisi Daha İyi? (2026 Karşılaştırma)', { name: c.name });
   const description = t('compare.detailSeoDesc', "{{name}} ile 2MC Gastro'yu yan yana karşılaştırın: ürün sayısı, 3D tasarım, kurulum, fiyat ve daha fazlası. Hangisi sizin için doğru?", { name: c.name });
@@ -94,8 +94,8 @@ export default function CompareDetailPage() {
           organizationSchema(),
           breadcrumbSchema([
             { name: t('compare.homeCrumb', 'Ana Sayfa'), url: '/' },
-            { name: t('compare.breadcrumb', 'Karşılaştırma'), url: '/compare' },
-            { name: `${t('compare.vs', 'vs')} ${c.name}`, url: `/compare/${c.slug}` },
+            { name: t('compare.breadcrumb', 'Karşılaştırma'), url: '/vergleich' },
+            { name: `${t('compare.vs', 'vs')} ${c.name}`, url: `/vergleich/${c.slug}` },
           ]),
           faqSchema(faqs),
         ]}
@@ -106,7 +106,7 @@ export default function CompareDetailPage() {
           <nav className="text-xs text-slate-500 mb-4">
             <Link to="/" className="hover:text-[#DC2626]">{t('compare.homeCrumb', 'Ana Sayfa')}</Link>
             {' / '}
-            <Link to="/compare" className="hover:text-[#DC2626]">{t('compare.breadcrumb', 'Karşılaştırma')}</Link>
+            <Link to="/vergleich" className="hover:text-[#DC2626]">{t('compare.breadcrumb', 'Karşılaştırma')}</Link>
             {' / '}
             <span className="text-slate-700">{t('compare.vs', 'vs')} {c.name}</span>
           </nav>

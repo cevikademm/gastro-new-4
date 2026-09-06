@@ -598,10 +598,22 @@
       "ctaShop": "Découvrir les produits",
       "ctaDesign": "Planificateur de cuisine 3D",
       "stats": {
-        "products": { "value": "14 000+", "label": "Produits" },
-        "brands": { "value": "3", "label": "Marques internationales" },
-        "languages": { "value": "15", "label": "Langues disponibles" },
-        "planning": { "value": "2D & 3D", "label": "Studio de conception de cuisine" }
+        "products": {
+          "value": "14 000+",
+          "label": "Produits"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Marques internationales"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Langues disponibles"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Studio de conception de cuisine"
+        }
       },
       "story": {
         "title": "Qui sommes-nous",
@@ -620,18 +632,42 @@
       "values": {
         "title": "Nos valeurs",
         "subtitle": "Les principes qui nous guident sur chaque projet",
-        "quality": { "title": "Qualité", "text": "Nous ne travaillons qu'avec des équipements éprouvés, durables et certifiés. Nous nous portons garants de chaque produit que nous vendons." },
-        "trust": { "title": "Transparence", "text": "Des prix clairs, des délais clairs, une communication claire. Les coûts cachés et les promesses vagues ne sont pas notre style." },
-        "technology": { "title": "Technologie", "text": "De la conception de cuisine en 3D au devis PDF instantané — nous digitalisons nos processus pour vous faire gagner du temps et de l'argent." },
-        "partnership": { "title": "Partenariat", "text": "Nous nous considérons comme un partenaire de solutions, pas seulement un fournisseur. Nous restons à vos côtés bien après l'ouverture de votre cuisine." }
+        "quality": {
+          "title": "Qualité",
+          "text": "Nous ne travaillons qu'avec des équipements éprouvés, durables et certifiés. Nous nous portons garants de chaque produit que nous vendons."
+        },
+        "trust": {
+          "title": "Transparence",
+          "text": "Des prix clairs, des délais clairs, une communication claire. Les coûts cachés et les promesses vagues ne sont pas notre style."
+        },
+        "technology": {
+          "title": "Technologie",
+          "text": "De la conception de cuisine en 3D au devis PDF instantané — nous digitalisons nos processus pour vous faire gagner du temps et de l'argent."
+        },
+        "partnership": {
+          "title": "Partenariat",
+          "text": "Nous nous considérons comme un partenaire de solutions, pas seulement un fournisseur. Nous restons à vos côtés bien après l'ouverture de votre cuisine."
+        }
       },
       "services": {
         "title": "Ce que nous faisons",
         "subtitle": "Tout sous un même toit — de la sélection des équipements au jour de l'ouverture de votre cuisine",
-        "supply": { "title": "Fourniture d'équipements", "text": "Plus de 14 000 produits de cuisine professionnelle, de la cuisson à la réfrigération, du lavage à la préparation — via notre chaîne d'approvisionnement fiable." },
-        "design": { "title": "Conception de cuisine 2D & 3D", "text": "Dessinez votre cuisine, ajoutez portes et fenêtres, placez les équipements à l'échelle réelle et visitez le tout en 3D. Votre projet reste automatiquement synchronisé avec vos dossiers." },
-        "quote": { "title": "Devis et gestion de projet", "text": "Créez un devis PDF professionnel à partir de votre panier ou de votre projet en quelques minutes, et suivez toutes les révisions au même endroit." },
-        "delivery": { "title": "Livraison et assistance", "text": "Livraison planifiée de la commande à l'installation — et assistance rapide pour vos questions par la suite." }
+        "supply": {
+          "title": "Fourniture d'équipements",
+          "text": "Plus de 14 000 produits de cuisine professionnelle, de la cuisson à la réfrigération, du lavage à la préparation — via notre chaîne d'approvisionnement fiable."
+        },
+        "design": {
+          "title": "Conception de cuisine 2D & 3D",
+          "text": "Dessinez votre cuisine, ajoutez portes et fenêtres, placez les équipements à l'échelle réelle et visitez le tout en 3D. Votre projet reste automatiquement synchronisé avec vos dossiers."
+        },
+        "quote": {
+          "title": "Devis et gestion de projet",
+          "text": "Créez un devis PDF professionnel à partir de votre panier ou de votre projet en quelques minutes, et suivez toutes les révisions au même endroit."
+        },
+        "delivery": {
+          "title": "Livraison et assistance",
+          "text": "Livraison planifiée de la commande à l'installation — et assistance rapide pour vos questions par la suite."
+        }
       },
       "brands": {
         "title": "Nos marques",
@@ -1884,9 +1920,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "sans commission."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1895,7 +1931,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2527,7 +2563,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Plus de 14 000 produits pour la restauration et les cuisines professionnelles : cuisson, froid, lavage, inox, ventilation. Diamond, CombiSteel, HENDI – prix HT, livraison rapide."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2783,5 +2820,67 @@
     "technical": "Détail technique",
     "reverted": "Annulée",
     "revertedHint": "Cette correction a causé un problème et a été annulée."
+  },
+  "seo": {
+    "home": "Accueil",
+    "page": "Page",
+    "products": "produits",
+    "subcategories": "Sous-catégories",
+    "categoryEyebrow": "Catégorie de produits",
+    "brand": "Marque",
+    "allBrands": "Toutes les marques",
+    "sort": "Tri",
+    "noProducts": "Aucun produit dans cette sélection pour le moment.",
+    "pagination": "Pages",
+    "byBrand": "par marque",
+    "byCategory": "par catégorie",
+    "guides": "Guides",
+    "more": "Autres",
+    "moreCategories": "Autres catégories",
+    "brands": "Marques",
+    "brandsTitle": "Marques – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Les marques chez 2MC Gastro",
+    "subBrands": "Gammes et sous-marques",
+    "allIn": "Tous",
+    "allFrom": "Tous les produits de",
+    "branchen": "Secteurs",
+    "brancheEyebrow": "Solution sectorielle",
+    "regions": "Zones de livraison",
+    "faqTitle": "Questions fréquentes",
+    "netPrice": "HT",
+    "serviceNet": "Prix HT pour professionnels, facture B2B avec TVA.",
+    "serviceDelivery": "Livraison par colis ou transporteur au pied du camion ; en NRW avec portage et installation.",
+    "serviceLeasing": "Leasing et location-vente sur demande.",
+    "servicePlanner": "L’appareil rentre-t-il dans votre cuisine ? Vérifiez dans le planificateur 3D."
+  },
+  "footer": {
+    "company": "Entreprise",
+    "support": "Service",
+    "trust": "Paiement & confiance",
+    "about": "À propos",
+    "careers": "Carrières",
+    "contact": "Contact",
+    "payment": "Moyens de paiement",
+    "shipping": "Livraison",
+    "newsletter": "Newsletter",
+    "help": "Centre d’aide",
+    "developers": "Développeurs / API",
+    "privacy": "Confidentialité",
+    "terms": "CGV",
+    "sitemap": "Plan du site",
+    "imprint": "Mentions légales",
+    "cancellation": "Droit de rétractation",
+    "cookies": "Cookies",
+    "securePay": "Paiement sécurisé",
+    "ssl": "100 % chiffré SSL",
+    "tagline": "Équipement de cuisine professionnelle, planification 3D et projets clés en main – votre partenaire à Cologne et en Europe.",
+    "newsletterTitle": "Les nouveautés de la cuisine pro",
+    "newsletterAccent": "directement dans votre boîte mail.",
+    "newsletterText": "Nouveaux produits, promotions et tendances une fois par mois. Désabonnement à tout moment.",
+    "emailPlaceholder": "Votre adresse e-mail",
+    "subscribe": "S’abonner",
+    "subscribed": "Abonné ✓",
+    "rights": "Tous droits réservés.",
+    "madeIn": "Fait avec passion à Cologne."
   }
 }

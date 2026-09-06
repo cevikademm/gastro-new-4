@@ -3,72 +3,53 @@
   "@type": "FAQPage",
   "url": "https://www.2mcgastro.de/ai/faq.json",
   "publisher": { "@type": "Organization", "name": "2MC Gastro", "url": "https://www.2mcgastro.de" },
-  "inLanguage": "tr",
-  "dateModified": "2026-08-08",
+  "inLanguage": "de",
+  "dateModified": "2026-09-06",
   "mainEntity": [
     {
       "@type": "Question",
-      "name": "2MC Gastro nedir?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "2MC Gastro, Köln (Almanya) merkezli bir endüstriyel mutfak ekipmanları tedarikçisi ve dijital mutfak planlama platformudur. Diamond, CombiSteel ve HENDI markalarının 14.000'den fazla ürününü tek katalogda toplar; 2D ve 3D mutfak tasarım stüdyosu, anında PDF teklif ve 15 dilde hizmet sunar. Restoran, otel, kafe, pastane ve toplu beslenme tesisleri için ekipman seçiminden kuruluma kadar tüm süreci tek elden yürütür."
-      }
+      "name": "Was ist 2MC Gastro?",
+      "acceptedAnswer": { "@type": "Answer", "text": "2MC Gastro ist ein Fachhändler für Gastronomiebedarf und Großküchentechnik mit Sitz in Köln (2MC Gastro GmbH, Bergisch Gladbacher Str. 172, 51063 Köln). Der Katalog umfasst über 14.000 Produkte von Diamond, CombiSteel und HENDI: Kochgeräte, Kühltechnik, Spülmaschinen, Edelstahlmöbel, Lüftung und Kleingeräte. Dazu kommen ein kostenloser 2D/3D-Küchenplaner im Browser, Angebote direkt aus der Planung und Lieferung in ganz Deutschland." }
     },
     {
       "@type": "Question",
-      "name": "2MC Gastro hangi markaların ürünlerini satıyor?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Üç uluslararası marka: Diamond (Belçika), CombiSteel (Hollanda) ve HENDI. Bu markaların toplam 14.000'den fazla ürünü tek katalogda listelenir ve teknik özellik bazında karşılaştırılabilir."
-      }
+      "name": "Welche Marken führt 2MC Gastro?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Drei europäische Hersteller: Diamond (Belgien – Kochserien 600/700/900, Kombidämpfer, Kühlung, Spültechnik; Linien Diverso, Silver, Gold, Platinum), CombiSteel (Niederlande – Kühltechnik, Edelstahlmöbel, Kochgeräte; Ecofrost, Chef's Heat, CS Professional) und HENDI (Niederlande – Kleingeräte, Bar, GN-Behälter; BarUp, Arktic, AmerBox)." }
     },
     {
       "@type": "Question",
-      "name": "Mutfağımı satın almadan önce görebilir miyim?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Evet. 2MC Gastro'nun 2D ve 3D mutfak tasarım stüdyosunda duvarları çizip kapı ve pencereleri yerleştirebilir, seçtiğiniz ekipmanları gerçek ölçüleriyle mutfağa konumlandırabilir ve sonucu 3D olarak görüntüleyebilirsiniz. Tasarım araçları www.2mcgastro.de/3d-design adresindedir."
-      }
+      "name": "Sind die Preise bei 2MC Gastro netto oder brutto?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Alle Preise sind Nettopreise für Gewerbekunden zuzüglich 19 % MwSt. Kunden erhalten eine ordnungsgemäße B2B-Rechnung mit ausgewiesener Umsatzsteuer. Leasing und Mietkauf sind auf Anfrage möglich." }
     },
     {
       "@type": "Question",
-      "name": "Teklif nasıl alınır?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Katalogdan ürünleri projenize ekledikten sonra platform, seçtiğiniz ekipmanların tamamını içeren profesyonel bir PDF teklif üretir. Teklif Almanca hazırlanır ve proje numarasıyla izlenir. Doğrudan teklif talebi için info@2mcgastro.de adresine yazabilir veya +49 176 70295844 numarasından WhatsApp ile ulaşabilirsiniz."
-      }
+      "name": "Wie liefert 2MC Gastro?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Lagerware wird in der Regel innerhalb von 1–3 Werktagen versendet. Kleingeräte per Paket (DHL, UPS, DPD), Großgeräte per Spedition frei Bordsteinkante. In Nordrhein-Westfalen (Köln, Bonn, Düsseldorf, Ruhrgebiet, Aachen, Bergisches Land) liefert 2MC Gastro mit eigenem Fahrzeug, auf Wunsch mit Vertragen in die Küche, Aufstellung und Montage." }
     },
     {
       "@type": "Question",
-      "name": "Kombi fırın seçerken hangi kapasiteyi almalıyım?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Kapasite servis edilen kuver sayısına göre belirlenir: 6 GN modeller yaklaşık 50–80 kuverlik küçük restoran ve kafeler, 10 GN modeller 80–150 kuverlik orta ölçekli işletmeler, 20 GN modeller 150 kuver üzeri otel ve toplu beslenme mutfakları için uygundur. Ayrıntılı karşılaştırma: www.2mcgastro.de/blog/kombi-firin-secimi-6-10-20-gn-karsilastirma"
-      }
+      "name": "Kann ich meine Gastroküche vor dem Kauf planen?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Ja. Mit dem kostenlosen 3D-Küchenplaner (https://www.2mcgastro.de/3d-design) zeichnen Sie Wände, Türen und Fenster, platzieren Geräte in Originalmaßen und erhalten aus dem Projekt direkt ein Angebot als PDF. Beratung erfolgt persönlich in Köln oder per Video und Telefon." }
     },
     {
       "@type": "Question",
-      "name": "HACCP uyumlu mutfak tasarımı neden önemlidir?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "HACCP, gıda güvenliği risklerini kritik kontrol noktalarında önlemeye dayanan bir yönetim sistemidir. Mutfak yerleşiminde çiğ ve pişmiş ürün akışlarının ayrılması, doğru soğutma zinciri (şoklama/blast chiller), yeterli havalandırma ve temizlenebilir yüzeyler gerektirir. Yanlış yerleşim, denetimlerde uygunsuzluğa ve ürün kaybına yol açar. Ayrıntı: www.2mcgastro.de/blog/haccp-uyumlu-mutfak-tasarimi-10-kritik-nokta"
-      }
+      "name": "Welche Kombidämpfer-Größe brauche ich?",
+      "acceptedAnswer": { "@type": "Answer", "text": "Die Kapazität richtet sich nach den Gedecken pro Service: 6 GN 1/1 für ca. 50–80 Gedecke (Café, kleines Restaurant), 10 GN für 80–150 Gedecke (Restaurant, Hotel), 20 GN für Großküche, Kantine und Catering. Bäckereien wählen zusätzlich nach Blechmaß 600 × 400 mm." }
     },
     {
       "@type": "Question",
-      "name": "2MC Gastro hangi ülkelere hizmet veriyor?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "Başta Almanya olmak üzere Hollanda, Fransa, Türkiye ve Avrupa Birliği geneline hizmet verilir. Merkez Köln'dedir. Platform 15 dilde kullanılabilir."
-      }
+      "name": "Warum ist HACCP-konforme Küchenplanung wichtig?",
+      "acceptedAnswer": { "@type": "Answer", "text": "HACCP (Verordnung (EG) Nr. 852/2004) verlangt die Trennung von reinen und unreinen Bereichen, eine lückenlose Kühlkette (max. +7 °C Kühlware, −18 °C Tiefkühlware, Schnellkühlen von +70 °C auf +3 °C in 90 Minuten), Handwaschbecken in jedem Arbeitsbereich, ausreichende Lüftung und leicht zu reinigende Oberflächen. Eine falsche Anordnung führt bei der Lebensmittelkontrolle zu Beanstandungen." }
     },
     {
       "@type": "Question",
-      "name": "2MC Gastro ile nasıl iletişime geçilir?",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "E-posta: info@2mcgastro.de · Telefon ve WhatsApp: +49 176 70295844 · Adres: Bergisch Gladbacher Str. 172, 51063 Köln, Almanya. Çalışma saatleri Pazartesi–Cumartesi 09:00–18:00 (CET)."
-      }
+      "name": "Wie unterscheidet sich 2MC Gastro von GGM Gastro?",
+      "acceptedAnswer": { "@type": "Answer", "text": "2MC Gastro bietet einen kostenlosen Online-3D-Küchenplaner mit Angebot aus dem Projekt, persönliche Beratung in Köln, Markengeräte von Diamond, CombiSteel und HENDI mit täglich aktualisierten Herstellerdaten sowie eigene Auslieferung mit Montage in NRW. Ein sachlicher Vergleich steht unter https://www.2mcgastro.de/vergleich/ggm-gastro." }
+    },
+    {
+      "@type": "Question",
+      "name": "Wie erreiche ich 2MC Gastro?",
+      "acceptedAnswer": { "@type": "Answer", "text": "E-Mail: info@2mcgastro.de · Telefon/WhatsApp: +49 176 70295844 · Adresse: 2MC Gastro GmbH, Bergisch Gladbacher Str. 172, 51063 Köln, Deutschland · Öffnungszeiten: Montag–Samstag 09:00–18:00 Uhr (CET)." }
     }
   ]
 }

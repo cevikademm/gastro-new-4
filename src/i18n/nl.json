@@ -598,10 +598,22 @@
       "ctaShop": "Producten ontdekken",
       "ctaDesign": "3D-keukenplanner",
       "stats": {
-        "products": { "value": "14.000+", "label": "Producten" },
-        "brands": { "value": "3", "label": "Internationale merken" },
-        "languages": { "value": "15", "label": "Beschikbare talen" },
-        "planning": { "value": "2D & 3D", "label": "Keukenontwerpstudio" }
+        "products": {
+          "value": "14.000+",
+          "label": "Producten"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Internationale merken"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Beschikbare talen"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Keukenontwerpstudio"
+        }
       },
       "story": {
         "title": "Wie zijn wij",
@@ -620,18 +632,42 @@
       "values": {
         "title": "Onze waarden",
         "subtitle": "De principes die ons in elk project sturen",
-        "quality": { "title": "Kwaliteit", "text": "Wij werken uitsluitend met bewezen, duurzame en gecertificeerde apparatuur. Achter elk product dat wij verkopen staan wij volledig." },
-        "trust": { "title": "Transparantie", "text": "Heldere prijzen, heldere levertijden, heldere communicatie. Verrassingskosten en vage beloftes zijn niet onze stijl." },
-        "technology": { "title": "Technologie", "text": "Van 3D-keukenontwerp tot directe PDF-offerte — wij digitaliseren onze processen om u tijd en geld te besparen." },
-        "partnership": { "title": "Partnerschap", "text": "Wij zien onszelf als oplossingspartner, niet slechts als leverancier. Ook lang na de opening van uw keuken staan wij aan uw zijde." }
+        "quality": {
+          "title": "Kwaliteit",
+          "text": "Wij werken uitsluitend met bewezen, duurzame en gecertificeerde apparatuur. Achter elk product dat wij verkopen staan wij volledig."
+        },
+        "trust": {
+          "title": "Transparantie",
+          "text": "Heldere prijzen, heldere levertijden, heldere communicatie. Verrassingskosten en vage beloftes zijn niet onze stijl."
+        },
+        "technology": {
+          "title": "Technologie",
+          "text": "Van 3D-keukenontwerp tot directe PDF-offerte — wij digitaliseren onze processen om u tijd en geld te besparen."
+        },
+        "partnership": {
+          "title": "Partnerschap",
+          "text": "Wij zien onszelf als oplossingspartner, niet slechts als leverancier. Ook lang na de opening van uw keuken staan wij aan uw zijde."
+        }
       },
       "services": {
         "title": "Wat wij doen",
         "subtitle": "Alles onder één dak — van apparatuurkeuze tot de openingsdag van uw keuken",
-        "supply": { "title": "Levering van apparatuur", "text": "Ruim 14.000 producten voor de grootkeuken, van koken en koelen tot spoelen en voorbereiden — via onze betrouwbare toeleveringsketen." },
-        "design": { "title": "2D- & 3D-keukenontwerp", "text": "Teken uw keuken, plaats deuren en ramen, positioneer apparatuur op ware schaal en wandel erdoor in 3D. Uw ontwerp blijft automatisch met uw projecten gesynchroniseerd." },
-        "quote": { "title": "Offertes & projectbeheer", "text": "Maak binnen enkele minuten een professionele PDF-offerte vanuit uw winkelwagen of project en houd revisies op één plek bij." },
-        "delivery": { "title": "Levering & ondersteuning", "text": "Geplande levering van bestelling tot installatie — en snelle ondersteuning voor uw vragen daarna." }
+        "supply": {
+          "title": "Levering van apparatuur",
+          "text": "Ruim 14.000 producten voor de grootkeuken, van koken en koelen tot spoelen en voorbereiden — via onze betrouwbare toeleveringsketen."
+        },
+        "design": {
+          "title": "2D- & 3D-keukenontwerp",
+          "text": "Teken uw keuken, plaats deuren en ramen, positioneer apparatuur op ware schaal en wandel erdoor in 3D. Uw ontwerp blijft automatisch met uw projecten gesynchroniseerd."
+        },
+        "quote": {
+          "title": "Offertes & projectbeheer",
+          "text": "Maak binnen enkele minuten een professionele PDF-offerte vanuit uw winkelwagen of project en houd revisies op één plek bij."
+        },
+        "delivery": {
+          "title": "Levering & ondersteuning",
+          "text": "Geplande levering van bestelling tot installatie — en snelle ondersteuning voor uw vragen daarna."
+        }
       },
       "brands": {
         "title": "Onze merken",
@@ -1884,9 +1920,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "zonder commissie."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1895,7 +1931,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2527,7 +2563,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Meer dan 14.000 producten voor horeca en grootkeuken: koken, koeling, vaatwas, rvs-meubilair, ventilatie. Diamond, CombiSteel, HENDI – nettoprijzen, snelle levering."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2783,5 +2820,67 @@
     "technical": "Technisch detail",
     "reverted": "Teruggedraaid",
     "revertedHint": "Deze oplossing veroorzaakte een probleem en is teruggedraaid."
+  },
+  "seo": {
+    "home": "Home",
+    "page": "Pagina",
+    "products": "producten",
+    "subcategories": "Subcategorieën",
+    "categoryEyebrow": "Productcategorie",
+    "brand": "Merk",
+    "allBrands": "Alle merken",
+    "sort": "Sortering",
+    "noProducts": "Momenteel geen producten in deze selectie.",
+    "pagination": "Pagina’s",
+    "byBrand": "per merk",
+    "byCategory": "per categorie",
+    "guides": "Gidsen",
+    "more": "Meer",
+    "moreCategories": "Meer categorieën",
+    "brands": "Merken",
+    "brandsTitle": "Merken – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Merken bij 2MC Gastro",
+    "subBrands": "Lijnen & submerken",
+    "allIn": "Alle",
+    "allFrom": "Alle producten van",
+    "branchen": "Branches",
+    "brancheEyebrow": "Brancheoplossing",
+    "regions": "Leveringsregio’s",
+    "faqTitle": "Veelgestelde vragen",
+    "netPrice": "excl. btw",
+    "serviceNet": "Nettoprijs voor zakelijke klanten, B2B-factuur met btw.",
+    "serviceDelivery": "Levering per pakket of transporteur tot aan de stoep; in NRW met inbrengen en plaatsen.",
+    "serviceLeasing": "Leasing en huurkoop op aanvraag.",
+    "servicePlanner": "Past het apparaat in uw keuken? Controleer het in de 3D-keukenplanner."
+  },
+  "footer": {
+    "company": "Bedrijf",
+    "support": "Service",
+    "trust": "Betaling & vertrouwen",
+    "about": "Over ons",
+    "careers": "Vacatures",
+    "contact": "Contact",
+    "payment": "Betaalmethoden",
+    "shipping": "Verzending & levering",
+    "newsletter": "Nieuwsbrief",
+    "help": "Helpcenter",
+    "developers": "Developers / API",
+    "privacy": "Privacy",
+    "terms": "Voorwaarden",
+    "sitemap": "Sitemap",
+    "imprint": "Colofon",
+    "cancellation": "Herroepingsrecht",
+    "cookies": "Cookies",
+    "securePay": "Veilig betalen",
+    "ssl": "100% SSL-beveiligd",
+    "tagline": "Horeca-apparatuur, 3D-keukenplanning en turnkey projecten – uw partner voor de professionele keuken in Keulen en heel Europa.",
+    "newsletterTitle": "Nieuws uit de professionele keuken",
+    "newsletterAccent": "rechtstreeks in uw inbox.",
+    "newsletterText": "Nieuwe producten, acties en trends, één keer per maand. Altijd opzegbaar.",
+    "emailPlaceholder": "Uw e-mailadres",
+    "subscribe": "Abonneren",
+    "subscribed": "Geabonneerd ✓",
+    "rights": "Alle rechten voorbehouden.",
+    "madeIn": "Met passie gemaakt in Keulen."
   }
 }

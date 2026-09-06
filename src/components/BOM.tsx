@@ -42,20 +42,15 @@ export default function BOM() {
 
   const formatPrice = (p: number) => p > 0 ? `€${p.toLocaleString('de-DE', { minimumFractionDigits: 2 })}` : '';
 
-  const handleShowOnFloorPlan = (itemCode: string) => {
-    // Try to find matching equipment from catalog
-    const eq = equipmentStore.allItems.find(i => i.id === itemCode);
-    if (eq) {
-      equipmentStore.setFloorPlanItem(eq.id);
-      navigate('/design');
-    }
+  // Satırdaki ürün katalogda yoksa bu iki işlem yapılamaz; düğmeler o durumda
+  // DEVRE DIŞI gösterilir (eskiden tıklanınca sessizce hiçbir şey olmuyordu).
+  const handleShowOnFloorPlan = (eq: EquipmentItem) => {
+    equipmentStore.setFloorPlanItem(eq.id);
+    navigate('/design');
   };
 
-  const handleToggleFavorite = (itemCode: string) => {
-    const eq = equipmentStore.allItems.find(i => i.id === itemCode);
-    if (eq) {
-      equipmentStore.toggleFavorite(eq.id);
-    }
+  const handleToggleFavorite = (eq: EquipmentItem) => {
+    equipmentStore.toggleFavorite(eq.id);
   };
 
   const isFavorite = (itemCode: string) => {
@@ -229,20 +224,24 @@ export default function BOM() {
                       <div className="flex items-center justify-center gap-1">
                         {/* Show on floor plan button */}
                         <button
-                          onClick={() => handleShowOnFloorPlan(item.code)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all"
-                          title="Kat planinda goster"
+                          type="button"
+                          onClick={() => eqItem && handleShowOnFloorPlan(eqItem)}
+                          disabled={!eqItem}
+                          className="p-1.5 rounded-lg text-slate-400 hover:text-primary hover:bg-primary/10 transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:text-slate-400 disabled:hover:bg-transparent"
+                          title={eqItem ? 'Kat planinda goster' : 'Katalogda bulunamadı — kat planında gösterilemez'}
                         >
                           <MapPin size={16} />
                         </button>
 
                         {/* Favorite button */}
                         <button
-                          onClick={() => handleToggleFavorite(item.code)}
-                          className={`p-1.5 rounded-lg transition-all ${
+                          type="button"
+                          onClick={() => eqItem && handleToggleFavorite(eqItem)}
+                          disabled={!eqItem}
+                          className={`p-1.5 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
                             isFav ? 'text-pink-500 bg-pink-50' : 'text-slate-400 hover:text-pink-500 hover:bg-pink-50'
                           }`}
-                          title={isFav ? 'Favorilerden cikar' : 'Favorilere ekle'}
+                          title={!eqItem ? 'Katalogda bulunamadı — favoriye eklenemez' : isFav ? 'Favorilerden cikar' : 'Favorilere ekle'}
                         >
                           <Heart size={16} fill={isFav ? 'currentColor' : 'none'} />
                         </button>
@@ -319,7 +318,7 @@ export default function BOM() {
 
               {/* Floor plan button */}
               <button
-                onClick={() => { setDetailItem(null); handleShowOnFloorPlan(detailItem.id); }}
+                onClick={() => { setDetailItem(null); handleShowOnFloorPlan(detailItem); }}
                 className="w-full py-2.5 text-sm font-bold text-white bg-primary hover:bg-primary/90 rounded-lg flex items-center justify-center gap-2 transition-all"
               >
                 <MapPin size={16} /> Kat Planina Ekle

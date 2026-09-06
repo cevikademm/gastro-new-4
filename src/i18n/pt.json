@@ -598,10 +598,22 @@
       "ctaShop": "Explorar produtos",
       "ctaDesign": "Planeador de cozinha 3D",
       "stats": {
-        "products": { "value": "14.000+", "label": "Produtos" },
-        "brands": { "value": "3", "label": "Marcas internacionais" },
-        "languages": { "value": "15", "label": "Idiomas suportados" },
-        "planning": { "value": "2D & 3D", "label": "Estúdio de design de cozinhas" }
+        "products": {
+          "value": "14.000+",
+          "label": "Produtos"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Marcas internacionais"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Idiomas suportados"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Estúdio de design de cozinhas"
+        }
       },
       "story": {
         "title": "Quem somos",
@@ -620,18 +632,42 @@
       "values": {
         "title": "Os nossos valores",
         "subtitle": "Os princípios que nos orientam em cada projeto",
-        "quality": { "title": "Qualidade", "text": "Trabalhamos apenas com equipamentos comprovados, duradouros e certificados. Assumimos a responsabilidade por cada produto que vendemos." },
-        "trust": { "title": "Transparência", "text": "Preços claros, prazos de entrega claros, comunicação clara. Custos-surpresa e promessas vagas não fazem parte do nosso estilo." },
-        "technology": { "title": "Tecnologia", "text": "Do design de cozinhas em 3D ao orçamento PDF instantâneo — digitalizamos os nossos processos para lhe poupar tempo e dinheiro." },
-        "partnership": { "title": "Parceria", "text": "Vemo-nos como um parceiro de soluções e não apenas como um fornecedor. Continuamos ao seu lado muito depois de a sua cozinha abrir portas." }
+        "quality": {
+          "title": "Qualidade",
+          "text": "Trabalhamos apenas com equipamentos comprovados, duradouros e certificados. Assumimos a responsabilidade por cada produto que vendemos."
+        },
+        "trust": {
+          "title": "Transparência",
+          "text": "Preços claros, prazos de entrega claros, comunicação clara. Custos-surpresa e promessas vagas não fazem parte do nosso estilo."
+        },
+        "technology": {
+          "title": "Tecnologia",
+          "text": "Do design de cozinhas em 3D ao orçamento PDF instantâneo — digitalizamos os nossos processos para lhe poupar tempo e dinheiro."
+        },
+        "partnership": {
+          "title": "Parceria",
+          "text": "Vemo-nos como um parceiro de soluções e não apenas como um fornecedor. Continuamos ao seu lado muito depois de a sua cozinha abrir portas."
+        }
       },
       "services": {
         "title": "O que fazemos",
         "subtitle": "Tudo sob o mesmo teto — da escolha do equipamento ao dia de abertura da sua cozinha",
-        "supply": { "title": "Fornecimento de equipamento", "text": "Mais de 14.000 produtos para cozinha profissional, da cozedura à refrigeração, da lavagem à preparação — através da nossa cadeia de fornecimento fiável." },
-        "design": { "title": "Design de cozinha 2D & 3D", "text": "Desenhe a sua cozinha, adicione portas e janelas, coloque o equipamento à escala real e percorra tudo em 3D. O seu projeto permanece sincronizado automaticamente com os seus dossiers." },
-        "quote": { "title": "Orçamentos e gestão de projeto", "text": "Crie em minutos um orçamento PDF profissional a partir do carrinho ou do projeto e acompanhe as revisões num único local." },
-        "delivery": { "title": "Entrega e apoio", "text": "Entrega planeada desde a encomenda até à instalação — e apoio rápido para as suas questões posteriores." }
+        "supply": {
+          "title": "Fornecimento de equipamento",
+          "text": "Mais de 14.000 produtos para cozinha profissional, da cozedura à refrigeração, da lavagem à preparação — através da nossa cadeia de fornecimento fiável."
+        },
+        "design": {
+          "title": "Design de cozinha 2D & 3D",
+          "text": "Desenhe a sua cozinha, adicione portas e janelas, coloque o equipamento à escala real e percorra tudo em 3D. O seu projeto permanece sincronizado automaticamente com os seus dossiers."
+        },
+        "quote": {
+          "title": "Orçamentos e gestão de projeto",
+          "text": "Crie em minutos um orçamento PDF profissional a partir do carrinho ou do projeto e acompanhe as revisões num único local."
+        },
+        "delivery": {
+          "title": "Entrega e apoio",
+          "text": "Entrega planeada desde a encomenda até à instalação — e apoio rápido para as suas questões posteriores."
+        }
       },
       "brands": {
         "title": "As nossas marcas",
@@ -1884,9 +1920,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "sem comissão."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1895,7 +1931,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2527,7 +2563,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Mais de 14.000 produtos para restauração e cozinhas industriais: cozinha, frio, lavagem, mobiliário inox, ventilação. Diamond, CombiSteel, HENDI – preços líquidos, entrega rápida."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2783,5 +2820,67 @@
     "technical": "Detalhe técnico",
     "reverted": "Revertida",
     "revertedHint": "Esta correção causou um problema e foi revertida."
+  },
+  "seo": {
+    "home": "Início",
+    "page": "Página",
+    "products": "produtos",
+    "subcategories": "Subcategorias",
+    "categoryEyebrow": "Categoria de produtos",
+    "brand": "Marca",
+    "allBrands": "Todas as marcas",
+    "sort": "Ordenar",
+    "noProducts": "De momento não há produtos nesta seleção.",
+    "pagination": "Páginas",
+    "byBrand": "por marca",
+    "byCategory": "por categoria",
+    "guides": "Guias",
+    "more": "Mais",
+    "moreCategories": "Mais categorias",
+    "brands": "Marcas",
+    "brandsTitle": "Marcas – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Marcas na 2MC Gastro",
+    "subBrands": "Linhas e submarcas",
+    "allIn": "Todos",
+    "allFrom": "Todos os produtos de",
+    "branchen": "Setores",
+    "brancheEyebrow": "Solução setorial",
+    "regions": "Zonas de entrega",
+    "faqTitle": "Perguntas frequentes",
+    "netPrice": "líquido + IVA",
+    "serviceNet": "Preço líquido para empresas, fatura B2B com IVA discriminado.",
+    "serviceDelivery": "Entrega por encomenda ou transportadora à porta; em NRW com transporte para a cozinha e colocação.",
+    "serviceLeasing": "Leasing e aluguer com opção de compra a pedido.",
+    "servicePlanner": "O equipamento cabe na sua cozinha? Verifique no planificador 3D."
+  },
+  "footer": {
+    "company": "Empresa",
+    "support": "Apoio",
+    "trust": "Pagamento e confiança",
+    "about": "Sobre nós",
+    "careers": "Carreiras",
+    "contact": "Contacto",
+    "payment": "Métodos de pagamento",
+    "shipping": "Envio e entrega",
+    "newsletter": "Newsletter",
+    "help": "Centro de ajuda",
+    "developers": "Developers / API",
+    "privacy": "Privacidade",
+    "terms": "Condições",
+    "sitemap": "Mapa do site",
+    "imprint": "Ficha técnica",
+    "cancellation": "Direito de retratação",
+    "cookies": "Cookies",
+    "securePay": "Pagamento seguro",
+    "ssl": "100% SSL",
+    "tagline": "Equipamento de restauração, planeamento 3D e projetos chave na mão – o seu parceiro para a cozinha profissional em Colónia e em toda a Europa.",
+    "newsletterTitle": "Novidades da cozinha profissional",
+    "newsletterAccent": "diretamente na sua caixa de correio.",
+    "newsletterText": "Novos produtos, promoções e tendências uma vez por mês. Cancele quando quiser.",
+    "emailPlaceholder": "O seu e-mail",
+    "subscribe": "Subscrever",
+    "subscribed": "Subscrito ✓",
+    "rights": "Todos os direitos reservados.",
+    "madeIn": "Feito com paixão em Colónia."
   }
 }

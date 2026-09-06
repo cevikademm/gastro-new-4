@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import SEO from '../../components/SEO';
+import { useLocalePath } from '../../lib/useLocalePath';
 import { loadAllPosts, loadPostBySlug } from '../../content/blog/loader';
 import type { BlogPost } from '../../content/blog/posts';
 import { articleSchema, breadcrumbSchema, faqSchema } from '../../lib/seo';
@@ -36,6 +37,7 @@ function renderBody(body: string) {
 
 export default function BlogPostPage() {
   const { t } = useTranslation();
+  const lp = useLocalePath();
   const { slug } = useParams<{ slug: string }>();
   const [post, setPost] = useState<BlogPost | undefined | null>(undefined);
   const [related, setRelated] = useState<BlogPost[]>([]);
@@ -56,7 +58,7 @@ export default function BlogPostPage() {
   }, [slug]);
 
   if (post === undefined) return <div className="max-w-3xl mx-auto px-4 py-20 text-slate-500">{t('common.loading')}</div>;
-  if (post === null) return <Navigate to="/blog" replace />;
+  if (post === null) return <Navigate to={lp('/blog')} replace />;
 
   const schemas: object[] = [
     articleSchema({
@@ -77,7 +79,7 @@ export default function BlogPostPage() {
 
   return (
     <article className="max-w-3xl mx-auto px-4 py-10">
-      <SEO
+      <SEO forceIndex hreflang={false}
         title={post.title}
         description={post.description}
         image={post.image}
@@ -88,7 +90,7 @@ export default function BlogPostPage() {
       <nav className="text-xs text-slate-500 mb-4">
         <Link to="/" className="hover:text-[#DC2626]">{t('blog.home')}</Link>
         {' / '}
-        <Link to="/blog" className="hover:text-[#DC2626]">{t('blog.breadcrumb')}</Link>
+        <Link to={lp('/blog')} className="hover:text-[#DC2626]">{t('blog.breadcrumb')}</Link>
         {' / '}
         <span className="text-[var(--c-ink-soft)]">{post.category}</span>
       </nav>
@@ -151,7 +153,7 @@ export default function BlogPostPage() {
               {related.map((r) => (
                 <Link
                   key={r.slug}
-                  to={`/blog/${r.slug}`}
+                  to={lp(`/blog/${r.slug}`)}
                   className="block p-4 bg-white border border-slate-200 rounded-xl hover:border-[#DC2626] transition"
                 >
                   <div className="text-xs text-[#DC2626] font-medium">{r.category}</div>

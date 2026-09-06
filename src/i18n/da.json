@@ -598,10 +598,22 @@
       "ctaShop": "Se produkter",
       "ctaDesign": "3D-køkkenplanlægger",
       "stats": {
-        "products": { "value": "14.000+", "label": "Produkter" },
-        "brands": { "value": "3", "label": "Internationale mærker" },
-        "languages": { "value": "15", "label": "Understøttede sprog" },
-        "planning": { "value": "2D & 3D", "label": "Køkkendesignstudie" }
+        "products": {
+          "value": "14.000+",
+          "label": "Produkter"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Internationale mærker"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Understøttede sprog"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Køkkendesignstudie"
+        }
       },
       "story": {
         "title": "Hvem vi er",
@@ -620,18 +632,42 @@
       "values": {
         "title": "Vores værdier",
         "subtitle": "De principper, der guider os i hvert projekt",
-        "quality": { "title": "Kvalitet", "text": "Vi arbejder udelukkende med gennemprøvet, holdbart og certificeret udstyr. Vi står inde for hvert eneste produkt, vi sælger." },
-        "trust": { "title": "Gennemsigtighed", "text": "Klare priser, klare leveringstider, klar kommunikation. Skjulte omkostninger og luftige løfter er ikke vores stil." },
-        "technology": { "title": "Teknologi", "text": "Fra 3D-køkkendesign til øjeblikkeligt PDF-tilbud — vi digitaliserer vores processer for at spare dig tid og penge." },
-        "partnership": { "title": "Partnerskab", "text": "Vi ser os selv som en løsningspartner og ikke blot en leverandør. Vi står ved din side længe efter, at dit køkken er åbnet." }
+        "quality": {
+          "title": "Kvalitet",
+          "text": "Vi arbejder udelukkende med gennemprøvet, holdbart og certificeret udstyr. Vi står inde for hvert eneste produkt, vi sælger."
+        },
+        "trust": {
+          "title": "Gennemsigtighed",
+          "text": "Klare priser, klare leveringstider, klar kommunikation. Skjulte omkostninger og luftige løfter er ikke vores stil."
+        },
+        "technology": {
+          "title": "Teknologi",
+          "text": "Fra 3D-køkkendesign til øjeblikkeligt PDF-tilbud — vi digitaliserer vores processer for at spare dig tid og penge."
+        },
+        "partnership": {
+          "title": "Partnerskab",
+          "text": "Vi ser os selv som en løsningspartner og ikke blot en leverandør. Vi står ved din side længe efter, at dit køkken er åbnet."
+        }
       },
       "services": {
         "title": "Hvad vi gør",
         "subtitle": "Alt under ét tag — fra valg af udstyr til dit køkkens åbningsdag",
-        "supply": { "title": "Levering af udstyr", "text": "Mere end 14.000 storkøkkenprodukter, fra madlavning og køl til opvask og forberedelse — via vores pålidelige forsyningskæde." },
-        "design": { "title": "2D- & 3D-køkkendesign", "text": "Tegn dit køkken, tilføj døre og vinduer, placer udstyret i naturlig størrelse og gå igennem det i 3D. Dit design forbliver automatisk synkroniseret med dine projekter." },
-        "quote": { "title": "Tilbud og projektstyring", "text": "Opret et professionelt PDF-tilbud fra din kurv eller dit projekt på få minutter — og hold styr på revisionerne ét sted." },
-        "delivery": { "title": "Levering og support", "text": "Planlagt levering fra bestilling til installation — og hurtig support til dine spørgsmål bagefter." }
+        "supply": {
+          "title": "Levering af udstyr",
+          "text": "Mere end 14.000 storkøkkenprodukter, fra madlavning og køl til opvask og forberedelse — via vores pålidelige forsyningskæde."
+        },
+        "design": {
+          "title": "2D- & 3D-køkkendesign",
+          "text": "Tegn dit køkken, tilføj døre og vinduer, placer udstyret i naturlig størrelse og gå igennem det i 3D. Dit design forbliver automatisk synkroniseret med dine projekter."
+        },
+        "quote": {
+          "title": "Tilbud og projektstyring",
+          "text": "Opret et professionelt PDF-tilbud fra din kurv eller dit projekt på få minutter — og hold styr på revisionerne ét sted."
+        },
+        "delivery": {
+          "title": "Levering og support",
+          "text": "Planlagt levering fra bestilling til installation — og hurtig support til dine spørgsmål bagefter."
+        }
       },
       "brands": {
         "title": "Vores mærker",
@@ -1884,9 +1920,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "uden provision."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1895,7 +1931,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2527,7 +2563,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Over 14.000 produkter til restauranter og storkøkkener: madlavning, køl, opvask, rustfrie møbler, ventilation. Diamond, CombiSteel, HENDI – nettopriser, hurtig levering."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2783,5 +2820,67 @@
     "technical": "Teknisk detalje",
     "reverted": "Rullet tilbage",
     "revertedHint": "Denne rettelse skabte et problem og blev rullet tilbage."
+  },
+  "seo": {
+    "home": "Forside",
+    "page": "Side",
+    "products": "produkter",
+    "subcategories": "Underkategorier",
+    "categoryEyebrow": "Produktkategori",
+    "brand": "Mærke",
+    "allBrands": "Alle mærker",
+    "sort": "Sortering",
+    "noProducts": "Ingen produkter i dette udvalg lige nu.",
+    "pagination": "Sider",
+    "byBrand": "efter mærke",
+    "byCategory": "efter kategori",
+    "guides": "Guides",
+    "more": "Flere",
+    "moreCategories": "Flere kategorier",
+    "brands": "Mærker",
+    "brandsTitle": "Mærker – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Mærker hos 2MC Gastro",
+    "subBrands": "Serier & undermærker",
+    "allIn": "Alle",
+    "allFrom": "Alle produkter fra",
+    "branchen": "Brancher",
+    "brancheEyebrow": "Brancheløsning",
+    "regions": "Leveringsområder",
+    "faqTitle": "Ofte stillede spørgsmål",
+    "netPrice": "netto ekskl. moms",
+    "serviceNet": "Nettopris for erhvervskunder, B2B-faktura med specificeret moms.",
+    "serviceDelivery": "Levering med pakke eller fragtmand til kantsten; i NRW med indbæring og opstilling.",
+    "serviceLeasing": "Leasing og lejekøb efter aftale.",
+    "servicePlanner": "Passer apparatet i dit køkken? Tjek i 3D-køkkenplanlæggeren."
+  },
+  "footer": {
+    "company": "Virksomhed",
+    "support": "Support",
+    "trust": "Betaling & tryghed",
+    "about": "Om os",
+    "careers": "Karriere",
+    "contact": "Kontakt",
+    "payment": "Betalingsmuligheder",
+    "shipping": "Fragt & levering",
+    "newsletter": "Nyhedsbrev",
+    "help": "Hjælpecenter",
+    "developers": "Udviklere / API",
+    "privacy": "Privatliv",
+    "terms": "Betingelser",
+    "sitemap": "Sitemap",
+    "imprint": "Impressum",
+    "cancellation": "Fortrydelsesret",
+    "cookies": "Cookies",
+    "securePay": "Sikker betaling",
+    "ssl": "100 % SSL",
+    "tagline": "Storkøkkenudstyr, 3D-køkkenplanlægning og nøglefærdige projekter – din partner til det professionelle køkken i Köln og hele Europa.",
+    "newsletterTitle": "Nyt fra det professionelle køkken",
+    "newsletterAccent": "direkte i din indbakke.",
+    "newsletterText": "Nye produkter, tilbud og trends én gang om måneden. Afmeld når som helst.",
+    "emailPlaceholder": "Din e-mailadresse",
+    "subscribe": "Tilmeld",
+    "subscribed": "Tilmeldt ✓",
+    "rights": "Alle rettigheder forbeholdes.",
+    "madeIn": "Lavet med passion i Köln."
   }
 }

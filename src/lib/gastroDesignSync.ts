@@ -22,18 +22,26 @@ import type { ProjectDocument } from '../modules/three-d-design';
 
 export const STANDALONE_KEY = 'standalone';
 
+/**
+ * Giriş yapılmamışsa dönen sahte kimlik. Bu kimlikle UZAK senkron YAPILMAZ:
+ * aksi hâlde bütün anonim ziyaretçiler Supabase'de aynı (anonymous, project_key)
+ * satırını paylaşır ve birbirinin tasarımını ezer. Anonim tasarım yalnız
+ * localStorage'da (kullanıcıya özel anahtar) yaşar. Bkz. gastroSync.ts ANON_ID.
+ */
+const ANON_ID = 'anonymous';
 const USER_ID = (): string => {
   try {
     const raw = localStorage.getItem('2mc-gastro-auth');
     if (raw) {
       const parsed = JSON.parse(raw);
-      return parsed?.state?.user?.id || 'anonymous';
+      return parsed?.state?.user?.id || ANON_ID;
     }
   } catch {
     /* localStorage erişilemiyor — anonymous'a düş */
   }
-  return 'anonymous';
+  return ANON_ID;
 };
+const isAnonymous = (): boolean => USER_ID() === ANON_ID;
 
 const localKey = (projectKey: string) => `2mc-3d-design:${USER_ID()}:${projectKey}`;
 
@@ -141,6 +149,7 @@ export async function syncDesignProject(
     return false;
   }
   if (isEmptyDocument(doc)) return false;
+  if (isAnonymous()) return false; // anonim: yalnız yerel yedek
   const { error } = await gastroDb.from('gastro_design_projects').upsert(
     {
       user_id: USER_ID(),
@@ -271,6 +280,7 @@ export function flushDesignProjectBeacon(
   const finalDoc = doc ?? q?.pending ?? undefined;
   if (!finalDoc || isEmptyDocument(finalDoc)) return;
   saveDesignLocal(finalDoc, projectKey); // her halükarda yerelde güvende
+  if (isAnonymous()) return; // anonim: uzak yazım yok
 
   const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
   const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
@@ -305,6 +315,7 @@ export function flushDesignProjectBeacon(
 /** Bu projeye ait Supabase'deki belgeyi çeker. */
 export async function loadRemoteDesign(projectKey: string): Promise<ProjectDocument | null> {
   if (!gastroDb) return null;
+  if (isAnonymous()) return null; // anonim: paylaşılan satırı asla okuma
   const { data, error } = await gastroDb
     .from('gastro_design_projects')
     .select('document')

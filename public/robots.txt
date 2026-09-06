@@ -1,39 +1,53 @@
 # 2MC Gastro — robots.txt
-# https://www.2mcgastro.de
+# https://www.2mcgastro.de  (Almanca kök; /tr/, /en/ … dil önekleri)
 
 User-agent: *
 Allow: /
+# Uygulama / hesap rotaları (noindex kabuk — taranmasına gerek yok)
 Disallow: /api/
 Disallow: /auth/
 Disallow: /login
 Disallow: /register
 Disallow: /pending-approval
 Disallow: /forgot-password
+Disallow: /dashboard
+Disallow: /design
+Disallow: /3d-design
+Disallow: /bom
+Disallow: /katalog
 Disallow: /settings
 Disallow: /payment
 Disallow: /checkout
 Disallow: /cart
 Disallow: /profile
 Disallow: /orders
+Disallow: /teklifler
+Disallow: /projects
+Disallow: /favorites
+Disallow: /account/
+Disallow: /developers/
 Disallow: /admin/
-Disallow: /*?utm_*
-Disallow: /*?ref=
-Disallow: /*?fbclid=
-Disallow: /*?gclid=
+Disallow: /degisiklikler
+# Filtre / sıralama / arama parametreleri (kopya URL'ler; canonical temiz yol)
+Disallow: /*?*sort=
+Disallow: /*?*preis=
+Disallow: /*?*marke=
+Disallow: /*?*price=
+Disallow: /*?*cat=
+Disallow: /*?*sub=
+Disallow: /*?*tab=
+Disallow: /*?q=
+Disallow: /*?*utm_
+Disallow: /*?*ref=
+Disallow: /*?*fbclid=
+Disallow: /*?*gclid=
+Disallow: /*?*preview=
 
 # ─────────────────────────────────────────────────────────────────────────────
 # AI crawlers — GEO / AEO
-#
-# ALINTI (citation) botları: cevap motorlarının bizi kaynak göstermesini bunlar
-# sağlar. ASLA engellenmemeli:
+# Alıntı (citation) botları bizi kaynak gösterir; ASLA engellenmez:
 #   OAI-SearchBot · Claude-SearchBot · PerplexityBot · Googlebot · Applebot
-#
-# Not: ClaudeBot bir alıntı botu DEĞİL, Anthropic'in eğitim tarayıcısıdır.
-# Google-Extended bir user-agent değil, yalnızca Gemini/Vertex model eğitimini
-# kontrol eden bir token'dır — AI Overviews'a girmeyi Googlebot erişimi belirler.
 # ─────────────────────────────────────────────────────────────────────────────
-
-# — OpenAI / ChatGPT —
 User-agent: OAI-SearchBot
 Allow: /
 
@@ -43,7 +57,6 @@ Allow: /
 User-agent: GPTBot
 Allow: /
 
-# — Anthropic / Claude —
 User-agent: Claude-SearchBot
 Allow: /
 
@@ -53,14 +66,12 @@ Allow: /
 User-agent: ClaudeBot
 Allow: /
 
-# — Perplexity —
 User-agent: PerplexityBot
 Allow: /
 
 User-agent: Perplexity-User
 Allow: /
 
-# — Google (Search + AI Overviews) —
 User-agent: Googlebot
 Allow: /
 
@@ -70,11 +81,9 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-# — Microsoft Copilot (Bing indeksi üzerinden) —
 User-agent: Bingbot
 Allow: /
 
-# — Apple (Siri / Spotlight) —
 User-agent: Applebot
 Allow: /
 
@@ -87,7 +96,7 @@ Allow: /
 User-agent: YandexBot
 Allow: /
 
-# Block aggressive scrapers / SEO tools
+# Agresif SEO tarayıcıları
 User-agent: AhrefsBot
 Crawl-delay: 10
 
@@ -101,5 +110,3 @@ User-agent: DotBot
 Disallow: /
 
 Sitemap: https://www.2mcgastro.de/sitemap.xml
-Sitemap: https://www.2mcgastro.de/sitemap-products.xml
-Host: https://www.2mcgastro.de

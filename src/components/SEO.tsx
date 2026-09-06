@@ -1,15 +1,28 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import { SITE_URL, SITE_NAME, DEFAULT_OG_IMAGE, buildHreflangs } from '../lib/seo';
+import { splitLocale, INDEXABLE_LOCALES, OG_LOCALE } from '../lib/locales';
 
 type Props = {
   title?: string;
   description?: string;
   image?: string;
+  /** Verilmezse mevcut yol (query'siz) canonical olur. */
   canonical?: string;
   noindex?: boolean;
   type?: 'website' | 'article' | 'product';
   jsonLd?: object | object[];
+  /**
+   * `true` → canonical URL'e query string de eklenir (örn. ?page=2 self-canonical).
+   * Varsayılan `false`: filtre/sıralama parametreleri canonical'a girmez.
+   */
+  keepQuery?: boolean;
+  /** hreflang kümesi basılsın mı (yalnızca çevrilmiş sayfa türlerinde). Varsayılan true. */
+  hreflang?: boolean;
+  /** Başlığa " | 2MC Gastro" eklenmesin (zaten içeriyorsa). */
+  rawTitle?: boolean;
+  /** Dil öneki indekslenmeyen bir dil olsa da indeksle (içerik gerçekten o dilde: /tr/blog). */
+  forceIndex?: boolean;
 };
 
 const MANAGED = 'data-seo-managed';
@@ -54,6 +67,11 @@ function addJsonLd(data: object) {
   document.head.appendChild(s);
 }
 
+/**
+ * Sunucu (api/render.ts / prerender) ile aynı `data-seo-managed` işaretini kullanır:
+ * sunucunun bastığı canonical/alternate/ld+json etiketleri React mount olunca
+ * buradan silinip yeniden yazılır — çift şema oluşmaz.
+ */
 export default function SEO({
   title,
   description,
@@ -62,25 +80,35 @@ export default function SEO({
   noindex,
   type = 'website',
   jsonLd,
+  keepQuery = false,
+  hreflang = true,
+  rawTitle = false,
+  forceIndex = false,
 }: Props) {
   const location = useLocation();
 
   useEffect(() => {
-    const fullTitle = title ? `${title} | ${SITE_NAME}` : SITE_NAME;
+    const fullTitle = rawTitle && title ? title : title ? `${title} | ${SITE_NAME}` : SITE_NAME;
     const img = image || DEFAULT_OG_IMAGE;
-    const path = canonical || location.pathname + location.search;
+    const path = canonical || (keepQuery ? location.pathname + location.search : location.pathname);
     const canonicalUrl = path.startsWith('http') ? path : `${SITE_URL}${path}`;
+    const { locale } = splitLocale(location.pathname);
+    const indexableLocale = INDEXABLE_LOCALES.includes(locale) || forceIndex;
+    const robots = noindex || !indexableLocale
+      ? 'noindex, follow'
+      : 'index, follow, max-image-preview:large, max-snippet:-1';
 
     document.title = fullTitle;
 
     if (description) upsertMeta('name', 'description', description);
-    upsertMeta('name', 'robots', noindex ? 'noindex, nofollow' : 'index, follow, max-image-preview:large');
+    upsertMeta('name', 'robots', robots);
 
     upsertMeta('property', 'og:title', fullTitle);
     upsertMeta('property', 'og:type', type);
     upsertMeta('property', 'og:url', canonicalUrl);
     upsertMeta('property', 'og:image', img);
     upsertMeta('property', 'og:site_name', SITE_NAME);
+    upsertMeta('property', 'og:locale', OG_LOCALE[locale]);
     if (description) upsertMeta('property', 'og:description', description);
 
     upsertMeta('name', 'twitter:card', 'summary_large_image');
@@ -90,18 +118,20 @@ export default function SEO({
 
     upsertLink('canonical', canonicalUrl);
 
-    // hreflang
+    // hreflang — path tabanlı (/tr/…); sadece indekslenebilir sayfalarda
     document.head
-      .querySelectorAll(`link[rel="alternate"][${MANAGED}]`)
+      .querySelectorAll(`link[rel="alternate"][hreflang][${MANAGED}]`)
       .forEach((n) => n.remove());
-    buildHreflangs(location.pathname).forEach(({ hreflang, href }) => {
-      const link = document.createElement('link');
-      link.setAttribute('rel', 'alternate');
-      link.setAttribute('hreflang', hreflang);
-      link.setAttribute('href', href);
-      link.setAttribute(MANAGED, '1');
-      document.head.appendChild(link);
-    });
+    if (hreflang && !noindex) {
+      buildHreflangs(location.pathname).forEach(({ hreflang: hl, href }) => {
+        const link = document.createElement('link');
+        link.setAttribute('rel', 'alternate');
+        link.setAttribute('hreflang', hl);
+        link.setAttribute('href', href);
+        link.setAttribute(MANAGED, '1');
+        document.head.appendChild(link);
+      });
+    }
 
     // JSON-LD
     clearManagedJsonLd();
@@ -109,7 +139,7 @@ export default function SEO({
       const arr = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
       arr.forEach(addJsonLd);
     }
-  }, [title, description, image, canonical, noindex, type, jsonLd, location.pathname, location.search]);
+  }, [title, description, image, canonical, noindex, type, jsonLd, keepQuery, hreflang, rawTitle, forceIndex, location.pathname, location.search]);
 
   return null;
 }

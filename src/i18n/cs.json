@@ -598,10 +598,22 @@
       "ctaShop": "Prozkoumat produkty",
       "ctaDesign": "3D plánovač kuchyně",
       "stats": {
-        "products": { "value": "14 000+", "label": "Produktů" },
-        "brands": { "value": "3", "label": "Mezinárodních značek" },
-        "languages": { "value": "15", "label": "Podporovaných jazyků" },
-        "planning": { "value": "2D & 3D", "label": "Studio návrhu kuchyní" }
+        "products": {
+          "value": "14 000+",
+          "label": "Produktů"
+        },
+        "brands": {
+          "value": "3",
+          "label": "Mezinárodních značek"
+        },
+        "languages": {
+          "value": "15",
+          "label": "Podporovaných jazyků"
+        },
+        "planning": {
+          "value": "2D & 3D",
+          "label": "Studio návrhu kuchyní"
+        }
       },
       "story": {
         "title": "Kdo jsme",
@@ -620,18 +632,42 @@
       "values": {
         "title": "Naše hodnoty",
         "subtitle": "Principy, které nás vedou v každém projektu",
-        "quality": { "title": "Kvalita", "text": "Pracujeme výhradně s ověřeným, odolným a certifikovaným vybavením. Za každý prodaný produkt plně ručíme." },
-        "trust": { "title": "Transparentnost", "text": "Jasné ceny, jasné dodací lhůty, jasná komunikace. Skryté náklady a mlhavé sliby nejsou v našem stylu." },
-        "technology": { "title": "Technologie", "text": "Od 3D návrhu kuchyně po okamžitou nabídku v PDF — digitalizujeme naše procesy, abychom vám ušetřili čas i peníze." },
-        "partnership": { "title": "Partnerství", "text": "Vnímáme se jako řešitelský partner, nikoli jen dodavatel. Zůstáváme po vašem boku i dlouho po otevření vaší kuchyně." }
+        "quality": {
+          "title": "Kvalita",
+          "text": "Pracujeme výhradně s ověřeným, odolným a certifikovaným vybavením. Za každý prodaný produkt plně ručíme."
+        },
+        "trust": {
+          "title": "Transparentnost",
+          "text": "Jasné ceny, jasné dodací lhůty, jasná komunikace. Skryté náklady a mlhavé sliby nejsou v našem stylu."
+        },
+        "technology": {
+          "title": "Technologie",
+          "text": "Od 3D návrhu kuchyně po okamžitou nabídku v PDF — digitalizujeme naše procesy, abychom vám ušetřili čas i peníze."
+        },
+        "partnership": {
+          "title": "Partnerství",
+          "text": "Vnímáme se jako řešitelský partner, nikoli jen dodavatel. Zůstáváme po vašem boku i dlouho po otevření vaší kuchyně."
+        }
       },
       "services": {
         "title": "Co děláme",
         "subtitle": "Vše pod jednou střechou — od výběru vybavení až po den otevření vaší kuchyně",
-        "supply": { "title": "Dodávka vybavení", "text": "Více než 14 000 produktů pro profesionální kuchyně, od vaření a chlazení po mytí nádobí a přípravu — prostřednictvím naší spolehlivé dodavatelské sítě." },
-        "design": { "title": "2D a 3D návrh kuchyně", "text": "Nakreslete si kuchyni, přidejte dveře a okna, umístěte vybavení ve skutečném měřítku a projděte se jí ve 3D. Návrh zůstává automaticky synchronizovaný s vašimi projekty." },
-        "quote": { "title": "Nabídky a projektové řízení", "text": "Vytvořte během několika minut profesionální PDF nabídku z košíku nebo projektu a mějte všechny revize na jednom místě." },
-        "delivery": { "title": "Dodání a podpora", "text": "Plánované dodání od objednávky až po instalaci — a následně rychlá podpora pro vaše dotazy." }
+        "supply": {
+          "title": "Dodávka vybavení",
+          "text": "Více než 14 000 produktů pro profesionální kuchyně, od vaření a chlazení po mytí nádobí a přípravu — prostřednictvím naší spolehlivé dodavatelské sítě."
+        },
+        "design": {
+          "title": "2D a 3D návrh kuchyně",
+          "text": "Nakreslete si kuchyni, přidejte dveře a okna, umístěte vybavení ve skutečném měřítku a projděte se jí ve 3D. Návrh zůstává automaticky synchronizovaný s vašimi projekty."
+        },
+        "quote": {
+          "title": "Nabídky a projektové řízení",
+          "text": "Vytvořte během několika minut profesionální PDF nabídku z košíku nebo projektu a mějte všechny revize na jednom místě."
+        },
+        "delivery": {
+          "title": "Dodání a podpora",
+          "text": "Plánované dodání od objednávky až po instalaci — a následně rychlá podpora pro vaše dotazy."
+        }
       },
       "brands": {
         "title": "Naše značky",
@@ -1884,9 +1920,9 @@
         "static": "For professional kitchens,",
         "words": {
           "0": "smart solutions.",
-          "1": "5,265+ products.",
+          "1": "14,000+ products.",
           "2": "fast delivery.",
-          "3": "sıfır komisyonla."
+          "3": "bez provize."
         }
       },
       "sub": "Explore 15 brands in one platform. Build BOMs, plan your kitchen, request quotes.",
@@ -1895,7 +1931,7 @@
         "secondary": "Watch Demo"
       },
       "trust": {
-        "products": "5,265+ Products",
+        "products": "14,000+ Products",
         "brands": "15 Brands",
         "countries": "15 Countries",
         "delivery": "24-48h Delivery"
@@ -2527,7 +2563,8 @@
       "p1": "0 – 5 kW",
       "p2": "5 – 15 kW",
       "p3": "15 kW ve üzeri"
-    }
+    },
+    "seoDescription": "Více než 14 000 produktů pro gastronomii a velkokuchyně: vaření, chlazení, mytí, nerezový nábytek, vzduchotechnika. Diamond, CombiSteel, HENDI – ceny bez DPH, rychlé dodání."
   },
   "tools": {
     "calcSeoTitle": "Mutfak Kapasite ve ROI Hesaplayıcı",
@@ -2783,5 +2820,67 @@
     "technical": "Technické podrobnosti",
     "reverted": "Vráceno zpět",
     "revertedHint": "Tato oprava způsobila problém a byla vrácena zpět."
+  },
+  "seo": {
+    "home": "Domů",
+    "page": "Strana",
+    "products": "produktů",
+    "subcategories": "Podkategorie",
+    "categoryEyebrow": "Kategorie produktů",
+    "brand": "Značka",
+    "allBrands": "Všechny značky",
+    "sort": "Řazení",
+    "noProducts": "V tomto výběru momentálně nejsou žádné produkty.",
+    "pagination": "Stránky",
+    "byBrand": "podle značky",
+    "byCategory": "podle kategorie",
+    "guides": "Rádce",
+    "more": "Další",
+    "moreCategories": "Další kategorie",
+    "brands": "Značky",
+    "brandsTitle": "Značky – Diamond, CombiSteel, HENDI",
+    "brandsH1": "Značky u 2MC Gastro",
+    "subBrands": "Řady a podznačky",
+    "allIn": "Vše",
+    "allFrom": "Všechny produkty značky",
+    "branchen": "Obory",
+    "brancheEyebrow": "Oborové řešení",
+    "regions": "Regiony dodání",
+    "faqTitle": "Časté dotazy",
+    "netPrice": "bez DPH",
+    "serviceNet": "Cena bez DPH pro firmy, B2B faktura s vyčíslenou DPH.",
+    "serviceDelivery": "Doručení balíkem nebo spedicí k obrubníku; v NRW s vynesením a ustavením.",
+    "serviceLeasing": "Leasing a splátkový prodej na vyžádání.",
+    "servicePlanner": "Vejde se zařízení do vaší kuchyně? Ověřte v 3D plánovači."
+  },
+  "footer": {
+    "company": "Společnost",
+    "support": "Podpora",
+    "trust": "Platba a důvěra",
+    "about": "O nás",
+    "careers": "Kariéra",
+    "contact": "Kontakt",
+    "payment": "Způsoby platby",
+    "shipping": "Doprava a dodání",
+    "newsletter": "Newsletter",
+    "help": "Centrum nápovědy",
+    "developers": "Vývojáři / API",
+    "privacy": "Ochrana údajů",
+    "terms": "Obchodní podmínky",
+    "sitemap": "Mapa webu",
+    "imprint": "Tiráž",
+    "cancellation": "Právo na odstoupení",
+    "cookies": "Cookies",
+    "securePay": "Bezpečná platba",
+    "ssl": "100% SSL",
+    "tagline": "Gastro vybavení, 3D plánování kuchyní a projekty na klíč – váš partner pro profesionální kuchyně v Kolíně nad Rýnem a celé Evropě.",
+    "newsletterTitle": "Novinky z profesionální kuchyně",
+    "newsletterAccent": "přímo do vaší schránky.",
+    "newsletterText": "Nové produkty, akce a trendy jednou měsíčně. Odhlášení kdykoli.",
+    "emailPlaceholder": "Váš e-mail",
+    "subscribe": "Odebírat",
+    "subscribed": "Přihlášeno ✓",
+    "rights": "Všechna práva vyhrazena.",
+    "madeIn": "S vášní vytvořeno v Kolíně nad Rýnem."
   }
 }

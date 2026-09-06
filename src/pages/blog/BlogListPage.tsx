@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Search } from 'lucide-react';
 import SEO from '../../components/SEO';
+import { useLocalePath } from '../../lib/useLocalePath';
 import NewsletterSignup from '../../components/NewsletterSignup';
 import { loadAllPosts } from '../../content/blog/loader';
 import type { BlogPost } from '../../content/blog/posts';
@@ -10,6 +11,7 @@ import { breadcrumbSchema, organizationSchema } from '../../lib/seo';
 
 export default function BlogListPage() {
   const { t } = useTranslation();
+  const lp = useLocalePath();
   const [all, setAll] = useState<BlogPost[]>([]);
   useEffect(() => { loadAllPosts().then(setAll); }, []);
   const [query, setQuery] = useState('');
@@ -35,7 +37,7 @@ export default function BlogListPage() {
 
   return (
     <div className="max-w-6xl mx-auto py-10">
-      <SEO
+      <SEO forceIndex hreflang={false}
         title="Blog — Endüstriyel Mutfak Rehberleri"
         description="Endüstriyel mutfak kurulumu, ekipman seçimi, HACCP uyumu ve restoran işletmeciliği üzerine uzman rehberler, karşılaştırmalar ve ipuçları."
         jsonLd={[
@@ -101,7 +103,7 @@ export default function BlogListPage() {
         {posts.map((post) => (
           <Link
             key={post.slug}
-            to={`/blog/${post.slug}`}
+            to={lp(`/blog/${post.slug}`)}
             className="group bg-white border border-[var(--c-line)] rounded-2xl overflow-hidden hover:border-[var(--c-clay)]/40 hover:shadow-[0_24px_48px_-24px_rgba(15,36,64,0.18)] hover:-translate-y-1 transition-all duration-300"
           >
             <div className="aspect-[16/9] bg-[var(--c-bg-deep)] overflow-hidden">

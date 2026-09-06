@@ -126,3 +126,30 @@ bildirene e-posta gider.
   `/degisiklikler`'de yayınlanır (`publish_manual_resolution`, migration 043) —
   "Yeniden Aç" girdiyi gizler. Yeni bir "çözüldü" yolu eklersen bu RPC'yi çağır.
 - Ajan sözleşmesi ve kuralları: **`docs/fix-agent.md`**
+
+## SEO mimarisi (Almanca-önce, 2026-09-06)
+- **Kök URL'ler Almanca**, diğer 14 dil `/xx/…` önekli, aynı slug'lar (`src/lib/locales.ts` tek kaynak;
+  `INDEXABLE_LOCALES` = de + tr). hreflang **path tabanlı**, asla `?lang=`.
+- **Googlebot HTML'i sunucu üretir:** `src/seo/` (routes → model → render) → build'de
+  `scripts/seo/prerender.ts` (statik `dist/*.html`) + istek anında `api/render.ts` (ürünler,
+  sayfalama, 404/301). Kullanıcı ve bot aynı HTML'i alır. `index.html` `<!--seo:head-->` /
+  `<!--seo:body-->` işaretçileri taşır — elle canonical/JSON-LD **ekleme**.
+- İçerik tek kaynak: `src/content/seo/{categoryTree,brands,branchen,staedte}.de.ts`;
+  React sayfaları `src/pages/seo/*` aynı builder'ları (`src/seo/model/pages.ts`) kullanır.
+- Ürün SEO verisi: Supabase `product_seo` (migration 045) ← `npm run seo:products`
+  (products.json sınıflandırması + kaynak tablolar). Ürün URL'si `/produkt/{slug}`; eski
+  `/product/:id` 301. Diamond Almanca adlar products.json'dan (Supabase İngilizce senkron).
+- Sınıflandırma çekirdeği i18n'siz: `src/lib/categoryTaxonomy.core.ts` (Node + renderer);
+  UI `categoryTaxonomy.ts` üzerinden okur (etiketler i18n). Kural değişmedi: tek kaynak.
+- Sitemap: `api/sitemap.ts` (index + pages/ratgeber/tr + marka bazlı ürünler); statik
+  kısımlar build'de `dist/`e yazılır. `public/sitemap.xml` **artık yok** (gitignore).
+- Yönlendirmeler: `vercel.json` `redirects` (eski TR yollar → DE) — yeni bir eski yol
+  eklerken oraya da ekle; `cleanUrls:true, trailingSlash:false`.
+- NAP tek kaynak `src/lib/companyInfo.ts` (2MC Gastro GmbH, info@2mcgastro.de);
+  `seo.ts` oradan okur. **Sahte aggregateRating yasak** — yalnız gerçek yorum sayısı varsa.
+- Ürün detay tek bileşen kuralı korunur: `ProductDetailBody`/`ProductDetailActions`
+  (`ProductDetailDrawer.tsx`) hem drawer hem `/produkt` sayfasında.
+- Ratgeber: `src/content/ratgeber/*.md` → `npm run seo:ratgeber` → `index.generated.json`;
+  `status: published` için description/image/≥1 source/≥2 relatedCategories/≥600 kelime şart.
+- Tip kontrolü: `npm run lint` (app) + `npm run lint:seo` (api/, scripts/seo, src/seo).
+- İnceleme/onay listesi: `docs/seo/inceleme-listesi.md`.

@@ -1,10 +1,15 @@
 import React, { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { useLocale } from './lib/useLocalePath';
 import Layout from './components/Layout';
 import CookieBanner from './components/CookieBanner';
 import ComparePanel from './components/ComparePanel';
 import ProductDetailDrawer from './components/ProductDetailDrawer';
+import LocaleLayout from './components/LocaleLayout';
+import MarketingLayout from './components/MarketingLayout';
 import { useAuthStore } from './stores/authStore';
+import { LOCALES, DEFAULT_LOCALE } from './lib/locales';
+import { CATEGORY_TREE } from './content/seo/categoryTree.de';
 
 // Eager: minimal shell
 import AdminGuard from './components/AdminGuard';
@@ -39,7 +44,6 @@ const DocsPage = lazy(() => import('./pages/docs/DocsPage'));
 const ProfilePage = lazy(() => import('./pages/profile/ProfilePage'));
 const PaymentPage = lazy(() => import('./pages/payment/PaymentPage'));
 const ProductsPage = lazy(() => import('./pages/products/ProductsPage'));
-const ProductDetailPage = lazy(() => import('./pages/product/ProductDetailPage'));
 const CheckoutPage = lazy(() => import('./pages/checkout/CheckoutPage'));
 const KitchenPlannerPage = lazy(() => import('./pages/planner/KitchenPlannerPage'));
 const OrdersPage = lazy(() => import('./pages/orders/OrdersPage'));
@@ -56,11 +60,6 @@ const ErrorReportWidget = lazy(() => import('./components/ErrorReportWidget'));
 const BlogListPage = lazy(() => import('./pages/blog/BlogListPage'));
 const BlogPostPage = lazy(() => import('./pages/blog/BlogPostPage'));
 const KitchenCalculatorPage = lazy(() => import('./pages/tools/KitchenCalculatorPage'));
-const SegmentIndexPage = lazy(() => import('./pages/pseo/SegmentIndexPage'));
-const SegmentCityPage = lazy(() => import('./pages/pseo/SegmentCityPage'));
-const CategoryIndexPage = lazy(() => import('./pages/pseo/CategoryIndexPage'));
-const CategoryCityPage = lazy(() => import('./pages/pseo/CategoryCityPage'));
-const BrandSeoPage = lazy(() => import('./pages/pseo/BrandPage'));
 const CompareIndexPage = lazy(() => import('./pages/compare/CompareIndexPage'));
 const CompareDetailPage = lazy(() => import('./pages/compare/CompareDetailPage'));
 const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
@@ -71,6 +70,14 @@ import LandingPage from './pages/landing/LandingPage';
 const InfoPage = lazy(() => import('./pages/info/InfoPage'));
 const FloorPlan3DPage = lazy(() => import('./pages/design/FloorPlan3DPage'));
 const ThreeDDesignPage = lazy(() => import('./pages/design/ThreeDDesignPage'));
+// SEO sayfaları (Almanca kök; src/seo/model ile aynı başlık/şema)
+const CategoryPage = lazy(() => import('./pages/seo/CategoryPage'));
+const ProductPage = lazy(() => import('./pages/seo/ProductPage'));
+const LegacyProductRedirect = lazy(() => import('./pages/seo/LegacyProductRedirect'));
+const BrandSeoPage = lazy(() => import('./pages/seo/BrandSeoPage'));
+const BranchePage = lazy(() => import('./pages/seo/BranchePage'));
+const CityPage = lazy(() => import('./pages/seo/CityPage'));
+const RatgeberPage = lazy(() => import('./pages/seo/RatgeberPage'));
 
 function RouteFallback() {
   return (
@@ -80,6 +87,56 @@ function RouteFallback() {
         <span className="text-xl font-display font-bold tracking-tighter text-[#0F2440] uppercase">2MC GASTRO</span>
       </div>
     </div>
+  );
+}
+
+/**
+ * Herkese açık (SEO) rota ağacı — hem kökte (Almanca) hem de her `/xx/` dil öneki
+ * altında mount edilir. Uygulama rotaları (dashboard, sepet …) öneksiz kalır.
+ */
+function publicRoutes() {
+  return (
+    <>
+      <Route index element={<LandingPage />} />
+      <Route path="produkte" element={<ShopPage />} />
+      <Route element={<MarketingLayout />}>
+        {CATEGORY_TREE.map((c) => (
+          <React.Fragment key={c.slug}>
+            <Route path={c.slug} element={<CategoryPage category={c.slug} />} />
+            {c.children.map((s) => (
+              <Route key={`${c.slug}/${s.slug}`} path={`${c.slug}/${s.slug}`} element={<CategoryPage category={c.slug} subcategory={s.slug} />} />
+            ))}
+          </React.Fragment>
+        ))}
+        <Route path="produkt/:slug" element={<ProductPage />} />
+        <Route path="marke" element={<BrandSeoPage />} />
+        <Route path="marke/:brand" element={<BrandSeoPage />} />
+        <Route path="marke/:brand/:category" element={<BrandSeoPage />} />
+        <Route path="branche" element={<BranchePage />} />
+        <Route path="branche/:slug" element={<BranchePage />} />
+        <Route path="gastronomiebedarf" element={<CityPage />} />
+        <Route path="gastronomiebedarf/:slug" element={<CityPage />} />
+        <Route path="ratgeber" element={<RatgeberPage />} />
+        <Route path="ratgeber/:slug" element={<RatgeberPage />} />
+        <Route path="vergleich" element={<CompareIndexPage />} />
+        <Route path="vergleich/:slug" element={<CompareDetailPage />} />
+        {/* Blog Türkçe içeriktir: kökte (de) → /tr/blog; sunucu 301 verir, burası istemci içi */}
+        <Route path="blog" element={<TrOnly><BlogListPage /></TrOnly>} />
+        <Route path="blog/:slug" element={<TrOnly><BlogPostPage /></TrOnly>} />
+        {/* Kurumsal + yasal (Almanca canonical slug'lar → InfoPage) */}
+        <Route path="ueber-uns" element={<InfoPage slug="about" />} />
+        <Route path="karriere" element={<InfoPage slug="careers" />} />
+        <Route path="versand" element={<InfoPage slug="shipping" />} />
+        <Route path="newsletter" element={<InfoPage slug="newsletter" />} />
+        <Route path="impressum" element={<InfoPage slug="imprint" />} />
+        <Route path="datenschutz" element={<InfoPage slug="privacy" />} />
+        <Route path="agb" element={<InfoPage slug="terms" />} />
+        <Route path="widerruf" element={<InfoPage slug="cancellation" />} />
+        <Route path="cookie-richtlinie" element={<InfoPage slug="cookies" />} />
+      </Route>
+      {/* Eski /product/:id → /produkt/{slug} (sunucu 301 verir; istemci içi geçişler için) */}
+      <Route path="product/*" element={<LegacyProductRedirect />} />
+    </>
   );
 }
 
@@ -111,18 +168,44 @@ export default function App() {
       <RouteErrorBoundary>
       <Suspense fallback={<RouteFallback />}>
         <Routes>
-          {/* Welcome & Auth routes */}
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/welcome" element={<LandingPage />} />
-          <Route path="/magaza" element={<ShopPage />} />
-          <Route path="/urunler" element={<ShopPage />} />
+          {/* ── Almanca kök ── */}
+          <Route path="/" element={<LocaleLayout locale={DEFAULT_LOCALE} />}>
+            {publicRoutes()}
+          </Route>
+          {/* ── Dil önekleri (/tr, /en, …) — aynı Almanca slug'lar ── */}
+          {LOCALES.filter((l) => l !== DEFAULT_LOCALE).map((l) => (
+            <Route key={l} path={`/${l}`} element={<LocaleLayout locale={l} />}>
+              {publicRoutes()}
+            </Route>
+          ))}
+
+          {/* Auth */}
           <Route path="/old-welcome" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/pending-approval" element={<PendingApprovalPage />} />
           <Route path="/forgot-password" element={<LoginPage />} />
 
-          {/* Main routes - publicly accessible */}
+          {/* Eski yollar → yeni Almanca yollar (sunucu tarafında vercel.json 308 verir; burası istemci içi) */}
+          <Route path="/welcome" element={<Navigate to="/" replace />} />
+          <Route path="/magaza" element={<Navigate to="/produkte" replace />} />
+          <Route path="/urunler" element={<Navigate to="/produkte" replace />} />
+          <Route path="/kategori/*" element={<Navigate to="/produkte" replace />} />
+          <Route path="/sektor/*" element={<Navigate to="/branche" replace />} />
+          <Route path="/marka/*" element={<Navigate to="/marke" replace />} />
+          <Route path="/compare" element={<Navigate to="/vergleich" replace />} />
+          <Route path="/compare/:slug" element={<CompareRedirect />} />
+          <Route path="/brand" element={<Navigate to="/ueber-uns" replace />} />
+          <Route path="/about" element={<Navigate to="/ueber-uns" replace />} />
+          <Route path="/careers" element={<Navigate to="/karriere" replace />} />
+          <Route path="/shipping" element={<Navigate to="/versand" replace />} />
+          <Route path="/imprint" element={<Navigate to="/impressum" replace />} />
+          <Route path="/privacy" element={<Navigate to="/datenschutz" replace />} />
+          <Route path="/terms" element={<Navigate to="/agb" replace />} />
+          <Route path="/cancellation" element={<Navigate to="/widerruf" replace />} />
+          <Route path="/cookies" element={<Navigate to="/cookie-richtlinie" replace />} />
+
+          {/* Uygulama rotaları (kenar çubuklu Layout, öneksiz) */}
           <Route element={<Layout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="design" element={<DesignStudio />} />
@@ -132,10 +215,8 @@ export default function App() {
             <Route path="bom/:id" element={<BOM />} />
             {/* Birleşik Ürünler paneli (Diamond + CombiSteel sekmeli) */}
             <Route path="katalog" element={<ProductsPage />} />
-            {/* Eski rotalar → birleşik panele yönlendir (link/bookmark korunur) */}
-            <Route path="diamond" element={<Navigate to="/katalog?tab=diamond" replace />} />
-            <Route path="combisteel" element={<Navigate to="/katalog?tab=combisteel" replace />} />
-            <Route path="product/:id" element={<ProductDetailPage />} />
+            <Route path="diamond" element={<Navigate to="/marke/diamond" replace />} />
+            <Route path="combisteel" element={<Navigate to="/marke/combisteel" replace />} />
             <Route path="checkout" element={<CheckoutPage />} />
             <Route path="kitchen-planner" element={<KitchenPlannerPage />} />
             <Route path="cart" element={<Cart />} />
@@ -156,44 +237,14 @@ export default function App() {
             <Route path="docs" element={<DocsPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="payment" element={<PaymentPage />} />
-            <Route path="brand" element={<BrandPage />} />
+            {/* Marka kimliği sayfası (kurumsal "Über uns" InfoPage'e taşındı; /brand → /ueber-uns) */}
+            <Route path="brand-kit" element={<BrandPage />} />
 
-            <Route path="blog" element={<BlogListPage />} />
-            <Route path="blog/:slug" element={<BlogPostPage />} />
             <Route path="tools/kitchen-calculator" element={<KitchenCalculatorPage />} />
-            <Route path="sektor/:segment" element={<SegmentIndexPage />} />
-            <Route path="sektor/:segment/:city" element={<SegmentCityPage />} />
-            <Route path="de/branche/:segment/:city" element={<SegmentCityPage locale="de" />} />
-            <Route path="en/industry/:segment/:city" element={<SegmentCityPage locale="en" />} />
-            <Route path="kategori" element={<CategoryIndexPage />} />
-            <Route path="kategori/:category" element={<CategoryIndexPage />} />
-            <Route path="kategori/:category/:city" element={<CategoryCityPage />} />
-            <Route path="marka" element={<BrandSeoPage />} />
-            <Route path="marka/:brand" element={<BrandSeoPage />} />
-            <Route path="marka/:brand/:category" element={<BrandSeoPage />} />
-
-            <Route path="compare" element={<CompareIndexPage />} />
-            <Route path="compare/:slug" element={<CompareDetailPage />} />
             <Route path="resources" element={<ResourcesPage />} />
             {/* Neler Düzeldi — otomatik düzeltme ajanının yayınladığı changelog */}
             <Route path="degisiklikler" element={<ChangelogPage />} />
             <Route path="changelog" element={<Navigate to="/degisiklikler" replace />} />
-
-            {/* Bilgi + yasal sayfalar (SiteFooter bağlantıları) — src/pages/info/InfoPage.tsx */}
-            <Route path="about" element={<InfoPage slug="about" />} />
-            <Route path="careers" element={<InfoPage slug="careers" />} />
-            <Route path="shipping" element={<InfoPage slug="shipping" />} />
-            <Route path="newsletter" element={<InfoPage slug="newsletter" />} />
-            <Route path="imprint" element={<InfoPage slug="imprint" />} />
-            <Route path="impressum" element={<Navigate to="/imprint" replace />} />
-            <Route path="privacy" element={<InfoPage slug="privacy" />} />
-            <Route path="datenschutz" element={<Navigate to="/privacy" replace />} />
-            <Route path="terms" element={<InfoPage slug="terms" />} />
-            <Route path="agb" element={<Navigate to="/terms" replace />} />
-            <Route path="cancellation" element={<InfoPage slug="cancellation" />} />
-            <Route path="widerruf" element={<Navigate to="/cancellation" replace />} />
-            <Route path="cookies" element={<InfoPage slug="cookies" />} />
-            {/* Eski/yanlış yazımlar → gerçek rotalar */}
             <Route path="help" element={<Navigate to="/support" replace />} />
             <Route path="catalog" element={<Navigate to="/katalog" replace />} />
 
@@ -227,4 +278,18 @@ export default function App() {
       <CookieBanner />
     </BrowserRouter>
   );
+}
+
+/** Türkçe içerik: Almanca kökte açılırsa /tr/… önekine yönlendir. */
+function TrOnly({ children }: { children: React.ReactNode }) {
+  const locale = useLocale();
+  const { pathname, search } = useLocation();
+  if (locale === DEFAULT_LOCALE) return <Navigate to={`/tr${pathname}${search}`} replace />;
+  return <>{children}</>;
+}
+
+/** /compare/:slug → /vergleich/:slug */
+function CompareRedirect() {
+  const slug = window.location.pathname.split('/').pop() || '';
+  return <Navigate to={`/vergleich/${slug}`} replace />;
 }

@@ -10,14 +10,15 @@ import LanguageSelector from './LanguageSelector';
 import { CartDrawer } from './CartDrawer';
 import { ProductsMegaMenu } from './ProductsMegaMenu';
 import { CATEGORIES } from '../stores/equipmentStore';
+import { pathForTaxonomy } from '../content/seo/categoryTree.de';
 
 const NAV_ITEMS = [
   { key: 'landing.navbar.planning', fallback: 'Planlama', path: '/kitchen-planner' },
-  { key: 'landing.navbar.products', fallback: 'Ürünler', path: '/magaza' },
+  { key: 'landing.navbar.products', fallback: 'Ürünler', path: '/produkte' },
   { key: 'landing.navbar.projects', fallback: 'Projeler', path: '/projects' },
   { key: 'landing.navbar.contact', fallback: 'İletişim', path: '/support' },
-  { key: 'landing.navbar.about', fallback: 'Hakkımızda', path: '/brand' },
-  { key: 'landing.navbar.blog', fallback: 'Blog', path: '/blog' },
+  { key: 'landing.navbar.about', fallback: 'Hakkımızda', path: '/ueber-uns' },
+  { key: 'landing.navbar.blog', fallback: 'Blog', path: '/ratgeber' },
 ];
 
 export function Navbar({ transparent = false }: { transparent?: boolean }) {
@@ -49,7 +50,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
     const q = searchQuery.trim();
     if (!q) return;
     setIsSearchOpen(false);
-    navigate(`/magaza?q=${encodeURIComponent(q)}`);
+    navigate(`/produkte?q=${encodeURIComponent(q)}`);
   };
 
   useEffect(() => {
@@ -130,7 +131,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                     : "text-slate-600 hover:text-brand-red";
 
                 // ÜRÜNLER → Diamond tarzı kategori mega-menüsü
-                if (item.path === '/magaza') {
+                if (item.path === '/produkte') {
                   return (
                     <div
                       key={item.key}
@@ -142,7 +143,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                         type="button"
                         // Hover menüyü zaten açar; tıklama menüyü kapatmak yerine
                         // mağazaya götürür (aksi hâlde tıklama "hiçbir şey yapmıyor" gibi görünüyordu)
-                        onClick={() => { setIsProductsOpen(false); navigate('/magaza'); }}
+                        onClick={() => { setIsProductsOpen(false); navigate('/produkte'); }}
                         onFocus={() => setIsProductsOpen(true)}
                         aria-expanded={isProductsOpen}
                         aria-haspopup="menu"
@@ -326,7 +327,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                     exit={{ opacity: 0, x: -16 }}
                     transition={{ delay: i * 0.04, duration: 0.24, ease: "easeOut" }}
                   >
-                    {item.path === '/magaza' ? (
+                    {item.path === '/produkte' ? (
                       <div>
                         <button
                           type="button"
@@ -349,7 +350,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                             >
                               <li>
                                 <Link
-                                  to="/magaza"
+                                  to="/produkte"
                                   onClick={() => setIsMobileMenuOpen(false)}
                                   className="flex items-center justify-between py-2 text-sm font-bold uppercase tracking-wide text-brand-red"
                                 >
@@ -360,7 +361,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                               {CATEGORIES.map((cat) => (
                                 <li key={cat.id}>
                                   <Link
-                                    to={`/magaza?cat=${cat.id}`}
+                                    to={pathForTaxonomy(cat.id) || '/produkte'}
                                     onClick={() => setIsMobileMenuOpen(false)}
                                     className="flex items-center justify-between py-2 text-sm font-semibold text-slate-600 hover:text-brand-red transition-colors"
                                   >
