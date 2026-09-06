@@ -29,7 +29,10 @@ const slugify = (s: string) => s.toLowerCase().replace(/ä/g, 'ae').replace(/ö/
 
 /** JSON → TS kaynak literali: U+2028/U+2029 satır ayırıcılarını kaçır (JS kaynakta geçersiz). */
 function toSourceLiteral(value: unknown): string {
-  return JSON.stringify(value).replace(/ /g, '\\u2028').replace(/ /g, '\\u2029');
+  // Karakterleri kodla üret — kaynak dosyada ham U+2028/2029 bulunmasın (regex literalinde geçersiz).
+  const LS = String.fromCharCode(0x2028);
+  const PS = String.fromCharCode(0x2029);
+  return JSON.stringify(value).split(LS).join('\u2028').split(PS).join('\u2029');
 }
 
 function toEntry(file: string): RatgeberEntry {
