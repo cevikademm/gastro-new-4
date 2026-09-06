@@ -75,3 +75,15 @@ Notlar:
 - Kategori/marka sayfaları statik prerender EDİLMEZ (sayfalama query'si statik dosyaya takılıyordu);
   `api/render.js` üretir, CDN `s-maxage=3600` ile önbellekler.
 - Preview URL'lerinde `x-robots-tag: noindex` Vercel'in kendi koruması — prod'da yok.
+
+## 6. Açık kalan hatırlatmalar (2026-09-06)
+
+- **Sosyal profiller:** 2MC Gastro'nun kendi LinkedIn / Instagram / YouTube / Facebook hesabı
+  HENÜZ YOK (Adem, 2026-09-06). Hesap açılınca `src/lib/companyInfo.ts` → `sameAs` dizisine
+  eklenecek (2mcwerbung hesapları KULLANILMAZ), sonra `npm run build` + deploy.
+- **Google İşletme Profili:** oluşturuldu, doğrulama bekliyor; doğrulanınca profil URL'si de
+  `sameAs`'e eklenecek. (Adım 7 — sonra tamamlanacak.)
+- **HRB numarası:** GmbH yeni kuruldu, numara Adem'e ulaşınca `companyInfo.register.number`
+  doldurulacak; Amtsgericht Köln + Geschäftsführer Metehan Çevik zaten canlıda.
+- **Google Ads hesabı askıda** ("şüpheli ödeme etkinliği" + politika ihlali). İtiraz formu
+  dolduruldu/doldurulacak; SEO işini engellemez, ayrı iş kalemi.
