@@ -99,7 +99,8 @@
     "redo": "Gentag",
     "sending": "Sender…",
     "undo": "Fortryd",
-    "update": "Opdater"
+    "update": "Opdater",
+    "previous": "Forrige"
   },
   "design3d": {
     "appearance": "Udseende",
@@ -1446,7 +1447,7 @@
     "ticketSubmitted": "Supportsag sendt",
     "sending": "Sender…",
     "sendFailed": "Sagen kunne ikke sendes. Skriv direkte til os:",
-    "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
+    "subtitle": "Opret en sag med dit spørgsmål, eller kontakt os direkte.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
   },
@@ -1887,7 +1888,9 @@
       "searchPlaceholder": "Søg...",
       "allProducts": "Alle produkter",
       "searchAria": "Søg",
-      "cartAria": "Kurv"
+      "cartAria": "Kurv",
+      "openMenuAria": "Åbn menu",
+      "closeMenuAria": "Luk menu"
     },
     "footer": {
       "tagline": "Med over 15 års erfaring leverer vi professionelt køkkenudstyr til Europas førende restauranter, hoteller og cateringvirksomheder.",
@@ -2091,7 +2094,15 @@
     "sponsors": {
       "eyebrow": "MARKA ORTAKLARIMIZ",
       "title": "Stratejik üretici ortaklarımız",
-      "subtitle": "Avrupa'nın önde gelen profesyonel mutfak üreticilerinin resmi iş ortağı olarak, orijinal ürünleri en iyi koşullarla sunuyoruz."
+      "subtitle": "Avrupa'nın önde gelen profesyonel mutfak üreticilerinin resmi iş ortağı olarak, orijinal ürünleri en iyi koşullarla sunuyoruz.",
+      "tagCookingCooling": "Tilberedning & køl",
+      "tagIndustrial": "Industrikøkken",
+      "tagCombiOven": "Kombiovn",
+      "tagCookingLines": "Tilberedningslinjer",
+      "tagCooling": "Køleteknik",
+      "tagColdChain": "Kølekæde",
+      "tagPizzaOven": "Pizzaovne",
+      "tagHvac": "Klima & ventilation"
     },
     "sections": {
       "allCategories": "Tüm Kategoriler",

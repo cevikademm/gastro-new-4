@@ -99,7 +99,8 @@
     "redo": "Ismét",
     "sending": "Küldés…",
     "undo": "Visszavonás",
-    "update": "Frissítés"
+    "update": "Frissítés",
+    "previous": "Előző"
   },
   "design3d": {
     "appearance": "Megjelenés",
@@ -1446,7 +1447,7 @@
     "ticketSubmitted": "Támogatási kérés sikeresen elküldve",
     "sending": "Küldés…",
     "sendFailed": "A jegyet nem sikerült elküldeni. Írjon nekünk közvetlenül:",
-    "subtitle": "Sorularınız için bilet açın, sık sorulanları inceleyin veya doğrudan iletişime geçin.",
+    "subtitle": "Nyisson hibajegyet a kérdésével, vagy lépjen velünk közvetlenül kapcsolatba.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
     "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
   },
@@ -1887,7 +1888,9 @@
       "searchPlaceholder": "Keresés...",
       "allProducts": "Összes termék",
       "searchAria": "Keresés",
-      "cartAria": "Kosár"
+      "cartAria": "Kosár",
+      "openMenuAria": "Menü megnyitása",
+      "closeMenuAria": "Menü bezárása"
     },
     "footer": {
       "tagline": "Több mint 15 éves tapasztalattal szállítunk professzionális konyhai berendezéseket Európa vezető éttermeinek, szállodáinak és cateringvállalatainak.",
@@ -2091,7 +2094,15 @@
     "sponsors": {
       "eyebrow": "MARKA ORTAKLARIMIZ",
       "title": "Stratejik üretici ortaklarımız",
-      "subtitle": "Avrupa'nın önde gelen profesyonel mutfak üreticilerinin resmi iş ortağı olarak, orijinal ürünleri en iyi koşullarla sunuyoruz."
+      "subtitle": "Avrupa'nın önde gelen profesyonel mutfak üreticilerinin resmi iş ortağı olarak, orijinal ürünleri en iyi koşullarla sunuyoruz.",
+      "tagCookingCooling": "Főzés és hűtés",
+      "tagIndustrial": "Ipari konyha",
+      "tagCombiOven": "Kombipároló",
+      "tagCookingLines": "Főzősorok",
+      "tagCooling": "Hűtéstechnika",
+      "tagColdChain": "Hűtőlánc",
+      "tagPizzaOven": "Pizzakemencék",
+      "tagHvac": "Klíma és szellőzés"
     },
     "sections": {
       "allCategories": "Tüm Kategoriler",
