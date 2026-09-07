@@ -965,7 +965,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Ospedale",
     "sectorOther": "Altro",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Mostra password",
+    "hidePassword": "Nascondi password"
   },
   "welcome": {
     "headline": "Il centro di comando",
@@ -1596,7 +1598,11 @@
     "sendFailed": "Impossibile inviare il ticket. Scrivici direttamente:",
     "subtitle": "Apri un ticket con la tua domanda o contattaci direttamente.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Messaggi di supporto ricevuti",
+    "inboxEmpty": "Nessun messaggio di supporto finora.",
+    "inboxGuest": "Ospite",
+    "savedEmailFailed": "Il messaggio è stato salvato, ma non è stato possibile inviare la notifica e-mail."
   },
   "docs": {
     "title": "Documentazione",
@@ -2171,8 +2177,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Immagine precedente",
+        "nextBanner": "Immagine successiva",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2183,7 +2189,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Vista in sezione",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2213,6 +2219,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Impastatrice a spirale",
+            "title": "Dentro l’impastatrice a spirale",
+            "desc": "Albero in acciaio temprato, motore con avvolgimento in rame e corpo monoblocco, dimensionati per otto ore di lavoro continuo al giorno.",
+            "normalLabel": "Vista esterna",
+            "cutawayLabel": "Sezione"
+          },
+          "ice": {
+            "label": "Fabbricatore di ghiaccio",
+            "title": "Dentro il fabbricatore di ghiaccio",
+            "desc": "Vasca in acciaio inox, condensatore ad aria e filtro lavabile mantengono la resa anche in cucine calde.",
+            "normalLabel": "Vista esterna",
+            "cutawayLabel": "Sezione"
           }
         }
       },
@@ -2259,6 +2281,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Recensione precedente",
+      "next": "Recensione successiva"
     }
   },
   "developerApi": {
@@ -2808,7 +2834,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Rifiuta",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2977,7 +3003,21 @@
     "empty": "Nessuna correzione pubblicata finora.",
     "technical": "Dettaglio tecnico",
     "reverted": "Annullata",
-    "revertedHint": "Questa correzione ha causato un problema ed è stata annullata."
+    "revertedHint": "Questa correzione ha causato un problema ed è stata annullata.",
+    "category": {
+      "fix": "Correzione",
+      "improvement": "Miglioramento",
+      "feature": "Novità"
+    },
+    "reported": "Hai segnalato",
+    "done": "Cosa abbiamo fatto",
+    "statTotal": "Correzioni totali",
+    "statThisMonth": "Questo mese",
+    "statMedian": "Tempo medio",
+    "sameDay": "Lo stesso giorno",
+    "days": "{{count}} giorni",
+    "solvedSameDay": "Risolto lo stesso giorno",
+    "solvedInDays": "Risolto in {{count}} giorni"
   },
   "seo": {
     "home": "Home",
@@ -3040,5 +3080,8 @@
     "subscribed": "Iscritto ✓",
     "rights": "Tutti i diritti riservati.",
     "madeIn": "Fatto con passione a Colonia."
+  },
+  "chat": {
+    "assistantBadge": "Assistente IA · 24/7"
   }
 }

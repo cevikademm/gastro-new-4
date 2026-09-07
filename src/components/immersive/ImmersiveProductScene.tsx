@@ -1,4 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 
@@ -24,28 +25,8 @@ type TrackedMesh = {
   strength: number;
 };
 
-const PHASES = [
-  {
-    eyebrow: '01 — Dış gövde',
-    title: 'Spiral mikser sahneye girer.',
-    body: 'Kazan, güvenlik kafesi ve ana gövde tek parça ürün algısıyla okunur.',
-  },
-  {
-    eyebrow: '02 — Gövde açılır',
-    title: 'Dış kabuk geri çekilir.',
-    body: 'Mekanizma modeli öne gelmeye başlar; gövde yarı şeffaf bir referans katmanına dönüşür.',
-  },
-  {
-    eyebrow: '03 — Güç aktarımı',
-    title: 'Motor ve redüktör ayrışır.',
-    body: 'İç bileşenler kendi eksenlerine doğru açılır ve teknik yapı görünür hale gelir.',
-  },
-  {
-    eyebrow: '04 — Patlatılmış görünüm',
-    title: 'Parçalar teknik düzende dağılır.',
-    body: 'Bakım, servis ve satış sunumları için cihazın iç mimarisi anlaşılır bir 3D kompozisyona dönüşür.',
-  },
-];
+const PHASE_KEYS = ['phase1', 'phase2', 'phase3', 'phase4'] as const;
+const PHASE_COUNT = PHASE_KEYS.length;
 
 function cloneMaterials(root: THREE.Object3D) {
   root.traverse((object) => {
@@ -121,12 +102,23 @@ function collectMechanismMeshes(root: THREE.Object3D): TrackedMesh[] {
 }
 
 export default function ImmersiveProductScene() {
+  const { t } = useTranslation();
   const wrapRef = useRef<HTMLElement | null>(null);
   const hostRef = useRef<HTMLDivElement | null>(null);
   const progressRef = useRef(0);
   const [activePhase, setActivePhase] = useState(0);
   const [webglFailed, setWebglFailed] = useState(false);
   const [shouldSkip3D, setShouldSkip3D] = useState(false);
+
+  const phases = useMemo(
+    () =>
+      PHASE_KEYS.map((key) => ({
+        eyebrow: t(`product.immersive.${key}.eyebrow`),
+        title: t(`product.immersive.${key}.title`),
+        body: t(`product.immersive.${key}.body`),
+      })),
+    [t]
+  );
 
   useEffect(() => {
     const wrap = wrapRef.current;
@@ -268,7 +260,7 @@ export default function ImmersiveProductScene() {
       const max = Math.max(1, rect.height - window.innerHeight);
       const progress = clamp(-rect.top / max);
       progressRef.current = progress;
-      const nextPhase = Math.min(PHASES.length - 1, Math.floor(progress * PHASES.length));
+      const nextPhase = Math.min(PHASE_COUNT - 1, Math.floor(progress * PHASE_COUNT));
       setActivePhase((current) => (current === nextPhase ? current : nextPhase));
     };
 
@@ -366,7 +358,7 @@ export default function ImmersiveProductScene() {
     };
   }, [shouldSkip3D, webglFailed]);
 
-  const active = PHASES[activePhase] ?? PHASES[0];
+  const active = phases[activePhase] ?? phases[0];
 
   return (
     <section
@@ -394,7 +386,7 @@ export default function ImmersiveProductScene() {
               <div className="mt-9 h-px w-full max-w-sm overflow-hidden bg-white/10">
                 <div
                   className="h-full bg-gradient-to-r from-red-400 to-sky-300 transition-[width] duration-300"
-                  style={{ width: `${((activePhase + 1) / PHASES.length) * 100}%` }}
+                  style={{ width: `${((activePhase + 1) / PHASE_COUNT) * 100}%` }}
                 />
               </div>
             </div>
@@ -403,7 +395,7 @@ export default function ImmersiveProductScene() {
 
         {(webglFailed || shouldSkip3D) && (
           <div className="absolute inset-0 flex items-center justify-center px-6 text-center">
-            <p className="max-w-md text-sm font-semibold text-white/70">3D sahne bu cihazda sade moda alındı.</p>
+            <p className="max-w-md text-sm font-semibold text-white/70">{t('product.immersive.fallback')}</p>
           </div>
         )}
       </div>

@@ -20,7 +20,7 @@
  *   yank the user's view.
  */
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 import {
@@ -42,6 +42,9 @@ import {
   RotateCcw,
   RotateCw,
   Home,
+  Layers,
+  ScanEye,
+  Package,
 } from 'lucide-react';
 
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
@@ -49,13 +52,26 @@ import { TransformControls } from 'three/examples/jsm/controls/TransformControls
 import { useProjectStore } from '../../store';
 import { MM_TO_THREE, projectToScene, THREE_TO_MM } from '../../core/to3d';
 import { flipPointY, flipEquipPlacement } from '../../core/renderSpace';
-import { useEditor2DState } from '../2d-editor/state/editorState';
+import { defaultOpeningAt } from '../../core/openings';
+import type { OpeningKind, WallId } from '../../core/types';
+import { idsOfKind, primaryOf, useEditor2DState } from '../2d-editor/state/editorState';
+import { useEquipmentInteraction } from '../2d-editor/hooks/useEquipmentInteraction';
+import { useSelectionCommands } from '../2d-editor/hooks/useSelectionCommands';
+import ContextPropertiesPanel, { type PanelActions } from '../shared/panels/ContextPropertiesPanel';
+import { setWallLengthMm } from '../shared/wallOps';
+import ConfirmDialog from '../../../../components/ConfirmDialog';
 import { SceneManager } from './scene/SceneManager';
+import { StaticSceneSync } from './scene/StaticSceneSync';
+import { installRoomEnvironment } from './scene/environment';
+import { computeAutoHiddenWalls } from './scene/autoHideWalls';
 import {
-  buildStaticScene,
+  addEdgeLines,
+  boundsBoxFromDescription,
   getWallMaterial,
   getSelectedWallMaterial,
+  isSharedMaterial,
 } from './builders/sceneBuilders';
+import { HUD, PANEL, SEP_H, TOOLBAR, toolBtnClass } from '../../components/ui/chrome';
 import { InteractionController } from './interaction/InteractionController';
 import { othersAtHeight, resolveCollision, snapToEdges } from './interaction/collision';
 import {
@@ -66,6 +82,7 @@ import {
   snapFloorItemToWalls,
 } from './interaction/placement';
 import { loadEquipment, preloadEquipment } from './loaders/GLBLoader';
+import { buildEquipmentPlacement, roomCenterDomain } from './interaction/equipmentPlacement';
 import { getCatalogEntry, type CatalogEntry } from './loaders/equipmentCatalog';
 import {
   buildProductMesh,
@@ -104,6 +121,8 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
   const controllerRef = useRef<InteractionController | null>(null);
 
   const staticRootRef = useRef<THREE.Group | null>(null);
+  /** Artımlı duvar/zemin senkronu — yalnız imzası değişen duvar yeniden kurulur. */
+  const staticSyncRef = useRef<StaticSceneSync | null>(null);
   const equipmentRootRef = useRef<THREE.Group | null>(null);
   /** wallId → duvar grubu (staticRoot içinde). Görünürlük/vurgu bunun üzerinden
    *  uygulanır; her yeniden-kurulumda tazelenir. */
@@ -141,6 +160,19 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
   const project = useProjectStore((s) => s.project);
   const hiddenWallIds = useProjectStore((s) => s.view.hiddenWallIds);
   const selectedWallId = useProjectStore((s) => s.view.selectedWallId);
+  const showCeiling = useProjectStore((s) => s.view.showCeiling);
+  const setShowCeiling = useProjectStore((s) => s.setShowCeiling);
+  const autoHideWalls = useProjectStore((s) => s.view.autoHideWalls);
+  const setAutoHideWalls = useProjectStore((s) => s.setAutoHideWalls);
+  const undo = useProjectStore((s) => s.undo);
+  const redo = useProjectStore((s) => s.redo);
+  const addOpening = useProjectStore((s) => s.addOpening);
+  /** Shared editor selection (2D + 3D): walls / openings / rooms / corners show the context panel. */
+  const sharedSelection = useEditor2DState((s) => s.selection);
+  const sharedPrimary = primaryOf(sharedSelection);
+  /** Camera-derived auto-hidden walls (render-only, recomputed on camera moves). */
+  const autoHiddenRef = useRef<Set<string>>(new Set());
+  const visibilityDirtyRef = useRef(true);
   // MeshAI ile Supabase'e üretilmiş GLB'ler (product_3d_models). Ekipman
   // senkronu bunu okuyup GLB'si olan ürünü kutu yerine gerçek 3B modelle kurar.
   const meshRows = useMeshStore((s) => s.rows);
@@ -178,6 +210,9 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
     managerRef.current = m;
     m.attach(host);
     m.start();
+    // Image-based lighting: steel reflects the room instead of reading as grey
+    // plastic. Direct light levels live in SceneManager (tek kaynak).
+    installRoomEnvironment(m.renderer, m.scene, 0.45);
 
     const staticRoot = new THREE.Group();
     staticRoot.name = 'static-root';
@@ -186,17 +221,24 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
     m.add(staticRoot);
     m.add(equipmentRoot);
     staticRootRef.current = staticRoot;
+    staticSyncRef.current = new StaticSceneSync(staticRoot);
+    wallMeshByIdRef.current = staticSyncRef.current.wallById;
     equipmentRootRef.current = equipmentRoot;
 
     const c = new InteractionController(m, {
       onSelect: (id) => {
         setSelectedEquipmentId(id);
         // Ekipman seçilince (id) sağdaki tek panel kuralı: duvar panelini kapat +
-        // duvar seçimini/vurgusunu temizle.
+        // duvar seçimini/vurgusunu temizle. Paylaşılan seçimi de güncelle
+        // (bölünmüş görünümde 2B aynı ürünü vurgular).
+        const ed = useEditor2DState.getState();
         if (id) {
           setWallPanelOpen(false);
           setWallAction(null);
           useProjectStore.getState().selectWall(null);
+          ed.select({ kind: 'equipment', id });
+        } else if (ed.selection.some((r) => r.kind === 'equipment')) {
+          ed.select(ed.selection.filter((r) => r.kind !== 'equipment'));
         }
       },
       // Active while a ring is being dragged (gizmoActiveRef) OR while the
@@ -392,20 +434,43 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
       const wallHit = hitsW.length ? hitsW[0] : null;
 
       if (wallHit && wallHit.distance <= eqDist) {
+        // Kapı/pencere kasası-kanadı-camı `userData.openingId` taşır → açıklık seçimi.
         let o: THREE.Object3D | null = wallHit.object;
-        while (o && !(o.userData && o.userData.wallId)) o = o.parent;
-        const wallId = o?.userData?.wallId as string | undefined;
+        let openingId: string | undefined;
+        let wallId: string | undefined;
+        while (o) {
+          if (!openingId && o.userData?.kind === 'opening' && o.userData.openingId) openingId = o.userData.openingId as string;
+          if (o.userData?.wallId) {
+            wallId = o.userData.wallId as string;
+            break;
+          }
+          o = o.parent;
+        }
+        const ed = useEditor2DState.getState();
+        if (openingId) {
+          useProjectStore.getState().selectWall(null);
+          setSelectedEquipmentId(null);
+          setWallPanelOpen(false);
+          setWallAction(null);
+          ed.select({ kind: 'opening', id: openingId }, { additive: e.shiftKey });
+          return;
+        }
         if (wallId) {
           useProjectStore.getState().selectWall(wallId);
           setSelectedEquipmentId(null);
-          setWallPanelOpen(true);
+          setWallPanelOpen(false);
+          ed.select({ kind: 'wall', id: wallId }, { additive: e.shiftKey });
           setWallAction({ wallId, sx: e.clientX, sy: e.clientY });
           return;
         }
       }
-      // Boşluğa / ekipmana tıklandı → duvar seçimini ve çipi temizle.
+      // Boşluğa / ekipmana tıklandı → duvar/açıklık seçimini ve çipi temizle.
       useProjectStore.getState().selectWall(null);
       setWallAction(null);
+      const edc = useEditor2DState.getState();
+      if (edc.selection.some((r) => r.kind !== 'equipment')) {
+        edc.select(edc.selection.filter((r) => r.kind === 'equipment'));
+      }
     };
     dom.addEventListener('pointerdown', onWallPickDown);
     dom.addEventListener('pointermove', onWallPickMove);
@@ -431,6 +496,44 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
       offCubeFrame = m.onFrame(() => vc.sync(m.camera));
     }
 
+    // ── Akıllı duvar gizleme + tavan görünürlüğü (kamera hareketinde) ─────
+    // Her karede yalnız kamera konumu değiştiyse (ya da bayrak/duvar seti
+    // değiştiyse) hesaplanır; uygulanan görünürlük = elle gizli ∪ otomatik gizli.
+    const lastCam = new THREE.Vector3(Number.NaN, Number.NaN, Number.NaN);
+    const offAutoHide = m.onFrame(() => {
+      const pos = m.camera.position;
+      const moved = Number.isNaN(lastCam.x) || pos.distanceToSquared(lastCam) > 1e-6;
+      if (!moved && !visibilityDirtyRef.current) return;
+      lastCam.copy(pos);
+      visibilityDirtyRef.current = false;
+      const local = m.contentRoot.worldToLocal(pos.clone());
+      const camMm = { x: local.x * THREE_TO_MM, y: flipPointY(local.y * THREE_TO_MM), z: local.z * THREE_TO_MM };
+      const st = useProjectStore.getState();
+      const auto = st.view.autoHideWalls ? computeAutoHiddenWalls(st.project, camMm) : new Set<string>();
+      autoHiddenRef.current = auto;
+      let changed = false;
+      const manual = new Set(st.view.hiddenWallIds);
+      for (const [id, group] of wallMeshByIdRef.current) {
+        const v = !manual.has(id) && !auto.has(id);
+        if (group.visible !== v) {
+          group.visible = v;
+          changed = true;
+        }
+      }
+      const sync = staticSyncRef.current;
+      if (sync) {
+        for (const mesh of sync.ceilingById.values()) {
+          const zMm = (mesh.userData.zMm as number | undefined) ?? Infinity;
+          const v = st.view.showCeiling && camMm.z < zMm - 50;
+          if (mesh.visible !== v) {
+            mesh.visible = v;
+            changed = true;
+          }
+        }
+      }
+      if (changed) m.requestRender();
+    });
+
     // 2D'den gelen paylaşılan odağa bak (açı/mesafe korunur). Hata olursa
     // görünümü etkilemeden geç → mevcut çalışma mantığı bozulmaz.
     try {
@@ -453,6 +556,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           y: flipPointY(local.y * THREE_TO_MM),
         });
       } catch { /* yoksay */ }
+      offAutoHide();
       controllerRef.current = null;
       managerRef.current = null;
       staticRootRef.current = null;
@@ -473,50 +577,63 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
       gizmo.dispose();
       gizmoRef.current = null;
       c.detach();
+      staticSyncRef.current?.dispose();
+      staticSyncRef.current = null;
       m.dispose();
     };
   }, []);
 
-  // ── Static content sync (walls + floor) ──────────────────────────────────
+  // ── Static content sync (walls + floor) — ARTIMLI ────────────────────────
+  // `update()` her yazımda taze referanslar verdiğinden bu efekt sık koşar; ama
+  // StaticSceneSync yalnız imzası değişen duvar/zemini yeniden kurar, geri
+  // kalanına dokunmaz → ürün taşıma/slider hiçbir duvarı yeniden extrude etmez.
   const firstFitDoneRef = useRef(false);
   useEffect(() => {
     const m = managerRef.current;
-    const staticRoot = staticRootRef.current;
-    if (!m || !staticRoot) return;
+    const sync = staticSyncRef.current;
+    if (!m || !sync) return;
 
-    while (staticRoot.children.length > 0) {
-      const child = staticRoot.children[0];
-      staticRoot.remove(child);
-      disposeObject(child);
+    const result = sync.sync(projectToScene(project));
+
+    // Yeniden kurulan duvarlara mevcut gizli/seçili durumu uygula. Store'dan
+    // taze oku (bayat closure yok, toggle'da geometri yeniden kurulmaz).
+    if (result.changedWallIds.length > 0) {
+      const view = useProjectStore.getState().view;
+      applyWallVisibility(sync.wallById, view.hiddenWallIds, autoHiddenRef.current);
+      applyWallHighlight(sync.wallById, view.selectedWallId);
     }
-    const desc = projectToScene(project);
-    const built = buildStaticScene(desc);
-    while (built.group.children.length > 0) staticRoot.add(built.group.children[0]);
+    visibilityDirtyRef.current = true; // tavan/otomatik gizleme yeniden değerlendirilsin
+    m.requestRender();
 
-    // Duvar gruplarının haritasını sakla (child'ları staticRoot'a taşımak grup
-    // referanslarını bozmaz) ve mevcut gizli/seçili durumu YENİDEN uygula →
-    // görünürlük yeniden-kurulumu aşar. Store'dan taze oku (bayat closure yok,
-    // toggle'da geometri yeniden kurulmaz).
-    wallMeshByIdRef.current = built.meshByWallId;
-    const view = useProjectStore.getState().view;
-    applyWallVisibility(built.meshByWallId, view.hiddenWallIds);
-    applyWallHighlight(built.meshByWallId, view.selectedWallId);
-
-    if (!firstFitDoneRef.current && !built.boundsM.isEmpty()) {
-      m.fitCameraToBox(built.boundsM);
+    if (!firstFitDoneRef.current && !result.boundsM.isEmpty()) {
+      m.fitCameraToBox(result.boundsM);
       firstFitDoneRef.current = true;
     }
   }, [project.walls, project.rooms, project.openings, project.vertices]);
 
   // ── Duvar görünürlüğü (yalnızca .visible — geometri işi yok) ──────────────
   useEffect(() => {
-    applyWallVisibility(wallMeshByIdRef.current, hiddenWallIds);
+    applyWallVisibility(wallMeshByIdRef.current, hiddenWallIds, autoHiddenRef.current);
+    managerRef.current?.requestRender();
   }, [hiddenWallIds]);
+
+  // Tavan / akıllı gizleme bayrakları değişince kamera-döngüsü yeniden değerlendirsin.
+  useEffect(() => {
+    visibilityDirtyRef.current = true;
+    managerRef.current?.requestRender();
+  }, [showCeiling, autoHideWalls]);
 
   // ── Duvar vurgusu (seçili duvarın malzemesini değiştir) ───────────────────
   useEffect(() => {
     applyWallHighlight(wallMeshByIdRef.current, selectedWallId);
+    managerRef.current?.requestRender();
   }, [selectedWallId]);
+
+  // Her React render'ından sonra bir kare iste — store/görünüm değişikliklerinin
+  // tamamını tek yerde yakalar (asenkron GLB yüklemeleri ayrıca ister).
+  useEffect(() => {
+    managerRef.current?.requestRender();
+  });
 
   // ── Re-contain floor items when walls change ─────────────────────────────
   // If a wall is drawn (or moved) THROUGH an existing product, push the product
@@ -655,6 +772,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           seatOnFloor(placeholder, eq.position.z * MM_TO_THREE);
           cache.set(id, placeholder);
           equipmentSigRef.current.set(id, sig);
+          managerRef.current?.requestRender();
         })();
 
         void (async () => {
@@ -677,12 +795,15 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           );
           group.rotation.z = rGlb.yaw;
           group.userData = { equipmentId: id, kind: 'equipment', catalogId: glbEntry.id };
-          // MeshAI (Y-up) GLB'leri dik durması için varsayılan +90° X eğimi ister.
-          // Kullanıcı eğimi henüz değiştirmediyse (tiltX undefined) varsayılanı uygula
-          // VE store'a yaz (panelde 90° görünsün + reload'da korunsun + reseat/gizmo
-          // ile tutarlı olsun). Kullanıcı bir değer verdiyse (0 dahil) dokunma.
-          const wantsUpright = glbEntry.needsUprightTilt === true && eq.tiltX === undefined;
-          const effTiltX = eq.tiltX ?? (wantsUpright ? Math.PI / 2 : 0);
+          // Y-up (glTF) modeller artık YÜKLEYİCİDE dik çevrilir (GLBLoader) —
+          // burada ek eğim yok. Eski belgelerde aynı amaçla otomatik yazılmış
+          // tiltX=90° değeri şimdi ikinci bir döndürme olurdu → tek seferlik
+          // sıfırla (kullanıcının bilinçli eğimleri farklı değerler taşır).
+          const legacyUpright =
+            glbEntry.needsUprightTilt === true &&
+            eq.tiltX !== undefined &&
+            Math.abs(eq.tiltX - Math.PI / 2) < 1e-3;
+          const effTiltX = legacyUpright ? 0 : (eq.tiltX ?? 0);
           // Pivot at footprint bottom-center so tilt rotates a real-object
           // axis (not the back-left corner). Children are pre-shifted to
           // compensate so the model stays put when tilt = 0.
@@ -691,15 +812,16 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           pivot.rotation.y = eq.tiltY ?? 0;
           group.userData.pivot = pivot;
           equipmentRoot.add(group);
-          if (wantsUpright) {
+          if (legacyUpright) {
             useProjectStore.getState().update((d) => {
               const e = d.equipment[id];
-              if (e && e.tiltX === undefined) { e.tiltX = Math.PI / 2; e.tiltY = e.tiltY ?? 0; }
+              if (e && e.tiltX !== undefined && Math.abs(e.tiltX - Math.PI / 2) < 1e-3) e.tiltX = 0;
             });
           }
           seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
           equipmentSigRef.current.set(id, sig);
+          managerRef.current?.requestRender();
 
           // GLB footprint düzeltmesi (tek sefer): çarpışma görselle uyuşsun.
           // loadEquipment uniform ölçekleme yapar; kayıtlı footprint gerçek
@@ -758,6 +880,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           seatOnFloor(group, eq.position.z * MM_TO_THREE);
           cache.set(id, group);
           equipmentSigRef.current.set(id, sig);
+          managerRef.current?.requestRender();
         })();
         continue;
       }
@@ -908,18 +1031,16 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
   const fit = useCallback(() => {
     const m = managerRef.current;
     if (!m) return;
-    const desc = projectToScene(project);
-    const built = buildStaticScene(desc);
-    if (!built.boundsM.isEmpty()) m.fitCameraToBox(built.boundsM);
+    const boundsM = boundsBoxFromDescription(projectToScene(project));
+    if (!boundsM.isEmpty()) m.fitCameraToBox(boundsM);
   }, [project]);
 
   const setView = useCallback(
     (preset: 'top' | 'front' | 'side' | 'iso') => {
       const m = managerRef.current;
       if (!m) return;
-      const desc = projectToScene(project);
-      const built = buildStaticScene(desc);
-      m.setViewPreset(preset, built.boundsM.isEmpty() ? undefined : built.boundsM);
+      const boundsM = boundsBoxFromDescription(projectToScene(project));
+      m.setViewPreset(preset, boundsM.isEmpty() ? undefined : boundsM);
     },
     [project],
   );
@@ -979,12 +1100,103 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
     return () => window.removeEventListener('keydown', onKey);
   }, [wallAction]);
 
+  // ── Ortak panel eylemleri + 3B klavye kısayolları ────────────────────────
+  const flashHint = useCallback((msg: string) => {
+    setCaptureMsg(msg);
+    window.setTimeout(() => setCaptureMsg((cur) => (cur === msg ? null : cur)), 3500);
+  }, []);
+  const equipmentOps = useEquipmentInteraction({ project });
+  const commands = useSelectionCommands({ project, equipment: equipmentOps, flashHint });
+  const addOpeningOnWall = useCallback(
+    (wallId: string, kind: OpeningKind, t01 = 0.5) => {
+      const proj = useProjectStore.getState().project;
+      if (!proj.walls[wallId]) return;
+      const id = addOpening(defaultOpeningAt(proj, kind, wallId as WallId, t01));
+      useEditor2DState.getState().select({ kind: 'opening', id });
+      useProjectStore.getState().selectWall(null);
+    },
+    [addOpening],
+  );
+  const panelActions = useMemo<PanelActions>(
+    () => ({
+      deleteRefs: commands.deleteRefs,
+      requestDeleteRoom: commands.requestDeleteRoom,
+      splitWallAtMiddle: commands.splitWallAtMiddle,
+      addOpeningOnWall,
+      setWallLength: (wallId, mm) => setWallLengthMm(wallId, mm, null),
+      duplicateEquipment: equipmentOps.duplicate,
+      flashHint,
+    }),
+    [commands, addOpeningOnWall, equipmentOps.duplicate, flashHint],
+  );
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) return;
+      const mod = e.ctrlKey || e.metaKey;
+      const lk = e.key.toLowerCase();
+      if (mod && lk === 'z') {
+        if (e.shiftKey) redo();
+        else undo();
+        e.preventDefault();
+        return;
+      }
+      if (mod && lk === 'y') {
+        redo();
+        e.preventDefault();
+        return;
+      }
+      if (mod && lk === 'd') {
+        const ids = idsOfKind(useEditor2DState.getState().selection, 'equipment');
+        if (ids.length) {
+          equipmentOps.duplicate(ids);
+          e.preventDefault();
+        }
+        return;
+      }
+      if (!mod && !e.altKey && (e.key === 'ArrowLeft' || e.key === 'ArrowRight' || e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
+        const ids = idsOfKind(useEditor2DState.getState().selection, 'equipment');
+        if (ids.length === 0) return;
+        const step = e.shiftKey ? 100 : 10;
+        const dx = e.key === 'ArrowLeft' ? -step : e.key === 'ArrowRight' ? step : 0;
+        // Ekran-yukarı ≈ domain -Y (2B plan ile aynı yön hissi).
+        const dy = e.key === 'ArrowUp' ? -step : e.key === 'ArrowDown' ? step : 0;
+        equipmentOps.nudge(ids, dx, dy);
+        e.preventDefault();
+        return;
+      }
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        // Ekipman silmeyi InteractionController yönetir; burada yalnız duvar/açıklık/köşe/oda.
+        const sel = useEditor2DState.getState().selection.filter((r) => r.kind !== 'equipment');
+        if (sel.length === 0) return;
+        commands.deleteRefs(sel);
+        useProjectStore.getState().selectWall(null);
+        setWallAction(null);
+        e.preventDefault();
+        return;
+      }
+      if (e.key === 'Escape') {
+        const ed = useEditor2DState.getState();
+        if (ed.selection.some((r) => r.kind !== 'equipment')) {
+          ed.select(ed.selection.filter((r) => r.kind === 'equipment'));
+          useProjectStore.getState().selectWall(null);
+        }
+      }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [undo, redo, equipmentOps, commands]);
+
+  const contextPanelVisible =
+    !wallPanelOpen && !!sharedPrimary && sharedPrimary.kind !== 'equipment';
+
   const wallCount = Object.keys(project.walls).length;
   const roomCount = Object.keys(project.rooms).length;
   const equipmentCount = Object.keys(project.equipment).length;
 
   return (
-    <div className="relative h-full w-full bg-slate-100 overflow-hidden">
+    <div className="relative h-full w-full bg-[#eef1f5] overflow-hidden">
       <div ref={hostRef} className="absolute inset-0" />
 
       {/* ── ViewCube (3ds Max tarzı navigasyon küpü) ────────────────── */}
@@ -996,12 +1208,13 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           className="h-28 w-28 select-none"
           title={t('design3d.viewcube.tooltip')}
         />
-        <div className="inline-flex items-center gap-1 rounded-xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5 p-1">
+        <div className={`${TOOLBAR} inline-flex items-center gap-0.5`}>
           <button
             type="button"
             onClick={() => rotateView(-1)}
             title={t('design3d.viewcube.rotateLeft')}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+            aria-label={t('design3d.viewcube.rotateLeft')}
+            className={toolBtnClass({ size: 'sm' })}
           >
             <RotateCcw size={13} />
           </button>
@@ -1009,7 +1222,8 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
             type="button"
             onClick={() => setView('iso')}
             title={t('design3d.viewcube.home')}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+            aria-label={t('design3d.viewcube.home')}
+            className={toolBtnClass({ size: 'sm' })}
           >
             <Home size={13} />
           </button>
@@ -1017,7 +1231,8 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
             type="button"
             onClick={() => rotateView(1)}
             title={t('design3d.viewcube.rotateRight')}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+            aria-label={t('design3d.viewcube.rotateRight')}
+            className={toolBtnClass({ size: 'sm' })}
           >
             <RotateCw size={13} />
           </button>
@@ -1025,7 +1240,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
       </div>
 
       {/* ── Top toolbar ─────────────────────────────────────────────── */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5">
+      <div className={`absolute top-3 left-1/2 z-20 inline-flex -translate-x-1/2 items-center gap-0.5 ${TOOLBAR}`}>
         <ToolBtn onClick={fit} title={t('design3d.toolbar.fitScene')}><Maximize2 size={14} /></ToolBtn>
         <Sep />
         <ToolBtn onClick={() => setView('iso')} title={t('design3d.toolbar.viewIso')}>
@@ -1049,6 +1264,12 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
         </ToolBtn>
         <ToolBtn active={fogOn} onClick={() => setFogOn((v) => !v)} title={t('design3d.toolbar.fog')}>
           <Eye size={14} />
+        </ToolBtn>
+        <ToolBtn active={showCeiling} onClick={() => setShowCeiling(!showCeiling)} title={t('design3d.toolbar.ceiling')}>
+          <Layers size={14} />
+        </ToolBtn>
+        <ToolBtn active={autoHideWalls} onClick={() => setAutoHideWalls(!autoHideWalls)} title={t('design3d.toolbar.autoHide')}>
+          <ScanEye size={14} />
         </ToolBtn>
         <Sep />
         <ToolBtn
@@ -1086,11 +1307,19 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
         >
           <Images size={14} />
         </ToolBtn>
+        <Sep />
+        <ToolBtn
+          active={paletteOpen || !!armedProduct}
+          onClick={() => setPaletteOpen((v) => !v)}
+          title={t('design3d.tool.addProduct')}
+        >
+          <Package size={14} />
+        </ToolBtn>
       </div>
 
       {/* ── Render durum bildirimi ──────────────────────────────────── */}
       {captureMsg && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-slate-900/90 text-white text-[11px] shadow-lg z-30">
+        <div className="absolute top-16 left-1/2 z-30 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-slate-900/90 px-3.5 py-1.5 text-[11px] font-medium text-white shadow-lg backdrop-blur">
           <Camera size={12} /> {captureMsg}
         </div>
       )}
@@ -1101,14 +1330,14 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
           className="fixed z-40 -translate-x-1/2 -translate-y-full"
           style={{ left: wallAction.sx, top: wallAction.sy - 10 }}
         >
-          <div className="inline-flex items-center gap-1 rounded-xl bg-white shadow-lg shadow-slate-900/15 border border-slate-200/70 p-1">
+          <div className={`${TOOLBAR} inline-flex items-center gap-1`}>
             <button
               type="button"
               onClick={() => {
                 useProjectStore.getState().setWallHidden(wallAction.wallId, true);
                 setWallAction(null);
               }}
-              className="inline-flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-[11px] font-semibold bg-brand-red text-white hover:brightness-110 transition"
+              className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-brand-red px-2.5 text-[11px] font-semibold text-white shadow-sm transition hover:brightness-110"
               title={t('design3d.wallChip.hideTitle')}
             >
               <EyeOff size={13} /> {t('design3d.wallChip.hide')}
@@ -1120,7 +1349,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
                 setSelectedEquipmentId(null);
                 setWallAction(null);
               }}
-              className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-500 hover:bg-slate-100 transition"
+              className={toolBtnClass({ size: 'sm' })}
               title={t('design3d.wallChip.openPanel')}
             >
               <BrickWall size={13} />
@@ -1128,7 +1357,7 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
             <button
               type="button"
               onClick={() => setWallAction(null)}
-              className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:bg-slate-100 transition"
+              className={toolBtnClass({ size: 'sm' })}
               title={t('common.close')}
             >
               <X size={12} />
@@ -1139,13 +1368,13 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
 
       {/* ── Armed banner ───────────────────────────────────────────── */}
       {armedProduct && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-brand-red text-white text-[11px] shadow-lg shadow-slate-900/10 z-10">
+        <div className="absolute top-16 left-1/2 z-10 inline-flex -translate-x-1/2 items-center gap-2 rounded-full bg-brand-red px-3.5 py-1.5 text-[11px] text-white shadow-lg shadow-brand-red/25">
           <span className="font-semibold">{armedProduct.name}</span>
           <span className="opacity-80">· {t('design3d.armed.hint3d')}</span>
           <span className="opacity-60">· {t('design3d.armed.chained')}</span>
           <button
             onClick={() => setArmedProduct(null)}
-            className="ml-1 p-1 rounded-lg hover:bg-white/20 transition"
+            className="ml-1 rounded-full p-1 transition hover:bg-white/20"
             aria-label={t('common.cancelEsc')}
             title={t('common.cancelEsc')}
           >
@@ -1154,23 +1383,22 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
         </div>
       )}
 
-      {/* ── HUD ─────────────────────────────────────────────────────── */}
-      <div className="absolute bottom-3 left-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5 text-[11px] tabular-nums text-slate-500">
-        <Box size={11} className="text-slate-400" />{' '}
-        {t('design3d.hud.counts', { walls: wallCount, rooms: roomCount, count: equipmentCount })}
-        {selectedEquipmentId && (
-          <span className="ml-1 text-brand-red font-medium">
-            {t('design3d.hud.selectedHelp')}
+      {/* ── HUD: sayaçlar + kontrol ipuçları (tek şerit, sol alt) ───── */}
+      <div className={`absolute bottom-3 left-3 z-10 inline-flex max-w-[calc(100%-1.5rem)] items-center gap-3 px-3.5 py-1.5 tabular-nums ${HUD}`}>
+        <span className="inline-flex items-center gap-1.5 text-slate-600">
+          <Box size={11} className="text-slate-400" />
+          {t('design3d.hud.counts', { walls: wallCount, rooms: roomCount, count: equipmentCount })}
+        </span>
+        {selectedEquipmentId ? (
+          <span className="font-medium text-brand-red">{t('design3d.hud.selectedHelp')}</span>
+        ) : (
+          <span className="hidden items-center gap-3 text-[10px] text-slate-400 md:inline-flex">
+            <span><b className="font-semibold text-slate-500">{t('design3d.controls.left')}</b> {t('design3d.controls.rotate')}</span>
+            <span><b className="font-semibold text-slate-500">{t('design3d.controls.right')}</b> {t('design3d.controls.pan')}</span>
+            <span><b className="font-semibold text-slate-500">{t('design3d.controls.wheel')}</b> {t('design3d.controls.zoom')}</span>
+            <span><b className="font-semibold text-slate-500">{t('design3d.controls.doubleClick')}</b> {t('design3d.controls.focus')}</span>
           </span>
         )}
-      </div>
-
-      {/* ── Kontrol ipucu (sağ alt) ─────────────────────────────────── */}
-      <div className="absolute bottom-3 right-3 inline-flex items-center gap-3 px-3 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5 text-[10px] text-slate-500 pointer-events-none">
-        <span><b className="font-semibold text-slate-700">{t('design3d.controls.left')}</b> {t('design3d.controls.rotate')}</span>
-        <span><b className="font-semibold text-slate-700">{t('design3d.controls.right')}</b> {t('design3d.controls.pan')}</span>
-        <span><b className="font-semibold text-slate-700">{t('design3d.controls.wheel')}</b> {t('design3d.controls.zoom')}</span>
-        <span><b className="font-semibold text-slate-700">{t('design3d.controls.doubleClick')}</b> {t('design3d.controls.focus')}</span>
       </div>
 
       {/* ── Equipment catalog panel (rich, search + categories) ─────── */}
@@ -1186,8 +1414,33 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
         onToggleOpen={() => setPaletteOpen((v) => !v)}
       />
 
+      {/* ── Duvar / açıklık / oda / köşe özellikleri (2B ile ORTAK panel) ── */}
+      {contextPanelVisible && (
+        <ContextPropertiesPanel
+          primary={sharedPrimary}
+          selectionCount={sharedSelection.length}
+          actions={panelActions}
+          onClose={() => {
+            const ed = useEditor2DState.getState();
+            ed.select(ed.selection.filter((r) => r.kind === 'equipment'));
+            useProjectStore.getState().selectWall(null);
+            setWallAction(null);
+          }}
+          className="absolute top-3 right-3 z-30 w-72 max-h-[calc(100vh-7rem)]"
+        />
+      )}
+      <ConfirmDialog
+        open={!!commands.confirm}
+        title={commands.confirm?.title ?? ''}
+        description={commands.confirm?.description}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={commands.runConfirm}
+        onCancel={commands.cancelConfirm}
+      />
+
       {/* ── Selected-equipment properties (X/Y/rotation/flip/lock) ──── */}
-      {!wallPanelOpen && (
+      {!wallPanelOpen && !contextPanelVisible && (
         <EquipmentPropertiesPanel
           equipmentId={selectedEquipmentId}
           onClose={() => setSelectedEquipmentId(null)}
@@ -1210,9 +1463,12 @@ export default function Editor3D({ projectKey }: Editor3DProps = {}) {
       <RenderGalleryPanel open={galleryOpen} onClose={() => setGalleryOpen(false)} />
 
       {wallCount === 0 && (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          <div className="rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 px-4 py-3 text-[12px] text-slate-500 text-center max-w-xs">
-            {t('design3d.emptyState.noWalls')}
+        <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+          <div className={`${PANEL} flex max-w-xs flex-col items-center gap-2 px-6 py-5 text-center`}>
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-red/10 text-brand-red">
+              <Box size={20} />
+            </span>
+            <p className="text-[12px] leading-snug text-slate-600">{t('design3d.emptyState.noWalls')}</p>
           </div>
         </div>
       )}
@@ -1313,6 +1569,8 @@ function equipmentSig(
     eq.footprint.depth,
     eq.heightMm,
     eq.catalogId,
+    // Kullanıcı modeli değiştirince (modelRef) mesh yeniden kurulmalı.
+    eq.modelRef ?? '',
     // GLB URL'i imzaya dahil: MeshAI modeli sonradan gelince kutu→GLB rebuild tetiklenir.
     glbUrl ?? '',
   ].join('|');
@@ -1320,6 +1578,7 @@ function equipmentSig(
 
 /**
  * Bir ekipman için kullanılacak GLB kaynağını çöz.
+ *  0) Kullanıcının bu örneğe ATADIĞI model (`modelRef` — kütüphane / yükleme)
  *  1) Statik katalog / kullanıcı yüklemesi / manifest  (getCatalogEntry)
  *  2) MeshAI ile Supabase'e üretilmiş GLB (product_3d_models → meshStore)
  * Hiçbiri yoksa undefined → çağıran ürün görselli kutuya (buildProductMesh) düşer.
@@ -1331,6 +1590,12 @@ function resolveGlbEntry(
   eq: import('../../core/types').Equipment,
   meshRows: Record<string, { status?: string; glb_url?: string | null }>,
 ): CatalogEntry | undefined {
+  // Atanan model önce gelir. Model silinmişse (kayıt bulunamaz) sessizce
+  // catalogId çözümlemesine düşülür — belge bozulmaz.
+  if (eq.modelRef) {
+    const assigned = getCatalogEntry(eq.modelRef);
+    if (assigned) return assigned;
+  }
   const direct = getCatalogEntry(eq.catalogId);
   if (direct) return direct;
 
@@ -1357,95 +1622,6 @@ function resolveGlbEntry(
   return undefined;
 }
 
-/**
- * Ortak yerleştirme matematiği — bir katalog ürününü domain uzayında `centerMm`
- * MERKEZLİ olacak şekilde yerleştirmek için `addEquipment` girdisini üretir.
- *
- * Hem zemine-tıkla (onPlaceClick, raycast noktası) hem de karta-tıkla
- * (placeItemAtCenter, oda merkezi) yolları bunu kullanır → footprint min-köşe
- * çevrimi, mount (zemin/duvar), çakışma çözme, komşuya yaslama ve oda-içi tutma
- * kuralları TEK yerde. Katalog varsayılan overlap izni korunur.
- */
-function buildEquipmentPlacement(
-  project: import('../../core/types').ProjectDocument,
-  item: EquipmentItem,
-  centerMm: { x: number; y: number },
-): Omit<import('../../core/types').Equipment, 'id' | 'type'> {
-  const heightMm = parseHeightMm(item.h);
-  const category = mapEquipmentCategory(item.cat);
-  const mount = defaultMountFor(category);
-  // Domain anchor: position = footprint MIN-KÖŞE. Merkezi min-köşeye çevir.
-  let xMm = centerMm.x - item.l / 2;
-  let yMm = centerMm.y - item.w / 2;
-  let rotation = 0;
-  const zMm = defaultZForMount(mount);
-
-  // Yeni ürünün overlap izni katalog varsayılanından gelir (yoksa undefined/false).
-  const allowOverlap = getCatalogEntry(item.id)?.allowOverlap;
-  // Yalnızca kendi yükseklik bandındaki + overlap-izinSİZ ürünler çakışsın
-  // (tezgah üstüne mikrodalga / range üstüne davlumbaz serbest kalsın).
-  const others = othersAtHeight(zMm, heightMm, Object.values(project.equipment))
-    .filter((o) => !o.allowOverlap);
-
-  if (mount === 'wall') {
-    // Davlumbaz vb.: en yakın duvara, odaya bakar şekilde yapıştır.
-    const mounted = mountToWall(project, centerMm, item.l, item.w);
-    if (mounted) {
-      rotation = mounted.rotation;
-      const pos = allowOverlap
-        ? mounted.pos
-        : resolveCollision(mounted.pos, rotation, item.l, item.w, others, null);
-      xMm = pos.x;
-      yMm = pos.y;
-    }
-  } else {
-    // Overlap'e izinli DEĞİLSE: komşuya yanaş, örtüşmeyi it. (İzinliyse üst üste serbest.)
-    let px = xMm;
-    let py = yMm;
-    if (!allowOverlap) {
-      const snapped = snapToEdges({ x: px, y: py }, 0, item.l, item.w, others, null, 50);
-      const safe = resolveCollision(snapped, 0, item.l, item.w, others, null);
-      px = safe.x;
-      py = safe.y;
-    }
-    // Yakın duvara yapıştır (yanaşma), sonra oda duvarlarının dışına taşmasın (HER ZAMAN).
-    const snappedWall = snapFloorItemToWalls(project, { x: px, y: py }, 0, item.l, item.w);
-    const contained = containFloorItem(project, snappedWall, 0, item.l, item.w);
-    xMm = contained.x;
-    yMm = contained.y;
-  }
-
-  return {
-    catalogId: item.id,
-    name: item.name,
-    category,
-    position: { x: xMm, y: yMm, z: zMm },
-    rotation,
-    mount,
-    footprint: { width: item.l, depth: item.w },
-    heightMm,
-    allowOverlap,
-  };
-}
-
-/**
- * Karta tıklayarak yerleştirme için makul bir varsayılan domain noktası: çizilen
- * duvarların köşe (vertex) ortalaması ≈ odanın iç merkezi. Buradan sonra
- * containFloorItem ürünü oda poligonuna çeker, resolveCollision üst üste
- * binmeyi engeller — yani merkezin tam "içeride" olması şart değil. Boş projede
- * origin.
- */
-function roomCenterDomain(
-  project: import('../../core/types').ProjectDocument,
-): { x: number; y: number } {
-  const verts = Object.values(project.vertices);
-  if (verts.length === 0) return { x: 0, y: 0 };
-  let sx = 0;
-  let sy = 0;
-  for (const v of verts) { sx += v.x; sy += v.y; }
-  return { x: sx / verts.length, y: sy / verts.length };
-}
-
 function buildFallbackBox(
   id: string,
   eq: import('../../core/types').Equipment,
@@ -1458,12 +1634,16 @@ function buildFallbackBox(
     color: eq.color ?? 0xc0c5cc,
     roughness: 0.5,
     metalness: 0.4,
+    polygonOffset: true,
+    polygonOffsetFactor: 1,
+    polygonOffsetUnits: 1,
   });
   const mesh = new THREE.Mesh(geom, mat);
   mesh.castShadow = true;
   mesh.receiveShadow = true;
   // Centered in pivot — pivot is at (w/2, d/2, 0) under the outer group.
   mesh.position.set(0, 0, h / 2);
+  addEdgeLines(mesh, 30);
   const group = new THREE.Group();
   group.userData = { equipmentId: id, kind: 'equipment', catalogId: eq.catalogId };
   const pivot = new THREE.Group();
@@ -1568,32 +1748,47 @@ function readZXY(group: THREE.Object3D): { yaw: number; tiltX: number; tiltY: nu
   return { yaw: e.z, tiltX: e.x, tiltY: e.y };
 }
 
+/**
+ * Dispose geometries + PER-OBJECT materials under `obj`. Shared singleton
+ * materials (`userData.shared`, see sceneBuilders/productMesh) are skipped —
+ * disposing one would break every other mesh that uses it.
+ */
 function disposeObject(obj: THREE.Object3D): void {
   obj.traverse((child) => {
     const mesh = child as THREE.Mesh;
     if (mesh.geometry) mesh.geometry.dispose();
     const mats = Array.isArray(mesh.material) ? mesh.material : mesh.material ? [mesh.material] : [];
-    for (const mat of mats) mat.dispose();
+    for (const mat of mats) {
+      if (!isSharedMaterial(mat)) mat.dispose();
+    }
   });
 }
 
 /** Gizli duvar gruplarını görünmez yap (render/görünüm için). `visible=false`
- *  gölge dökümünü de düşürür → iç mekân renderı için istenen davranış. */
-function applyWallVisibility(map: Map<string, THREE.Object3D>, hiddenIds: string[]): void {
+ *  gölge dökümünü de düşürür → iç mekân renderı için istenen davranış.
+ *  Görünürlük = elle gizli ∪ kamera-otomatik gizli. */
+function applyWallVisibility(
+  map: Map<string, THREE.Object3D>,
+  hiddenIds: string[],
+  autoHidden: ReadonlySet<string> = new Set(),
+): void {
   const hidden = new Set(hiddenIds);
-  for (const [id, group] of map) group.visible = !hidden.has(id);
+  for (const [id, group] of map) group.visible = !hidden.has(id) && !autoHidden.has(id);
 }
 
-/** Seçili duvarın ana mesh'ini vurgu malzemesiyle boya; diğerlerini normale al.
- *  Duvar grubunun ilk (ana ekstrüde) mesh'i `userData.kind==='wall'` taşır;
- *  çerçeve/cam/kanat mesh'leri farklıdır ve dokunulmaz. */
+/** Seçili duvarın gövde mesh'lerini vurgu malzemesiyle boya; diğerlerini kendi
+ *  yüzey presetine (`userData.baseMaterial`) döndür. Duvar gövdesi birden çok
+ *  parçadır (açıklık etrafında bölünür) — hepsi `userData.kind==='wall'` taşır;
+ *  çerçeve/cam/kanat (`kind==='opening'`) dokunulmaz. */
 function applyWallHighlight(map: Map<string, THREE.Object3D>, selId: string | null): void {
   for (const [id, group] of map) {
-    const mesh = group.children.find(
-      (c) => (c as THREE.Mesh).isMesh && c.userData?.kind === 'wall',
-    ) as THREE.Mesh | undefined;
-    if (!mesh) continue;
-    mesh.material = id === selId ? getSelectedWallMaterial() : getWallMaterial();
+    group.traverse((c) => {
+      const mesh = c as THREE.Mesh;
+      if (!mesh.isMesh || mesh.userData?.kind !== 'wall') return;
+      mesh.material = id === selId
+        ? getSelectedWallMaterial()
+        : ((mesh.userData.baseMaterial as THREE.Material | undefined) ?? getWallMaterial());
+    });
   }
 }
 
@@ -1613,12 +1808,8 @@ function ToolBtn({
       type="button"
       onClick={onClick}
       title={title}
-      className={[
-        'inline-flex items-center justify-center h-9 w-9 rounded-xl transition',
-        active
-          ? 'bg-brand-red/10 text-brand-red ring-1 ring-brand-red/20'
-          : 'text-slate-500 hover:bg-slate-100',
-      ].join(' ')}
+      aria-label={title}
+      className={toolBtnClass({ active, kind: 'toggle' })}
     >
       {children}
     </button>
@@ -1626,5 +1817,5 @@ function ToolBtn({
 }
 
 function Sep() {
-  return <div className="w-px h-6 bg-slate-200 mx-0.5" />;
+  return <div className={SEP_H} />;
 }

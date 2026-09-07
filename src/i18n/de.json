@@ -66,41 +66,44 @@
     "moveUp": "Nach oben",
     "moveDown": "Nach unten",
     "and": "ve",
-    "filters": "Filtreler",
-    "inStock": "Stokta",
+    "filters": "Filter",
+    "inStock": "Auf Lager",
     "sort": "Sortieren",
-    "clear": "Temizle",
+    "clear": "Leeren",
     "min": "Min",
     "max": "Max",
-    "retry": "Tekrar dene",
-    "stock": "Stok",
+    "retry": "Erneut versuchen",
+    "stock": "Bestand",
     "pageOf": "Seite {{current}} / {{total}}",
-    "net": "net",
-    "error": "Hata",
+    "net": "netto",
+    "error": "Fehler",
     "errorMessage": {
       "supabaseNotConfigured": "Supabase ist nicht konfiguriert."
     },
-    "goBack": "Geri dön",
-    "loadFailed": "Yüklenemedi",
-    "errorLabel": "Hata: {{message}}",
+    "goBack": "Zurück",
+    "loadFailed": "Laden fehlgeschlagen",
+    "errorLabel": "Fehler: {{message}}",
     "home": "Startseite",
     "contact": "Kontakt",
-    "decrease": "Azalt",
+    "decrease": "Verringern",
     "increase": "Erhöhen",
     "items": "Artikel",
     "remove": "Entfernen",
     "user": "Benutzer",
-    "days": "gün",
-    "daysRemaining": "Kalan Gün",
-    "deleting": "Siliniyor…",
+    "days": "Tage",
+    "daysRemaining": "Verbleibende Tage",
+    "deleting": "Wird gelöscht…",
     "explore": "Entdecken",
     "noResults": "Keine Produkte gefunden",
     "orderNumber": "Bestellnr.",
-    "redo": "Yinele",
-    "sending": "Gönderiliyor…",
-    "undo": "Geri Al",
-    "update": "Güncelle",
-    "previous": "Zurück"
+    "redo": "Wiederholen",
+    "sending": "Wird gesendet…",
+    "undo": "Rückgängig",
+    "update": "Aktualisieren",
+    "previous": "Zurück",
+    "reloading": "Die Seite wurde aktualisiert und wird neu geladen…",
+    "newVersionLoaded": "Eine neue Version der Anwendung wurde geladen. Bitte laden Sie die Seite neu, um fortzufahren.",
+    "somethingWentWrong": "Etwas ist schiefgelaufen"
   },
   "design3d": {
     "appearance": "Darstellung",
@@ -120,10 +123,10 @@
     "saveToSupabase": "In Supabase speichern",
     "exportJsonTitle": "Entwurf als JSON herunterladen",
     "importJsonTitle": "Entwurf aus JSON-Datei laden",
-    "undo": "Geri al",
-    "redo": "Yinele",
+    "undo": "Rückgängig",
+    "redo": "Wiederholen",
     "importCadTitle": "CAD-Datei importieren (DXF/DWG)",
-    "savedBadge": "Kaydedildi",
+    "savedBadge": "Gespeichert",
     "localOnly": "Nur lokal",
     "localOnlyTitle": "Supabase nicht erreichbar — Änderungen wurden lokal gesichert",
     "invalidDesignFile": "Ungültige Entwurfsdatei",
@@ -131,20 +134,20 @@
     "noImportableGeometry": "Keine importierbare Geometrie in {{filename}} gefunden",
     "importError": "Importfehler: {{message}}",
     "cadImportTitle": "CAD importieren",
-    "layersSegmentsSummary": "{{layers}} katman · {{segments}} segment",
-    "unit": "Birim",
-    "auto": "Otomatik",
-    "unitMm": "Milimetre (mm)",
-    "unitCm": "Santimetre (cm)",
-    "unitM": "Metre (m)",
+    "layersSegmentsSummary": "{{layers}} Ebenen · {{segments}} Segmente",
+    "unit": "Einheit",
+    "auto": "Automatisch",
+    "unitMm": "Millimeter (mm)",
+    "unitCm": "Zentimeter (cm)",
+    "unitM": "Meter (m)",
     "unitInch": "Zoll",
     "drawingArea": "Zeichenbereich",
     "wallThickness": "Wandstärke: {{value}} mm",
-    "minLine": "Min. çizgi: {{value}} mm",
+    "minLine": "Min. Linie: {{value}} mm",
     "positioning": "Positionierung",
     "moveToOrigin": "Zum Ursprung verschieben",
-    "moveToOriginHint": "çizimi orijine hizala",
-    "rotateLabel": "Döndür",
+    "moveToOriginHint": "Zeichnung am Ursprung ausrichten",
+    "rotateLabel": "Drehen",
     "mirrorLabel": "Spiegeln",
     "mirrorXTitle": "An X-Achse spiegeln",
     "mirrorYTitle": "An Y-Achse spiegeln",
@@ -152,10 +155,10 @@
     "wallLayersFound": "{{count}} Wand-Ebenen gefunden",
     "selectOnlyThese": "Nur diese auswählen",
     "noWallLayerDetected": "Wand-Ebene konnte nicht automatisch erkannt werden — Ebenen manuell auswählen",
-    "layersHeader": "Katmanlar ({{selected}}/{{total}} · {{segments}} segment)",
-    "selectNone": "Hiçbiri",
-    "wallBadge": "Duvar",
-    "entitySegmentLine": "{{entities}} nesne · {{segments}} segment",
+    "layersHeader": "Ebenen ({{selected}}/{{total}} · {{segments}} Segmente)",
+    "selectNone": "Keine",
+    "wallBadge": "Wand",
+    "entitySegmentLine": "{{entities}} Objekte · {{segments}} Segmente",
     "minLineTip": "Tipp: Erhöhen Sie die minimale Linienlänge, um kurze Linien auszublenden.",
     "importCount": "{{count}} Ebenen importieren",
     "noImportableLines": "Keine importierbaren Linien gefunden",
@@ -163,40 +166,40 @@
     "allSegmentsBelowMin": "{{count}} Segmente unter der min. Linienlänge.",
     "props": {
       "zoomTitle": "An Produkt heranzoomen (Kamera auf Produkt fokussieren)",
-      "unlock": "Kilidi aç",
-      "lock": "Kilitle",
+      "unlock": "Entsperren",
+      "lock": "Sperren",
       "deleteTitle": "Produkt löschen — aus Entwurf und Angebotsliste entfernen",
-      "mount": "Montaj",
-      "floorTitle": "Zemine otur (z = 0)",
-      "floor": "Zemin",
+      "mount": "Montage",
+      "floorTitle": "Auf Boden setzen (z = 0)",
+      "floor": "Boden",
       "wallTitle": "An nächste Wand heften (Hängeschrank / Dunstabzug)",
-      "wall": "Duvar",
-      "wallHeight": "Yükseklik (zeminden)",
+      "wall": "Wand",
+      "wallHeight": "Höhe (vom Boden)",
       "wallHelp": "Ein Wandgerät haftet an der nächsten Wand, ist zum Raum ausgerichtet und gleitet beim Ziehen an der Wand entlang.",
       "floorHelp": "Ein Bodengerät steht auf dem Boden auf und kann nicht über die Raumwände hinausragen.",
-      "position": "Konum",
+      "position": "Position",
       "posX": "X (links-rechts)",
-      "posY": "Y (ön-arka)",
-      "posZ": "Z (yükseklik — zeminden)",
+      "posY": "Y (vorne-hinten)",
+      "posZ": "Z (Höhe — vom Boden)",
       "dropToFloorTitle": "Gerät auf den Boden absetzen (Z = 0)",
-      "dropToFloor": "Zemine indir",
-      "orientation": "Yön",
+      "dropToFloor": "Auf Boden absetzen",
+      "orientation": "Ausrichtung",
       "gizmoTitle": "3D-Rotationsringe ein-/ausschalten (Gizmo)",
       "gizmoOn": "3D-Rotation aktiv — ausschalten",
       "gizmoOff": "3D-Rotationsringe",
       "angle": "Winkel",
-      "flipTitle": "180° çevir (ön/arka)",
+      "flipTitle": "180° drehen (vorne/hinten)",
       "tilt": "Neigung (aufrecht / liegend)",
       "tiltX": "Neigung vorn-hinten (X)",
       "tiltY": "Neigung rechts-links (Y)",
-      "uprightTitle": "Düz dik (0°)",
-      "upright": "Düz",
-      "tiltForwardTitle": "Öne yat (X +90°)",
-      "tiltForward": "Öne yat",
-      "tiltBackTitle": "Arkaya yat (X -90°)",
-      "tiltBack": "Arka yat",
-      "tiltSideTitle": "Yana yat (Y +90°)",
-      "tiltSide": "Yana yat",
+      "uprightTitle": "Aufrecht (0°)",
+      "upright": "Aufrecht",
+      "tiltForwardTitle": "Nach vorne neigen (X +90°)",
+      "tiltForward": "Nach vorne neigen",
+      "tiltBackTitle": "Nach hinten neigen (X -90°)",
+      "tiltBack": "Nach hinten neigen",
+      "tiltSideTitle": "Zur Seite neigen (Y +90°)",
+      "tiltSide": "Zur Seite neigen",
       "tiltWarning": "⚠ Neigung aktiv. Die Kollisionsprüfung erfolgt anhand der Grundfläche im aufrechten Zustand (0°).",
       "deleteFullTitle": "Entfernt das Produkt aus dem Entwurf und der Angebotsliste (wird automatisch gespeichert)",
       "deleteFull": "Produkt löschen (auch aus der Angebotsliste entfernen)",
@@ -290,36 +293,36 @@
     },
     "render": {
       "savedDownloaded": "Rendering gespeichert und heruntergeladen ({{w}}×{{h}})",
-      "downloadedNoCloud": "Render indirildi — buluta yüklenemedi, projede yerel yedek tutuldu",
+      "downloadedNoCloud": "Rendering heruntergeladen — Upload in die Cloud fehlgeschlagen, lokale Sicherung im Projekt gespeichert",
       "failed": "Rendering fehlgeschlagen"
     },
     "viewcube": {
       "tooltip": "Ansichtswürfel — Fläche/Kante/Ecke anklicken",
-      "rotateLeft": "90° sola döndür",
+      "rotateLeft": "90° nach links drehen",
       "home": "Startansicht (an Isometrie anpassen)",
       "rotateRight": "90° nach rechts drehen"
     },
     "toolbar": {
       "fitScene": "An Szene anpassen",
       "viewIso": "Isometrische Ansicht",
-      "viewTop": "Üstten görünüm",
-      "viewFront": "Önden görünüm",
-      "viewSide": "Yandan görünüm",
-      "grid": "Izgara",
-      "shadows": "Gölgeler",
+      "viewTop": "Draufsicht",
+      "viewFront": "Vorderansicht",
+      "viewSide": "Seitenansicht",
+      "grid": "Raster",
+      "shadows": "Schatten",
       "fog": "Atmosphärischer Nebel (aus = klar)",
       "rotateGizmo": "3D-Rotationsringe (ausgewähltes Produkt mit Gizmo drehen)",
       "walls": "Wände — Höhe einstellen / fürs Rendering ausblenden",
       "captureRender": "Hochwertiges Rendering erstellen (Ultra ~4K PNG · im Projekt speichern + herunterladen)",
-      "renderGallery": "Render galerisi (projeye kaydedilen görüntüler)",
+      "renderGallery": "Rendering-Galerie (im Projekt gespeicherte Bilder)",
       "ceiling": "Decke ein-/ausblenden (automatisch ausgeblendet, wenn die Kamera darüber ist)",
       "autoHide": "Intelligentes Ausblenden — beim Blick von außen werden Wände vor der Kamera ausgeblendet",
       "selectHelp": "Wand / Tür / Produkt anklicken → im rechten Panel bearbeiten"
     },
     "wallChip": {
       "hideTitle": "Diese Wand im Rendering/in der Ansicht ausblenden",
-      "hide": "Gizle",
-      "openPanel": "Duvar panelini aç (yükseklik)"
+      "hide": "Ausblenden",
+      "openPanel": "Wandpanel öffnen (Höhe)"
     },
     "armed": {
       "hint3d": "zum Platzieren auf den Boden klicken",
@@ -327,35 +330,35 @@
       "hint2d": "auf Plan klicken (Umschalt = mehrfach · Esc = abbrechen)"
     },
     "hud": {
-      "counts": "{{walls}} duvar · {{rooms}} oda · {{count}} ekipman",
+      "counts": "{{walls}} Wände · {{rooms}} Räume · {{count}} Geräte",
       "selectedHelp": "ausgewählt · Körper ziehen (Snap + Kollision) · für 3D-Drehung ↻-Schaltfläche (Toolbar / rechtes Panel) · F / Doppelklick = fokussieren · R 90° · Entf löschen",
       "gridScale2d": "{{px}} px/m · Raster 10 cm/1 m"
     },
     "controls": {
-      "left": "Sol",
-      "rotate": "döndür",
+      "left": "Links",
+      "rotate": "drehen",
       "right": "Rechts",
       "pan": "verschieben",
-      "wheel": "Tekerlek",
+      "wheel": "Mausrad",
       "zoom": "zoomen",
       "doubleClick": "Doppelklick",
-      "focus": "ürüne odaklan"
+      "focus": "auf Objekt fokussieren"
     },
     "emptyState": {
       "noWalls": "Zeichnen Sie zuerst einen Raum im 2D-Editor — die 3D-Ansicht aktualisiert sich live."
     },
     "openings": {
-      "title": "Özellikler",
-      "add": "Ekle",
+      "title": "Eigenschaften",
+      "add": "Hinzufügen",
       "door": "Tür",
-      "window": "Pencere",
+      "window": "Fenster",
       "passThrough": "Durchgang",
       "placeHint": "Zum Platzieren auf eine Wand klicken. Esc — abbrechen.",
       "selected": "Ausgewählte Öffnung",
       "selectPrompt": "Wählen Sie eine Tür oder ein Fenster zum Bearbeiten aus.",
-      "kind": "Tip",
+      "kind": "Typ",
       "width": "Breite (cm)",
-      "height": "Yükseklik (cm)",
+      "height": "Höhe (cm)",
       "offset": "Position (cm, vom Wandanfang)",
       "sill": "Brüstungshöhe (cm)",
       "wallLength": "Wandlänge: {{m}} m",
@@ -384,22 +387,22 @@
       "tabLibrary": "Meine Bibliothek"
     },
     "walls": {
-      "title": "Duvarlar",
-      "hiddenCount": "{{n}} gizli",
+      "title": "Wände",
+      "hiddenCount": "{{n}} ausgeblendet",
       "showAll": "Alle anzeigen",
       "empty": "Noch keine Wände — zeichnen Sie zuerst einen Raum im 2D-Editor.",
       "footerHelp": "👁 Das Augensymbol blendet die Wand im Rendering/in der Ansicht aus (der Entwurf bleibt unverändert). Sie können eine Wand auch durch Anklicken in der 3D-Szene auswählen.",
-      "show": "Göster",
-      "hide": "Render/görünümde gizle",
+      "show": "Anzeigen",
+      "hide": "In Rendering/Ansicht ausblenden",
       "selectToggle": "Auswählen / Auswahl aufheben",
-      "wallN": "Duvar {{index}}",
+      "wallN": "Wand {{index}}",
       "heightMm": "Wandhöhe (mm)",
       "height": "Wandhöhe"
     },
     "tool": {
-      "select": "Seç (V)",
-      "drawRoom": "Oda çiz (R)",
-      "drawWall": "Duvar çiz (W) — oda içine ek bölme",
+      "select": "Auswählen (V)",
+      "drawRoom": "Raum zeichnen (R)",
+      "drawWall": "Wand zeichnen (W) — zusätzliche Trennwand im Raum",
       "pan": "Verschieben (H oder Leertaste)",
       "addProduct": "Produkt hinzufügen — Katalog öffnen, Produkt anklicken, im Plan ablegen",
       "zoomIn": "Vergrößern",
@@ -407,8 +410,8 @@
       "fitToContent": "An Inhalt anpassen",
       "deleteRoom": "Ausgewählten Raum löschen (nur diesen Raum) · Entf",
       "clearAll": "Alles löschen — gesamte Zeichnung entfernen (Strg+Z macht rückgängig)",
-      "undo": "Geri Al",
-      "redo": "Yinele",
+      "undo": "Rückgängig",
+      "redo": "Wiederholen",
       "deleteSelection": "Auswahl löschen (Entf)",
       "dims": "Bemaßung ein-/ausblenden",
       "drawRect": "Rechteckiger Raum (T) — zwei Ecken",
@@ -437,27 +440,27 @@
     },
     "wall": {
       "editLength": "Länge bearbeiten",
-      "delete": "Sil (Delete)"
+      "delete": "Löschen (Delete)"
     },
     "angle": {
-      "set90": "90° yap"
+      "set90": "Auf 90° setzen"
     },
     "gallery": {
-      "title": "Renderlar",
-      "emptyTitle": "Henüz render yok.",
-      "emptyBefore": "Toolbar'daki",
-      "emptyCamera": "📷 kamera",
+      "title": "Renderings",
+      "emptyTitle": "Noch keine Renderings.",
+      "emptyBefore": "In der Toolbar",
+      "emptyCamera": "📷 Kamera",
       "emptyAfter": "-Schaltfläche für ein hochwertiges Rendering — es wird automatisch hier (im Projekt) gespeichert.",
-      "enlarge": "Büyüt",
-      "local": "yerel"
+      "enlarge": "Vergrößern",
+      "local": "lokal"
     },
     "plot": {
       "graphicScale": "GRAFISCHER MASSSTAB 1:100",
       "north": "K",
-      "area": "ALAN",
-      "perimeter": "ÇEVRE",
-      "productArea": "ÜRÜN ALANI",
-      "scale": "Ölçek {{scale}}"
+      "area": "FLÄCHE",
+      "perimeter": "UMFANG",
+      "productArea": "PRODUKTFLÄCHE",
+      "scale": "Maßstab {{scale}}"
     },
     "cad": {
       "loadingEngine": "DWG-Engine wird geladen…",
@@ -465,8 +468,8 @@
       "convertFailed": "DWG → DXF Konvertierung fehlgeschlagen (Datei beschädigt oder nicht unterstützte Version).",
       "unsupportedFormat": "Nicht unterstütztes CAD-Format: {{name}}. Unterstützt werden: {{list}}",
       "readingDxf": "DXF okunuyor…",
-      "addingGeometry": "Geometri ana alana ekleniyor…",
-      "analyzingLayers": "Katmanlar analiz ediliyor…"
+      "addingGeometry": "Geometrie wird zum Hauptbereich hinzugefügt…",
+      "analyzingLayers": "Ebenen werden analysiert…"
     },
     "confirm": {
       "clearAllTitle": "Gesamte Zeichnung löschen?",
@@ -660,97 +663,97 @@
     },
     "loading": "Produkte werden geladen...",
     "noResults": "Keine Produkte gefunden",
-    "technicalSpecs": "Teknik Özellikler",
+    "technicalSpecs": "Technische Daten",
     "spec": {
-      "power": "Güç",
+      "power": "Leistung",
       "connection": "Anschluss",
       "connection2": "Anschluss 2",
       "thermalPower": "Wärmeleistung",
-      "motorPower": "Motor gücü",
-      "vapor": "Buhar",
-      "volume": "Hacim",
-      "series": "Seri",
-      "family": "Ürün ailesi",
+      "motorPower": "Motorleistung",
+      "vapor": "Dampf",
+      "volume": "Volumen",
+      "series": "Serie",
+      "family": "Produktfamilie",
       "catalogPage": "Katalogseite",
-      "type": "Tip",
-      "subCategory": "Alt kategori",
-      "colour": "Renk",
-      "material": "Malzeme",
-      "status": "Durum",
-      "group": "Ürün grubu",
-      "subGroup": "Grup",
-      "family2": "Aile"
+      "type": "Typ",
+      "subCategory": "Unterkategorie",
+      "colour": "Farbe",
+      "material": "Material",
+      "status": "Status",
+      "group": "Produktgruppe",
+      "subGroup": "Gruppe",
+      "family2": "Familie"
     },
     "seoDescription": "{{name}}. Professionelle Großküchenausstattung in Diamond-Qualität. Mit der Sicherheit von 2MC Gastro.",
-    "breadcrumbProducts": "Ürünler",
+    "breadcrumbProducts": "Produkte",
     "badgeNewCaps": "NEU",
     "badgeDiscount": "RABATT",
     "sku": "SKU",
-    "favorite": "Favori",
-    "ratingSummary": "{{rating}} ({{count}} yorum)",
-    "reviews": "yorum",
-    "vatFreeShipping": "KDV dahil · Ücretsiz kargo",
-    "trustFreeTitle": "Ücretsiz",
-    "trustFreeSub": "Kargo",
-    "trustReturnTitle": "30 Gün",
+    "favorite": "Favorit",
+    "ratingSummary": "{{rating}} ({{count}} Bewertungen)",
+    "reviews": "Bewertungen",
+    "vatFreeShipping": "inkl. MwSt. · Kostenloser Versand",
+    "trustFreeTitle": "Kostenlos",
+    "trustFreeSub": "Versand",
+    "trustReturnTitle": "30 Tage",
     "trustReturnSub": "Rückgabe",
     "trustSupportTitle": "24/7",
-    "tabSpecs": "Özellikler",
-    "tabTech": "Teknik Spec",
-    "tabReviews": "Yorumlar",
-    "tabQna": "Sorular",
+    "tabSpecs": "Eigenschaften",
+    "tabTech": "Technische Daten",
+    "tabReviews": "Bewertungen",
+    "tabQna": "Fragen",
     "noSpec": "Keine Beschreibung.",
     "connection": "Anschluss",
-    "volume": "Hacim",
-    "vapor": "Buhar",
-    "category": "Kategori",
+    "volume": "Volumen",
+    "vapor": "Dampf",
+    "category": "Kategorie",
     "noReviews": "Noch keine Bewertungen. Seien Sie der Erste!",
-    "noQuestions": "Henüz soru yok.",
-    "compatibleAccessories": "Uyumlu Aksesuarlar",
+    "noQuestions": "Noch keine Fragen.",
+    "compatibleAccessories": "Kompatibles Zubehör",
     "compatibleAccessoriesDesc": "Passende Körbe, Teile und GN-Zubehör für dieses System",
     "related": "Wird oft zusammen gekauft",
     "searchAllBrands": "In allen Marken suchen…",
-    "productsCount": "{{count}} ürün",
+    "productsCount": "{{count}} Produkte",
     "noProductsFound": "Keine Produkte gefunden",
     "catalogNotLoaded": "Möglicherweise sind die Katalogdaten noch nicht geladen.",
     "addNewProduct": "Neues Produkt hinzufügen",
-    "addProductToProjectSuffix": "projesine ürün ekleyin",
-    "productImage": "Ürün Görseli",
+    "addProductToProjectSuffix": "Produkte zum Projekt hinzufügen",
+    "productImage": "Produktbild",
     "uploadImageHint": "Zum Hochladen klicken oder Bild hierher ziehen",
-    "imageFormatsHint": "PNG, JPG, WEBP (maks. 5MB)",
-    "maxFileSize": "Maksimum dosya boyutu 5MB",
+    "imageFormatsHint": "PNG, JPG, WEBP (max. 5 MB)",
+    "maxFileSize": "Maximale Dateigröße 5 MB",
     "nameRequired": "Produktname ist erforderlich.",
-    "basicInfo": "Temel Bilgiler",
+    "basicInfo": "Grundinformationen",
     "productNameRequired": "Produktname *",
     "productNamePlaceholder": "z. B.: Heißluftofen Pro",
-    "productCode": "Ürün Kodu",
-    "codePlaceholder": "ör: VF-OVN-601-EL",
-    "brandPlaceholder": "ör: 2MC",
-    "series": "Seri",
-    "seriesPlaceholder": "ör: 70er",
+    "productCode": "Artikelnummer",
+    "codePlaceholder": "z. B. VF-OVN-601-EL",
+    "brandPlaceholder": "z. B. 2MC",
+    "series": "Serie",
+    "seriesPlaceholder": "z. B. 70er",
     "descriptionPlaceholder": "Kurze Beschreibung zum Produkt...",
     "categoryAndIcon": "Kategorie und Symbol",
-    "categoryRequired": "Kategori *",
+    "categoryRequired": "Kategorie *",
     "planIconLabel": "Plan-Symbol",
     "widthCm": "Breite (cm)",
-    "heightCm": "Yükseklik (cm)",
-    "depthCm": "Derinlik (cm)",
-    "powerKw": "Güç (kW)",
-    "energyType": "Enerji Tipi",
-    "energyElectric": "Elektrik",
+    "heightCm": "Höhe (cm)",
+    "depthCm": "Tiefe (cm)",
+    "powerKw": "Leistung (kW)",
+    "energyType": "Energieart",
+    "energyElectric": "Elektrisch",
     "energyGas": "Erdgas",
-    "energyNone": "Yok (Pasif)",
+    "energyNone": "Keine (Passiv)",
     "priceEuro": "Preis (€)",
     "featuresLabel": "Merkmale (durch Kommas trennen)",
-    "featuresPlaceholder": "ör: Buhar enjeksiyonu, Dokunmatik ekran, Otomatik programlar",
+    "featuresPlaceholder": "z. B. Dampfeinspritzung, Touchscreen, Automatikprogramme",
     "saveProduct": "Produkt speichern",
     "planIcon": {
       "oven": "Ofen",
-      "stoveGrill": "Ocak/Izgara",
+      "stoveGrill": "Herd/Grill",
       "cooler": "Kühlung",
       "dishwasher": "Spülm.",
-      "sink": "Evye",
-      "counter": "Tezgah"
+      "sink": "Spüle",
+      "counter": "Arbeitstisch"
     },
     "sort": {
       "recommended": "Empfohlene Sortierung",
@@ -759,24 +762,64 @@
       "priceAsc": "Preis (aufsteigend)",
       "priceDesc": "Preis (absteigend)",
       "powerDesc": "Leistung (hoch → niedrig)",
-      "byCategory": "Kategoriye göre"
+      "byCategory": "Nach Kategorie"
     },
-    "addProduct": "Ürün Ekle",
+    "addProduct": "Produkt hinzufügen",
     "selectFromCatalogSuffix": "-Projekt: Produkte aus dem Katalog auswählen",
-    "manualAdd": "Manuel ekle",
-    "finish": "Bitir",
+    "manualAdd": "Manuell hinzufügen",
+    "finish": "Fertigstellen",
     "searchByNameCodeBrand": "Nach Produktname, Code oder Marke suchen...",
     "allWithCount": "Alle ({{count}})",
-    "subGroup": "Alt grup:",
-    "productsFoundCount": "{{count}} ürün bulundu",
+    "subGroup": "Untergruppe:",
+    "productsFoundCount": "{{count}} Produkte gefunden",
     "tryDifferent": "Versuchen Sie eine andere Suche oder einen anderen Filter.",
-    "addedToast": "{{name}} eklendi",
+    "addedToast": "{{name}} hinzugefügt",
     "removedToast": "{{name}} entfernt",
     "removeOneTitle": "Ein Stück entfernen",
     "addOneMoreTitle": "Ein weiteres Stück hinzufügen",
     "pcsCount": "{{count}} Stück",
-    "add": "Ekle",
-    "slashOfTotalProducts": "/ {{count}} ürün"
+    "add": "Hinzufügen",
+    "slashOfTotalProducts": "/ {{count}} Produkte",
+    "immersive": {
+      "phase1": {
+        "eyebrow": "01 — Außengehäuse",
+        "title": "Der Spiralkneter tritt auf die Bühne.",
+        "body": "Kessel, Schutzkorb und Hauptgehäuse wirken wie aus einem Guss."
+      },
+      "phase2": {
+        "eyebrow": "02 — Gehäuse öffnet sich",
+        "title": "Die Außenhülle zieht sich zurück.",
+        "body": "Das Mechanikmodell rückt in den Vordergrund; das Gehäuse wird zu einer halbtransparenten Referenzschicht."
+      },
+      "phase3": {
+        "eyebrow": "03 — Kraftübertragung",
+        "title": "Motor und Getriebe werden freigelegt.",
+        "body": "Die Innenkomponenten öffnen sich entlang ihrer Achsen und der technische Aufbau wird sichtbar."
+      },
+      "phase4": {
+        "eyebrow": "04 — Explosionsansicht",
+        "title": "Alle Teile in technischer Anordnung.",
+        "body": "Für Wartung, Service und Vertriebspräsentationen wird die innere Architektur des Geräts zu einer klar lesbaren 3D-Komposition."
+      },
+      "fallback": "Die 3D-Szene wurde auf diesem Gerät in den einfachen Modus geschaltet."
+    },
+    "cards": {
+      "item1": {
+        "title": "Professionelle Kühlvitrine",
+        "description": "Zweitürig, 202 l brutto, digitale Temperaturregelung. Energieeffizienzklasse A+, leiser Kompressor, Innengehäuse aus Edelstahl.",
+        "cta": "Vitrine entdecken"
+      },
+      "item2": {
+        "title": "Profi-Planetenrührwerk",
+        "description": "Planetarische Rührbewegung, 20-l-Edelstahlkessel, drei Geschwindigkeitsstufen. Klassenbester für Restaurant- und Konditoreiküchen.",
+        "cta": "Rührwerk ansehen"
+      },
+      "item3": {
+        "title": "Barkühler mit Vitrine",
+        "description": "LED-beleuchtete Vitrine für die Präsentation von Flaschen und Getränken. Zweistufige Kühlung, leiser Betrieb.",
+        "cta": "Modelle ansehen"
+      }
+    }
   },
   "nav": {
     "project": "Projekt",
@@ -801,7 +844,7 @@
     "exportDWG": "DXF exportieren",
     "payment": "Abonnement",
     "home": "Startseite",
-    "panel": "Panel",
+    "panel": "Dashboard",
     "drawing": "Zeichnung",
     "myOrders": "Meine Bestellungen",
     "newOrder": "Neue Bestellung",
@@ -932,16 +975,16 @@
     "tagline": "Professionelle Küchenplanung",
     "studioVersion": "Studio v1.0",
     "phase": "Aktiv",
-    "version": "Versiyon {{version}} · {{date}}",
+    "version": "Version {{version}} · {{date}}",
     "heroTitle": "2MC Gastro — Markenidentität",
     "heroSubtitle": "Die verbindliche Quelle für Logo, Farben, Typografie, Bildsprache und Tonalität. Alle digitalen und gedruckten Ausgaben folgen diesem Leitfaden.",
-    "do": "Yap",
-    "dont": "Yapma",
+    "do": "Richtig",
+    "dont": "Falsch",
     "logo": {
       "title": "Logo",
       "subtitle": "Primär- und Icon-Varianten",
-      "mainLogo": "Ana Logo",
-      "mainLogoUsage": "Web header, PDF kapak, fuar",
+      "mainLogo": "Hauptlogo",
+      "mainLogoUsage": "Web-Header, PDF-Cover, Messe",
       "iconFavicon": "Icon / Favicon",
       "iconFaviconUsage": "Favicon, App-Icon, Social-Media-Avatar"
     },
@@ -953,67 +996,67 @@
       "statusTokensOnly": "Statusfarben ausschließlich über Tokens beziehen"
     },
     "donts": {
-      "noLogoEffects": "Logo üzerine gölge, outline, glow ekleme",
+      "noLogoEffects": "Keine Schatten, Outlines oder Glow-Effekte auf dem Logo",
       "noWordmarkSplit": "Wortmarke und Icon nicht voneinander trennen",
       "noEmojiHype": "Keine Emojis oder übertriebenen Adjektive („revolutionär\", „großartig\") verwenden",
       "noTailwindStatusColors": "Tailwind emerald/amber/blue nicht als Statusfarben verwenden",
-      "noRandomGradient": "Rastgele gradient (mor→pembe vb.) kullanma"
+      "noRandomGradient": "Keine zufälligen Gradienten verwenden (z. B. Lila→Pink)"
     },
     "colors": {
-      "title": "Renk Paleti",
+      "title": "Farbpalette",
       "subtitle": "Klicken Sie auf ein Farbfeld, um den Hex-Wert zu kopieren",
       "groupPrimary": "Primär — Rot",
-      "groupSecondary": "Sekonder & Tersiyer",
-      "groupSurface": "Yüzey & Metin",
-      "groupStatus": "Durum"
+      "groupSecondary": "Sekundär & Tertiär",
+      "groupSurface": "Oberfläche & Text",
+      "groupStatus": "Status"
     },
     "swatchRole": {
-      "primary": "Birincil buton, ana vurgu",
-      "primaryContainer": "Gradient ikinci durak",
+      "primary": "Primärer Button, Hauptakzent",
+      "primaryContainer": "Gradient-Zwischenstopp",
       "lightBackground": "Heller Hintergrund",
       "hoverSelected": "Hover / ausgewählt",
       "secondary": "Sekundärfarbe, Marineblau",
       "infoCard": "Infokarte",
-      "darkUiSurface": "Koyu UI yüzeyi, footer",
+      "darkUiSurface": "Dunkle UI-Oberfläche, Footer",
       "pageBackground": "Seitenhintergrund",
-      "cardBackground": "Kart zemini",
-      "lightEmphasis": "Hafif vurgu",
+      "cardBackground": "Kartenhintergrund",
+      "lightEmphasis": "Leichte Betonung",
       "panelBackground": "Panel-Hintergrund",
-      "highEmphasisPanel": "Yüksek vurgu panel",
-      "highestPanel": "En yüksek panel",
-      "primaryText": "Birincil metin",
+      "highEmphasisPanel": "Panel mit hoher Betonung",
+      "highestPanel": "Höchste Panel-Ebene",
+      "primaryText": "Primärtext",
       "secondaryText": "Sekundärtext",
       "successConfirm": "Erfolg, Bestätigung",
       "successBackground": "Erfolgs-Hintergrund",
-      "warningPending": "Dikkat, bekleyen",
+      "warningPending": "Warnung, ausstehend",
       "warningBackground": "Warnungs-Hintergrund",
       "infoTip": "Info, Tipp",
       "infoBackground": "Info-Hintergrund",
-      "errorCritical": "Hata, kritik",
-      "errorBackground": "Hata arka plan"
+      "errorCritical": "Fehler, kritisch",
+      "errorBackground": "Fehler-Hintergrund"
     },
     "typography": {
-      "title": "Tipografi",
+      "title": "Typografie",
       "subtitle": "Inter Überschrift · Inter Fließtext",
       "sample": "Großküche, präzise Ingenieurskunst."
     },
     "components": {
       "title": "Komponenten",
       "subtitle": "Live-Beispiele",
-      "buttons": "Butonlar",
+      "buttons": "Buttons",
       "createQuote": "Angebot erstellen",
-      "statusBadges": "Durum rozetleri",
+      "statusBadges": "Status-Badges",
       "formElement": "Formularelement",
       "projectName": "Projektname",
       "projectNameSample": "Hotelküche — Köln",
-      "typographyCombo": "Tipografi kombini",
+      "typographyCombo": "Typografie-Kombination",
       "tagline": "Planungsplattform für Großküchen. 10.000+ Geräte, 50+ Marken, HACCP-konforme Angebote."
     },
     "badge": {
       "approved": "Freigegeben",
-      "pending": "Beklemede",
+      "pending": "Ausstehend",
       "info": "Info",
-      "error": "Hata"
+      "error": "Fehler"
     },
     "footer": {
       "title": "2MC Gastro Markenidentitäts-Leitfaden",
@@ -1051,12 +1094,14 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Krankenhaus",
     "sectorOther": "Sonstiges",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Nicht angemeldet",
+    "showPassword": "Passwort anzeigen",
+    "hidePassword": "Passwort verbergen"
   },
   "welcome": {
     "headline": "Die Kommandozentrale",
     "headlineSub": "der Profiküche",
-    "heroEyebrow": "Manifesto · Vol. I",
+    "heroEyebrow": "Manifest · Vol. I",
     "subtitle": "Planen, ausstatten, übergeben — die neue Sprache der Großkücheprozesse.",
     "subtitleFull": "Vom Katalog zum Grundriss, von der Stückliste zum Angebot — jeder Schritt in einem einzigen Workflow. Küchen-Engineering, digital, im Takt der Branche.",
     "enterPlatform": "Plattform betreten",
@@ -1327,17 +1372,17 @@
     "badgeExperience": "{{count}}+ JAHRE ERFAHRUNG",
     "badgeGlobalDelivery": "WELTWEITE LIEFERUNG",
     "badgeHACCP": "HACCP UYUMLU",
-    "actionCatalogTitle": "Dijital Katalog",
+    "actionCatalogTitle": "Digitaler Katalog",
     "actionCatalogDesc": "Über 10.000 Produkte auf Knopfdruck.",
     "actionStudioTitle": "Designstudio",
     "actionStudioDesc": "Planen Sie Ihre Küche selbst in 3D.",
-    "actionProjectsTitle": "Projelerim",
+    "actionProjectsTitle": "Meine Projekte",
     "actionProjectsDesc": "Verwalten Sie Ihre Angebote und Bestellungen.",
-    "actionSupportTitle": "Teknik Destek",
+    "actionSupportTitle": "Technischer Support",
     "actionSupportDesc": "Unser Expertenteam steht Ihnen jederzeit zur Seite.",
     "ctaEyebrow": "PROJEKTZENTRALE",
     "ctaHeadline": "Die Küche der Zukunft",
-    "ctaHeadlineHighlight1": "Birlikte",
+    "ctaHeadlineHighlight1": "Gemeinsam",
     "ctaHeadlineHighlight2": "gestalten wir gemeinsam.",
     "ctaDescription": "Mit KI-gestützter Layoutplanung, 3D-Küchensimulation und unserer Ingenieurskompetenz verwirklichen wir Ihre Vision.",
     "ctaButton": "Beratungstermin vereinbaren",
@@ -1345,7 +1390,7 @@
       "breadcrumb": "Zurück zur Startseite",
       "eyebrow": "STARTSEITE",
       "titlePrefix": "Reihenfolge der Abschnitte",
-      "titleEmphasis": "düzenleyin",
+      "titleEmphasis": "gestalten",
       "openInNewTab": "In neuem Tab öffnen",
       "resetDefault": "Auf Standard zurücksetzen",
       "methodsEyebrow": "BEDIENUNGSHINWEISE",
@@ -1354,7 +1399,7 @@
       "method2Title": "↑↓ Schaltflächen:",
       "method2Desc": "verschieben Sie jede Zeile um einen Schritt nach oben oder unten.",
       "method3Title": "Drag & Drop:",
-      "method3DescBefore": "soldaki",
+      "method3DescBefore": "links",
       "method3DescAfter": "am Anfasser greifen und an die gewünschte Stelle ziehen.",
       "pickedHint": "ausgewählt — klicken Sie jetzt auf die gewünschte Zielposition.",
       "cancelEsc": "Abbrechen (ESC)"
@@ -1387,7 +1432,7 @@
     "equipmentAdded": "Gerät hinzugefügt",
     "hoursAgo": "vor {{count}} Stunden",
     "yesterday": "Gestern",
-    "eyebrow": "Overview · Vol. I"
+    "eyebrow": "Übersicht · Vol. I"
   },
   "catalog": {
     "title": "Technischer Gerätekatalog",
@@ -1416,28 +1461,28 @@
     "browseCAD": "CAD-Bibliothek durchsuchen",
     "equipmentCatalog": "Gerätekatalog",
     "searchProducts": "Produkte suchen (Name, Code, Beschreibung)...",
-    "category": "Kategori",
+    "category": "Kategorie",
     "emptyHint": "Ändern Sie die Filter, oder die Katalogdaten wurden möglicherweise noch nicht geladen.",
-    "addToProject": "Projeye Ekle",
+    "addToProject": "Zum Projekt hinzufügen",
     "noProjects": "Noch keine Projekte",
     "addToFloorPlan": "Zum Plan hinzufügen",
-    "businessRestaurant": "Restoran",
-    "businessCafe": "Kafe / Bistro",
-    "businessHotel": "Otel",
+    "businessRestaurant": "Restaurant",
+    "businessCafe": "Café / Bistro",
+    "businessHotel": "Hotel",
     "businessFastfood": "Fast Food",
     "businessBakery": "Konditorei / Bäckerei",
     "businessCatering": "Catering",
-    "addFavorite": "Favorilere ekle",
+    "addFavorite": "Zu Favoriten hinzufügen",
     "catalogPrice": "Katalogpreis",
-    "completedProjects": "Tamamlanan Projeler",
+    "completedProjects": "Abgeschlossene Projekte",
     "createFirstProject": "Erstellen Sie Ihr erstes Projekt",
-    "electricPower": "Elektrik Gücü",
-    "fullSizeImage": "Tam boyutlu görsel",
+    "electricPower": "Elektrische Leistung",
+    "fullSizeImage": "Bild in voller Größe",
     "noResults": "Keine Ergebnisse gefunden",
-    "ongoingProjects": "Devam Eden Projeler",
+    "ongoingProjects": "Laufende Projekte",
     "removeFavorite": "Aus Favoriten entfernen",
     "selectProject": "Wählen Sie das Projekt, dem Sie den Artikel hinzufügen möchten",
-    "subrange": "Alt Seri",
+    "subrange": "Unterserie",
     "tryDifferent": "Versuchen Sie eine andere Suche oder einen anderen Filter"
   },
   "design": {
@@ -1464,12 +1509,44 @@
     "applyAutoSnap": "Auto-Einrasten anwenden",
     "clearance": "FREIRAUM",
     "clickToChange": "zum Ändern klicken",
-    "editing": "Düzenleniyor",
+    "editing": "Wird bearbeitet",
     "newKitchenDesign": "Neue Küchenplanung",
     "projectStatus": "Projektstatus",
     "savedSuccess": "Planung gespeichert.",
     "toolPan": "Verschieben",
-    "toolSelect": "Seç"
+    "toolSelect": "Auswählen",
+    "tool": {
+      "drawWall": "Wand zeichnen (W)",
+      "measure": "Messwerkzeug",
+      "showGrid": "Raster anzeigen",
+      "snapMode": "Snap-Modus"
+    },
+    "roomProps": {
+      "selectPlaceholder": "Auswählen…",
+      "usage": {
+        "hotKitchen": "Warme Küche",
+        "coldKitchen": "Kalte Küche",
+        "prepArea": "Vorbereitungsbereich",
+        "dishRoom": "Spülküche",
+        "coldRoom": "Kühlraum",
+        "serviceArea": "Servicebereich",
+        "other": "Sonstiges"
+      }
+    },
+    "opening": {
+      "door": "Tür"
+    },
+    "catalog": {
+      "allCategories": "Alle Kategorien",
+      "addToKitchen": "Zur Küche hinzufügen"
+    },
+    "info": {
+      "descriptionPlaceholder": "Beschreibung zum Projekt oder Raum…"
+    },
+    "task": {
+      "newPlaceholder": "Neue Aufgabe hinzufügen (mit Enter speichern)",
+      "assigneePlaceholder": "Zugewiesene Person (optional)"
+    }
   },
   "bom": {
     "title": "Materialliste",
@@ -1498,7 +1575,8 @@
     "pending": "Ausstehend",
     "favorites": "Favoriten",
     "totalValue": "Gesamtwert",
-    "unitPrice": "Einzelpreis"
+    "unitPrice": "Einzelpreis",
+    "catalogNotFoundFav": "Nicht im Katalog gefunden — kann nicht zu Favoriten hinzugefügt werden"
   },
   "projects": {
     "title": "Projekte",
@@ -1612,14 +1690,15 @@
     "open": "Aç",
     "openHint": "Zum Öffnen doppelklicken",
     "renameHint": "Projektname bearbeiten",
-    "quotesTitle": "Teklifler",
+    "quotesTitle": "Angebote",
     "quotesSubtitle": "Alle erstellten Angebote. Geben Sie die Angebotsnummer ein und drücken Sie Enter, um direkt zum Angebot zu gelangen.",
     "quotesSearchPlaceholder": "Angebotsnummer suchen (z. B. TKF-781676-2026) — Enter zum Öffnen",
     "quoteNo": "Angebotsnummer",
     "project": "Projekt",
-    "amountVatIncluded": "Tutar (KDV dahil)",
+    "amountVatIncluded": "Betrag (inkl. MwSt.)",
     "noQuotesForQuery": "Keine Angebote für \"{{query}}\" gefunden.",
-    "noQuotesYet": "Noch keine Angebote."
+    "noQuotesYet": "Noch keine Angebote.",
+    "removeProductAskTitle": "Produkt aus dem Projekt entfernen?"
   },
   "settings": {
     "title": "Einstellungen",
@@ -1644,25 +1723,25 @@
     "regionTR": "Türkei",
     "regionUS": "USA",
     "subtitle": "Verwalten Sie hier Ihre Konto-, Sprach-, Benachrichtigungs- und Darstellungseinstellungen.",
-    "banners": "Banner Yönetimi",
+    "banners": "Bannerverwaltung",
     "bannerDescription": "Bearbeiten Sie die Slides im oberen Bannerbereich der Startseite. Änderungen werden sofort gespeichert.",
-    "bannerImageTooLarge": "Görsel 4MB'tan büyük olamaz.",
-    "addSlide": "Slayt Ekle",
+    "bannerImageTooLarge": "Das Bild darf nicht größer als 4 MB sein.",
+    "addSlide": "Folie hinzufügen",
     "resetSlidesConfirm": "Alle Slides werden auf die Standardwerte zurückgesetzt. Sind Sie sicher?",
     "autoSlideInterval": "Automatischer Wechsel (Sek.)",
-    "bannerEyebrowPlaceholder": "Eyebrow (örn: 01 / EQUIPMENT)",
+    "bannerEyebrowPlaceholder": "Eyebrow (z. B. 01 / EQUIPMENT)",
     "bannerTitlePlaceholder": "Titel",
     "bannerSubtitlePlaceholder": "Untertitel",
     "bannerGradientPlaceholder": "CSS-Gradient (wird verwendet, wenn kein Bild vorhanden ist)",
     "deleteSlideConfirm": "Möchten Sie diesen Slide wirklich löschen?",
-    "bannerVisible": "Görünür",
+    "bannerVisible": "Sichtbar",
     "bannerRemoveImage": "Bild entfernen",
     "bannerChangeImage": "Bild ändern",
-    "bannerUploadImage": "Görsel yükle",
+    "bannerUploadImage": "Bild hochladen",
     "bannerTipBefore": "Tipp: Für Bannerbilder wird ein ",
     "bannerTipDimension": "820×312 px",
     "bannerTipAfter": "-Seitenverhältnis empfohlen. Hochgeladene Bilder werden im Browser gespeichert (localStorage). In Canva erstellte Designs können Sie als PNG/JPG herunterladen und hier hochladen.",
-    "language": "Dil"
+    "language": "Sprache"
   },
   "support": {
     "title": "Support",
@@ -1681,8 +1760,12 @@
     "sending": "Wird gesendet…",
     "sendFailed": "Das Ticket konnte nicht gesendet werden. Bitte schreiben Sie uns direkt:",
     "subtitle": "Eröffnen Sie ein Ticket mit Ihrer Frage oder kontaktieren Sie uns direkt.",
-    "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Ausführliche Handbücher und Video-Tutorials finden Sie auf unserer Dokumentationsseite."
+    "businessHours": "Montag–Freitag · 09:00–18:00 CET",
+    "docsCardDesc": "Ausführliche Handbücher und Video-Tutorials finden Sie auf unserer Dokumentationsseite.",
+    "adminInbox": "Eingegangene Supportanfragen",
+    "inboxEmpty": "Noch keine Supportanfragen.",
+    "inboxGuest": "Gast",
+    "savedEmailFailed": "Ihre Anfrage wurde gespeichert, die E-Mail-Benachrichtigung konnte jedoch nicht versendet werden."
   },
   "docs": {
     "title": "Dokumentation",
@@ -1726,7 +1809,7 @@
     "confirmDelete": "Konto wirklich löschen?",
     "delete": "Löschen",
     "deleteDesc": "Löschen Sie Ihr Konto und alle zugehörigen Daten dauerhaft",
-    "deleteError": "Failed to delete account",
+    "deleteError": "Konto konnte nicht gelöscht werden",
     "deleteItem1": "Ihr Kundenprofil",
     "deleteItem2": "Alle Bestellungen und deren Details",
     "deleteItem3": "Alle gespeicherten Einstellungen",
@@ -1738,7 +1821,7 @@
     "deleteWarning2": "Diese Aktion kann nicht rückgängig gemacht werden.",
     "download": "Herunterladen",
     "exportDesc": "Laden Sie Ihre persönlichen Daten als JSON-Datei herunter",
-    "exportError": "Failed to export data",
+    "exportError": "Daten konnten nicht exportiert werden",
     "exportSuccess": "Daten erfolgreich heruntergeladen",
     "exportTitle": "Meine Daten herunterladen"
   },
@@ -1784,21 +1867,23 @@
     "emptyHint": "Entdecken Sie professionelle Küchenausstattung in unserem Katalog.",
     "startShopping": "Einkauf starten",
     "browseCatalog": "Zum Katalog",
-    "add": "Sepet",
-    "clear": "Sepeti Temizle",
+    "add": "Warenkorb",
+    "clear": "Warenkorb leeren",
     "clearConfirm": "Alle Artikel im Warenkorb werden entfernt. Sind Sie sicher?",
-    "clearConfirmYes": "Evet, temizle",
+    "clearConfirmYes": "Ja, leeren",
     "continueShopping": "Weiter einkaufen",
-    "fieldName": "Ad Soyad / Firma",
+    "fieldName": "Name / Firma",
     "fieldPhone": "Telefon",
     "goToCheckout": "Zum Warenkorb / Angebot anfordern",
-    "itemsShort": "ürün",
+    "itemsShort": "Artikel",
     "quoteModalHint": "Ihre Anfrage wird an 2MC übermittelt, wir melden uns umgehend. Ihr Warenkorb bleibt erhalten.",
-    "quoteNotePlaceholder": "Not (opsiyonel) — adres, teslim tarihi, özel istek…",
+    "quoteNotePlaceholder": "Notiz (optional) — Adresse, Liefertermin, Sonderwünsche…",
     "quoteRequestSent": "Ihre Angebotsanfrage ist eingegangen! Wir melden uns in Kürze bei Ihnen.",
     "requestQuoteHint": "Senden Sie Ihren Warenkorb als Angebotsanfrage an 2MC",
     "subtotal": "Zwischensumme",
-    "vatNote": "MwSt. und Versand im nächsten Schritt."
+    "vatNote": "MwSt. und Versand im nächsten Schritt.",
+    "quoteRequestNote": "Angebotsanfrage",
+    "shippingPromptMessage": "Versandkosten (€) — werden dem Angebot als Position hinzugefügt:"
   },
   "orders": {
     "myOrders": "Meine Bestellungen",
@@ -1854,37 +1939,37 @@
     "wa": {
       "quoteTitle": "📝 *ANGEBOTSANFRAGE — 2MC Gastro*",
       "orderTitle": "🧾 *NEUE BESTELLUNG — 2MC Gastro*",
-      "number": "No: {{n}}",
+      "number": "Nr.: {{n}}",
       "date": "Datum: {{date}}",
       "customer": "👤 *Kunde*",
-      "phone": "Tel: {{phone}}",
-      "items": "📦 *Ürünler ({{n}})*",
+      "phone": "Tel.: {{phone}}",
+      "items": "📦 *Artikel ({{n}})*",
       "subtotal": "Zwischensumme: {{v}}",
-      "vat": "KDV (%19): {{v}}",
-      "total": "*TOPLAM: {{v}}*",
-      "shipping": "🚚 Kargo: {{v}}"
+      "vat": "MwSt. (19 %): {{v}}",
+      "total": "*GESAMT: {{v}}*",
+      "shipping": "🚚 Versand: {{v}}"
     },
     "pdf": {
       "titleOffer": "Angebot",
       "titleOrder": "Bestellung"
     },
-    "itemsCount": "{{count}} ürün",
+    "itemsCount": "{{count}} Artikel",
     "downloadPdf": "PDF indir",
     "sendWhatsapp": "Per WhatsApp senden",
     "whatsappSent": "WhatsApp gönderildi",
-    "whatsappError": "Hata — tekrar dene",
+    "whatsappError": "Fehler — erneut versuchen",
     "deleteOrder": "Bestellung löschen",
     "deleteOrderConfirm": "wird die Bestellung dauerhaft gelöscht. Dieser Vorgang kann nicht rückgängig gemacht werden.",
-    "deleting": "Siliniyor...",
-    "confirmDelete": "Evet, sil",
+    "deleting": "Wird gelöscht…",
+    "confirmDelete": "Ja, löschen",
     "orderNotFound": "Bestellung nicht gefunden",
     "backToOrders": "Zurück zu Bestellungen",
     "productsWithCount": "Produkte ({{count}} Stück)",
     "unitPrice": "Einzelpreis",
-    "notes": "Notlar",
+    "notes": "Notizen",
     "subtotalWithCount": "Zwischensumme ({{count}} Stück)",
-    "vatPercent": "KDV (%{{percent}})",
-    "grandTotal": "Genel Toplam"
+    "vatPercent": "MwSt. ({{percent}} %)",
+    "grandTotal": "Gesamtsumme"
   },
   "payment": {
     "title": "Design-Pakete",
@@ -1966,21 +2051,21 @@
     "featRevisionSupport": "Revisionsunterstützung",
     "planSuffix": "{{name}} Plan",
     "ibanLabel": "IBAN",
-    "bankTransfer": "Bank Transfer Details",
-    "bankTransferInfo": "After placing your order, you will receive bank account details by email. Please transfer the amount within 7 days.",
-    "invalidBIC": "Invalid BIC",
-    "invalidIBAN": "Invalid IBAN",
-    "invoiceTerms": "Invoice Payment Terms",
-    "leasingInfo": "Flexible equipment leasing with attractive monthly rates. Select your preferred term.",
-    "leasingTerms": "Equipment Leasing",
-    "minOrder": "Min. order",
-    "notRequired": "Not required",
+    "bankTransfer": "Bankverbindung",
+    "bankTransferInfo": "Nach der Bestellung erhalten Sie die Bankverbindung per E-Mail. Bitte überweisen Sie den Betrag innerhalb von 7 Tagen.",
+    "invalidBIC": "Ungültige BIC",
+    "invalidIBAN": "Ungültige IBAN",
+    "invoiceTerms": "Zahlungsbedingungen (Rechnung)",
+    "leasingInfo": "Flexibles Geräte-Leasing mit attraktiven Monatsraten. Wählen Sie Ihre gewünschte Laufzeit.",
+    "leasingTerms": "Geräte-Leasing",
+    "minOrder": "Mindestbestellwert",
+    "notRequired": "Nicht erforderlich",
     "optional": "(optional)",
-    "required": "Required",
-    "requiresApproval": "Requires approval",
+    "required": "Erforderlich",
+    "requiresApproval": "Freigabe erforderlich",
     "sepaDetails": "SEPA Direct Debit",
-    "sepaInfo": "You authorize us to debit your account. You will receive notice prior to debiting.",
-    "creditCheck": "Kredi Kontrolü",
+    "sepaInfo": "Sie ermächtigen uns, Ihr Konto zu belasten. Vor der Abbuchung erhalten Sie eine Vorabankündigung.",
+    "creditCheck": "Bonitätsprüfung",
     "dueAfter": "Fälligkeitsbeginn",
     "paymentTerms": "Zahlungsbedingungen",
     "willBeProvided": "Wird nach der Bestellung mitgeteilt"
@@ -2021,9 +2106,9 @@
     "seeComparison": "Vergleich ansehen",
     "detailSeoTitle": "2MC Gastro vs {{name}} — Welche ist besser? (Vergleich 2026)",
     "detailSeoDesc": "Vergleichen Sie {{name}} und 2MC Gastro Seite an Seite: Produktanzahl, 3D-Planung, Installation, Preis und mehr. Welche passt zu Ihnen?",
-    "twoMcOrigin": "Almanya (Köln) + Türkiye",
+    "twoMcOrigin": "Deutschland (Köln) + Türkei",
     "pricingLow": "Niedrig",
-    "pricingMid": "Orta",
+    "pricingMid": "Mittel",
     "pricingPremium": "Premium",
     "faqPriceQ": "2MC Gastro {{name}}'dan daha ucuz mu?",
     "faqPriceA": "2MC Gastro bewegt sich preislich im mittleren Segment. {{name}} ist im {{pricing}}-Segment positioniert. 2MC Gastro gleicht Preisunterschiede durch schlüsselfertige Installation, 3D-Planung und HACCP-Beratung aus.",
@@ -2040,25 +2125,25 @@
     "faqVarietyQ": "Welche Plattform hat die größere Produktvielfalt?",
     "faqVarietyA": "{{name}} listet {{count}}+ Produkte. 2MC Gastro bietet einen fokussierten Katalog mit 10.000+ Premium-Produkten — Diamond und CombiSteel als Hauptmarken. Sorgfältig ausgewählte, bewährte Geräte statt breit gefächertem Katalog.",
     "detailIntro": "Vergleichen Sie zwei Plattformen direkt nebeneinander — Preis, Produkte, Service und Technologie. Welche ist die richtige Wahl für Ihren Betrieb?",
-    "rowOrigin": "Köken",
+    "rowOrigin": "Herkunft",
     "rowProductCount": "Produktanzahl",
     "rowPricingSegment": "Preissegment",
     "rowDesignStudio": "3D-Planungsstudio",
     "rowRoiCalc": "ROI-Rechner",
-    "rowTurnkeyInstall": "Anahtar teslim kurulum",
+    "rowTurnkeyInstall": "Schlüsselfertige Installation",
     "rowMultiLang": "Mehrsprachige Unterstützung",
-    "multiLangValue": "13+ dil",
-    "available": "Var",
+    "multiLangValue": "13+ Sprachen",
+    "available": "Verfügbar",
     "limited": "Eingeschränkt",
     "rowAiAssistant": "KI-Vertriebsassistent",
     "rowHaccp": "HACCP-Beratung",
-    "strengthsTitle": "{{name}} — Güçlü Yönler",
-    "weaknessesTitle": "{{name}} — Eksikler",
+    "strengthsTitle": "{{name}} — Stärken",
+    "weaknessesTitle": "{{name}} — Schwächen",
     "faqTitle": "Häufig gestellte Fragen",
     "ctaTitle": "2MC Gastro'yu deneyin — ücretsiz",
     "ctaSubtitle": "3D-Küchenplanung, KI-Produktempfehlung und schlüsselfertige Installation. Keine Registrierung erforderlich.",
     "ctaDesign": "3D-Planung starten",
-    "ctaRoi": "ROI Hesapla",
+    "ctaRoi": "ROI berechnen",
     "ctaContact": "Schreiben Sie uns",
     "addToCompare": "Zum Vergleich hinzufügen",
     "removeFromCompare": "Aus Vergleich entfernen"
@@ -2068,31 +2153,31 @@
     "message": "Die gesuchte Seite existiert nicht oder wurde verschoben.",
     "backHome": "Zur Startseite",
     "linkCatalog": "Katalog",
-    "linkPlanning": "Planlama",
-    "linkProjects": "Projeler",
-    "linkSupport": "Destek"
+    "linkPlanning": "Planung",
+    "linkProjects": "Projekte",
+    "linkSupport": "Support"
   },
   "sketch": {
     "newSketch": "Neue Skizze",
-    "horizontal": "Yatay",
-    "vertical": "Dikey",
-    "draw": "Çiz",
-    "edit": "Düzenle",
-    "undo": "Geri",
+    "horizontal": "Horizontal",
+    "vertical": "Vertikal",
+    "draw": "Zeichnen",
+    "edit": "Bearbeiten",
+    "undo": "Rückgängig",
     "resetView": "Ansicht zurücksetzen",
-    "lineCountSnap": "{{count}} çizgi · snap 5mm",
-    "drawModeBadge": "Çizim — snap 5mm",
-    "editModeBadge": "Düzenleme Modu",
+    "lineCountSnap": "{{count}} Linien · Snap 5 mm",
+    "drawModeBadge": "Zeichnen — Snap 5 mm",
+    "editModeBadge": "Bearbeitungsmodus",
     "usageTitle": "Bedienung",
     "hintDragBold": "Gedrückt ziehen",
-    "hintDrawLine": "→ çizgi çiz",
+    "hintDrawLine": "→ Linie zeichnen",
     "hintAutoRightAngle": "Automatischer rechter Winkel · Snap 5 mm",
     "hintLiveMeasure": "Live-Maß (mm / cm / m)",
     "hintTwoFingerBold": "Zwei Finger",
     "hintPanZoom": "→ Verschieben + Zoom",
-    "hintWheelBold": "Tekerlek",
-    "hintZoom": "→ zoom",
-    "hintDragNodeBold": "Noktaya bas sürükle",
+    "hintWheelBold": "Mausrad",
+    "hintZoom": "→ Zoom",
+    "hintDragNodeBold": "Punkt ziehen",
     "hintStretch": "→ Verlängern/Verkürzen",
     "saveSketch": "Skizze speichern",
     "sketchName": "Skizzenname",
@@ -2101,7 +2186,7 @@
     "saveAsNew": "Als neu speichern",
     "savedSketches": "Gespeicherte Skizzen",
     "noSavedSketches": "Noch keine gespeicherten Skizzen",
-    "lineCount": "{{count}} çizgi",
+    "lineCount": "{{count}} Linien",
     "open": "Öffnen",
     "savedSketchCount": "{{count}} gespeicherte Skizzen"
   },
@@ -2215,19 +2300,19 @@
     "testimonials": {
       "eyebrow": "Kundenerfahrungen",
       "heading": "Aus ganz Europa",
-      "accent": "profesyoneller bize güveniyor."
+      "accent": "Profis vertrauen uns."
     },
     "master": {
       "catalog": {
         "eyebrow": "PRODUKTKATALOG",
-        "headingLead": "En çok satan",
+        "headingLead": "Meistverkauft",
         "headingAccent": "B2B cihazlar",
         "subtitle": "Bestseller von Diamond, Rational und CombiSteel — ab Lager lieferbar.",
         "viewAll": "Alle anzeigen",
         "searchPlaceholder": "Gerät suchen…",
-        "categoriesLabel": "Kategoriler",
-        "devicesCount": "{{count}} cihaz",
-        "technicianNotes": "Teknik Notlar",
+        "categoriesLabel": "Kategorien",
+        "devicesCount": "{{count}} Geräte",
+        "technicianNotes": "Technische Notizen",
         "notes": {
           "specs": "Alle technischen Daten und Maße vollständig",
           "compatibility": "Energie- und Anschlusskompatibilität wird geprüft",
@@ -2239,12 +2324,12 @@
           "cta": "Experten kontaktieren"
         },
         "card": {
-          "topBadge": "ÇOK SATAN",
-          "net": "net",
+          "topBadge": "BESTSELLER",
+          "net": "netto",
           "leasing": "Leasing",
-          "perMonth": "€ {{amount}} / ay",
-          "addToQuote": "Teklife Ekle",
-          "inQuote": "Teklife Eklendi"
+          "perMonth": "€ {{amount}} / Monat",
+          "addToQuote": "Zum Angebot hinzufügen",
+          "inQuote": "Zum Angebot hinzugefügt"
         },
         "categories": {
           "all": "Alle",
@@ -2257,9 +2342,9 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
-        "bannerDot": "{{index}}. banner: {{alt}}"
+        "prevBanner": "Vorheriges Bild",
+        "nextBanner": "Nächstes Bild",
+        "bannerDot": "{{index}}. Banner: {{alt}}"
       },
       "inspection": {
         "eyebrow": "3D-INSPEKTION",
@@ -2269,15 +2354,15 @@
         "descSuffix": "Jede Komponente wird vor dem Versand einzeln geprüft.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Schnittansicht",
           "compare": "Vergleichen"
         },
         "table": {
           "colComponent": "Komponente",
           "colValue": "Wert",
-          "colReport": "Rapor",
+          "colReport": "Bericht",
           "housing": {
-            "component": "Gövde",
+            "component": "Gehäuse",
             "report": "Geprüft"
           },
           "shaft": {
@@ -2291,27 +2376,43 @@
             "report": "Geprüft"
           },
           "safety": {
-            "component": "Güvenlik",
-            "value": "CE + Acil Durdurma",
+            "component": "Sicherheit",
+            "value": "CE + Not-Aus",
             "report": "Schutzart IP54"
           },
           "service": {
-            "component": "Servis",
+            "component": "Service",
             "value": "2 Jahre Garantie",
-            "report": "Almanya geneli yerinde servis"
+            "report": "Vor-Ort-Service deutschlandweit"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Spiralkneter",
+            "title": "Im Inneren des Spiralkneters",
+            "desc": "Gehärtete Stahlwelle, kupfergewickelter Motor und einteiliges Gehäuse – ausgelegt auf acht Stunden Dauerbetrieb pro Tag.",
+            "normalLabel": "Außenansicht",
+            "cutawayLabel": "Schnittansicht"
+          },
+          "ice": {
+            "label": "Eiswürfelbereiter",
+            "title": "Im Inneren des Eiswürfelbereiters",
+            "desc": "Edelstahlbehälter, luftgekühlter Verflüssiger und waschbarer Filter halten die Leistung auch in heißen Küchen stabil.",
+            "normalLabel": "Außenansicht",
+            "cutawayLabel": "Schnittansicht"
           }
         }
       },
       "leasing": {
         "eyebrow": "FINANZIERUNG & LEASING",
         "headingLead": "Mit flexiblem Leasing",
-        "headingAccent": "likiditenizi koruyun",
+        "headingAccent": "Ihre Liquidität schonen",
         "calcTitle": "Leasingrechner",
         "projectValue": "Projektwert"
       },
       "planner": {
         "eyebrow": "KI-KÜCHENPLANER",
-        "headingLead": "Endüstriyel mutfaklar,",
+        "headingLead": "Großküchen,",
         "headingAccent": "intelligent geplant",
         "subtitle": "Planen Sie Ihre Gastronomieküche digital in 3D mit unserer fortschrittlichen Planungs-KI. Millimetergenau, transparent und in Rekordzeit.",
         "cta": "KI-Planer starten"
@@ -2325,7 +2426,7 @@
       }
     },
     "sponsors": {
-      "eyebrow": "MARKA ORTAKLARIMIZ",
+      "eyebrow": "UNSERE MARKENPARTNER",
       "title": "Unsere strategischen Herstellerpartner",
       "subtitle": "Als offizieller Partner der führenden professionellen Küchenhersteller Europas bieten wir Ihnen Originalprodukte zu besten Konditionen.",
       "tagCookingCooling": "Kochen & Kühlen",
@@ -2339,12 +2440,355 @@
     },
     "sections": {
       "allCategories": "Alle Kategorien",
-      "categoriesEyebrow": "Kategoriler",
-      "collectionWord": "Koleksiyonu",
+      "categoriesEyebrow": "Kategorien",
+      "collectionWord": "Kollektion",
       "discoverWord": "Entdecken",
       "equipmentWord": "Ausstattung",
-      "productCount": "{{count}} Ürün",
+      "productCount": "{{count}} Produkte",
       "signatureWord": "Signature"
+    },
+    "reviews": {
+      "prev": "Vorherige Bewertung",
+      "next": "Nächste Bewertung",
+      "eyebrow": "KUNDENSTIMMEN",
+      "headingLead": "Was unsere Partner",
+      "headingAccent": "sagen",
+      "subtitle": "Erfahrungsberichte von echten Gastronomen über unsere Produkte und unseren Service."
+    },
+    "bestSellers": {
+      "eyebrow": "🔥 Am häufigsten gewählt",
+      "headingLead": "Diesen Monat die Wahl",
+      "headingAccent": "der Profis.",
+      "subtitle": "Was 1.340+ aktive Projekte in Europa aktuell einsetzen — sofort ab Lager lieferbar.",
+      "favoriteAria": "Zu Favoriten hinzufügen",
+      "reviewsCount": "{{count}} Bewertungen",
+      "stockShipHours": "Auf Lager — Versand in {{hours}} Std.",
+      "viewAllWithCount": "Alle Produkte ansehen ({{count}}+)",
+      "tags": {
+        "hot": "🔥 Bestseller",
+        "editorChoice": "🏆 Redaktionstipp",
+        "new": "Neu"
+      },
+      "urgency": {
+        "stockFew": "⚡ Nur noch 7 Stück! 12 Personen sehen sich dieses Produkt an",
+        "orderHour": "⚡ 8 Personen haben in der letzten Stunde bestellt",
+        "stockRunning": "⚡ Nur noch 11 Stück — Bestand geht zur Neige",
+        "stockTonight": "🔥 Nur noch 3 Stück — heute ausverkauft!"
+      }
+    },
+    "blogPreview": {
+      "posts": {
+        "p1": {
+          "title": "7 teure Fehler beim Aufbau einer Restaurantküche",
+          "excerpt": "Häufige Fehler bei der Einrichtung einer neuen Küche und professionelle Lösungen.",
+          "category": "Ratgeber"
+        },
+        "p2": {
+          "title": "Kombidämpfer richtig wählen: Kapazitäts- und Energieratgeber",
+          "excerpt": "Praktische Wege, die passende Kombidämpfer-Kapazität für Ihren Betrieb zu berechnen.",
+          "category": "Produktratgeber"
+        },
+        "p3": {
+          "title": "HACCP-konforme Kühlkette: Kühltechnik im Überblick",
+          "excerpt": "Kühlsysteme nach Lebensmittelrecht und passender Zertifizierung.",
+          "category": "Vorschriften"
+        }
+      },
+      "readMin": "{{count}} Min."
+    },
+    "heroCarousel": {
+      "badge": "🔥 Am häufigsten gewählte Profi-Geräte",
+      "stockHours": "Auf Lager · Versand in {{hours}} Std.",
+      "inspect": "Ansehen",
+      "activeProjects": "Aktive Projekte",
+      "goToProduct": "Zu Produkt {{index}} wechseln",
+      "chips": {
+        "newSeason": "Neue Saison",
+        "popular": "🔥 Beliebt",
+        "editorChoice": "Redaktionstipp",
+        "premium": "Premium",
+        "discount": "🔥 Rabatt"
+      }
+    },
+    "flash": {
+      "title": "Flash Sale: Bis zu 30 % Rabatt auf Diamond-Kühlgeräte",
+      "subtitle": "Nur noch 48 Stunden — die Bestände sinken schnell",
+      "units": {
+        "hour": "Std.",
+        "minute": "Min.",
+        "second": "Sek."
+      },
+      "cta": "Rabatte ansehen"
+    },
+    "chat": {
+      "whatsappAria": "Über WhatsApp kontaktieren",
+      "whatsappTooltip": "Jetzt Angebot anfordern — Antwort in 2 Minuten",
+      "closeAria": "Schließen",
+      "consultantName": "Adem · Gastro-Berater",
+      "consultantIntro": "Hallo! Für Ihr Küchenprojekt erstellen wir Ihnen in 5 Minuten ein kostenloses Angebot.",
+      "startChat": "Chat starten"
+    },
+    "testimonialsSection": {
+      "title": "Das sagen unsere Kunden",
+      "verifiedReviews": "{{count}}+ verifizierte Bewertungen"
+    },
+    "announcement": {
+      "shipping": "24-48h Lieferung für lagernde Bestseller",
+      "discount": "Projektpakete mit B2B-Sonderkonditionen",
+      "flash": "Diese Woche Diamond Kühltechnik als Flash-Angebot",
+      "leasing": "Leasing bis 60 Monate direkt im Angebot",
+      "catalog": "10.000+ Produkte · 15 Premiummarken · ein Einkauf"
+    },
+    "categoryBubbles": {
+      "ovens": {
+        "name": "Öfen",
+        "deal": "ab €79/M."
+      },
+      "cooling": {
+        "name": "Kühltechnik",
+        "deal": "24-48h"
+      },
+      "mixers": {
+        "name": "Teigtechnik",
+        "deal": "B2B"
+      },
+      "dishwash": {
+        "name": "Spültechnik",
+        "deal": "Service"
+      },
+      "ice_makers": {
+        "name": "Eisbereiter",
+        "deal": "Lagernd"
+      },
+      "displays": {
+        "name": "Vitrinen",
+        "deal": "Top Deal"
+      },
+      "pizza": {
+        "name": "Pizza Linie",
+        "deal": "Paket"
+      },
+      "combi": {
+        "name": "Kombidämpfer",
+        "deal": "Bestseller"
+      },
+      "cooltables": {
+        "name": "Kühltische",
+        "deal": "Profi"
+      },
+      "fryers": {
+        "name": "Fritteusen",
+        "deal": "Neu"
+      }
+    },
+    "promo": {
+      "eyebrow": "PROJEKTBONUS",
+      "headingLead": "Kein Zufallsrabatt. Ein sauber kalkulierter",
+      "headingAccent": "Projektpreis",
+      "subtitle": "Für komplette Küchenlisten prüfen wir Einkaufskonditionen, Lieferstatus und Leasingrate zusammen. So entsteht ein Angebot, das im Projekt wirklich funktioniert.",
+      "bonusItems": {
+        "review": "Projektliste wird von einem Berater geprüft",
+        "leasing": "Leasingrate und Lieferbarkeit direkt im Angebot",
+        "package": "Paketpreis statt unklarer Einzelrabatt-Logik"
+      },
+      "currentBenefit": "Aktueller Vorteil",
+      "upTo12": "bis 12%",
+      "onPackages": "auf geprüfte Projektpakete",
+      "packageNote": "Gilt nicht pauschal auf jedes Einzelgerät, sondern auf sinnvolle Paketlisten mit verfügbarer Ware.",
+      "cta": "Produkte auswählen",
+      "benefits": {
+        "packagePrice": {
+          "label": "Paketpreis",
+          "text": "B2B Kondition nach Warenkorb"
+        },
+        "quote24": {
+          "label": "24h Angebot",
+          "text": "Rückmeldung am nächsten Werktag"
+        },
+        "advice": {
+          "label": "Beratung",
+          "text": "Geräteauswahl wird gegengeprüft"
+        },
+        "safety": {
+          "label": "Sicherheit",
+          "text": "CE, Service, Ersatzteile"
+        }
+      }
+    },
+    "process": {
+      "eyebrow": "UNSER ABLAUF",
+      "headingLead": "Alles aus",
+      "headingAccent": "Einer Hand",
+      "subtitle": "Von der ersten Idee bis zur schlüsselfertigen Übergabe Ihres Gastro-Projekts begleiten wir Sie Schritt für Schritt.",
+      "steps": {
+        "consult": {
+          "title": "BERATUNG",
+          "desc": "Wir hören zu und verstehen Ihre Anforderungen."
+        },
+        "design": {
+          "title": "3D PLANUNG",
+          "desc": "Individuelle Planung mit modernster 3D-Technologie."
+        },
+        "finance": {
+          "title": "FINANZIERUNG",
+          "desc": "Maßgeschneiderte Finanzierungslösungen für Ihr Projekt."
+        },
+        "delivery": {
+          "title": "TECHNIK & LIEFERUNG",
+          "desc": "Hochwertige Geräte führender Marken – pünktlich geliefert."
+        },
+        "install": {
+          "title": "MONTAGE",
+          "desc": "Fachgerechte Montage durch erfahrene Spezialisten."
+        },
+        "opening": {
+          "title": "ERÖFFNUNG & SERVICE",
+          "desc": "Wir begleiten Sie bis zur Eröffnung und darüber hinaus."
+        }
+      },
+      "usps": {
+        "plannableCosts": "Planbare Kosten",
+        "liquidity": "Liquidität schonen",
+        "terms": "Individuelle Laufzeiten",
+        "brands": "Starke Markenpartner"
+      },
+      "moreInfo": "MEHR ERFAHREN"
+    },
+    "topProducts": {
+      "eyebrow": "TOP PRODUKTE",
+      "headingLead": "Professionelle Küchentechnik.",
+      "headingAccent": "Direkt konfigurierbar",
+      "subtitle": "10.000+ Produkte führender Hersteller für Ihr Gastro-Projekt.",
+      "viewAll": "ALLE GERÄTE ANZEIGEN",
+      "bestseller": "BESTSELLER",
+      "inStock": "LAGERND",
+      "save": "Save € {{amount}}",
+      "plusVat": "zzgl. MwSt.",
+      "leasingFrom": "Leasing ab:",
+      "perMonth": "€ {{amount}}/Monat",
+      "inQuote": "IM ANGEBOT",
+      "toQuote": "ZUM ANGEBOT",
+      "compare": "Vergleichen",
+      "removeCompare": "Vergleich entfernen",
+      "project": "Projekt",
+      "projectRequest": "Projektanfrage"
+    },
+    "heroBanners": {
+      "slide1": "Professionelle Technik. Minimalistisches Design.",
+      "slide2": "Professionelle Ausstattung für höchste Ansprüche.",
+      "slide3": "Höchstleistung in jedem Schritt.",
+      "slide4": "Die Zukunft professioneller Großküchen.",
+      "slide5": "Alles aus einer Hand."
+    },
+    "leasing": {
+      "termLabel": "Leasinglaufzeit",
+      "months": "{{count}} Monate",
+      "leasingFrom": "Leasing ab:",
+      "perMonthShort": "€ {{amount}} / M.",
+      "calcButton": "Finanzierung berechnen",
+      "benefits": {
+        "oneHand": {
+          "title": "Alles aus einer Hand",
+          "desc": "Von Planung und Geräteauswahl bis Leasing, Lieferung und Montage führen wir den Prozess zentral."
+        },
+        "europe": {
+          "title": "Europaweite Lieferung",
+          "desc": "Sichere Logistik ab Köln für Deutschland und europäische Projektstandorte."
+        },
+        "install": {
+          "title": "Montage & Installation",
+          "desc": "Gastro-Servicepartner prüfen Aufstellung, Wasser, Strom und Inbetriebnahme vor Ort."
+        },
+        "service": {
+          "title": "Service & Wartung",
+          "desc": "Technischer Support und Wartungspläne sichern die laufende Küchenleistung."
+        },
+        "planning": {
+          "title": "Planung inklusive",
+          "desc": "Bei Projektkauf verrechnen wir die 3D-Planung mit dem Auftragswert."
+        },
+        "topBrands": {
+          "title": "Top Marken zu Top Preisen",
+          "desc": "Direkte B2B-Konditionen für Diamond, CombiSteel und ausgewählte Premiumpartner."
+        }
+      }
+    },
+    "quote": {
+      "eyebrow": "ANGEBOT ANFORDERN",
+      "headingLead": "Unverbindliches",
+      "headingAccent": "Angebot anfordern",
+      "selectedDevices": "Ausgewählte Geräte",
+      "positions": "{{count}} Positionen",
+      "emptyHint": "Ihre Angebotsliste ist leer. Fügen Sie Bestseller aus dem Katalog hinzu.",
+      "quantityLabel": "Menge",
+      "netTotal": "Netto Warenwert",
+      "grossTotal": "Brutto",
+      "leasingFromLabel": "Leasing ab",
+      "projectDetails": "Projekt Details",
+      "badges": {
+        "callback": "Rückruf",
+        "answer24": "24h Antwort",
+        "b2bSafe": "B2B sicher"
+      },
+      "form": {
+        "projectName": "Name des Objekts / Firma",
+        "projectNamePlaceholder": "z.B. Pizzeria Köln Mitte",
+        "phone": "Telefon / WhatsApp",
+        "email": "E-Mail",
+        "emailPlaceholder": "angebot@firma.de",
+        "segment": "Betriebs-Segment",
+        "segmentPlaceholder": "Bitte Segment wählen",
+        "segmentRestaurant": "Restaurant & Café",
+        "segmentHotel": "Hotel & Gastgewerbe",
+        "segmentCatering": "Catering & Großküche",
+        "segmentMarket": "Supermarkt & Bäckerei",
+        "notes": "Anforderungen / Bemerkungen",
+        "notesPlaceholder": "Wünsche zu Abmessungen, Sonderstromstärken oder Gasanschluss...",
+        "submit": "ANGEBOTSANFRAGE SENDEN"
+      }
+    },
+    "projectStart": {
+      "eyebrow": "PROJEKT STARTEN",
+      "heading": "Ihre Küche kann heute geplant und morgen angeboten werden.",
+      "subtitle": "Senden Sie Ihre Geräteauswahl, ein Foto oder einen Grundriss. Wir prüfen Verfügbarkeit, Leasing, Montagebedarf und erstellen daraus ein belastbares B2B-Angebot.",
+      "ctaQuote": "Angebot jetzt sichern",
+      "ctaPlanner": "KI Planung starten",
+      "stats": {
+        "products": "Produkte",
+        "brands": "Marken",
+        "response": "Rückmeldung",
+        "leasing": "Leasing"
+      }
+    },
+    "landingFooter": {
+      "tagline": "Planung, Vertrieb und Montage erstklassiger Großküchenausstattung nach europäischen B2B standards. Diamond und Premiumpartner.",
+      "platform": "Plattform",
+      "gastroPlanner": "Gastro Planer",
+      "catalog": "Produktkatalog",
+      "inspection": "Baugruppen-Analyse",
+      "leasingCalc": "Leasingrechner",
+      "contactLogistics": "Kontakt & Logistik",
+      "germany": "Deutschland",
+      "telPrefix": "Tel",
+      "imprint": "Impressum",
+      "privacy": "Datenschutz",
+      "termsB2B": "AGB & B2B Richtlinien",
+      "cookies": "Cookies",
+      "securePayments": "Sichere Zahlungsarten",
+      "copyright": "© {{year}} 2MC Gastro GmbH. Alle Rechte vorbehalten."
+    },
+    "floatingCta": {
+      "positionsInQuote": "{{count}} Positionen im Angebot",
+      "ready": "Angebotsliste bereit",
+      "summary": "€ {{net}} netto · ab € {{monthly}}/M.",
+      "hint": "Bestseller auswählen und 24h-Angebot erhalten",
+      "button": "Angebot"
+    },
+    "strip": {
+      "delivery": "SCHNELLE B2B LIEFERUNG IN GANZ EUROPA",
+      "warehouse": "DIREKT AB LAGER KÖLN",
+      "express": "24H EXPRESSVERSAND FÜR LAGERWARE",
+      "assembly": "ZUVERLÄSSIGER MONTAGESERVICE"
     }
   },
   "developerApi": {
@@ -2405,7 +2849,7 @@
       "backToKeys": "← API-Schlüssel erstellen / verwalten",
       "errNotConfigured": "Supabase ist nicht konfiguriert — Dokumentation kann nicht geladen werden.",
       "errSwagger": "Swagger UI konnte nicht geladen werden.",
-      "errLoadFailed": "Yüklenemedi: {{src}}"
+      "errLoadFailed": "Laden fehlgeschlagen: {{src}}"
     }
   },
   "diamond": {
@@ -2519,7 +2963,9 @@
     "badge": "BLOG",
     "subtitle": "Von Profis erstellte Inhalte, mit denen Sie Ihr Geschäft ausbauen.",
     "title": "Branchen-Ratgeber und Artikel",
-    "viewAll": "Alle anzeigen"
+    "viewAll": "Alle anzeigen",
+    "seoTitle": "Blog — Ratgeber rund um die Großküche",
+    "seoDescription": "Expertenratgeber, Vergleiche und Tipps zu Großkücheneinrichtung, Geräteauswahl, HACCP-Konformität und Restaurantbetrieb."
   },
   "checkout": {
     "shipStandard": "Standardversand",
@@ -2672,7 +3118,10 @@
     "sentBodyBefore": "Der Download-Link wurde an ",
     "sentBodyAfter": " geschickt. Falls die Nachricht nicht in wenigen Minuten ankommt, prüfen Sie bitte Ihren Spam-Ordner.",
     "privacyNote": "Kein Spam. Sie können sich jederzeit abmelden.",
-    "errorGeneric": "Es ist ein Fehler aufgetreten. Bitte erneut versuchen."
+    "errorGeneric": "Es ist ein Fehler aufgetreten. Bitte erneut versuchen.",
+    "seoTitle": "Kostenlose Ratgeber & Vorlagen — 2MC Gastro",
+    "seoDescription": "HACCP-Checkliste, Budgetvorlagen, Einkaufsratgeber. Kostenlose Ressourcen für Großküchenprofis.",
+    "breadcrumbTitle": "Ressourcen"
   },
   "planner": {
     "descRestaurant": "Vollservice · À la carte",
@@ -2891,7 +3340,11 @@
     "privacy": "Kein Spam. Sie können sich jederzeit abmelden.",
     "submit": "Abonnieren",
     "success": "Anmeldung erfolgreich! Der Rabattcode wurde an Ihre E-Mail-Adresse gesendet.",
-    "title": "Angebote als Erste erfahren"
+    "title": "Angebote als Erste erfahren",
+    "chefTitle": "Chef-Newsletter",
+    "chefDescription": "Wöchentliche Großküchen-Ratgeber, neue Produkte und exklusive Angebote.",
+    "invalidEmail": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+    "errorTryAgain": "Ein Fehler ist aufgetreten. Bitte erneut versuchen."
   },
   "rfq": {
     "acceptQuote": "Angebot akzeptieren",
@@ -2929,7 +3382,8 @@
     "volumeDiscount": "Mengenrabatt"
   },
   "search": {
-    "placeholder": "Produkt, Kategorie oder Marke suchen..."
+    "placeholder": "Produkt, Kategorie oder Marke suchen...",
+    "popularCombiOven": "Kombidämpfer"
   },
   "withdrawal": {
     "button": "Widerrufen",
@@ -3095,7 +3549,21 @@
     "empty": "Noch keine Korrekturen veröffentlicht.",
     "technical": "Technische Details",
     "reverted": "Zurückgenommen",
-    "revertedHint": "Diese Korrektur verursachte ein Problem und wurde zurückgenommen."
+    "revertedHint": "Diese Korrektur verursachte ein Problem und wurde zurückgenommen.",
+    "category": {
+      "fix": "Behoben",
+      "improvement": "Verbesserung",
+      "feature": "Neu"
+    },
+    "reported": "Sie haben gemeldet",
+    "done": "Das haben wir getan",
+    "statTotal": "Korrekturen gesamt",
+    "statThisMonth": "Diesen Monat",
+    "statMedian": "Übliche Dauer",
+    "sameDay": "Am selben Tag",
+    "days": "{{count}} Tage",
+    "solvedSameDay": "Am selben Tag behoben",
+    "solvedInDays": "In {{count}} Tagen behoben"
   },
   "seo": {
     "home": "Startseite",
@@ -3158,5 +3626,399 @@
     "subscribed": "Abonniert ✓",
     "rights": "Alle Rechte vorbehalten.",
     "madeIn": "Mit Leidenschaft in Köln gemacht."
+  },
+  "chat": {
+    "assistantBadge": "KI-Assistent · rund um die Uhr",
+    "quickReplyCombiOven": "Können Sie einen Kombidämpfer empfehlen?",
+    "quickReplyShipping": "Wie lange dauert der Versand?",
+    "quickReplyReturn": "Welche Rückgabebedingungen gelten?",
+    "quickReplyPlanner": "Wie funktioniert der Küchenplaner?",
+    "connectionError": "Verbindung fehlgeschlagen. Bitte erneut versuchen.",
+    "liveSupport": "Live-Support",
+    "typing": "Schreibt…",
+    "aiThinking": "KI denkt nach…",
+    "salesFallback": "Entschuldigung, ich kann derzeit nicht antworten. Bitte erreichen Sie uns per WhatsApp unter +49 176 70295844.",
+    "salesAssistantAria": "Vertriebsassistent",
+    "askInputPlaceholder": "Ihre Frage eingeben…"
+  },
+  "info": {
+    "about": {
+      "title": "Über uns",
+      "subtitle": "Komplettlösung für Profiküchen: Produkte, Planung, Angebot.",
+      "intro1": "2MC Gastro ist ein in Köln ansässiger Lieferant für Großküchenausstattung. Für Restaurants, Hotels, Cafés, Catering- und Gemeinschaftsverpflegungsbetriebe führen wir die Produkte namhafter Hersteller wie Diamond, CombiSteel und HENDI in einem einzigen Katalog zusammen.",
+      "intro2": "Wir verkaufen nicht nur Geräte: Mit unserem 2D/3D-Küchenplaner gestalten wir gemeinsam mit Ihnen das Layout, erstellen aus jedem Projekt per Klick ein Angebot und begleiten den gesamten Prozess von der Bestellung bis zur Auslieferung.",
+      "offering": {
+        "h": "Was bieten wir?",
+        "item1": "Geräte für Garen, Kühlen, Vorbereitung, Spülen und Lüftung",
+        "item2": "Kostenlose 2D/3D-Küchenplanung und Layout-Beratung",
+        "item3": "Projektbezogene Angebote, Vergleiche und Stücklisten (BOM)",
+        "item4": "Paket- und Palettenversand in ganz Deutschland und Europa"
+      },
+      "company": {
+        "h": "Firmendaten",
+        "phone": "Tel.: {{phone}}",
+        "email": "E-Mail: {{email}}",
+        "vat": "USt-IdNr.: {{vat}}"
+      }
+    },
+    "careers": {
+      "title": "Karriere",
+      "subtitle": "Wachsen Sie mit uns in der Welt der Profiküche.",
+      "p1": "Derzeit haben wir keine offenen Stellen ausgeschrieben; Initiativbewerbungen aus den Bereichen Vertrieb, Projekt/Planung, Logistik und Software prüfen wir jedoch jederzeit gern.",
+      "p2": "Senden Sie Ihren Lebenslauf und ein kurzes Anschreiben mit dem Betreff „Bewerbung\" an „{{email}}\". Bewerbungsunterlagen werden ausschließlich für das Auswahlverfahren verarbeitet (siehe Datenschutz)."
+    },
+    "shipping": {
+      "title": "Versand & Lieferung",
+      "subtitle": "Paket- und Palettenversand, Lieferzeiten und Warenannahme.",
+      "methods": {
+        "h": "Versandarten",
+        "item1": "Kleinteile: Paketversand mit DHL, UPS oder DPD",
+        "item2": "Große Geräte: Speditionsversand auf Palette, Lieferung bis zur Bordsteinkante",
+        "item3": "Auf Wunsch: Einbringung, Montage und Altgerätemitnahme — werden im Angebot separat ausgewiesen"
+      },
+      "duration": {
+        "h": "Lieferzeit",
+        "p": "Lagerware wird in der Regel innerhalb weniger Werktage versandt. Bei Ware, die beim Hersteller bestellt wird, kann die Lieferzeit variieren; die voraussichtliche Lieferzeit teilen wir Ihnen mit der Auftragsbestätigung mit."
+      },
+      "acceptance": {
+        "h": "Warenannahme und Transportschäden",
+        "p": "Bitte prüfen Sie die Verpackung bei der Anlieferung. Sichtbare Schäden vermerken Sie bitte auf dem Lieferschein, fotografieren Sie diese nach Möglichkeit und informieren Sie uns umgehend; andernfalls ist die Geltendmachung von Transportschäden erschwert."
+      },
+      "fees": {
+        "h": "Versandkosten",
+        "p": "Die Versandkosten werden nach Größe, Gewicht und Lieferadresse berechnet und im Angebot bzw. Warenkorb als separate Position ausgewiesen. Preise werden im B2B netto (zzgl. MwSt.) angegeben."
+      }
+    },
+    "newsletter": {
+      "title": "Newsletter",
+      "subtitle": "Neue Produkte, Aktionen und Branchentrends einmal im Monat in Ihrem Postfach.",
+      "p1": "Für die Anmeldung tragen Sie Ihre E-Mail-Adresse einfach in das Formular am Seitenende ein. Wir versenden keinen Spam; über den Abmeldelink in jeder E-Mail können Sie sich jederzeit wieder abmelden."
+    },
+    "imprint": {
+      "title": "Impressum",
+      "subtitle": "Anbieterkennzeichnung gemäß § 5 DDG (Digitale-Dienste-Gesetz).",
+      "provider": {
+        "h": "Anbieter"
+      },
+      "phone": "Telefon: {{phone}}",
+      "email": "E-Mail: {{email}}",
+      "tax": {
+        "h": "Steuerliche Angaben",
+        "vat": "USt-IdNr.: {{vat}}",
+        "number": "Steuernummer: {{taxNumber}}"
+      },
+      "responsible": {
+        "h": "Verantwortlich für den Inhalt (§ 18 Abs. 2 MStV)"
+      },
+      "odr": {
+        "h": "EU-Online-Streitbeilegung",
+        "p": "Plattform der Europäischen Kommission zur Online-Streitbeilegung (OS): https://ec.europa.eu/consumers/odr — Zur Teilnahme an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle sind wir nicht verpflichtet und nicht bereit."
+      },
+      "liability": {
+        "h": "Haftung",
+        "p": "Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt; für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Für die Inhalte externer Links ist ausschließlich der jeweilige Anbieter verantwortlich."
+      },
+      "register": {
+        "managingDirector": "Geschäftsführer: {{name}}",
+        "court": "Registergericht: {{court}}",
+        "number": "Handelsregisternummer (HRB): {{number}}"
+      }
+    },
+    "privacy": {
+      "title": "Datenschutzerklärung",
+      "subtitle": "Wie wir Ihre personenbezogenen Daten gemäß DSGVO verarbeiten.",
+      "controller": {
+        "h": "1. Verantwortlicher",
+        "email": "E-Mail: {{email}}"
+      },
+      "hosting": {
+        "h": "2. Hosting und Server-Logs",
+        "p": "Diese Website wird auf der Infrastruktur von Vercel Inc. gehostet. Bei jedem Zugriff werden aus technischer Notwendigkeit IP-Adresse, Datum/Uhrzeit, aufgerufene Seite, Browser- und Betriebssysteminformationen in den Server-Logs erfasst (Art. 6 Abs. 1 lit. f DSGVO — berechtigtes Interesse am sicheren Betrieb) und nach kurzer Zeit gelöscht."
+      },
+      "data": {
+        "h": "3. Konto-, Projekt- und Bestelldaten",
+        "p": "Bei der Registrierung werden Name, E-Mail, Firma und Kontaktdaten sowie die von Ihnen erstellten Projekte, Angebote und Bestellungen auf Supabase (Datenbank und Authentifizierung) gespeichert. Zweck der Verarbeitung ist die Anbahnung und Erfüllung des Vertrags (Art. 6 Abs. 1 lit. b DSGVO). Die Daten werden aufbewahrt, bis Sie Ihr Konto löschen oder gesetzliche Aufbewahrungsfristen ablaufen."
+      },
+      "payment": {
+        "h": "4. Zahlung",
+        "p": "Kartenzahlungen werden über Stripe Payments Europe Ltd. abgewickelt; Kartendaten gelangen nicht zu uns. Stripe ist im Rahmen seiner eigenen Datenschutzerklärung eigenständig Verantwortlicher."
+      },
+      "contact": {
+        "h": "5. Kontakt und Support",
+        "p": "Die über das Supportformular oder per E-Mail übermittelten Informationen werden zur Beantwortung Ihrer Anfrage verarbeitet (Art. 6 Abs. 1 lit. b und lit. f DSGVO) und nach Abschluss der Korrespondenz innerhalb angemessener Frist gelöscht."
+      },
+      "cookies": {
+        "h": "6. Cookies und Nutzungsanalyse",
+        "p": "Technisch notwendige Cookies bzw. Speicherobjekte (Sitzung, Sprache, Warenkorb, Cookie-Einstellung) sind einwilligungsfrei. Die Nutzungsanalyse (PostHog) wird nur aktiviert, wenn Sie im Cookie-Hinweis eingewilligt haben; ohne Einwilligung bleibt das Tracking deaktiviert. Details finden Sie auf der Seite „Cookies\"."
+      },
+      "rights": {
+        "h": "7. Ihre Rechte",
+        "p": "Sie haben das Recht auf Auskunft, Berichtigung, Löschung, Einschränkung der Verarbeitung, Datenübertragbarkeit und Widerspruch; erteilte Einwilligungen können Sie jederzeit widerrufen. Ihre Anliegen richten Sie bitte an die oben genannte E-Mail-Adresse. Darüber hinaus steht Ihnen das Beschwerderecht bei einer Aufsichtsbehörde zu (für Deutschland: Landesbeauftragte für Datenschutz und Informationsfreiheit NRW)."
+      }
+    },
+    "terms": {
+      "title": "Allgemeine Geschäftsbedingungen (AGB)",
+      "subtitle": "Allgemeine Verkaufs- und Nutzungsbedingungen für Geschäftskunden.",
+      "scope": {
+        "h": "1. Geltungsbereich",
+        "p": "Diese Bedingungen gelten für sämtliche Angebote, Bestellungen und Lieferungen zwischen {{legalName}} („2MC Gastro\") und dem Kunden. Die Plattform richtet sich überwiegend an Geschäftskunden (Unternehmer i. S. d. § 14 BGB); Preise werden netto zzgl. MwSt. („zzgl. MwSt.\") ausgewiesen."
+      },
+      "contract": {
+        "h": "2. Vertragsschluss",
+        "p": "Die Produktdarstellungen auf der Website stellen kein bindendes Angebot dar. Mit Ihrer Bestellung geben Sie ein Angebot ab; der Vertrag kommt mit unserer Auftragsbestätigung oder mit der Lieferung zustande. Auf der Plattform erstellte Angebote sind für den angegebenen Zeitraum verbindlich."
+      },
+      "price": {
+        "h": "3. Preise und Zahlung",
+        "p": "Die Preise verstehen sich in Euro zuzüglich Versandkosten. Die Zahlung erfolgt per Vorkasse, Karte (Stripe) oder – nach Vereinbarung – auf Rechnung. Bei Zahlungsverzug werden die gesetzlichen Verzugszinsen berechnet."
+      },
+      "delivery": {
+        "h": "4. Lieferung und Eigentumsvorbehalt",
+        "p": "Lieferzeiten sind unverbindliche Angaben und werden in der Auftragsbestätigung mitgeteilt. Die Ware bleibt bis zur vollständigen Bezahlung unser Eigentum (Eigentumsvorbehalt). Die Transportgefahr geht bei Geschäftskunden mit Übergabe der Ware an den Transporteur auf den Kunden über."
+      },
+      "warranty": {
+        "h": "5. Gewährleistung und Garantie",
+        "p": "Es gelten die gesetzlichen Gewährleistungsvorschriften. Geschäftskunden sind verpflichtet, die Ware unverzüglich zu untersuchen und offensichtliche Mängel unverzüglich schriftlich anzuzeigen (§ 377 HGB). Herstellergarantien gelten zusätzlich."
+      },
+      "liability": {
+        "h": "6. Haftung",
+        "p": "Bei Vorsatz und grober Fahrlässigkeit sowie bei Schäden an Leben, Körper und Gesundheit haften wir unbeschränkt. Im Übrigen ist die Haftung auf die Verletzung wesentlicher Vertragspflichten und auf den vorhersehbaren, vertragstypischen Schaden begrenzt."
+      },
+      "platform": {
+        "h": "7. Nutzung der Plattform",
+        "p": "Sie sind verpflichtet, Ihre Zugangsdaten vertraulich zu behandeln. Der Planer und die Katalogdaten dürfen ausschließlich für eigene Projekte genutzt werden; das massenhafte Kopieren und automatisierte Auslesen der Inhalte sind untersagt."
+      },
+      "law": {
+        "h": "8. Anwendbares Recht",
+        "p": "Es gilt deutsches Recht unter Ausschluss des UN-Kaufrechts (CISG). Für Kaufleute ist Köln ausschließlicher Gerichtsstand."
+      }
+    },
+    "cancellation": {
+      "title": "Widerrufsrecht",
+      "subtitle": "Widerrufsbelehrung für Verbraucher — 14 Tage.",
+      "who": {
+        "h": "Für wen gilt es?",
+        "p": "Das gesetzliche Widerrufsrecht besteht ausschließlich für Verbraucher (§ 13 BGB). Für Bestellungen im Rahmen einer gewerblichen Tätigkeit (§ 14 BGB) besteht kein gesetzliches Widerrufsrecht; Rücknahmen sind gesondert zu vereinbaren."
+      },
+      "info": {
+        "h": "Widerrufsbelehrung",
+        "p1": "Verbraucher können den Vertrag innerhalb von 14 Tagen ab dem Tag, an dem sie die Ware erhalten haben, ohne Angabe von Gründen widerrufen. Zur Ausübung des Widerrufsrechts genügt eine eindeutige Erklärung (z. B. per E-Mail) an die unten angegebene Anschrift bzw. E-Mail-Adresse; das nachstehende Muster-Widerrufsformular kann verwendet werden, ist jedoch nicht vorgeschrieben.",
+        "p2": "Im Falle eines Widerrufs erstatten wir Ihnen alle erhaltenen Zahlungen einschließlich der Kosten der Standardversandart innerhalb von 14 Tagen ab Eingang Ihrer Widerrufserklärung. Wir können die Rückzahlung verweigern, bis wir die Ware zurückerhalten haben oder Sie den Nachweis der Rücksendung erbracht haben. Sie müssen die Ware innerhalb von 14 Tagen zurücksenden; bei speditionspflichtiger (paletten-)Ware tragen Sie die Kosten der Rücksendung. Ein etwaiger Wertverlust der Ware ist von Ihnen zu ersetzen, soweit er auf einen Umgang zurückzuführen ist, der über die Prüfung der Beschaffenheit, Eigenschaften und Funktionsweise hinausgeht."
+      },
+      "form": {
+        "h": "Muster-Widerrufsformular",
+        "to": "An: {{legalName}}, {{address}}, {{email}}",
+        "item1": "Hiermit widerrufe(n) ich/wir den von mir/uns abgeschlossenen Vertrag über den Kauf der folgenden Ware: (Artikel / Bestellnummer)",
+        "item2": "Bestellt am / erhalten am: …",
+        "item3": "Name und Anschrift des Verbrauchers, Datum und Unterschrift (nur bei Mitteilung auf Papier)"
+      }
+    },
+    "cookies": {
+      "title": "Cookies",
+      "subtitle": "Auf der Website eingesetzte Cookies und Browser-Speicher.",
+      "intro": "Diese Website nutzt neben klassischen Cookies auch den lokalen Speicher Ihres Browsers (localStorage). Nachfolgend die Kategorien und ihre Zwecke.",
+      "essential": {
+        "h": "Notwendig (einwilligungsfrei)",
+        "item1": "Sitzung / Authentifizierung (Supabase Auth, „2mc-gastro-auth\") — um Sie nach dem Login als angemeldeten Nutzer zu erkennen",
+        "item2": "Sprachauswahl („2mc_lang\") — um die Oberfläche in der von Ihnen gewählten Sprache anzuzeigen",
+        "item3": "Cookie-Einstellung („consent-state\") — um Ihre Einwilligung zu speichern"
+      },
+      "functional": {
+        "h": "Funktional",
+        "item1": "Warenkorb („2mc-cart\"), Favoriten, Vergleichsliste und Projektentwürfe („2mc-gastro-projects\") — damit Ihre Arbeit beim Neuladen nicht verloren geht",
+        "item2": "Oberflächeneinstellungen („2mc-gastro-ui\") — z. B. Theme und Zustand der Panels"
+      },
+      "analytics": {
+        "h": "Analyse (nur mit Einwilligung)",
+        "item1": "PostHog („ph_*\") — Seitenaufrufe und Nutzungsstatistiken; ohne Einwilligung im Cookie-Hinweis nicht aktiv"
+      },
+      "thirdParty": {
+        "h": "Dritte Anbieter",
+        "item1": "Stripe — Cookies zur Betrugsprävention auf der Zahlungsseite",
+        "item2": "Supabase Storage / Amazon S3 — Produktbilder und 3D-Modelle (setzen keine Cookies)"
+      },
+      "changePreference": {
+        "h": "Einstellungen ändern",
+        "p": "Sie können Cookies und Website-Daten jederzeit in Ihren Browsereinstellungen löschen. Um Ihre Einwilligung zu widerrufen, genügt es, die Website-Daten zu löschen; beim nächsten Besuch wird der Cookie-Hinweis erneut angezeigt."
+      }
+    }
+  },
+  "legal": {
+    "agb": {
+      "pageTitle": "Allgemeine Geschäftsbedingungen",
+      "pageSubtitle": "B2B-Geschäftskunden · Profi-Küchenausstattung",
+      "updatedLabel": "Aktualisiert",
+      "backToTop": "Nach oben",
+      "s1": {
+        "title": "Geltungsbereich",
+        "p1": "Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für den Verkauf von Produkten und Dienstleistungen der 2MC Gastro GmbH an Geschäftskunden (B2B). Sie bilden die Grundlage sämtlicher Rechtsgeschäfte zwischen dem Anbieter und dem Käufer.",
+        "p2": "Abweichende Bedingungen des Käufers gelten nur, wenn sie vom Anbieter ausdrücklich schriftlich anerkannt wurden."
+      },
+      "s2": {
+        "title": "Vertragsschluss",
+        "p1": "Die Darstellung der Produkte auf der Website stellt eine Aufforderung zur Abgabe eines Angebots dar. Mit der Bestellung gibt der Käufer ein verbindliches Angebot ab.",
+        "p2": "Der Vertrag kommt mit der ausdrücklichen Annahme durch den Anbieter per E-Mail oder Auftragsbestätigung zustande. Die Annahme muss innerhalb von 14 Tagen nach Eingang der Bestellung erfolgen.",
+        "p3": "Der Käufer kann seine Bestellung bis zum Vertragsschluss jederzeit durch schriftliche Mitteilung zurückziehen."
+      },
+      "s3": {
+        "title": "Preise und Zahlung",
+        "p1": "Alle Preise sind Nettopreise (zzgl. gesetzlicher Mehrwertsteuer). Die Mehrwertsteuer wird bei der Rechnungsstellung entsprechend dem zum Zeitpunkt der Lieferung geltenden gesetzlichen Steuersatz gesondert ausgewiesen.",
+        "termsLabel": "B2B-Zahlungsbedingungen:",
+        "term1": "- Netto 30: Zahlung innerhalb von 30 Tagen ab Rechnungsdatum",
+        "term2": "- Netto 60: Zahlung innerhalb von 60 Tagen ab Rechnungsdatum (für bonitätsstarke Kunden auf Anfrage)",
+        "term3": "- Vorkasse: Zahlung vor Warenversand",
+        "discountLabel": "Skonto:",
+        "discountText": "Bei Zahlung innerhalb von 10 Tagen ab Rechnungsdatum werden 2 % Skonto gewährt.",
+        "p2": "Zahlungen erfolgen per SEPA-Überweisung, Kreditkarte oder auf Rechnung. Die Annahme der Zahlungsart wird im Einzelfall bestätigt."
+      },
+      "s4": {
+        "title": "Lieferung und Versand",
+        "methodsLabel": "Versandarten:",
+        "method1": "- Paketdienste für Kleinteile (DHL, DPD, UPS)",
+        "method2": "- Speditionsversand für Großgeräte (Entladung auf Anfrage)",
+        "method3": "- Selbstabholung",
+        "areaLabel": "Liefergebiet:",
+        "areaText": "Deutschland, Österreich, Niederlande, Belgien, Frankreich sowie alle EU-Länder.",
+        "timesLabel": "Lieferzeiten:",
+        "timesText": "Standard 5–10 Werktage. Express-Optionen verfügbar.",
+        "p1": "Der Anbieter behält sich das Recht auf Teillieferungen vor, sofern einzelne Waren nicht verfügbar sind.",
+        "p2": "Gefahrübergang: Bei Geschäftskunden geht die Gefahr des zufälligen Untergangs mit Übergabe an den Transporteur auf den Käufer über."
+      },
+      "s5": {
+        "title": "Eigentumsvorbehalt",
+        "p1": "Bis zur vollständigen Bezahlung aller offenen Rechnungen bleibt die gelieferte Ware Eigentum des Anbieters. Der Käufer darf die Ware nur im ordnungsgemäßen Geschäftsverkehr veräußern."
+      },
+      "s6": {
+        "title": "Gewährleistung",
+        "periodLabel": "Gewährleistungsfrist für B2B:",
+        "periodText": "1 Jahr ab Lieferung.",
+        "p1": "Mängel sind dem Anbieter unverzüglich, spätestens jedoch innerhalb von 10 Tagen nach Lieferung, schriftlich anzuzeigen. Nicht fristgerecht angezeigte Mängel führen zum Verlust der Gewährleistungsansprüche.",
+        "p2": "Die Gewährleistung erfolgt nach Wahl des Anbieters durch Nachbesserung oder Ersatzlieferung.",
+        "exclusionLabel": "Ausschluss:",
+        "exclusionText": "Die Gewährleistung erstreckt sich nicht auf Verschleiß, normale Abnutzung, unsachgemäße Verwendung oder auf durch den Käufer oder Dritte vorgenommene Installationen."
+      },
+      "s7": {
+        "title": "Haftung",
+        "p1": "Der Anbieter haftet unbeschränkt für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit sowie für Schäden, die auf Vorsatz oder grober Fahrlässigkeit beruhen.",
+        "p2": "Für die vorstehend nicht genannten Schäden haftet der Anbieter nur bei Vorsatz oder grober Fahrlässigkeit und begrenzt auf den Wert der betroffenen Ware.",
+        "p3": "Für entgangenen Gewinn oder sonstige mittelbare Schäden haftet der Anbieter nicht."
+      },
+      "s8": {
+        "title": "Datenschutz",
+        "p1Prefix": "Personenbezogene Daten werden nach Maßgabe unserer",
+        "p1Link": "Datenschutzerklärung",
+        "p1Suffix": "verarbeitet.",
+        "p2": "Der Käufer willigt in die Verarbeitung seiner Daten zum Zweck der Vertragserfüllung, Rechnungsstellung und Kundenbetreuung ein."
+      },
+      "s9": {
+        "title": "Schlussbestimmungen",
+        "lawLabel": "Anwendbares Recht:",
+        "lawText": "Es gilt ausschließlich deutsches Recht unter Ausschluss des UN-Kaufrechts (CISG).",
+        "jurisdictionLabel": "Gerichtsstand:",
+        "jurisdictionText": "Ausschließlicher Gerichtsstand für alle Streitigkeiten aus diesem Vertrag ist Köln, Deutschland, sofern der Käufer kein Verbraucher ist.",
+        "severabilityLabel": "Salvatorische Klausel:",
+        "severabilityText": "Sollte eine Bestimmung dieser AGB unwirksam sein, bleibt die Wirksamkeit der übrigen Bestimmungen unberührt.",
+        "changesLabel": "Änderungen:",
+        "changesText": "Der Anbieter behält sich das Recht vor, diese AGB zu ändern. Änderungen gelten nur für künftige Verträge und werden dem Käufer im Voraus mitgeteilt."
+      }
+    },
+    "widerruf": {
+      "pageTitle": "Widerrufsbelehrung",
+      "updatedLabel": "Aktualisiert",
+      "backToTop": "Nach oben",
+      "right": {
+        "label": "Widerrufsrecht für Verbraucher:",
+        "p1": "Sie haben das Recht, binnen 14 Tagen ohne Angabe von Gründen diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt 14 Tage ab dem Tag, an dem Sie oder ein von Ihnen benannter Dritter, der nicht der Beförderer ist, die Waren in Besitz genommen haben.",
+        "p2": "Um Ihr Widerrufsrecht auszuüben, müssen Sie uns mittels einer eindeutigen Erklärung (z. B. per E-Mail, Brief, Telefon oder Fax) über Ihren Entschluss, diesen Vertrag zu widerrufen, informieren. Sie können dafür das beigefügte Muster-Widerrufsformular verwenden, das jedoch nicht vorgeschrieben ist."
+      },
+      "exceptions": {
+        "intro": "Das Widerrufsrecht besteht nicht bei folgenden Verträgen:",
+        "item1": "Verträge zur Lieferung von Waren, die nach Kundenspezifikation angefertigt werden",
+        "item2": "Verträge zur Lieferung von Waren, die schnell verderben können oder deren Verfallsdatum schnell überschritten würde",
+        "item3": "Verträge zur Lieferung versiegelter Waren, die aus Gründen des Gesundheitsschutzes oder der Hygiene nicht zur Rückgabe geeignet sind, wenn ihre Versiegelung nach der Lieferung entfernt wurde (z. B. Hygieneprodukte)",
+        "item4": "Verträge zur Lieferung von Waren, die nach der Lieferung aufgrund ihrer Beschaffenheit untrennbar mit anderen Gütern vermischt wurden"
+      },
+      "consequences": {
+        "returnLabel": "Rücksendung der Waren:",
+        "returnText": "Wenn Sie diesen Vertrag widerrufen, haben Sie uns alle erhaltenen Waren unverzüglich und in jedem Fall spätestens binnen vierzehn Tagen ab dem Tag, an dem Sie uns über den Widerruf dieses Vertrags unterrichten, zurückzusenden. Die Frist ist gewahrt, wenn Sie die Waren vor Ablauf der Frist von 14 Tagen absenden.",
+        "refundLabel": "Rückerstattung:",
+        "refundText": "Wir werden Ihnen alle Zahlungen, die wir von Ihnen erhalten haben, einschließlich der Lieferkosten (mit Ausnahme der zusätzlichen Kosten, die sich daraus ergeben, dass Sie eine andere Art der Lieferung als die von uns angebotene, günstigste Standardlieferung gewählt haben), unverzüglich und spätestens binnen vierzehn Tagen ab dem Tag zurückzahlen, an dem die Mitteilung über Ihren Widerruf dieses Vertrags bei uns eingegangen ist.",
+        "addressLabel": "Rücksendeadresse:",
+        "addressIntro": "Bitte senden Sie die Waren an folgende Adresse:",
+        "addressReturns": "Retouren",
+        "addressCountry": "Deutschland"
+      },
+      "costs": {
+        "p1": "Sie tragen die unmittelbaren Kosten der Rücksendung der Waren. Diese Kosten müssen Sie nicht tragen, wenn die Waren aufgrund unserer Werbung oder unseres Fehlers an einen anderen Ort als den, an dem Sie die Waren erhalten haben, versandt wurden."
+      },
+      "form": {
+        "intro": "Wenn Sie diesen Vertrag widerrufen möchten, füllen Sie bitte dieses Formular aus und senden Sie es an uns zurück.",
+        "beginMarker": "—— BEGINN MUSTER-WIDERRUFSFORMULAR ——",
+        "subjectLine": "Betreff: Widerruf eines Vertrags",
+        "declaration": "Hiermit widerrufe(n) ich/wir den von mir/uns abgeschlossenen Vertrag über den Kauf der folgenden Waren:",
+        "orderNumber": "Bestellnummer",
+        "orderDate": "Bestelldatum",
+        "consumerName": "Name des/der Verbraucher(s)",
+        "consumerAddress": "Anschrift des/der Verbraucher(s)",
+        "consumerSignature": "Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier)",
+        "date": "Datum",
+        "endMarker": "—— ENDE MUSTER-WIDERRUFSFORMULAR ——",
+        "downloadLink": "Widerrufsformular herunterladen (PDF)"
+      },
+      "button": {
+        "description": "Nach geltenden EU-Vorgaben müssen E-Commerce-Plattformen eine Schaltfläche zur einfachen Ausübung des Widerrufsrechts bereitstellen. Diese Schaltfläche befindet sich üblicherweise im Kundenkonto oder in den Bestelldetails:",
+        "label": "Bestellung widerrufen",
+        "helper": "Diese Schaltfläche wird in Ihrem Konto angezeigt und ermöglicht Ihnen die Ausübung des Widerrufsrechts."
+      }
+    },
+    "impressum": {
+      "pageTitle": "Impressum",
+      "updatedLabel": "Aktualisiert",
+      "backToTop": "Nach oben",
+      "company": {
+        "nameLabel": "Firmenname:",
+        "directorLabel": "Geschäftsführer:",
+        "directorPlaceholder": "Name des Geschäftsführers",
+        "addressLabel": "Anschrift:",
+        "addressStreetPlaceholder": "Straße und Hausnummer",
+        "addressZipPlaceholder": "PLZ Ort",
+        "addressCountry": "Deutschland",
+        "registerLabel": "Handelsregister:",
+        "registerCourt": "Amtsgericht",
+        "registerCityPlaceholder": "Ort",
+        "vatLabel": "USt-IdNr.:",
+        "emailLabel": "E-Mail:",
+        "phoneLabel": "Telefon:",
+        "addressPlaceholder": "Anschrift"
+      },
+      "responsible": {
+        "text": "Verantwortlich für den Inhalt dieser Website nach deutschem Medienrecht ist der Anbieter. Verantwortliche Stelle: 2MC Gastro GmbH, vertreten durch {{director}}, {{address}}."
+      },
+      "dispute": {
+        "p1": "Verbraucher haben die Möglichkeit, Beschwerden an die Online-Streitbeilegungsplattform (OS-Plattform) der Europäischen Kommission zu richten:",
+        "p2": "Wir sind weder verpflichtet noch bereit, an einem Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen."
+      },
+      "disclaimer": {
+        "p1": "Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt der verlinkten Seiten sind ausschließlich deren Betreiber verantwortlich.",
+        "p2": "Die auf dieser Website bereitgestellten Informationen erfolgen ohne Gewähr für Richtigkeit oder Vollständigkeit. Für Schäden, die aus der Nutzung oder Nichtnutzung dieser Website oder ihrer Inhalte entstehen, übernehmen wir keine Haftung."
+      },
+      "copyright": {
+        "text": "Die Inhalte dieser Website sind urheberrechtlich geschützt. Sämtliche Inhalte, einschließlich Texte, Grafiken, Logos und Bilder, sind Eigentum der 2MC Gastro GmbH bzw. der jeweiligen Rechteinhaber und dürfen ohne ausdrückliche Zustimmung nicht vervielfältigt, verbreitet oder übertragen werden."
+      },
+      "privacy": {
+        "textPrefix": "Informationen zum Schutz Ihrer personenbezogenen Daten finden Sie in",
+        "textLink": "unserer Datenschutzerklärung",
+        "textSuffix": "."
+      }
+    }
+  },
+  "review": {
+    "loginRequired": "Zum Verfassen einer Bewertung müssen Sie angemeldet sein.",
+    "invalidRating": "Bitte wählen Sie eine gültige Bewertung.",
+    "titlePlaceholder": "Titel (optional)",
+    "bodyPlaceholder": "Teilen Sie Ihre Erfahrung…"
+  },
+  "filters": {
+    "newOnly": "Nur neue Produkte",
+    "inStockOnly": "Nur auf Lager"
   }
 }

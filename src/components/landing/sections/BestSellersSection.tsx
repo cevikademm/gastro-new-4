@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { Heart, ShoppingCart, Star, ArrowRight } from 'lucide-react';
 import { Reveal } from '../primitives/Reveal';
 
@@ -18,8 +19,8 @@ interface BSProduct {
   reviews: number;
   stockPct: number;
   stockDays: 1 | 2;
-  urgency: string;
-  tags: { label: string; variant: 'hot' | 'sale' | 'new' | 'stock' }[];
+  urgencyKey: string;
+  tags: { labelKey?: string; label: string; variant: 'hot' | 'sale' | 'new' | 'stock' }[];
 }
 
 const PRODUCTS: BSProduct[] = [
@@ -35,9 +36,9 @@ const PRODUCTS: BSProduct[] = [
     reviews: 128,
     stockPct: 30,
     stockDays: 1,
-    urgency: '⚡ Son 7 adet! 12 kişi bu ürünü inceliyor',
+    urgencyKey: 'landing.bestSellers.urgency.stockFew',
     tags: [
-      { label: '🔥 En Çok Satan', variant: 'hot' },
+      { labelKey: 'landing.bestSellers.tags.hot', label: '🔥 En Çok Satan', variant: 'hot' },
       { label: '-25%', variant: 'sale' },
     ],
   },
@@ -53,10 +54,10 @@ const PRODUCTS: BSProduct[] = [
     reviews: 86,
     stockPct: 55,
     stockDays: 2,
-    urgency: '⚡ 8 kişi son 1 saatte sipariş verdi',
+    urgencyKey: 'landing.bestSellers.urgency.orderHour',
     tags: [
-      { label: 'Yeni', variant: 'new' },
-      { label: 'Stokta', variant: 'stock' },
+      { labelKey: 'landing.bestSellers.tags.new', label: 'Yeni', variant: 'new' },
+      { labelKey: 'common.inStock', label: 'Stokta', variant: 'stock' },
     ],
   },
   {
@@ -71,8 +72,8 @@ const PRODUCTS: BSProduct[] = [
     reviews: 214,
     stockPct: 65,
     stockDays: 1,
-    urgency: '⚡ Son 11 adet — stok azalıyor',
-    tags: [{ label: '🏆 Editör Seçimi', variant: 'hot' }],
+    urgencyKey: 'landing.bestSellers.urgency.stockRunning',
+    tags: [{ labelKey: 'landing.bestSellers.tags.editorChoice', label: '🏆 Editör Seçimi', variant: 'hot' }],
   },
   {
     id: 'CFE202-N',
@@ -86,7 +87,7 @@ const PRODUCTS: BSProduct[] = [
     reviews: 92,
     stockPct: 20,
     stockDays: 2,
-    urgency: '🔥 Son 3 adet — bugün tükenecek!',
+    urgencyKey: 'landing.bestSellers.urgency.stockTonight',
     tags: [{ label: 'FLASH -30%', variant: 'sale' }],
   },
 ];
@@ -99,6 +100,7 @@ const TAG_STYLES: Record<BSProduct['tags'][0]['variant'], string> = {
 };
 
 export function BestSellersSection() {
+  const { t } = useTranslation();
   const fmt = (n: number) => n.toLocaleString('de-DE');
 
   return (
@@ -110,13 +112,13 @@ export function BestSellersSection() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <Reveal className="text-center max-w-2xl mx-auto mb-14">
           <div className="text-[11px] font-semibold tracking-[0.22em] uppercase text-[color:var(--c-clay)] mb-4">
-            🔥 En Çok Tercih Edilenler
+            {t('landing.bestSellers.eyebrow')}
           </div>
           <h2 className="c-serif text-[2rem] md:text-[2.8rem] leading-[1.02] tracking-[-0.025em] text-[color:var(--c-ink)] font-medium">
-            Bu ay profesyonellerin <em className="text-[color:var(--c-clay)]">seçimi.</em>
+            {t('landing.bestSellers.headingLead')} <em className="text-[color:var(--c-clay)]">{t('landing.bestSellers.headingAccent')}</em>
           </h2>
           <p className="mt-4 text-[17px] text-[color:var(--c-muted)] leading-relaxed">
-            Avrupa'daki 1.340+ aktif projenin şu an tercih ettiği ürünler — stoktan anında sevkiyat.
+            {t('landing.bestSellers.subtitle')}
           </p>
         </Reveal>
 
@@ -130,17 +132,17 @@ export function BestSellersSection() {
                   style={{ aspectRatio: '1/1', background: 'var(--c-bg-alt)' }}
                 >
                   <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-[2]">
-                    {p.tags.map((t) => (
+                    {p.tags.map((tag) => (
                       <span
-                        key={t.label}
-                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${TAG_STYLES[t.variant]}`}
+                        key={tag.label}
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${TAG_STYLES[tag.variant]}`}
                       >
-                        {t.label}
+                        {tag.labelKey ? t(tag.labelKey) : tag.label}
                       </span>
                     ))}
                   </div>
                   <button
-                    aria-label="Favorilere ekle"
+                    aria-label={t('landing.bestSellers.favoriteAria')}
                     onClick={(e) => e.preventDefault()}
                     className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white shadow-md flex items-center justify-center text-[color:var(--c-muted)] hover:text-[color:var(--c-clay)] hover:scale-110 transition-all z-[2]"
                   >
@@ -179,7 +181,7 @@ export function BestSellersSection() {
                       ))}
                     </span>
                     <span>
-                      {p.rating.toFixed(1)} · {p.reviews} yorum
+                      {p.rating.toFixed(1)} · {t('landing.bestSellers.reviewsCount', { count: p.reviews })}
                     </span>
                   </div>
                   <div className="flex items-baseline gap-2 mb-3.5">
@@ -202,7 +204,7 @@ export function BestSellersSection() {
                         animation: 'bs-pulse 2s infinite',
                       }}
                     />
-                    Stokta — {p.stockDays === 1 ? '24' : '48'} saatte kargo
+                    {t('landing.bestSellers.stockShipHours', { hours: p.stockDays === 1 ? 24 : 48 })}
                   </div>
                   <div className="h-1 bg-[var(--c-line)] rounded-full overflow-hidden mb-3.5">
                     <div
@@ -214,7 +216,7 @@ export function BestSellersSection() {
                     />
                   </div>
                   <div className="text-[11px] font-bold text-[color:var(--c-clay-deep)] mb-3">
-                    {p.urgency}
+                    {t(p.urgencyKey)}
                   </div>
                   <button
                     onClick={() => {
@@ -223,7 +225,7 @@ export function BestSellersSection() {
                     className="mt-auto flex items-center justify-center gap-2 bg-[color:var(--c-ink)] text-white py-3 px-4 rounded-xl text-[14px] font-semibold hover:bg-[color:var(--c-clay)] hover:-translate-y-0.5 transition-all"
                   >
                     <ShoppingCart size={16} strokeWidth={2} />
-                    Sepete Ekle
+                    {t('common.addToCart')}
                   </button>
                 </div>
               </article>
@@ -236,7 +238,7 @@ export function BestSellersSection() {
             to="/kategori"
             className="inline-flex items-center gap-2 text-[color:var(--c-clay)] font-semibold text-[15px] hover:gap-3 transition-all"
           >
-            Tüm ürünleri gör (5.265+) <ArrowRight size={16} strokeWidth={2.5} />
+            {t('landing.bestSellers.viewAllWithCount', { count: '5.265' })} <ArrowRight size={16} strokeWidth={2.5} />
           </Link>
         </Reveal>
       </div>

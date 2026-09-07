@@ -19,6 +19,10 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks(id) {
+          // Vite'ın dinamik import yardımcısı (__vitePreload) her chunk'ta kullanılır.
+          // Sabitlenmezse Rollup onu ilk ihtiyaç duyan chunk'a (jsPDF!) koyuyor ve
+          // her sayfa 390 KB'lık pdf chunk'ını indiriyordu (Lighthouse unused-javascript).
+          if (id.includes('vite/preload-helper')) return 'react';
           if (id.includes('node_modules')) {
             if (id.includes('react-router') || id.includes('/react/') || id.includes('/react-dom/')) return 'react';
             if (id.includes('/three/') || id.includes('three-stdlib') || id.includes('@react-three')) return 'three';
@@ -26,7 +30,9 @@ export default defineConfig({
             if (id.includes('i18next')) return 'i18n';
             if (id.includes('@supabase')) return 'supabase';
             if (id.includes('@stripe')) return 'stripe';
-            if (id.includes('jspdf') || id.includes('html2canvas')) return 'pdf';
+            // jsPDF ve html2canvas AYRI chunk: biri statik import edilince diğeri de inmesin
+            if (id.includes('jspdf')) return 'pdf';
+            if (id.includes('html2canvas')) return 'html2canvas';
             if (id.includes('lucide-react')) return 'icons';
             if (id.includes('zustand')) return 'state';
           }

@@ -59,15 +59,30 @@ export interface Wall {
   b: VertexId;
   thickness: number;
   height: number;
+  /** Surface preset id (see 3d-editor/builders/materials.ts). Undefined = default paint. */
+  material?: string;
 }
 
 // ── Opening ────────────────────────────────────────────────────────────────
 export type OpeningKind = 'door' | 'window' | 'pass-through';
+/** Kapı tipi: tek kanat / çift kanat / sürgülü. */
+export type DoorType = 'single' | 'double' | 'sliding';
+/** Menteşe tarafı — duvarın `a` (start) veya `b` (end) köşesine yakın kenar. */
+export type OpeningHinge = 'start' | 'end';
+/**
+ * Açılış yönü — GEOMETRİK, duvarın a→b yönüne göre sol (`perp2(dir)`) ya da sağ.
+ * "Odaya doğru / dışa" etiketi UI'da oda merkezine bakılarak türetilir; serbest
+ * duvarların "içi" olmadığı için burada oda kavramı saklanmaz.
+ */
+export type OpeningSwing = 'left' | 'right';
 
 /**
  * Positioned ALONG a wall by `offset` (mm) from the wall's start vertex.
  * Width/height are mm. sillHeight is the bottom of the opening from floor
  * (0 for doors).
+ *
+ * `hinge` / `swing` / `doorType` opsiyoneldir; tanımsız = eski belgelerle aynı
+ * görünüm (menteşe start, açılış sola, tek kanat).
  */
 export interface Opening {
   id: OpeningId;
@@ -78,6 +93,9 @@ export interface Opening {
   width: number;
   height: number;
   sillHeight: number;
+  hinge?: OpeningHinge;
+  swing?: OpeningSwing;
+  doorType?: DoorType;
 }
 
 // ── Room ───────────────────────────────────────────────────────────────────
@@ -95,6 +113,8 @@ export interface Room {
   floorHeight: number;
   ceilingHeight: number;
   tags: string[];
+  /** Floor surface preset id (see 3d-editor/builders/materials.ts). */
+  floorMaterial?: string;
 }
 
 // ── Equipment ──────────────────────────────────────────────────────────────
@@ -147,6 +167,17 @@ export interface Equipment {
    * facing into the room — e.g. davlumbaz / asma dolap.
    */
   mount?: 'floor' | 'wall';
+  /**
+   * Bu örnek için KULLANICI TARAFINDAN SEÇİLEN 3B model (katalog kimliği:
+   * kütüphane için `dm_*`, oturumluk yükleme için `uglb-*`). Verilmişse GLB
+   * çözümlemesinde `catalogId`'den ÖNCE gelir.
+   *
+   * `catalogId` ticari kimliktir (teklif satırı, "her yerden sil" köprüsü) ve
+   * asla değişmez; `modelRef` yalnız görseli değiştirir. Böylece bir ürünün
+   * gerçek modeli yüklenince teklif/BOM bağı kopmaz. Model silinirse çözümleme
+   * `catalogId`'ye geri düşer.
+   */
+  modelRef?: string;
   locked?: boolean;
 }
 
@@ -180,6 +211,12 @@ export type AnyEntity = Vertex | Wall | Opening | Room | Equipment;
 export interface ProjectDocument {
   id: EntityId;
   name: string;
+  /**
+   * Belge şema sürümü. Tanımsız = v1 (yön-bağımlı oda döngüsü, açıklık
+   * menteşe/açılış alanları yok). `core/migrate.ts → normalizeDocument`
+   * yüklemede güncel sürüme getirir.
+   */
+  schemaVersion?: number;
   units: 'mm';
   vertices: Record<VertexId, Vertex>;
   walls: Record<WallId, Wall>;

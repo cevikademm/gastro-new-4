@@ -45,12 +45,15 @@ export interface CatalogEntry {
    */
   allowOverlap?: boolean;
   /**
-   * `true` ise bu GLB Y-up authoring'dedir (ör. MeshAI/Meshy çıktısı) ve Z-up
-   * sahnemizde yan yatık gelir → dik durması için varsayılan +90° X eğimi
-   * uygulanır (kullanıcı eğimi henüz değiştirmediyse). Statik katalog GLB'leri
-   * Z-up authored olduğundan bunu KULLANMAZ.
+   * `true` ise bu GLB Y-up authoring'dedir (glTF standardı; Meshy/Blender/
+   * MeshAI çıktıları dâhil). Yükleyici (GLBLoader.normalizeTemplate) şablonu
+   * Z-up sahnemize çevirip ÖYLE ölçer/ankraj yapar → model dik durur, footprint
+   * ve pivot doğru olur, `tiltX` 0 kalır. Yalnız Z-up olarak dışa aktarılmış
+   * dosyalar için false/undefined.
    */
   needsUprightTilt?: boolean;
+  /** Ön yüz düzeltmesi (derece, yukarı eksen etrafında) — bkz. GlbManifestEntry.frontYawDeg. */
+  frontYawDeg?: number;
 }
 
 // ── Default catalog ────────────────────────────────────────────────────────
@@ -73,6 +76,9 @@ export const EQUIPMENT_CATALOG: ReadonlyArray<CatalogEntry> = GLB_MANIFEST
     glbUrl: m.url,
     anchor: 'bottom-center',
     defaultRotationDeg: 0,
+    // glTF dosyaları Y-up'tır; yükleyici dik çevirir (yan yatık gelmesin).
+    needsUprightTilt: m.upAxis !== 'z',
+    frontYawDeg: m.frontYawDeg,
   }));
 
 const byId = new Map<string, CatalogEntry>(
@@ -128,6 +134,8 @@ export function getCatalogEntry(id: string): CatalogEntry | undefined {
     glbUrl: fromManifest.url,
     anchor: 'bottom-center',
     defaultRotationDeg: 0,
+    needsUprightTilt: fromManifest.upAxis !== 'z',
+    frontYawDeg: fromManifest.frontYawDeg,
   };
 }
 

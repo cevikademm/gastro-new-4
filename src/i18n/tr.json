@@ -100,7 +100,10 @@
     "sending": "Gönderiliyor…",
     "undo": "Geri Al",
     "update": "Güncelle",
-    "previous": "Geri"
+    "previous": "Geri",
+    "reloading": "Sayfa güncellendi, yeniden yükleniyor…",
+    "newVersionLoaded": "Uygulamanın yeni sürümü yüklendi. Sayfayı yenileyerek devam edebilirsiniz.",
+    "somethingWentWrong": "Bir şeyler ters gitti"
   },
   "design3d": {
     "appearance": "Görünüm",
@@ -776,7 +779,47 @@
     "addOneMoreTitle": "Bir adet daha ekle",
     "pcsCount": "{{count}} adet",
     "add": "Ekle",
-    "slashOfTotalProducts": "/ {{count}} ürün"
+    "slashOfTotalProducts": "/ {{count}} ürün",
+    "immersive": {
+      "phase1": {
+        "eyebrow": "01 — Dış gövde",
+        "title": "Spiral mikser sahneye girer.",
+        "body": "Kazan, güvenlik kafesi ve ana gövde tek parça ürün algısıyla okunur."
+      },
+      "phase2": {
+        "eyebrow": "02 — Gövde açılır",
+        "title": "Dış kabuk geri çekilir.",
+        "body": "Mekanizma modeli öne gelmeye başlar; gövde yarı şeffaf bir referans katmanına dönüşür."
+      },
+      "phase3": {
+        "eyebrow": "03 — Güç aktarımı",
+        "title": "Motor ve redüktör ayrışır.",
+        "body": "İç bileşenler kendi eksenlerine doğru açılır ve teknik yapı görünür hale gelir."
+      },
+      "phase4": {
+        "eyebrow": "04 — Patlatılmış görünüm",
+        "title": "Parçalar teknik düzende dağılır.",
+        "body": "Bakım, servis ve satış sunumları için cihazın iç mimarisi anlaşılır bir 3D kompozisyona dönüşür."
+      },
+      "fallback": "3D sahne bu cihazda sade moda alındı."
+    },
+    "cards": {
+      "item1": {
+        "title": "Profesyonel Soğutma Vitrini",
+        "description": "Çift kapaklı, 202 lt brüt, dijital sıcaklık kontrolü. A+ enerji sınıfı, sessiz kompresör, paslanmaz iç gövde.",
+        "cta": "Vitrini Keşfet"
+      },
+      "item2": {
+        "title": "Endüstriyel Mikser",
+        "description": "Planetary hareket, 20 lt çelik haznesi, üç hızlı kademe. Restoran ve pastane mutfakları için sınıfında en iyi.",
+        "cta": "Mikseri İncele"
+      },
+      "item3": {
+        "title": "Vitrinli Bar Soğutucu",
+        "description": "Şişe ve içecek teşhiri için tasarlanmış led aydınlatmalı vitrin. Çift kademeli soğutma, sessiz çalışma.",
+        "cta": "Modelleri Gör"
+      }
+    }
   },
   "nav": {
     "project": "Proje",
@@ -1051,7 +1094,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Hastane",
     "sectorOther": "Diğer",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Giriş yapılmadı",
+    "showPassword": "Şifreyi göster",
+    "hidePassword": "Şifreyi gizle"
   },
   "welcome": {
     "headline": "Endüstriyel Mutfağın",
@@ -1469,7 +1514,39 @@
     "projectStatus": "Proje Durumu",
     "savedSuccess": "Tasarım kaydedildi.",
     "toolPan": "Kaydır",
-    "toolSelect": "Seç"
+    "toolSelect": "Seç",
+    "tool": {
+      "drawWall": "Duvar Çiz (W)",
+      "measure": "Ölçüm Aracı",
+      "showGrid": "Izgarayı Göster",
+      "snapMode": "Mıknatıs Modu"
+    },
+    "roomProps": {
+      "selectPlaceholder": "Seçin...",
+      "usage": {
+        "hotKitchen": "Sıcak Mutfak",
+        "coldKitchen": "Soğuk Mutfak",
+        "prepArea": "Hazırlık Alanı",
+        "dishRoom": "Bulaşıkhane",
+        "coldRoom": "Soğuk Oda",
+        "serviceArea": "Servis Alanı",
+        "other": "Diğer"
+      }
+    },
+    "opening": {
+      "door": "Kapı"
+    },
+    "catalog": {
+      "allCategories": "Tüm Kategoriler",
+      "addToKitchen": "Mutfağa ekle"
+    },
+    "info": {
+      "descriptionPlaceholder": "Proje veya oda hakkında açıklama..."
+    },
+    "task": {
+      "newPlaceholder": "Yeni görev ekle (Enter ile kaydet)",
+      "assigneePlaceholder": "Atanan kişi (opsiyonel)"
+    }
   },
   "bom": {
     "title": "Malzeme Listesi",
@@ -1498,7 +1575,8 @@
     "pending": "Beklemede",
     "favorites": "Favoriler",
     "totalValue": "Toplam Değer",
-    "unitPrice": "Birim Fiyat"
+    "unitPrice": "Birim Fiyat",
+    "catalogNotFoundFav": "Katalogda bulunamadı — favoriye eklenemez"
   },
   "projects": {
     "title": "Projeler",
@@ -1619,7 +1697,8 @@
     "catCooking": "Pişirme",
     "catCold": "Soğutma",
     "catCleaning": "Temizlik",
-    "catNeutral": "Nötr"
+    "catNeutral": "Nötr",
+    "removeProductAskTitle": "Ürünü projeden kaldır?"
   },
   "settings": {
     "title": "Ayarlar",
@@ -1682,7 +1761,11 @@
     "sendFailed": "Bilet gönderilemedi. Lütfen doğrudan e-posta ile ulaşın:",
     "subtitle": "Sorularınız için bilet açın veya doğrudan iletişime geçin.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Gelen destek mesajları",
+    "inboxEmpty": "Henüz destek mesajı yok.",
+    "inboxGuest": "Misafir",
+    "savedEmailFailed": "Mesajınız kaydedildi, ancak e-posta bildirimi gönderilemedi."
   },
   "docs": {
     "title": "Dokümantasyon",
@@ -1723,24 +1806,24 @@
     "cookiePolicy": "Çerez Politikası",
     "impressum": "Künye",
     "dataProtection": "Veri Koruma",
-    "confirmDelete": "Konto wirklich löschen?",
-    "delete": "Löschen",
-    "deleteDesc": "Löschen Sie Ihr Konto und alle zugehörigen Daten dauerhaft",
-    "deleteError": "Failed to delete account",
-    "deleteItem1": "Ihr Kundenprofil",
-    "deleteItem2": "Alle Bestellungen und deren Details",
-    "deleteItem3": "Alle gespeicherten Einstellungen",
-    "deleteItem4": "Ihr Login-Zugang",
-    "deleteSuccess": "Konto gelöscht",
-    "deleteSuccessMsg": "Ihr Konto wurde erfolgreich gelöscht. Sie werden weitergeleitet...",
-    "deleteTitle": "Mein Konto löschen",
-    "deleteWarning1": "Folgende Daten werden dauerhaft gelöscht:",
-    "deleteWarning2": "Diese Aktion kann nicht rückgängig gemacht werden.",
-    "download": "Herunterladen",
-    "exportDesc": "Laden Sie Ihre persönlichen Daten als JSON-Datei herunter",
-    "exportError": "Failed to export data",
-    "exportSuccess": "Daten erfolgreich heruntergeladen",
-    "exportTitle": "Meine Daten herunterladen"
+    "confirmDelete": "Hesap gerçekten silinsin mi?",
+    "delete": "Sil",
+    "deleteDesc": "Hesabınızı ve ilişkili tüm verileri kalıcı olarak silin",
+    "deleteError": "Hesap silinemedi",
+    "deleteItem1": "Müşteri profiliniz",
+    "deleteItem2": "Tüm siparişler ve detayları",
+    "deleteItem3": "Kayıtlı tüm ayarlar",
+    "deleteItem4": "Giriş erişiminiz",
+    "deleteSuccess": "Hesap silindi",
+    "deleteSuccessMsg": "Hesabınız başarıyla silindi. Yönlendiriliyorsunuz...",
+    "deleteTitle": "Hesabımı sil",
+    "deleteWarning1": "Şu veriler kalıcı olarak silinecek:",
+    "deleteWarning2": "Bu işlem geri alınamaz.",
+    "download": "İndir",
+    "exportDesc": "Kişisel verilerinizi JSON dosyası olarak indirin",
+    "exportError": "Veriler dışa aktarılamadı",
+    "exportSuccess": "Veriler başarıyla indirildi",
+    "exportTitle": "Verilerimi indir"
   },
   "cart": {
     "addToCart": "Sepete Ekle",
@@ -1798,7 +1881,9 @@
     "quoteRequestSent": "Teklif talebiniz alındı! En kısa sürede size dönüş yapılacak.",
     "requestQuoteHint": "Sepetinizi 2MC’ye teklif talebi olarak gönderin",
     "subtotal": "Ara Toplam",
-    "vatNote": "KDV ve nakliye sonraki adımda."
+    "vatNote": "KDV ve nakliye sonraki adımda.",
+    "quoteRequestNote": "Teklif Talebi",
+    "shippingPromptMessage": "Nakliye gideri (€) — teklife kalem olarak eklenecek:"
   },
   "orders": {
     "myOrders": "Siparişlerim",
@@ -1964,20 +2049,20 @@
     "featPrioritySupport": "Öncelikli Destek",
     "featAccountManager": "Hesap Yöneticisi",
     "featRevisionSupport": "Revizyon Desteği",
-    "planSuffix": "{{name}} Plan",
+    "planSuffix": "{{name}} Planı",
     "ibanLabel": "IBAN",
-    "bankTransfer": "Bank Transfer Details",
-    "bankTransferInfo": "After placing your order, you will receive bank account details by email. Please transfer the amount within 7 days.",
-    "invalidBIC": "Invalid BIC",
-    "invalidIBAN": "Invalid IBAN",
-    "invoiceTerms": "Invoice Payment Terms",
-    "leasingInfo": "Flexible equipment leasing with attractive monthly rates. Select your preferred term.",
-    "leasingTerms": "Equipment Leasing",
+    "bankTransfer": "Havale/EFT Bilgileri",
+    "bankTransferInfo": "Siparişi verdikten sonra banka hesap bilgilerini e-posta ile alacaksınız. Tutarı lütfen 7 gün içinde havale edin.",
+    "invalidBIC": "Geçersiz BIC",
+    "invalidIBAN": "Geçersiz IBAN",
+    "invoiceTerms": "Fatura Ödeme Koşulları",
+    "leasingInfo": "Cazip aylık taksitlerle esnek ekipman kiralama. Tercih ettiğiniz vadeyi seçin.",
+    "leasingTerms": "Ekipman Kiralama",
     "minOrder": "Min. order",
-    "notRequired": "Not required",
-    "optional": "(optional)",
-    "required": "Required",
-    "requiresApproval": "Requires approval",
+    "notRequired": "Gerekli değil",
+    "optional": "(opsiyonel)",
+    "required": "Zorunlu",
+    "requiresApproval": "Onay gerektirir",
     "sepaDetails": "SEPA Direct Debit",
     "sepaInfo": "You authorize us to debit your account. You will receive notice prior to debiting.",
     "creditCheck": "Kredi Kontrolü",
@@ -2257,8 +2342,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Önceki görsel",
+        "nextBanner": "Sonraki görsel",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2269,7 +2354,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Kesit görünüm",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2299,6 +2384,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Spiral Yoğurucu",
+            "title": "Spiral hamur yoğurucunun içi",
+            "desc": "Sertleştirilmiş çelik mil, bakır sargılı motor ve tek parça gövde; günde 8 saat kesintisiz çalışmaya göre boyutlandırılmıştır.",
+            "normalLabel": "Dış görünüm",
+            "cutawayLabel": "Kesit"
+          },
+          "ice": {
+            "label": "Buz Makinesi",
+            "title": "Buz makinesinin içi",
+            "desc": "Paslanmaz haznesi, hava soğutmalı kondenseri ve yıkanabilir filtresiyle yüksek sıcaklıkta bile verimini korur.",
+            "normalLabel": "Dış görünüm",
+            "cutawayLabel": "Kesit"
           }
         }
       },
@@ -2345,6 +2446,349 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Önceki yorum",
+      "next": "Sonraki yorum",
+      "eyebrow": "MÜŞTERİ YORUMLARI",
+      "headingLead": "Partnerlerimiz ne",
+      "headingAccent": "diyor",
+      "subtitle": "Ürünlerimiz ve hizmetimiz hakkında gerçek gastronomi işletmecilerinin deneyimleri."
+    },
+    "bestSellers": {
+      "eyebrow": "🔥 En Çok Tercih Edilenler",
+      "headingLead": "Bu ay profesyonellerin",
+      "headingAccent": "seçimi.",
+      "subtitle": "Avrupa'daki 1.340+ aktif projenin şu an tercih ettiği ürünler — stoktan anında sevkiyat.",
+      "favoriteAria": "Favorilere ekle",
+      "reviewsCount": "{{count}} yorum",
+      "stockShipHours": "Stokta — {{hours}} saatte kargo",
+      "viewAllWithCount": "Tüm ürünleri gör ({{count}}+)",
+      "tags": {
+        "hot": "🔥 En Çok Satan",
+        "editorChoice": "🏆 Editör Seçimi",
+        "new": "Yeni"
+      },
+      "urgency": {
+        "stockFew": "⚡ Son 7 adet! 12 kişi bu ürünü inceliyor",
+        "orderHour": "⚡ 8 kişi son 1 saatte sipariş verdi",
+        "stockRunning": "⚡ Son 11 adet — stok azalıyor",
+        "stockTonight": "🔥 Son 3 adet — bugün tükenecek!"
+      }
+    },
+    "blogPreview": {
+      "posts": {
+        "p1": {
+          "title": "Restoran Mutfağı Kurarken Yapılan 7 Pahalı Hata",
+          "excerpt": "Yeni bir mutfak kurulumunda sık karşılaşılan hatalar ve profesyonel çözümleri.",
+          "category": "Rehber"
+        },
+        "p2": {
+          "title": "Kombi Fırın Nasıl Seçilir? Kapasite ve Enerji Rehberi",
+          "excerpt": "İşletmeniz için doğru kombi fırın kapasitesini hesaplamanın pratik yolları.",
+          "category": "Ürün Rehberi"
+        },
+        "p3": {
+          "title": "HACCP Uyumlu Soğuk Zincir: Soğutma Ekipmanları",
+          "excerpt": "Gıda güvenliği mevzuatına uygun soğutma sistemleri ve sertifikasyon.",
+          "category": "Mevzuat"
+        }
+      },
+      "readMin": "{{count}} dk"
+    },
+    "heroCarousel": {
+      "badge": "🔥 En Çok Tercih Edilen Profesyonel Ekipmanlar",
+      "stockHours": "Stokta · {{hours}}s kargo",
+      "inspect": "İncele",
+      "activeProjects": "Aktif Proje",
+      "goToProduct": "Ürün {{index}}'e geç",
+      "chips": {
+        "newSeason": "Yeni Sezon",
+        "popular": "🔥 Popüler",
+        "editorChoice": "Editör Seçimi",
+        "premium": "Premium",
+        "discount": "🔥 İndirim"
+      }
+    },
+    "flash": {
+      "title": "Flash Sale: Diamond Soğutucularda %30'a Varan İndirim",
+      "subtitle": "Son 48 saat — stoklar hızla tükeniyor",
+      "units": {
+        "hour": "Saat",
+        "minute": "Dakika",
+        "second": "Saniye"
+      },
+      "cta": "İndirimleri İncele"
+    },
+    "chat": {
+      "whatsappAria": "WhatsApp ile iletişime geç",
+      "whatsappTooltip": "Hemen fiyat teklifi al — yanıt 2 dakika",
+      "closeAria": "Kapat",
+      "consultantName": "Adem · Gastro Danışmanı",
+      "consultantIntro": "Merhaba! Mutfak projen için 5 dakikada ücretsiz teklif hazırlayalım.",
+      "startChat": "Sohbete başla"
+    },
+    "testimonialsSection": {
+      "title": "Müşterilerimiz Ne Diyor?",
+      "verifiedReviews": "{{count}}+ doğrulanmış yorum"
+    },
+    "announcement": {
+      "shipping": "Stoktaki çok satanlar 24-48 saatte teslim",
+      "discount": "Proje paketlerine özel B2B koşulları",
+      "flash": "Bu hafta Diamond soğutma tekniği flaş fırsatta",
+      "leasing": "60 aya varan leasing doğrudan teklifte",
+      "catalog": "10.000+ ürün · 15 premium marka · tek adres"
+    },
+    "categoryBubbles": {
+      "ovens": {
+        "name": "Fırınlar",
+        "deal": "€79/Ay'dan"
+      },
+      "cooling": {
+        "name": "Soğutma Tekniği",
+        "deal": "24-48 sa."
+      },
+      "mixers": {
+        "name": "Hamur Tekniği",
+        "deal": "B2B"
+      },
+      "dishwash": {
+        "name": "Bulaşık Tekniği",
+        "deal": "Servis"
+      },
+      "ice_makers": {
+        "name": "Buz Makineleri",
+        "deal": "Stokta"
+      },
+      "displays": {
+        "name": "Vitrinler",
+        "deal": "Süper Fırsat"
+      },
+      "pizza": {
+        "name": "Pizza Hattı",
+        "deal": "Paket"
+      },
+      "combi": {
+        "name": "Kombi Fırınlar",
+        "deal": "Çok Satan"
+      },
+      "cooltables": {
+        "name": "Soğutmalı Tezgâhlar",
+        "deal": "Profesyonel"
+      },
+      "fryers": {
+        "name": "Fritözler",
+        "deal": "Yeni"
+      }
+    },
+    "promo": {
+      "eyebrow": "PROJE BONUSU",
+      "headingLead": "Rastgele indirim değil. Doğru hesaplanmış",
+      "headingAccent": "proje fiyatı",
+      "subtitle": "Komple mutfak listeleriniz için alım koşullarını, teslim durumunu ve leasing oranını birlikte değerlendiriyoruz. Böylece projede gerçekten işe yarayan bir teklif ortaya çıkıyor.",
+      "bonusItems": {
+        "review": "Proje listesi uzman bir danışman tarafından incelenir",
+        "leasing": "Leasing oranı ve stok durumu doğrudan teklifte",
+        "package": "Karışık tek tek indirim yerine net paket fiyatı"
+      },
+      "currentBenefit": "Güncel avantaj",
+      "upTo12": "%12'ye varan",
+      "onPackages": "onaylı proje paketlerinde",
+      "packageNote": "Her tekil cihaza değil, stokta hazır ürünlerden oluşan mantıklı paket listelerine uygulanır.",
+      "cta": "Ürün seçin",
+      "benefits": {
+        "packagePrice": {
+          "label": "Paket fiyatı",
+          "text": "Sepete göre B2B koşulu"
+        },
+        "quote24": {
+          "label": "24 saatte teklif",
+          "text": "Ertesi iş günü dönüş"
+        },
+        "advice": {
+          "label": "Danışmanlık",
+          "text": "Cihaz seçimi kontrol edilir"
+        },
+        "safety": {
+          "label": "Güvence",
+          "text": "CE, servis, yedek parça"
+        }
+      }
+    },
+    "process": {
+      "eyebrow": "SÜRECİMİZ",
+      "headingLead": "Her şey",
+      "headingAccent": "Tek Elden",
+      "subtitle": "İlk fikirden anahtar teslim devir aşamasına kadar gastro projenizi adım adım yanınızdayız.",
+      "steps": {
+        "consult": {
+          "title": "DANIŞMANLIK",
+          "desc": "Sizi dinliyor, ihtiyaçlarınızı anlıyoruz."
+        },
+        "design": {
+          "title": "3B PLANLAMA",
+          "desc": "En modern 3B teknolojisiyle kişiye özel planlama."
+        },
+        "finance": {
+          "title": "FİNANSMAN",
+          "desc": "Projenize özel finansman çözümleri."
+        },
+        "delivery": {
+          "title": "TEKNİK & TESLİMAT",
+          "desc": "Öncü markaların kaliteli cihazları – zamanında teslim."
+        },
+        "install": {
+          "title": "MONTAJ",
+          "desc": "Deneyimli uzmanlarca profesyonel montaj."
+        },
+        "opening": {
+          "title": "AÇILIŞ & SERVİS",
+          "desc": "Açılışa kadar ve sonrasında da yanınızdayız."
+        }
+      },
+      "usps": {
+        "plannableCosts": "Planlanabilir maliyet",
+        "liquidity": "Nakit akışını koruyun",
+        "terms": "Esnek vade seçenekleri",
+        "brands": "Güçlü marka partnerleri"
+      },
+      "moreInfo": "DAHA FAZLA BİLGİ"
+    },
+    "topProducts": {
+      "eyebrow": "ÖNE ÇIKAN ÜRÜNLER",
+      "headingLead": "Profesyonel mutfak tekniği.",
+      "headingAccent": "Anında yapılandırılabilir",
+      "subtitle": "Gastro projeniz için öncü üreticilerden 10.000+ ürün.",
+      "viewAll": "TÜM CİHAZLARI GÖSTER",
+      "bestseller": "ÇOK SATAN",
+      "inStock": "STOKTA",
+      "save": "€ {{amount}} Kazanç",
+      "plusVat": "KDV hariç",
+      "leasingFrom": "Leasing:",
+      "perMonth": "€ {{amount}}/Ay",
+      "inQuote": "TEKLİFTE",
+      "toQuote": "TEKLİFE EKLE",
+      "compare": "Karşılaştır",
+      "removeCompare": "Karşılaştırmadan çıkar",
+      "project": "Proje",
+      "projectRequest": "Proje talebi"
+    },
+    "heroBanners": {
+      "slide1": "Profesyonel teknik. Minimalist tasarım.",
+      "slide2": "En yüksek beklentilere uygun profesyonel donanım.",
+      "slide3": "Her adımda üstün performans.",
+      "slide4": "Profesyonel endüstriyel mutfakların geleceği.",
+      "slide5": "Her şey tek elden."
+    },
+    "leasing": {
+      "termLabel": "Leasing vadesi",
+      "months": "{{count}} Ay",
+      "leasingFrom": "Leasing:",
+      "perMonthShort": "€ {{amount}} / Ay",
+      "calcButton": "Finansmanı hesapla",
+      "benefits": {
+        "oneHand": {
+          "title": "Her şey tek elden",
+          "desc": "Planlamadan cihaz seçimine, leasingden teslimat ve montaja kadar süreci merkezi olarak yürütürüz."
+        },
+        "europe": {
+          "title": "Avrupa geneli teslimat",
+          "desc": "Almanya ve Avrupa'daki proje sahaları için Köln çıkışlı güvenilir lojistik."
+        },
+        "install": {
+          "title": "Montaj & Kurulum",
+          "desc": "Gastro servis partnerlerimiz kurulum, su, elektrik ve devreye alma işlemlerini yerinde kontrol eder."
+        },
+        "service": {
+          "title": "Servis & Bakım",
+          "desc": "Teknik destek ve bakım planları mutfağınızın sürekli performansını güvence altına alır."
+        },
+        "planning": {
+          "title": "Planlama dahil",
+          "desc": "Proje satın alımında 3B planlama bedelini sipariş tutarına mahsup ederiz."
+        },
+        "topBrands": {
+          "title": "En iyi markalar, en iyi fiyatlarla",
+          "desc": "Diamond, CombiSteel ve seçkin premium partnerler için doğrudan B2B koşulları."
+        }
+      }
+    },
+    "quote": {
+      "eyebrow": "TEKLİF TALEP EDİN",
+      "headingLead": "Bağlayıcı olmayan",
+      "headingAccent": "teklif alın",
+      "selectedDevices": "Seçilen cihazlar",
+      "positions": "{{count}} kalem",
+      "emptyHint": "Teklif listeniz boş. Katalogdan çok satanları ekleyin.",
+      "quantityLabel": "Adet",
+      "netTotal": "Net tutar",
+      "grossTotal": "Brüt",
+      "leasingFromLabel": "Leasing",
+      "projectDetails": "Proje Detayları",
+      "badges": {
+        "callback": "Geri arama",
+        "answer24": "24 saatte yanıt",
+        "b2bSafe": "B2B güvenli"
+      },
+      "form": {
+        "projectName": "Firma / Proje adı",
+        "projectNamePlaceholder": "örn. Pizzeria Köln Mitte",
+        "phone": "Telefon / WhatsApp",
+        "email": "E-posta",
+        "emailPlaceholder": "teklif@firma.com",
+        "segment": "İşletme türü",
+        "segmentPlaceholder": "Lütfen segment seçin",
+        "segmentRestaurant": "Restoran & Kafe",
+        "segmentHotel": "Otel & Konaklama",
+        "segmentCatering": "Catering & Endüstriyel Mutfak",
+        "segmentMarket": "Market & Fırın",
+        "notes": "Talepler / Notlar",
+        "notesPlaceholder": "Ölçü, özel elektrik ya da gaz bağlantısıyla ilgili istekleriniz...",
+        "submit": "TEKLİF TALEBİ GÖNDER"
+      }
+    },
+    "projectStart": {
+      "eyebrow": "PROJEYE BAŞLAYIN",
+      "heading": "Mutfağınız bugün planlanabilir, yarın teklif alabilirsiniz.",
+      "subtitle": "Cihaz seçiminizi, bir fotoğrafı veya kroki planı gönderin. Stok, leasing ve montaj ihtiyaçlarını değerlendirip sağlam bir B2B teklifi hazırlayalım.",
+      "ctaQuote": "Teklifi şimdi al",
+      "ctaPlanner": "Yapay zekâlı planlamayı başlat",
+      "stats": {
+        "products": "Ürün",
+        "brands": "Marka",
+        "response": "Geri dönüş",
+        "leasing": "Leasing"
+      }
+    },
+    "landingFooter": {
+      "tagline": "Avrupa B2B standartlarında birinci sınıf endüstriyel mutfak ekipmanlarında planlama, satış ve montaj. Diamond ve premium partnerler.",
+      "platform": "Platform",
+      "gastroPlanner": "Gastro Planlayıcı",
+      "catalog": "Ürün Kataloğu",
+      "inspection": "Grup Analizi",
+      "leasingCalc": "Leasing Hesaplayıcı",
+      "contactLogistics": "İletişim & Lojistik",
+      "germany": "Almanya",
+      "telPrefix": "Tel",
+      "imprint": "Künye",
+      "privacy": "Gizlilik",
+      "termsB2B": "AGB & B2B Koşulları",
+      "cookies": "Çerezler",
+      "securePayments": "Güvenli ödeme yöntemleri",
+      "copyright": "© {{year}} 2MC Gastro GmbH. Tüm hakları saklıdır."
+    },
+    "floatingCta": {
+      "positionsInQuote": "Teklifte {{count}} kalem",
+      "ready": "Teklif listesi hazır",
+      "summary": "€ {{net}} net · € {{monthly}}/Ay'dan",
+      "hint": "Çok satanları seçin, 24 saatte teklifinizi alın",
+      "button": "Teklif"
+    },
+    "strip": {
+      "delivery": "TÜM AVRUPA’YA HIZLI B2B TESLİMAT",
+      "warehouse": "KÖLN DEPOSUNDAN DOĞRUDAN",
+      "express": "STOKTAKİ ÜRÜNLERDE 24 SAATTE EKSPRES GÖNDERİM",
+      "assembly": "GÜVENİLİR MONTAJ HİZMETİ"
     }
   },
   "developerApi": {
@@ -2519,7 +2963,9 @@
     "badge": "BLOG",
     "subtitle": "Profesyonellerin hazırladığı içeriklerle işinizi büyütün.",
     "title": "Sektör Rehberleri ve Makaleler",
-    "viewAll": "Tümünü Gör"
+    "viewAll": "Tümünü Gör",
+    "seoTitle": "Blog — Endüstriyel Mutfak Rehberleri",
+    "seoDescription": "Endüstriyel mutfak kurulumu, ekipman seçimi, HACCP uyumu ve restoran işletmeciliği üzerine uzman rehberler, karşılaştırmalar ve ipuçları."
   },
   "checkout": {
     "shipStandard": "Standart Kargo",
@@ -2571,17 +3017,17 @@
     "shippingLabel": "Kargo",
     "vat": "KDV (%20)",
     "total": "Toplam",
-    "agreeCancellation": "Ich habe die Widerrufsbelehrung zur Kenntnis genommen",
-    "agreePrivacy": "Ich habe die Datenschutzerklärung zur Kenntnis genommen",
-    "agreeTerms": "Ich akzeptiere die AGB",
-    "completeOrder": "Zahlungspflichtig bestellen",
-    "contractFormation": "Vertragsschluss",
-    "contractFormationDesc": "Mit Klick auf \"Zahlungspflichtig bestellen\" geben Sie eine verbindliche Bestellung ab und erkennen diese Bedingungen an.",
-    "orderSummary": "Bestellübersicht",
-    "securePayment": "Sichere Zahlung mit Stripe. Ihre Daten sind verschlüsselt und sicher.",
-    "viewCancellation": "Widerrufsbelehrung ansehen",
-    "viewPrivacy": "Datenschutzerklärung ansehen",
-    "viewTerms": "AGB ansehen",
+    "agreeCancellation": "Cayma hakkı bilgilendirmesini okudum",
+    "agreePrivacy": "Gizlilik politikasını okudum",
+    "agreeTerms": "Genel şartlar ve koşulları kabul ediyorum",
+    "completeOrder": "Ödeme yaparak sipariş ver",
+    "contractFormation": "Sözleşmenin kurulması",
+    "contractFormationDesc": "\"Ödeme yaparak sipariş ver\"e tıklayarak bağlayıcı bir sipariş verir ve bu koşulları kabul edersiniz.",
+    "orderSummary": "Sipariş özeti",
+    "securePayment": "Stripe ile güvenli ödeme. Verileriniz şifrelenir ve güvenle saklanır.",
+    "viewCancellation": "Cayma hakkı bilgilendirmesini gör",
+    "viewPrivacy": "Gizlilik politikasını gör",
+    "viewTerms": "Genel şartları gör",
     "quantity": "Adet",
     "shipping": "Kargo",
     "tax": "KDV"
@@ -2672,7 +3118,10 @@
     "sentBodyBefore": "İndirme bağlantısı",
     "sentBodyAfter": "adresine iletildi. Birkaç dakika içinde gelmezse spam klasörünü kontrol edin.",
     "privacyNote": "Spam yok. İstediğiniz zaman abonelikten çıkabilirsiniz.",
-    "errorGeneric": "Bir hata oluştu. Lütfen tekrar deneyin."
+    "errorGeneric": "Bir hata oluştu. Lütfen tekrar deneyin.",
+    "seoTitle": "Ücretsiz Rehberler & Şablonlar — 2MC Gastro",
+    "seoDescription": "HACCP kontrol listesi, bütçe şablonları, satın alma rehberleri. Endüstriyel mutfak profesyonelleri için ücretsiz kaynaklar.",
+    "breadcrumbTitle": "Kaynaklar"
   },
   "planner": {
     "descRestaurant": "Tam servis · À la carte",
@@ -2854,27 +3303,27 @@
   },
   "admin": {
     "rfq": {
-      "cod": "Nachnahme",
-      "create": "Erstellen",
-      "createQuote": "Angebot erstellen",
-      "deliveryDate": "Lieferdatum",
-      "deliveryTerms": "Lieferbedingungen",
-      "description": "Verwalten Sie Anfragen und erstellen Sie Angebote",
-      "discount": "Rabatt",
-      "net30": "Netto 30 Tage",
-      "net60": "Netto 60 Tage",
-      "noQuotes": "Keine Angebote gefunden",
-      "noRequests": "Keine Anfragen gefunden",
-      "notes": "Notizen",
-      "notesPlaceholder": "Besondere Bedingungen, Lieferbedingungen, etc.",
-      "paymentTerms": "Zahlungsbedingungen",
-      "prepaid": "Vorkasse",
-      "quotes": "Angebote",
-      "requests": "Anfragen",
-      "send": "Versenden",
-      "title": "Angebotsverwaltung",
-      "validUntil": "Gültig bis",
-      "volumeDiscount": "Mengenrabatt (%)"
+      "cod": "Kapıda ödeme",
+      "create": "Oluştur",
+      "createQuote": "Teklif oluştur",
+      "deliveryDate": "Teslim tarihi",
+      "deliveryTerms": "Teslim koşulları",
+      "description": "Talepleri yönetin ve teklif oluşturun",
+      "discount": "İndirim",
+      "net30": "Net 30 gün",
+      "net60": "Net 60 gün",
+      "noQuotes": "Teklif bulunamadı",
+      "noRequests": "Talep bulunamadı",
+      "notes": "Notlar",
+      "notesPlaceholder": "Özel koşullar, teslim şartları vb.",
+      "paymentTerms": "Ödeme koşulları",
+      "prepaid": "Peşin ödeme",
+      "quotes": "Teklifler",
+      "requests": "Talepler",
+      "send": "Gönder",
+      "title": "Teklif yönetimi",
+      "validUntil": "Geçerlilik sonu",
+      "volumeDiscount": "Miktar indirimi (%)"
     },
     "errorReport": {
       "autoShotFail": "Ekran görüntüsü otomatik alınamadı — 'Yeniden Çek' veya 'Dosya Ekle' ile ekleyin.",
@@ -2891,63 +3340,68 @@
     "privacy": "Spam yok. İstediğiniz zaman abonelikten çıkabilirsiniz.",
     "submit": "Abone Ol",
     "success": "Kayıt tamam! İndirim kodu e-postanıza gönderildi.",
-    "title": "Fırsatları İlk Siz Öğrenin"
+    "title": "Fırsatları İlk Siz Öğrenin",
+    "chefTitle": "Şef Bülteni",
+    "chefDescription": "Haftalık endüstriyel mutfak rehberleri, yeni ürünler ve özel fırsatlar.",
+    "invalidEmail": "Geçerli bir email adresi girin.",
+    "errorTryAgain": "Bir sorun oluştu, tekrar deneyin."
   },
   "rfq": {
-    "acceptQuote": "Angebot akzeptieren",
-    "afterDiscount": "nach Rabatt",
-    "backToRequests": "Zurück zu Anfragen",
-    "cartEmpty": "Ihr Warenkorb ist leer",
-    "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
-    "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
-    "contactInfo": "Kontaktinformation",
-    "createFirst": "Erste Anfrage erstellen",
-    "createdOn": "Erstellt am",
-    "daysRemaining": "{{days}} Tage verbleibend",
-    "deliveryDate": "Gewünschtes Lieferdatum",
-    "deliveryTerms": "Lieferbedingungen",
-    "message": "Nachricht",
+    "acceptQuote": "Teklifi kabul et",
+    "afterDiscount": "indirim sonrası",
+    "backToRequests": "Taleplere dön",
+    "cartEmpty": "Sepetiniz boş",
+    "confirmReject": "Teklif reddedilsin mi?",
+    "confirmRejectButton": "Reddet",
+    "confirmRejectDesc": "Bu teklifi reddetmek istediğinizden emin misiniz?",
+    "contactInfo": "İletişim bilgileri",
+    "createFirst": "İlk talebinizi oluşturun",
+    "createdOn": "Oluşturulma tarihi",
+    "daysRemaining": "{{days}} gün kaldı",
+    "deliveryDate": "Tercih edilen teslim tarihi",
+    "deliveryTerms": "Teslim koşulları",
+    "message": "Mesaj",
     "messagePlaceholder": "Spezielle Wünsche, Anforderungen oder Fragen...",
-    "newRequest": "Neues Angebot anfordern",
-    "noRequests": "Sie haben noch keine Anfragen",
-    "notFound": "Angebot nicht gefunden",
-    "notes": "Notizen",
-    "paymentTerms": "Zahlungsbedingungen",
-    "quoteDetails": "Angebotsdetails",
-    "quoteExpired": "Dieses Angebot ist abgelaufen",
-    "quoteExpires": "Gültig bis",
-    "rejectQuote": "Angebot ablehnen",
-    "requestDetails": "Anforderungsdetails",
+    "newRequest": "Yeni teklif iste",
+    "noRequests": "Henüz talebiniz bulunmuyor",
+    "notFound": "Teklif bulunamadı",
+    "notes": "Notlar",
+    "paymentTerms": "Ödeme koşulları",
+    "quoteDetails": "Teklif detayları",
+    "quoteExpired": "Bu teklifin süresi doldu",
+    "quoteExpires": "Geçerlilik sonu",
+    "rejectQuote": "Teklifi reddet",
+    "requestDetails": "Talep detayları",
     "requestSent": "Anfrage versendet!",
     "requestSentDesc": "Wir werden Ihre Anfrage baldmöglichst bearbeiten und Ihnen ein Angebot zusenden.",
-    "sendRequest": "Anfrage senden",
-    "subtitle": "Verwalten Sie Ihre Angebotsanfragen",
-    "title": "Angebote anfordern",
-    "validFrom": "Gültig ab",
-    "validUntil": "Gültig bis",
-    "volumeDiscount": "Mengenrabatt"
+    "sendRequest": "Talep gönder",
+    "subtitle": "Teklif taleplerinizi yönetin",
+    "title": "Teklif isteyin",
+    "validFrom": "Geçerlilik başlangıcı",
+    "validUntil": "Geçerlilik sonu",
+    "volumeDiscount": "Miktar indirimi"
   },
   "search": {
-    "placeholder": "Ürün, kategori, marka ara..."
+    "placeholder": "Ürün, kategori, marka ara...",
+    "popularCombiOven": "Kombi Fırın"
   },
   "withdrawal": {
-    "button": "Widerrufen",
-    "contactInfo": "Kontakt für Widerruf:",
-    "download": "Formular herunterladen",
-    "formTitle": "Widerrufsformular",
-    "info1": "Sie haben das Recht, diesen Kauf innerhalb von 14 Tagen zu widerrufen",
-    "info2": "Die Frist beginnt am Tag der Bestellung",
-    "info3": "Sie müssen die Produkte in originalem Zustand zurückgeben",
-    "info4": "Sie tragen die Kosten für die Rücksendung",
-    "info5": "Geld wird nach Erhalt der Rückware erstattet",
-    "infoTitle": "Ihr Widerrufsrecht",
-    "instructions": "Anleitung zum Widerrufen:",
-    "step1": "Füllen Sie das Widerrufsformular aus und unterschreiben Sie es",
-    "step2": "Senden Sie es per E-Mail an info@2mcgastro.de oder per Post",
-    "step3": "Packen Sie die Produkte sicher ein und senden Sie sie zurück",
+    "button": "Cayma hakkını kullan",
+    "contactInfo": "Cayma bildirimi için iletişim:",
+    "download": "Formu indir",
+    "formTitle": "Cayma formu",
+    "info1": "Bu satın almadan 14 gün içinde cayma hakkınız bulunur",
+    "info2": "Süre, sipariş tarihinden itibaren başlar",
+    "info3": "Ürünleri orijinal durumuyla iade etmelisiniz",
+    "info4": "İade kargo bedelini siz karşılarsınız",
+    "info5": "Tutar, iade edilen ürünler tarafımıza ulaştıktan sonra geri ödenir",
+    "infoTitle": "Cayma hakkınız",
+    "instructions": "Cayma adımları:",
+    "step1": "Cayma formunu doldurup imzalayın",
+    "step2": "info@2mcgastro.de adresine e-posta ile ya da posta yoluyla gönderin",
+    "step3": "Ürünleri güvenli şekilde paketleyip geri gönderin",
     "step4": "Nach Erhalt erhalten Sie Ihr Geld zurück (bis 30 Tage)",
-    "title": "Rücktrittsrecht - 14 Tage Widerruf"
+    "title": "Cayma Hakkı - 14 Günlük Cayma Süresi"
   },
   "customerFinder": {
     "status": {
@@ -3095,7 +3549,21 @@
     "empty": "Henüz yayınlanmış bir düzeltme yok.",
     "technical": "Teknik detay",
     "reverted": "Geri alındı",
-    "revertedHint": "Bu düzeltme sorun çıkardığı için geri alındı."
+    "revertedHint": "Bu düzeltme sorun çıkardığı için geri alındı.",
+    "category": {
+      "fix": "Düzeltme",
+      "improvement": "İyileştirme",
+      "feature": "Yenilik"
+    },
+    "reported": "Siz bildirdiniz",
+    "done": "Biz ne yaptık",
+    "statTotal": "Toplam düzeltme",
+    "statThisMonth": "Bu ay",
+    "statMedian": "Ortalama çözüm",
+    "sameDay": "Aynı gün",
+    "days": "{{count}} gün",
+    "solvedSameDay": "Aynı gün çözüldü",
+    "solvedInDays": "{{count}} günde çözüldü"
   },
   "seo": {
     "home": "Ana sayfa",
@@ -3158,5 +3626,399 @@
     "subscribed": "Abone olundu ✓",
     "rights": "Tüm hakları saklıdır.",
     "madeIn": "Köln’de tutkuyla yapıldı."
+  },
+  "chat": {
+    "assistantBadge": "Yapay zekâ asistanı · 7/24",
+    "quickReplyCombiOven": "Kombi fırın önerir misin?",
+    "quickReplyShipping": "Kargo ne kadar sürer?",
+    "quickReplyReturn": "İade koşulları nedir?",
+    "quickReplyPlanner": "Mutfak planlayıcı nasıl çalışır?",
+    "connectionError": "Bağlantı kurulamadı. Lütfen tekrar deneyin.",
+    "liveSupport": "Canlı destek",
+    "typing": "Yazıyor...",
+    "aiThinking": "AI düşünüyor...",
+    "salesFallback": "Üzgünüm, şu an yanıt veremiyorum. Lütfen WhatsApp +49 176 70295844 numarasından ulaşın.",
+    "salesAssistantAria": "Satış asistanı",
+    "askInputPlaceholder": "Sorunuzu yazın…"
+  },
+  "info": {
+    "about": {
+      "title": "Hakkımızda",
+      "subtitle": "Profesyonel mutfaklar için tek elden çözüm: ürün, planlama, teklif.",
+      "intro1": "2MC Gastro, Köln merkezli bir endüstriyel mutfak ekipmanları tedarikçisidir. Restoran, otel, kafe, catering ve toplu yemek işletmeleri için Diamond, CombiSteel ve HENDI başta olmak üzere önde gelen üreticilerin ürünlerini tek katalogda sunar.",
+      "intro2": "Sadece ürün satmıyoruz: 2B/3B mutfak planlama aracımızla yerleşimi birlikte tasarlıyor, projeden tek tıkla teklif (Angebot) üretiyor ve siparişten teslimata kadar süreci takip ediyoruz.",
+      "offering": {
+        "h": "Neler sunuyoruz?",
+        "item1": "Pişirme, soğutma, hazırlık, bulaşık ve havalandırma ekipmanları",
+        "item2": "Ücretsiz 2B/3B mutfak planlama ve yerleşim danışmanlığı",
+        "item3": "Proje bazlı teklif, karşılaştırma ve malzeme listesi (BOM)",
+        "item4": "Almanya ve Avrupa geneline paket/palet sevkiyat"
+      },
+      "company": {
+        "h": "Firma bilgileri",
+        "phone": "Tel: {{phone}}",
+        "email": "E-posta: {{email}}",
+        "vat": "KDV No: {{vat}}"
+      }
+    },
+    "careers": {
+      "title": "Kariyer",
+      "subtitle": "Profesyonel mutfak dünyasında birlikte büyüyelim.",
+      "p1": "Şu anda ilan edilmiş açık bir pozisyonumuz bulunmuyor; ancak satış, proje/planlama, lojistik ve yazılım alanlarında genel başvuruları her zaman değerlendiriyoruz.",
+      "p2": "Özgeçmişinizi ve kısa bir ön yazıyı \"{{email}}\" adresine \"Başvuru\" konusuyla gönderebilirsiniz. Başvurular yalnızca işe alım süreci için işlenir (bkz. Gizlilik)."
+    },
+    "shipping": {
+      "title": "Kargo & Teslimat",
+      "subtitle": "Paket ve palet sevkiyatı, teslimat süreleri ve teslim alma.",
+      "methods": {
+        "h": "Sevkiyat yöntemleri",
+        "item1": "Küçük ürünler: DHL, UPS veya DPD ile paket gönderimi",
+        "item2": "Büyük cihazlar: nakliye firması ile palet üzerinde, kaldırım kenarına (Bordsteinkante) teslim",
+        "item3": "Talep hâlinde yerine taşıma, montaj ve eski cihaz alımı — teklifte ayrıca fiyatlanır"
+      },
+      "duration": {
+        "h": "Teslimat süresi",
+        "p": "Stoktaki ürünler genellikle birkaç iş günü içinde kargoya verilir. Üreticiden temin edilen ürünlerde süre değişebilir; tahmini teslimat süresi sipariş onayınızda bildirilir."
+      },
+      "acceptance": {
+        "h": "Teslim alma ve hasar",
+        "p": "Lütfen teslimatta ambalajı kontrol edin. Görünür hasar varsa teslim tutanağına not düşün, mümkünse fotoğraf çekin ve bize hemen bildirin; aksi hâlde nakliye hasarı talebi zorlaşır."
+      },
+      "fees": {
+        "h": "Sevkiyat ücretleri",
+        "p": "Kargo ücreti ürünün boyutuna, ağırlığına ve teslimat adresine göre hesaplanır ve teklif/sepette ayrı kalem olarak gösterilir. Fiyatlar B2B için net (KDV hariç) belirtilir."
+      }
+    },
+    "newsletter": {
+      "title": "Bülten",
+      "subtitle": "Yeni ürünler, kampanyalar ve sektör trendleri ayda bir e-postanızda.",
+      "p1": "Bültenimize abone olmak için sayfanın altındaki forma e-posta adresinizi yazmanız yeterli. Spam göndermeyiz; her e-postanın altındaki bağlantıyla istediğiniz zaman abonelikten çıkabilirsiniz."
+    },
+    "imprint": {
+      "title": "Künye (Impressum)",
+      "subtitle": "Alman Dijital Hizmetler Kanunu (§ 5 DDG) gereği sağlayıcı bilgileri.",
+      "provider": {
+        "h": "Sağlayıcı"
+      },
+      "phone": "Telefon: {{phone}}",
+      "email": "E-posta: {{email}}",
+      "tax": {
+        "h": "Vergi bilgileri",
+        "vat": "USt-IdNr. (KDV kimlik no.): {{vat}}",
+        "number": "Steuernummer (vergi no.): {{taxNumber}}"
+      },
+      "responsible": {
+        "h": "İçerikten sorumlu (§ 18 Abs. 2 MStV)"
+      },
+      "odr": {
+        "h": "AB çevrimiçi uyuşmazlık çözümü",
+        "p": "Avrupa Komisyonu çevrimiçi uyuşmazlık çözümü (OS) platformu: https://ec.europa.eu/consumers/odr — Tüketici hakem heyeti önünde uyuşmazlık çözüm sürecine katılma yükümlülüğümüz yoktur ve katılmıyoruz."
+      },
+      "liability": {
+        "h": "Sorumluluk",
+        "p": "Sayfalarımızın içeriği büyük özenle hazırlanmıştır; ancak içeriklerin doğruluğu, eksiksizliği ve güncelliği için sorumluluk kabul edemeyiz. Dış bağlantıların içeriğinden yalnızca ilgili sağlayıcı sorumludur."
+      },
+      "register": {
+        "managingDirector": "Şirket müdürü (Geschäftsführer): {{name}}",
+        "court": "Sicil mahkemesi (Registergericht): {{court}}",
+        "number": "Ticaret sicil no. (HRB): {{number}}"
+      }
+    },
+    "privacy": {
+      "title": "Gizlilik Politikası",
+      "subtitle": "Kişisel verilerinizi GDPR (DSGVO) kapsamında nasıl işlediğimiz.",
+      "controller": {
+        "h": "1. Veri sorumlusu",
+        "email": "E-posta: {{email}}"
+      },
+      "hosting": {
+        "h": "2. Barındırma ve sunucu kayıtları",
+        "p": "Web sitesi Vercel Inc. altyapısında barındırılır. Her erişimde IP adresi, tarih/saat, çağrılan sayfa, tarayıcı ve işletim sistemi bilgisi teknik zorunlulukla sunucu kayıtlarına yazılır (Madde 6/1-f GDPR — güvenli işletim meşru menfaati) ve kısa süre sonra silinir."
+      },
+      "data": {
+        "h": "3. Hesap, proje ve sipariş verileri",
+        "p": "Kayıt olduğunuzda ad, e-posta, firma ve iletişim bilgileriniz; oluşturduğunuz projeler, teklifler ve siparişler Supabase (veritabanı ve kimlik doğrulama) üzerinde saklanır. İşleme amacı sözleşmenin kurulması ve ifasıdır (Madde 6/1-b GDPR). Veriler hesabınız silinene veya yasal saklama süreleri dolana kadar tutulur."
+      },
+      "payment": {
+        "h": "4. Ödeme",
+        "p": "Kartlı ödemeler Stripe Payments Europe Ltd. tarafından işlenir; kart verileri bize ulaşmaz. Stripe kendi gizlilik politikası kapsamında veri sorumlusudur."
+      },
+      "contact": {
+        "h": "5. İletişim ve destek",
+        "p": "Destek formu veya e-posta ile ilettiğiniz bilgiler talebinizi yanıtlamak için işlenir (Madde 6/1-b ve 6/1-f GDPR) ve ilgili yazışma bittikten sonra makul süre içinde silinir."
+      },
+      "cookies": {
+        "h": "6. Çerezler ve kullanım analizi",
+        "p": "Teknik olarak zorunlu çerez/depolama (oturum, dil, sepet, çerez tercihi) onay gerektirmez. Kullanım analizi (PostHog) yalnızca çerez uyarısında onay verdiğinizde etkinleşir; onay vermezseniz izleme kapalı kalır. Ayrıntılar için \"Çerezler\" sayfasına bakın."
+      },
+      "rights": {
+        "h": "7. Haklarınız",
+        "p": "Bilgi alma, düzeltme, silme, işlemenin kısıtlanması, veri taşınabilirliği ve itiraz haklarınız vardır; verdiğiniz onayı istediğiniz zaman geri alabilirsiniz. Taleplerinizi yukarıdaki e-posta adresine iletebilirsiniz. Ayrıca bir denetim makamına (Almanya için: Landesbeauftragte für Datenschutz und Informationsfreiheit NRW) şikâyette bulunma hakkına sahipsiniz."
+      }
+    },
+    "terms": {
+      "title": "Kullanım Koşulları (AGB)",
+      "subtitle": "Ticari müşteriler için genel satış ve kullanım koşulları.",
+      "scope": {
+        "h": "1. Kapsam",
+        "p": "Bu koşullar {{legalName}} (\"2MC Gastro\") ile müşteri arasındaki tüm teklif, sipariş ve teslimatlar için geçerlidir. Platform ağırlıklı olarak ticari müşterilere (BGB § 14 anlamında işletmeler) yöneliktir; fiyatlar net, KDV hariç (\"zzgl. MwSt.\") gösterilir."
+      },
+      "contract": {
+        "h": "2. Sözleşmenin kurulması",
+        "p": "Sitedeki ürün gösterimleri bağlayıcı teklif değildir. Sipariş vermeniz bir teklif niteliğindedir; sözleşme sipariş onayımız veya teslimat ile kurulur. Platformda üretilen teklifler (Angebot) belirtilen süre boyunca geçerlidir."
+      },
+      "price": {
+        "h": "3. Fiyat ve ödeme",
+        "p": "Fiyatlar Euro cinsinden ve sevkiyat masrafları hariçtir. Ödeme ön ödeme (Vorkasse), kart (Stripe) veya anlaşmaya bağlı olarak fatura ile yapılır. Vade aşımında yasal temerrüt faizi uygulanır."
+      },
+      "delivery": {
+        "h": "4. Teslimat ve mülkiyetin saklı tutulması",
+        "p": "Teslimat süreleri tahmini olup sipariş onayında bildirilir. Mal, bedeli tamamen ödenene kadar mülkiyetimizde kalır (Eigentumsvorbehalt). Nakliye riski, ticari müşterilerde malın nakliyeciye tesliminde müşteriye geçer."
+      },
+      "warranty": {
+        "h": "5. Ayıp sorumluluğu ve garanti",
+        "p": "Yasal ayıp sorumluluğu hükümleri geçerlidir. Ticari müşteriler malı derhal inceleyip görünür ayıpları gecikmeden bildirmekle yükümlüdür (HGB § 377). Üretici garantileri ayrıca geçerlidir."
+      },
+      "liability": {
+        "h": "6. Sorumluluk",
+        "p": "Kast ve ağır ihmal ile hayat, beden ve sağlık zararlarında sınırsız sorumluluk taşırız. Diğer hâllerde sorumluluk, sözleşmenin esaslı yükümlülüklerinin ihlaliyle ve öngörülebilir, sözleşmeye özgü zararla sınırlıdır."
+      },
+      "platform": {
+        "h": "7. Platform kullanımı",
+        "p": "Hesap bilgilerinizi gizli tutmakla yükümlüsünüz. Planlama aracı ve katalog verileri yalnızca kendi projeleriniz için kullanılabilir; içeriklerin toplu kopyalanması ve otomatik taranması yasaktır."
+      },
+      "law": {
+        "h": "8. Uygulanacak hukuk",
+        "p": "Alman hukuku uygulanır; BM Satım Sözleşmesi (CISG) hariçtir. Tacirler için yetkili mahkeme Köln'dür."
+      }
+    },
+    "cancellation": {
+      "title": "Cayma Hakkı (Widerrufsrecht)",
+      "subtitle": "Tüketiciler için 14 günlük cayma hakkı bilgilendirmesi.",
+      "who": {
+        "h": "Kimler için geçerli?",
+        "p": "Yasal cayma hakkı yalnızca tüketiciler (BGB § 13) için geçerlidir. Ticari amaçla sipariş veren işletmeler (BGB § 14) için yasal cayma hakkı bulunmaz; iade koşulları ayrıca anlaşmaya bağlıdır."
+      },
+      "info": {
+        "h": "Cayma bilgilendirmesi",
+        "p1": "Tüketiciler bu sözleşmeden, gerekçe göstermeksizin, malı teslim aldıkları günden itibaren 14 gün içinde cayabilir. Cayma için bize (adres ve e-posta aşağıda) açık bir beyanla (ör. e-posta) kararınızı bildirmeniz yeterlidir; aşağıdaki örnek form kullanılabilir ancak zorunlu değildir.",
+        "p2": "Cayma hâlinde, iade kargosunun standart maliyeti dâhil, aldığımız tüm ödemeleri cayma bildiriminin ulaşmasından itibaren 14 gün içinde iade ederiz. Malı bize ulaşana ya da gönderdiğinizi belgeleyene kadar iadeyi bekletebiliriz. Malı 14 gün içinde geri göndermeniz gerekir; nakliye ile teslim edilen (paletli) ürünlerde iade masrafı tarafınıza aittir. Malın niteliğini, özelliklerini ve çalışmasını kontrol için gerekli olanın ötesindeki kullanımdan doğan değer kaybı size aittir."
+      },
+      "form": {
+        "h": "Örnek cayma formu",
+        "to": "Kime: {{legalName}}, {{address}}, {{email}}",
+        "item1": "Aşağıdaki malın satın alınmasına ilişkin sözleşmeden caydığımı bildiririm: (ürün / sipariş no.)",
+        "item2": "Sipariş tarihi / teslim tarihi: …",
+        "item3": "Tüketicinin adı, adresi, tarih ve imza (kâğıt bildirimde)"
+      }
+    },
+    "cookies": {
+      "title": "Çerezler",
+      "subtitle": "Sitede kullanılan çerezler ve tarayıcı depolaması.",
+      "intro": "Bu site klasik çerezlerin yanı sıra tarayıcınızın yerel depolamasını (localStorage) kullanır. Aşağıda kategoriler ve amaçları listelenmiştir.",
+      "essential": {
+        "h": "Zorunlu (onay gerektirmez)",
+        "item1": "Oturum / kimlik doğrulama (Supabase auth, \"2mc-gastro-auth\") — giriş yaptığınızda hesabınızı tanımak için",
+        "item2": "Dil tercihi (\"2mc_lang\") — arayüzü seçtiğiniz dilde göstermek için",
+        "item3": "Çerez tercihi (\"consent-state\") — verdiğiniz onayı hatırlamak için"
+      },
+      "functional": {
+        "h": "İşlevsel",
+        "item1": "Sepet (\"2mc-cart\"), favoriler, karşılaştırma listesi ve proje taslakları (\"2mc-gastro-projects\") — sayfayı yenilediğinizde çalışmanızın kaybolmaması için",
+        "item2": "Arayüz tercihleri (\"2mc-gastro-ui\") — tema, panel durumu gibi ayarlar"
+      },
+      "analytics": {
+        "h": "Analiz (yalnızca onayla)",
+        "item1": "PostHog (\"ph_*\") — sayfa görüntüleme ve kullanım istatistikleri; çerez uyarısında onay vermezseniz etkinleşmez"
+      },
+      "thirdParty": {
+        "h": "Üçüncü taraflar",
+        "item1": "Stripe — ödeme sayfasında dolandırıcılık önleme çerezleri",
+        "item2": "Supabase Storage / Amazon S3 — ürün görselleri ve 3B modeller (çerez yazmaz)"
+      },
+      "changePreference": {
+        "h": "Tercihinizi değiştirme",
+        "p": "Tarayıcı ayarlarından çerezleri ve site verilerini istediğiniz zaman silebilirsiniz. Onayınızı geri çekmek için site verilerini temizlemeniz yeterlidir; bir sonraki ziyarette çerez uyarısı yeniden gösterilir."
+      }
+    }
+  },
+  "legal": {
+    "agb": {
+      "pageTitle": "Genel Ticari Şartlar",
+      "pageSubtitle": "B2B İşletme Müşterileri · Profesyonel Mutfak Ekipmanı",
+      "updatedLabel": "Güncellendi",
+      "backToTop": "Üste git",
+      "s1": {
+        "title": "Kapsam",
+        "p1": "Bu Genel Ticari Şartlar (GTS), 2MC Gastro GmbH tarafından ticari müşterilere (B2B) ürün ve hizmetlerin satışı için geçerlidir. Bu GTS, sağlayıcı ve alıcı arasındaki tüm yasal işlemlerin temelini oluşturur.",
+        "p2": "Alıcının farklı şartları ancak sağlayıcı tarafından açıkça yazılı olarak kabul edilmişse geçerlidir."
+      },
+      "s2": {
+        "title": "Sözleşme Yapılması",
+        "p1": "Web sitesinde ürünlerin sunulması bir teklif oluşturur. Sipariş vererek, alıcı bağlayıcı bir teklif yapmış olur.",
+        "p2": "Sözleşme, sağlayıcı tarafından e-posta veya onay mektubu yoluyla açık kabul ile imzalanır. Kabul, siparişin alınmasından sonra 14 gün içinde gerçekleşmelidir.",
+        "p3": "Alıcı, sözleşme yapılmadan önce yazılı bildirim yoluyla siparişini istediği zaman iptal edebilir."
+      },
+      "s3": {
+        "title": "Fiyatlar ve Ödeme",
+        "p1": "Tüm fiyatlar net fiyatlardır (katma değer vergisi hariç). KDV faturalama sırasında ayrı olarak eklenir, teslimat sırasında geçerli olan yasal vergi oranlarına uygun olarak.",
+        "termsLabel": "B2B Ödeme Şartları:",
+        "term1": "- Net-30: Fatura tarihinden itibaren 30 gün içinde ödeme",
+        "term2": "- Net-60: Fatura tarihinden itibaren 60 gün içinde ödeme (kredi değeri olan müşteriler için talep üzerine)",
+        "term3": "- Ön ödeme: Kargo göndermeden önce ödeme",
+        "discountLabel": "İskonto:",
+        "discountText": "Fatura tarihinden itibaren 10 gün içinde ödeme yapılırsa %2 indirim verilir.",
+        "p2": "Ödemeler SEPA havalesi, kredi kartı veya fatura yoluyla yapılır. Ödeme yöntemlerinin kabulü durum bazında onaylanır."
+      },
+      "s4": {
+        "title": "Teslimat ve Kargo",
+        "methodsLabel": "Kargo Yöntemleri:",
+        "method1": "- Küçük ekipman için kuryeler (DHL, DPD, UPS)",
+        "method2": "- Büyük ekipman için kargo taşımacılığı (boşaltma talep üzerine)",
+        "method3": "- Kendi aracılığıyla teslim alma",
+        "areaLabel": "Teslimat Bölgesi:",
+        "areaText": "Almanya, Avusturya, Hollanda, Belçika, Fransa ve tüm AB ülkeleri.",
+        "timesLabel": "Teslimat Süreleri:",
+        "timesText": "Standart 5-10 iş günü. Express seçenekleri mevcuttur.",
+        "p1": "Sağlayıcı, mallar mevcut değilse kısmi gönderim yapma hakkını saklı tutar.",
+        "p2": "Kayıp riski: Ticari müşteriler için, kayıp riski taşıyıcıya teslim ile devredilir."
+      },
+      "s5": {
+        "title": "Mülkiyet Rezervi",
+        "p1": "Tüm ödenmemiş faturaların tamamen ödenmesine kadar, sağlayıcı teslim edilen malların mülkiyetini saklı tutar. Alıcı, malları yalnızca işletmenin olağan akışında geçirebilir."
+      },
+      "s6": {
+        "title": "Garanti",
+        "periodLabel": "B2B için Garanti Süresi:",
+        "periodText": "Teslimatdan sonra 1 yıl.",
+        "p1": "Kusurlar derhal, teslimatdan en geç 10 gün sonra yazılı olarak sağlayıcıya bildirilmelidir. Zamanında bildirilmeyen kusurlar, garanti haklarının kaybına neden olur.",
+        "p2": "Sağlayıcı, kendi kararı doğrultusunda onarım veya değişim yoluyla garanti sağlar.",
+        "exclusionLabel": "Hariç Tutulma:",
+        "exclusionText": "Garanti, aşınma, normal kullanım, yanlış kullanım veya alıcı veya üçüncü şahıslar tarafından kuruluma uygulanmaz."
+      },
+      "s7": {
+        "title": "Sorumluluk",
+        "p1": "Sağlayıcı, ölümler, vücut yaralanmaları veya sağlık zararlarından kaynaklanan zararlar ile kasıt veya ağır ihmale neden olan zararlar için sınırsız sorumludur.",
+        "p2": "Yukarıda belirtilmeyen zararlar için, sağlayıcı yalnızca kasıt veya ağır ihmal için sorumlu ve etkilenen malın değeri tutarında sorumludur.",
+        "p3": "Sağlayıcı, entâr kaybı veya diğer dolaylı zararlar için sorumlu değildir."
+      },
+      "s8": {
+        "title": "Veri Koruma",
+        "p1Prefix": "Kişisel verilerin işlenmesi",
+        "p1Link": "Gizlilik Politikamız",
+        "p1Suffix": "uyarınca yapılır.",
+        "p2": "Alıcı, verilerinin sözleşme yerine getirilme, faturalandırma ve müşteri hizmetleri amacıyla işlenmesine izin verir."
+      },
+      "s9": {
+        "title": "Son Hükümler",
+        "lawLabel": "Uygulanacak Hukuk:",
+        "lawText": "Uluslararası Ticari Mal Satışı Sözleşmesine ilişkin BM Sözleşmesi hariç olmak üzere yalnızca Alman hukuku uygulanır.",
+        "jurisdictionLabel": "Yetki:",
+        "jurisdictionText": "Bu sözleşmeden kaynaklanan tüm uyuşmazlıklar için yetki, alıcı tüketici olmadığı sürece Köln, Almanya'dadır.",
+        "severabilityLabel": "Kurtarma Koşulu:",
+        "severabilityText": "Bu GTS'nin herhangi bir hükmü geçersiz olursa, geri kalan hükümlerin geçerliliği etkilenmez.",
+        "changesLabel": "Değişiklikler:",
+        "changesText": "Sağlayıcı bu GTS'yi değiştirme hakkını saklı tutar. Değişiklikler yalnızca gelecekteki sözleşmelere uygulanır ve alıcıya önceden bildirilir."
+      }
+    },
+    "widerruf": {
+      "pageTitle": "Geri Çekme Politikası",
+      "updatedLabel": "Güncellendi",
+      "backToTop": "Üste git",
+      "right": {
+        "label": "Tüketiciler için Geri Çekme Hakkı:",
+        "p1": "Herhangi bir neden göstermeden, malların tedarikine ilişkin sözleşmeyi imzaladığınız tarihten itibaren 14 gün içinde çözme hakkına sahipsiniz. Geri çekme süresi, siz veya sizin tarafından belirlenen üçüncü bir kişi (taşıyıcı değil) malları alması günü itibaren 14 gündür.",
+        "p2": "Geri çekme hakkınızı kullanmak için, bu sözleşmeyi geri çekmek istediğiniz konusunda net bir beyanda bulunarak bize e-posta, mektup, telefon veya faks yoluyla bildirim yapmalısınız. Ekteki model geri çekme formunu kullanabilirsiniz, ancak bunu yapmanız zorunlu değildir."
+      },
+      "exceptions": {
+        "intro": "Geri çekme hakkı aşağıdaki sözleşmeleri kapsamaz:",
+        "item1": "Müşteri özelliklerine göre üretilen özel siparişli malların tedarikine ilişkin sözleşmeler",
+        "item2": "Çabuk bozulabilen veya hızlı bir şekilde bozulabilecek malların tedarikine ilişkin sözleşmeler",
+        "item3": "Mühürü açıldıktan sonra iade hakkının hariç tutulduğu kapalı malların tedarikine ilişkin sözleşmeler (ör. hijyen ürünleri)",
+        "item4": "Satın alma sonrasında diğer mallarla ayrılmaz bir şekilde karışan malların tedarikine ilişkin sözleşmeler"
+      },
+      "consequences": {
+        "returnLabel": "Malların İadesi:",
+        "returnText": "Bu sözleşmeyi geri çekerseniz, almış olduğunuz tüm malları gecikmeden ve en geç geri çekme hakkı hakkında bizi bilgilendirdiğiniz günden itibaren 14 gün içinde iade etmelisiniz. Malları 14 günlük süre içinde gönderirseniz, süre sonu muhafaza edilir.",
+        "refundLabel": "Geri Ödeme:",
+        "refundText": "Tarafınızdan alınan tüm ödemeleri, kargo maliyetleri dahil (sunduğumuz en ucuz standart teslimat dışında farklı bir teslimat yöntemi seçmenizden kaynaklanan ek maliyetler hariç), gecikmeden ve geri çekme hakkında bilgilendirildiğimiz günden itibaren en geç 14 gün içinde iade edeceğiz.",
+        "addressLabel": "İade Adresi:",
+        "addressIntro": "Lütfen malları şu adrese gönderin:",
+        "addressReturns": "İadeler",
+        "addressCountry": "Almanya"
+      },
+      "costs": {
+        "p1": "Malların iadesi için doğrudan maliyetleri siz karşılarsınız. Mallar, bizim reklamımız veya hatamız sonucunda siz malları aldığınız yerden farklı bir yere gönderildiyse, bu maliyetleri karşılamanız gerekmez."
+      },
+      "form": {
+        "intro": "Bu sözleşmeyi geri çekmek istiyorsanız, lütfen bu formu doldurun ve bize geri gönderin.",
+        "beginMarker": "—— GERİ ÇEKME FORMU BAŞLANGIÇ ——",
+        "subjectLine": "Konu satırı: Bir sözleşmeyi geri çekme",
+        "declaration": "Aşağıdaki malların satın alınması için yapmış olduğum sözleşmeyi bundan böyle geri çekiyorum:",
+        "orderNumber": "Sipariş numarası",
+        "orderDate": "Sipariş tarihi",
+        "consumerName": "Tüketici adı",
+        "consumerAddress": "Tüketici adresi",
+        "consumerSignature": "Tüketici imzası (yalnızca kağıt üzerinde bildirim için)",
+        "date": "Tarih",
+        "endMarker": "—— GERİ ÇEKME FORMU SONU ——",
+        "downloadLink": "Geri çekme formunu indir (PDF)"
+      },
+      "button": {
+        "description": "Mevcut AB yönergelerine göre, e-ticaret platformları geri çekme işlemini kolaylaştırmak için bir düğme sağlamalıdır. Bu düğme tipik olarak kullanıcı hesabında veya sipariş ayrıntılarında bulunur:",
+        "label": "Siparişi geri çek",
+        "helper": "Bu düğme hesabınızda görüntülenecek ve geri çekme hakkını kullanmanıza izin verecektir."
+      }
+    },
+    "impressum": {
+      "pageTitle": "Hukuki Uyarı",
+      "updatedLabel": "Güncellendi",
+      "backToTop": "Üste git",
+      "company": {
+        "nameLabel": "Şirket Adı:",
+        "directorLabel": "Müdür:",
+        "directorPlaceholder": "Müdür Adı",
+        "addressLabel": "Adres:",
+        "addressStreetPlaceholder": "Cadde ve Ev Numarası",
+        "addressZipPlaceholder": "Posta Kodu Şehir",
+        "addressCountry": "Almanya",
+        "registerLabel": "Ticaret Sicili:",
+        "registerCourt": "Amtsgericht",
+        "registerCityPlaceholder": "Şehir",
+        "vatLabel": "KDV No.:",
+        "emailLabel": "E-posta:",
+        "phoneLabel": "Telefon:",
+        "addressPlaceholder": "Adres"
+      },
+      "responsible": {
+        "text": "Alman medya yasasına göre, sağlayıcı bu web sitesinin içeriğinden sorumludur. Sorumlu taraf: 2MC Gastro GmbH, {{director}} tarafından temsil edilen, {{address}}."
+      },
+      "dispute": {
+        "p1": "Tüketiciler, Avrupa Komisyonu'nun Çevrimiçi Uyuşmazlık Çözüm (ODR) platformuna şikayetler sunma fırsatına sahiptir:",
+        "p2": "Uyuşmazlık çözüm prosedürlerine katılmaya istekli değiliz ve yükümlü değiliz."
+      },
+      "disclaimer": {
+        "p1": "Dikkatli içerik denetimesine rağmen, harici bağlantıların içeriğinden sorumlu değiliz. Bağlantılı sayfaların işletmeleri yalnızca kendi içeriklerinden sorumludur.",
+        "p2": "Bu web sitesinde sağlanan bilgiler doğruluk veya tamlık garantisi olmaksızın sağlanır. Bu web sitesinin veya içeriğinin kullanılması veya kullanılmamasından kaynaklanan hasarlardan sorumlu değiliz."
+      },
+      "copyright": {
+        "text": "Bu web sitesinin içeriği telif hakkı tarafından korunmaktadır. Metin, grafikler, logolar ve resimler de dahil olmak üzere tüm içerik, 2MC Gastro GmbH'nin veya ilgili sahiplerinin mülkiyetindedir ve açık izin olmaksızın çoğaltılamaz, dağıtılamaz veya iletilemez."
+      },
+      "privacy": {
+        "textPrefix": "Kişisel verilerinizin korunması hakkında bilgiler,",
+        "textLink": "Gizlilik Politikamızda",
+        "textSuffix": " bulunabilir."
+      }
+    }
+  },
+  "review": {
+    "loginRequired": "Yorum yapmak için giriş yapmalısınız.",
+    "invalidRating": "Geçerli bir puan seçin.",
+    "titlePlaceholder": "Başlık (opsiyonel)",
+    "bodyPlaceholder": "Deneyiminizi paylaşın…"
+  },
+  "filters": {
+    "newOnly": "Sadece yeni ürünler",
+    "inStockOnly": "Stokta olanlar"
   }
 }

@@ -28,6 +28,15 @@ const HEADER = `// Otomatik üretilir: scripts/seo/build-ratgeber-index.ts — E
 const slugify = (s: string) => s.toLowerCase().replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
 
 /** JSON → TS kaynak literali: U+2028/U+2029 satır ayırıcılarını kaçır (JS kaynakta geçersiz). */
+/** YAML parses unquoted YYYY-MM-DD values as Date objects. Keep sitemap and Article dates ISO-only. */
+function isoDate(value: unknown, fallback: string): string {
+  if (value instanceof Date && !Number.isNaN(value.getTime())) return value.toISOString().slice(0, 10);
+  const text = String(value ?? '').trim();
+  if (/^\d{4}-\d{2}-\d{2}$/.test(text)) return text;
+  const parsed = new Date(text);
+  return text && !Number.isNaN(parsed.getTime()) ? parsed.toISOString().slice(0, 10) : fallback;
+}
+
 function toSourceLiteral(value: unknown): string {
   // Karakterleri kodla üret — kaynak dosyada ham U+2028/2029 bulunmasın (regex literalinde geçersiz).
   const LS = String.fromCharCode(0x2028);
@@ -69,8 +78,8 @@ function toEntry(file: string): RatgeberEntry {
     category: (data.category || 'kaufberatung') as RatgeberMeta['category'],
     tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
     author: String(data.author || '2MC Gastro Redaktion'),
-    datePublished: String(data.datePublished || new Date().toISOString().slice(0, 10)),
-    dateModified: String(data.dateModified || data.datePublished || new Date().toISOString().slice(0, 10)),
+    datePublished: isoDate(data.datePublished, new Date().toISOString().slice(0, 10)),
+    dateModified: isoDate(data.dateModified ?? data.datePublished, new Date().toISOString().slice(0, 10)),
     image: String(data.image || ''),
     imageAlt: String(data.imageAlt || data.title || ''),
     status: (data.status || 'draft') as RatgeberMeta['status'],

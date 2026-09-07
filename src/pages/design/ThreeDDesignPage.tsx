@@ -32,6 +32,7 @@ import {
 import { reconcileProductsIntoDesign, type ProductLike } from '../../lib/designProductSync';
 import { setActiveDesignProjectKey } from '../../lib/designDelete';
 import { useProjectStore as useDiamondProjectStore } from '../../stores/projectStore';
+import { useDesignModelLibrary } from '../../stores/designModelLibraryStore';
 
 type SaveStatus = 'idle' | 'saving' | 'saved' | 'local' | 'error';
 
@@ -173,6 +174,13 @@ export default function ThreeDDesignPage() {
     saveDesignProject(project, projectKey, setSaveStatus);
   }, [project, projectKey]);
 
+  // Kalıcı model kütüphanesini bir kez çek ve kataloğa kaydet. Kayıtlı bir
+  // belgede `dm_*` katalog kimlikli ürün varsa GLB'si ancak bu kayıttan sonra
+  // çözülür — kullanıcı Kütüphanem sekmesini hiç açmasa bile gerekli.
+  useEffect(() => {
+    void useDesignModelLibrary.getState().refresh();
+  }, []);
+
   // Sayfadan ayrılırken (route değişimi) bekleyen Supabase kaydını gönder.
   useEffect(() => {
     return () => {
@@ -282,16 +290,19 @@ export default function ThreeDDesignPage() {
   };
 
   return (
-    <div className="flex flex-col h-full w-full">
-      <header className="flex items-center justify-between gap-3 px-4 h-14 border-b border-slate-200/70 bg-white/95 backdrop-blur shadow-sm shadow-slate-900/5">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <div className="w-8 h-8 rounded-xl bg-brand-red/10 text-brand-red flex items-center justify-center shrink-0">
+    <div className="flex flex-col h-full w-full bg-[#eef1f5]">
+      {/* Başlık şeridi: sol = kimlik/durum, orta = görünüm seçici, sağ = dosya işlemleri */}
+      <header className="relative z-30 flex h-12 shrink-0 items-center justify-between gap-3 border-b border-slate-200/70 bg-white/85 px-3 backdrop-blur-xl">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-brand-red/10 text-brand-red">
             <Boxes size={16} />
           </div>
-          <h1 className="text-[12px] font-semibold text-slate-800 truncate">{t('design3d.pageTitle')}</h1>
-          <span className="text-[12px] text-slate-400 truncate">· {projectName}</span>
+          <div className="flex min-w-0 items-baseline gap-1.5">
+            <h1 className="truncate text-[12px] font-semibold text-slate-800">{t('design3d.pageTitle')}</h1>
+            <span className="hidden truncate text-[12px] text-slate-400 sm:inline">· {projectName}</span>
+          </div>
           {importing && (
-            <span className="ml-2 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-medium bg-brand-red/10 text-brand-red">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-red/10 px-2 py-0.5 text-[10px] font-medium text-brand-red">
               <Loader2 size={12} className="animate-spin" />
               {importStatus || t('design3d.importing')}
             </span>
@@ -299,10 +310,31 @@ export default function ThreeDDesignPage() {
           <SaveStatusBadge status={saveStatus} />
         </div>
 
-        <div className="flex items-center gap-1">
+        {/* Görünüm seçici — pencerenin tam ortasında (Figma/Shapr kalıbı). */}
+        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <div className="inline-flex items-center gap-0.5 rounded-xl bg-slate-900/[0.06] p-1">
+            {(['2d', '3d', 'split'] as const).map((mode) => (
+              <button
+                key={mode}
+                type="button"
+                onClick={() => switchTab(mode)}
+                className={[
+                  'h-7 rounded-lg px-3 text-[12px] transition-colors',
+                  tab === mode
+                    ? 'bg-white font-semibold text-slate-900 shadow-sm ring-1 ring-slate-900/5'
+                    : 'font-medium text-slate-500 hover:text-slate-800',
+                ].join(' ')}
+              >
+                {mode === '2d' ? '2D' : mode === '3d' ? '3D' : t('design3d.splitView')}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-0.5">
           <ToolbarButton onClick={() => void onManualSave()} title={t('design3d.saveToSupabase')}>
             <Save size={14} />
-            <span className="text-[11px]">{t('common.save')}</span>
+            <span className="hidden sm:inline">{t('common.save')}</span>
           </ToolbarButton>
           <ToolbarButton onClick={onExportJson} title={t('design3d.exportJsonTitle')}>
             <Download size={14} />
@@ -317,21 +349,21 @@ export default function ThreeDDesignPage() {
             className="hidden"
             onChange={(e) => void onImportJson(e.target.files?.[0] ?? null)}
           />
-          <div className="w-px h-5 bg-slate-200 mx-1.5" />
+          <div className="mx-1 h-5 w-px bg-slate-200" />
           <ToolbarButton onClick={undo} disabled={!canUndo} title={t('design3d.undo')}>
             <Undo2 size={14} />
           </ToolbarButton>
           <ToolbarButton onClick={redo} disabled={!canRedo} title={t('design3d.redo')}>
             <Redo2 size={14} />
           </ToolbarButton>
-          <div className="w-px h-5 bg-slate-200 mx-1.5" />
+          <div className="mx-1 h-5 w-px bg-slate-200" />
           <ToolbarButton
             onClick={() => cadInputRef.current?.click()}
             disabled={importing}
             title={t('design3d.importCadTitle')}
           >
             {importing ? <Loader2 size={14} className="animate-spin" /> : <Upload size={14} />}
-            <span className="text-[11px]">CAD</span>
+            <span>CAD</span>
           </ToolbarButton>
           <input
             ref={cadInputRef}
@@ -340,42 +372,6 @@ export default function ThreeDDesignPage() {
             className="hidden"
             onChange={(e) => void onCadPick(e.target.files?.[0] ?? null)}
           />
-          <div className="w-px h-5 bg-slate-200 mx-1.5" />
-          <div className="inline-flex items-center gap-0.5 bg-slate-100 rounded-xl p-1">
-            <button
-              type="button"
-              onClick={() => switchTab('2d')}
-              className={
-                tab === '2d'
-                  ? 'h-7 px-3 rounded-lg text-[12px] font-semibold bg-white text-brand-red shadow-sm transition'
-                  : 'h-7 px-3 rounded-lg text-[12px] font-medium text-slate-500 hover:text-slate-700 transition'
-              }
-            >
-              2D
-            </button>
-            <button
-              type="button"
-              onClick={() => switchTab('3d')}
-              className={
-                tab === '3d'
-                  ? 'h-7 px-3 rounded-lg text-[12px] font-semibold bg-white text-brand-red shadow-sm transition'
-                  : 'h-7 px-3 rounded-lg text-[12px] font-medium text-slate-500 hover:text-slate-700 transition'
-              }
-            >
-              3D
-            </button>
-            <button
-              type="button"
-              onClick={() => switchTab('split')}
-              className={
-                tab === 'split'
-                  ? 'h-7 px-3 rounded-lg text-[12px] font-semibold bg-white text-brand-red shadow-sm transition'
-                  : 'h-7 px-3 rounded-lg text-[12px] font-medium text-slate-500 hover:text-slate-700 transition'
-              }
-            >
-              {t('design3d.splitView')}
-            </button>
-          </div>
         </div>
       </header>
 
@@ -384,7 +380,7 @@ export default function ThreeDDesignPage() {
         {tab === '3d' && <Editor3D projectKey={projectKey} />}
         {tab === 'split' && (
           <div className="grid grid-cols-2 h-full">
-            <div className="border-r border-slate-200/70"><Editor2D /></div>
+            <div className="border-r border-slate-300/70"><Editor2D /></div>
             <Editor3D projectKey={projectKey} />
           </div>
         )}

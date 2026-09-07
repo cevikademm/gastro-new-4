@@ -90,7 +90,7 @@ export default function FavoritesPage() {
                       <span className="font-display text-lg font-black text-[#0F2440]">
                         € {prod.price.toLocaleString('de-DE')}
                       </span>
-                      <span className="text-[9px] font-medium text-slate-400">{t('common.net')}</span>
+                      <span className="text-[9px] font-medium text-slate-600">{t('common.net')}</span>
                     </div>
                     <button
                       onClick={() => (added ? removeItem(prod.id) : addItem(prod))}

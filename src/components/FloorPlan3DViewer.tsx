@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -140,6 +141,7 @@ export default function FloorPlan3DViewer({
   projectId?: string;
   onClose?: () => void;
 }) {
+  const { t } = useTranslation();
   const containerRef = useRef<HTMLDivElement>(null);
   const sceneRef = useRef<THREE.Scene | null>(null);
   const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
@@ -543,14 +545,14 @@ export default function FloorPlan3DViewer({
         <button
           onClick={() => setCameraPreset('perspective')}
           className="p-2 bg-slate-900/80 backdrop-blur border border-slate-700 rounded hover:bg-slate-800 transition-colors"
-          title="Sıfırla"
+          title={t('common.reset')}
         >
           <RotateCcw size={16} className="text-slate-300" />
         </button>
         <button
           onClick={handleExport}
           className="p-2 bg-slate-900/80 backdrop-blur border border-slate-700 rounded hover:bg-slate-800 transition-colors"
-          title="Dışa Aktar"
+          title={t('common.export')}
         >
           <Download size={16} className="text-slate-300" />
         </button>

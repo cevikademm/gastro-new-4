@@ -3,7 +3,9 @@
 // Ekran görüntüsü yakalama, Storage'a yükleme ve WhatsApp metni kurma burada.
 // html2canvas-pro: Tailwind v4'ün ürettiği oklch()/color-mix() renklerini
 // parse edebilen bakımlı fork (klasik html2canvas bunlarda hata fırlatıyordu).
-import html2canvas from 'html2canvas-pro';
+// Statik import DEĞİL: bu modül designRenderStore/errorLog üzerinden ana bundle'a
+// giriyor ve html2canvas (+ aynı chunk'taki jsPDF) her sayfada indiriliyordu
+// (Lighthouse unused-javascript, ~160 KB). Ekran görüntüsü anında dinamik yüklenir.
 import { supabase } from './supabase';
 import { logFixEvent } from './fixPrompt';
 import i18n from '../i18n';
@@ -98,6 +100,7 @@ export async function captureScreenshot(): Promise<string | null> {
   try {
     // Yüksek çözünürlük (keskin metin): en az 2x supersampling, üst sınır 2.5x.
     const scale = Math.min(Math.max(window.devicePixelRatio || 1, 2), 2.5);
+    const { default: html2canvas } = await import('html2canvas-pro');
     const canvas = await html2canvas(document.body, {
       backgroundColor: '#ffffff',
       scale,

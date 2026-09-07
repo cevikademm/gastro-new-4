@@ -1,854 +1,595 @@
 /**
  * DesignStudio2D — professional CAD-like 2D editor (Konva.js).
  *
- * Architecture
- *   Local view-state  →  useEditor2DState    (pan/zoom, draft, tool)
- *   Domain state      →  useProjectStore     (NORMALIZED model)
- *   Rendering         →  pure Layer components in ./render
- *   CAD logic         →  ./cad + core/* helpers
+ * Composition only: geometry derivation + layer wiring + DOM chrome. The
+ * behaviour lives in hooks:
+ *   useStageViewport      pan / zoom / pinch / fit / coordinate helpers
+ *   useSnap               vertex · midpoint · perpendicular · edge · extension · ortho · grid
+ *   useDrawTool           room / rectangle / wall chain, keyboard entry, auto-rooms
+ *   useOpeningInteraction place + slide + resize doors/windows on ANY wall
+ *   useEquipmentInteraction armed placement, drag, duplicate, nudge, rotate
+ *   useVertexEditing      corner drag, wall length, corner angle
+ *   useSelectionCommands  picks, delete, confirm dialogs, split, room-from-walls
+ *   useKeyboardShortcuts  every key
  *
- * Key behaviours unlocked by Phase 3 normalization
- *   - Vertex drag calls `moveVertex(id, pos)`. Every wall referencing that
- *     vertex updates automatically — no "rebuild walls" dance, identity is
- *     preserved (so openings, materials, etc. survive geometry edits).
- *   - Edge split calls `splitWall(wallId, t)`. The room loop is updated by
- *     the builder so closure invariant I-2 stays intact.
- *   - Polygon creation uses `createPolygonRoom(points)` which dedupes
- *     vertices against existing geometry (touching corners merge).
+ * Selection is UNIFIED (`editorState.selection`): every wall (room or free),
+ * vertex, opening, room and item is selectable by id; the right-hand
+ * ContextPropertiesPanel follows the primary selection.
  */
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Stage, Layer, Line } from 'react-konva';
+import { Stage, Layer } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type Konva from 'konva';
 
 import {
-  Hand,
-  MousePointer2,
-  PenTool,
-  Pencil,
-  Plus,
-  Minus,
-  Maximize2,
-  Trash2,
-  Eraser,
-  Slash,
-  Package,
-} from 'lucide-react';
-
-import {
-  roomForPoint,
+  defaultOpeningAt,
+  nearestWallHit,
+  pointInPolygon,
+  projectBounds,
+  roomContaining,
   roomPolygon,
   roomVertexIds,
-  snapToGrid,
+  roomWallIdsInOrder,
   useProjectStore,
+  wallBandPolygons,
+  type OpeningKind,
   type Room,
-  type RoomId,
   type Vec2,
   type VertexId,
   type WallId,
 } from '../..';
-import {
-  nearestPointOnEdges,
-  nearestVertex,
-  polygonToEdges,
-  mToMm,
-  resizeEdgeLength,
-  cornerAngleDeg,
-  setCornerAngle,
-  shouldClosePolygon,
-} from './cad/geometry';
-import { useEditor2DState } from './state/editorState';
+import { obbCorners, obbFor } from '../3d-editor/interaction/collision';
+import { idsOfKind, primaryOf, useEditor2DState, type SelectionRef } from './state/editorState';
+import { useStageViewport } from './hooks/useStageViewport';
+import { useSnap } from './hooks/useSnap';
+import { useDrawTool } from './hooks/useDrawTool';
+import { useOpeningInteraction } from './hooks/useOpeningInteraction';
+import { useEquipmentInteraction } from './hooks/useEquipmentInteraction';
+import { useVertexEditing } from './hooks/useVertexEditing';
+import { useSelectionCommands } from './hooks/useSelectionCommands';
+import { useKeyboardShortcuts, type KeyboardHandlers } from './hooks/useKeyboardShortcuts';
 
 import GridLayer from './render/GridLayer';
-import WallLayer from './render/WallLayer';
-import DimensionLayer from './render/DimensionLayer';
+import RoomLayer from './render/RoomLayer';
+import WallBandsLayer from './render/WallBandsLayer';
+import DimensionLayer, { type DimensionEdge } from './render/DimensionLayer';
 import AngleLayer from './render/AngleLayer';
 import DraftLayer from './render/DraftLayer';
-import VertexHandlesLayer from './render/VertexHandlesLayer';
-import OpeningsLayer from './render/OpeningsLayer';
-import LooseWallsLayer from './render/LooseWallsLayer';
-import { CompassRose, TitleBlock, ScaleBar } from './render/PlotOverlays';
-import PropertiesPanel, { OPENING_DEFAULTS } from './panels/PropertiesPanel';
-import EquipmentPropertiesPanel2D from './panels/EquipmentPropertiesPanel2D';
+import VertexHandlesLayer, { type VertexHandle } from './render/VertexHandlesLayer';
+import OpeningsLayer, { OpeningHandlesLayer } from './render/OpeningsLayer';
 import EquipmentLayer2D from './render/EquipmentLayer2D';
+import SnapIndicatorLayer from './render/SnapIndicatorLayer';
+import { CompassRose, TitleBlock, ScaleBar } from './render/PlotOverlays';
+import Toolbar2D from './components/Toolbar2D';
+import ContextMenu from './components/ContextMenu';
+import LengthEntryHud from './components/LengthEntryHud';
+import { AngleInput, EdgeLengthInput } from './components/FloatingInputs';
+import { buildContextMenuItems } from './components/contextMenuItems';
+import ContextPropertiesPanel, { type PanelActions } from '../shared/panels/ContextPropertiesPanel';
 import EquipmentCatalogPanel from '../3d-editor/panels/EquipmentCatalogPanel';
-import { parseHeightMm, mapEquipmentCategory } from '../3d-editor/loaders/productMesh';
-import { getCatalogEntry } from '../3d-editor/loaders/equipmentCatalog';
-import { defaultMountFor, defaultZForMount, containFloorItem, obbCenterFromMinCorner } from '../3d-editor/interaction/placement';
-import { resolveEquipmentDrag } from '../3d-editor/interaction/resolveDrag';
-import type { EquipmentItem } from '../../../../stores/equipmentStore';
-import { removeEquipmentEverywhere } from '../../../../lib/designDelete';
-
-// ── Constants ────────────────────────────────────────────────────────────────
-const VERTEX_MERGE_PX = 15;
-const WHEEL_ZOOM_FACTOR = 1.08;
-const MIN_SCALE = 0.005;
-const MAX_SCALE = 2;
-const SNAP_GRID_MM = 100;
-
-interface EditableRoom {
-  id: string;
-  name: string;
-  /** Vertex ids in loop order. */
-  vertexIds: VertexId[];
-  /** Resolved Vec2 points in the same order. */
-  points: Vec2[];
-  /** Wall ids in loop order — used by edge-split / per-edge length edits. */
-  wallIds: WallId[];
-}
+import ConfirmDialog from '../../../../components/ConfirmDialog';
+import { HUD } from '../../components/ui/chrome';
 
 interface DesignStudio2DProps {
   width: number;
   height: number;
 }
 
+interface ActiveRoomView {
+  id: string;
+  name: string;
+  vertexIds: string[];
+  points: Vec2[];
+  wallIds: WallId[];
+}
+
+const LONG_PRESS_MS = 500;
+
+// Dev-only handle for end-to-end drivers / debugging (never shipped in prod builds).
+if (import.meta.env.DEV && typeof window !== 'undefined') {
+  (window as unknown as { __design2d?: unknown }).__design2d = { editor: useEditor2DState, project: useProjectStore };
+}
+
 export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
   const { t } = useTranslation();
+
   // ── Store wiring ─────────────────────────────────────────────────────────
   const project = useProjectStore((s) => s.project);
-  const moveVertex = useProjectStore((s) => s.moveVertex);
-  const createPolygonRoom = useProjectStore((s) => s.createPolygonRoom);
-  const splitWallAction = useProjectStore((s) => s.splitWall);
-  const removeRoom = useProjectStore((s) => s.removeRoom);
-  const removeOpening = useProjectStore((s) => s.removeOpening);
-  const newProject = useProjectStore((s) => s.newProject);
-  const removeWall = useProjectStore((s) => s.removeWall);
-  const addOpening = useProjectStore((s) => s.addOpening);
-  const ensureVertex = useProjectStore((s) => s.ensureVertex);
-  const addWall = useProjectStore((s) => s.addWall);
-  const addEquipment = useProjectStore((s) => s.addEquipment);
-  const updateEquipment = useProjectStore((s) => s.updateEquipment);
-  const dissolveVertex = useProjectStore((s) => s.dissolveVertex);
   const undo = useProjectStore((s) => s.undo);
   const redo = useProjectStore((s) => s.redo);
   const canUndo = useProjectStore((s) => s.canUndo());
   const canRedo = useProjectStore((s) => s.canRedo());
+  const updateProject = useProjectStore((s) => s.update);
+  const addOpening = useProjectStore((s) => s.addOpening);
+  const updateOpening = useProjectStore((s) => s.updateOpening);
 
-  // Local editor state
   const tool = useEditor2DState((s) => s.tool);
   const setTool = useEditor2DState((s) => s.setTool);
-  const scale = useEditor2DState((s) => s.scale);
-  const offsetX = useEditor2DState((s) => s.offsetX);
-  const offsetY = useEditor2DState((s) => s.offsetY);
-  const setScale = useEditor2DState((s) => s.setScale);
-  const setOffset = useEditor2DState((s) => s.setOffset);
-  const setViewport = useEditor2DState((s) => s.setViewport);
-
+  const spacePan = useEditor2DState((s) => s.spacePan);
+  const setSpacePan = useEditor2DState((s) => s.setSpacePan);
+  const selection = useEditor2DState((s) => s.selection);
+  const select = useEditor2DState((s) => s.select);
+  const clearSelection = useEditor2DState((s) => s.clearSelection);
+  const activeRoomId = useEditor2DState((s) => s.activeRoomId);
+  const setActiveRoom = useEditor2DState((s) => s.setActiveRoom);
+  const hover = useEditor2DState((s) => s.hover);
+  const snapHit = useEditor2DState((s) => s.snapHit);
+  const setSnapHit = useEditor2DState((s) => s.setSnapHit);
+  const snapOn = useEditor2DState((s) => s.snapOn);
+  const setSnapOn = useEditor2DState((s) => s.setSnapOn);
+  const orthoOn = useEditor2DState((s) => s.orthoOn);
+  const setOrthoOn = useEditor2DState((s) => s.setOrthoOn);
+  const gridMm = useEditor2DState((s) => s.gridMm);
+  const setGridMm = useEditor2DState((s) => s.setGridMm);
+  const showGrid = useEditor2DState((s) => s.showGrid);
+  const setShowGrid = useEditor2DState((s) => s.setShowGrid);
+  const showDims = useEditor2DState((s) => s.showDims);
+  const setShowDims = useEditor2DState((s) => s.setShowDims);
+  const lengthUnit = useEditor2DState((s) => s.lengthUnit);
+  const setLengthUnit = useEditor2DState((s) => s.setLengthUnit);
+  const defaultThickness = useEditor2DState((s) => s.defaultThickness);
+  const setDefaultThickness = useEditor2DState((s) => s.setDefaultThickness);
+  const defaultHeight = useEditor2DState((s) => s.defaultHeight);
+  const setDefaultHeight = useEditor2DState((s) => s.setDefaultHeight);
   const draftPoints = useEditor2DState((s) => s.draftPoints);
   const draftCursor = useEditor2DState((s) => s.draftCursor);
-  const beginDraft = useEditor2DState((s) => s.beginDraft);
-  const pushDraftPoint = useEditor2DState((s) => s.pushDraftPoint);
-  const setDraftCursor = useEditor2DState((s) => s.setDraftCursor);
-  const cancelDraft = useEditor2DState((s) => s.cancelDraft);
-
-  const selectedRoomId = useEditor2DState((s) => s.selectedRoomId);
-  const selectVertex = useEditor2DState((s) => s.selectVertex);
-  const selectedVertex = useEditor2DState((s) => s.selectedVertex);
-  const selectRoom = useEditor2DState((s) => s.selectRoom);
-  const selectEdge = useEditor2DState((s) => s.selectEdge);
-  const selectedEdge = useEditor2DState((s) => s.selectedEdge);
-  const selectOpening = useEditor2DState((s) => s.selectOpening);
-  const selectedOpeningId = useEditor2DState((s) => s.selectedOpeningId);
-  const selectedWallId = useEditor2DState((s) => s.selectedWallId);
-  const selectWall = useEditor2DState((s) => s.selectWall);
+  const entry = useEditor2DState((s) => s.entry);
+  const updateEntry = useEditor2DState((s) => s.updateEntry);
+  const closeEntry = useEditor2DState((s) => s.closeEntry);
+  const contextMenu = useEditor2DState((s) => s.contextMenu);
+  const openContextMenu = useEditor2DState((s) => s.openContextMenu);
+  const closeContextMenu = useEditor2DState((s) => s.closeContextMenu);
 
   const stageRef = useRef<Konva.Stage | null>(null);
-  const isPanningRef = useRef(false);
-  const panStartRef = useRef<{ x: number; y: number; ox: number; oy: number } | null>(null);
-
-  // ── Equipment placement (shared store with 3D editor) ────────────────────
-  const [armedProduct, setArmedProduct] = useState<EquipmentItem | null>(null);
-  // Masaüstünde açık (keşif), mobilde kapalı (tuval görünsün; Paket butonu açar).
+  const [touch, setTouch] = useState(false);
+  // Katalog geniş ekranda açık başlar; bölünmüş görünümde 2B yarı dar olduğu
+  // için kapalı başlar (3B tarafındaki katalog zaten aynı listeyi sunar).
   const [catalogOpen, setCatalogOpen] = useState(
-    () => typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches,
+    () =>
+      typeof window !== 'undefined' &&
+      window.matchMedia('(min-width: 1024px)').matches &&
+      useProjectStore.getState().view.mode !== 'split',
   );
-  const [selectedEquipmentId, setSelectedEquipmentId] = useState<string | null>(null);
-  const equipmentList = useMemo(() => Object.values(project.equipment), [project.equipment]);
+  const [hoverWallId, setHoverWallId] = useState<string | null>(null);
 
-  // Silme geri bildirimi — bir şey silinemediğinde kısa süreli ipucu (sessiz no-op yerine).
-  const [deleteHint, setDeleteHint] = useState<string | null>(null);
+  // Hint toast (deletion feedback, room created, …)
+  const [hint, setHint] = useState<string | null>(null);
   const hintTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const flashHint = useCallback((msg: string) => {
-    setDeleteHint(msg);
+    setHint(msg);
     if (hintTimerRef.current) clearTimeout(hintTimerRef.current);
-    hintTimerRef.current = setTimeout(() => setDeleteHint(null), 3500);
+    hintTimerRef.current = setTimeout(() => setHint(null), 3500);
   }, []);
 
-  // ── 2D ↔ 3D kamera/odak senkronu ─────────────────────────────────────────
-  // 2D'ye girerken paylaşılan odağı merkeze al; çıkarken görünüm merkezini
-  // sakla → 3D aynı noktaya bakar. (Sadece pan; zoom korunur.)
-  const sizeRef = useRef({ w: width, h: height });
-  sizeRef.current = { w: width, h: height };
-  useEffect(() => {
-    const st = useEditor2DState.getState();
-    const f = st.focusWorld;
-    const { w, h } = sizeRef.current;
-    if (f && w > 0 && h > 0) {
-      st.setOffset(w / 2 - f.x * st.scale, h / 2 - f.y * st.scale);
-    }
-    return () => {
-      const s = useEditor2DState.getState();
-      const { w: cw, h: ch } = sizeRef.current;
-      if (cw <= 0 || ch <= 0 || !s.scale) return;
-      const cx = (cw / 2 - s.offsetX) / s.scale;
-      const cy = (ch / 2 - s.offsetY) / s.scale;
-      if (Number.isFinite(cx) && Number.isFinite(cy)) s.setFocusWorld({ x: cx, y: cy });
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // ── Hooks ────────────────────────────────────────────────────────────────
+  const viewport = useStageViewport({ width, height, stageRef });
+  const { scale, offsetX, offsetY, stageToWorld, worldToScreen } = viewport;
 
-  // ── Derived: active room as an editable view ─────────────────────────────
-  const activeRoom = useMemo<EditableRoom | null>(() => {
-    const id = selectedRoomId ?? Object.keys(project.rooms)[0] ?? null;
-    if (!id) return null;
-    const room = project.rooms[id] as Room | undefined;
+  const activeRoomBase = useMemo<ActiveRoomView | null>(() => {
+    const room = activeRoomId ? (project.rooms[activeRoomId] as Room | undefined) : undefined;
     if (!room) return null;
     return {
       id: room.id,
       name: room.name,
-      vertexIds: roomVertexIds(project, room) as VertexId[],
+      vertexIds: roomVertexIds(project, room),
       points: roomPolygon(project, room),
-      wallIds: [...room.wallLoop] as WallId[],
+      wallIds: roomWallIdsInOrder(project, room),
     };
-  }, [project, selectedRoomId]);
+  }, [project, activeRoomId]);
 
-  const otherRooms = useMemo<EditableRoom[]>(() => {
-    return Object.keys(project.rooms)
-      .filter((id) => id !== activeRoom?.id)
-      .map((id) => {
-        const r = project.rooms[id] as Room;
-        return {
-          id: r.id,
-          name: r.name,
-          vertexIds: roomVertexIds(project, r) as VertexId[],
-          points: roomPolygon(project, r),
-          wallIds: [...r.wallLoop] as WallId[],
-        };
-      });
-  }, [project, activeRoom?.id]);
+  // If the active room vanished (deleted / dissolved) drop it.
+  useEffect(() => {
+    if (activeRoomId && !project.rooms[activeRoomId]) setActiveRoom(null);
+  }, [project.rooms, activeRoomId, setActiveRoom]);
+  // Purge selection refs that no longer exist.
+  useEffect(() => {
+    const alive = selection.filter((r) =>
+      r.kind === 'wall' ? !!project.walls[r.id]
+        : r.kind === 'vertex' ? !!project.vertices[r.id]
+          : r.kind === 'opening' ? !!project.openings[r.id]
+            : r.kind === 'room' ? !!project.rooms[r.id]
+              : !!project.equipment[r.id],
+    );
+    if (alive.length !== selection.length) select(alive);
+  }, [project, selection, select]);
 
-  // ── Coordinate conversion ────────────────────────────────────────────────
-  const stageToWorld = useCallback(
-    (sx: number, sy: number): Vec2 => ({
-      x: (sx - offsetX) / scale,
-      y: (sy - offsetY) / scale,
+  const snap = useSnap({ project, scale, gridMm, snapOn, orthoOn, draftPoints });
+  const vertexEditing = useVertexEditing({ project, snap: snap.resolve, activeRoom: activeRoomBase });
+  const vertexOverride = vertexEditing.dragPreview ?? undefined;
+
+  const bands = useMemo(
+    () => wallBandPolygons(project, { vertexOverride }),
+    [project.walls, project.vertices, vertexOverride], // eslint-disable-line react-hooks/exhaustive-deps
+  );
+
+  const activeRoom = useMemo<ActiveRoomView | null>(() => {
+    if (!activeRoomBase) return null;
+    if (!vertexOverride) return activeRoomBase;
+    return {
+      ...activeRoomBase,
+      points: activeRoomBase.vertexIds.map((vid, i) => vertexOverride[vid] ?? activeRoomBase.points[i]),
+    };
+  }, [activeRoomBase, vertexOverride]);
+
+  const draw = useDrawTool({ project, scale, snap: snap.resolve, flashHint });
+  const openings = useOpeningInteraction({ project, scale, stageToWorld });
+  const equipment = useEquipmentInteraction({ project });
+  const commands = useSelectionCommands({ project, equipment, flashHint });
+
+  // ── Selection-derived sets ───────────────────────────────────────────────
+  const primary = primaryOf(selection);
+  const selectedWallIds = useMemo(() => new Set(idsOfKind(selection, 'wall')), [selection]);
+  const selectedVertexIds = useMemo(() => new Set(idsOfKind(selection, 'vertex')), [selection]);
+  const selectedOpeningIds = useMemo(() => new Set(idsOfKind(selection, 'opening')), [selection]);
+  const selectedEquipmentIds = useMemo(() => new Set(idsOfKind(selection, 'equipment')), [selection]);
+  const selectedRoomIds = useMemo(() => new Set(idsOfKind(selection, 'room')), [selection]);
+  const activeWallIds = useMemo(() => new Set<string>(activeRoom ? activeRoom.wallIds : []), [activeRoom]);
+  const equipmentList = useMemo(() => Object.values(project.equipment), [project.equipment]);
+
+  const vertexPos = useCallback(
+    (vid: string): Vec2 | null => {
+      const o = vertexOverride?.[vid];
+      if (o) return o;
+      const v = project.vertices[vid];
+      return v ? { x: v.x, y: v.y } : null;
+    },
+    [project.vertices, vertexOverride],
+  );
+
+  /** Corner handles: active room corners ∪ endpoints of selected walls ∪ selected corners. */
+  const handles = useMemo<VertexHandle[]>(() => {
+    const map = new Map<string, Vec2>();
+    const add = (vid: string) => {
+      if (map.has(vid)) return;
+      const p = vertexPos(vid);
+      if (p) map.set(vid, p);
+    };
+    if (activeRoom) activeRoom.vertexIds.forEach(add);
+    for (const wid of selectedWallIds) {
+      const w = project.walls[wid];
+      if (w) {
+        add(w.a);
+        add(w.b);
+      }
+    }
+    for (const vid of selectedVertexIds) add(vid);
+    return Array.from(map, ([id, point]) => ({ id, point }));
+  }, [activeRoom, selectedWallIds, selectedVertexIds, project.walls, vertexPos]);
+
+  /** Dimension edges: active room loop + selected walls outside it. */
+  const dimEdges = useMemo<DimensionEdge[]>(() => {
+    if (!showDims) return [];
+    const out: DimensionEdge[] = [];
+    const seen = new Set<string>();
+    if (activeRoom) {
+      const n = activeRoom.points.length;
+      for (let i = 0; i < n; i++) {
+        out.push({ wallId: activeRoom.wallIds[i], a: activeRoom.points[i], b: activeRoom.points[(i + 1) % n] });
+        seen.add(activeRoom.wallIds[i]);
+      }
+    }
+    for (const wid of selectedWallIds) {
+      if (seen.has(wid)) continue;
+      const band = bands.bands.get(wid as WallId);
+      if (band) out.push({ wallId: wid, a: band.a, b: band.b });
+    }
+    return out;
+  }, [showDims, activeRoom, selectedWallIds, bands]);
+
+  const selectedVertexIndex = useMemo(() => {
+    if (!activeRoom) return null;
+    for (const vid of selectedVertexIds) {
+      const i = activeRoom.vertexIds.indexOf(vid);
+      if (i !== -1) return i;
+    }
+    return null;
+  }, [activeRoom, selectedVertexIds]);
+
+  // ── Panel actions ────────────────────────────────────────────────────────
+  const addOpeningOnWall = useCallback(
+    (wallId: string, kind: OpeningKind, t01 = 0.5) => {
+      const proj = useProjectStore.getState().project;
+      if (!proj.walls[wallId]) return;
+      const id = addOpening(defaultOpeningAt(proj, kind, wallId as WallId, t01));
+      commands.pick({ kind: 'opening', id }, false);
+    },
+    [addOpening, commands],
+  );
+
+  const panelActions = useMemo<PanelActions>(
+    () => ({
+      deleteRefs: commands.deleteRefs,
+      requestDeleteRoom: commands.requestDeleteRoom,
+      splitWallAtMiddle: commands.splitWallAtMiddle,
+      addOpeningOnWall,
+      setWallLength: vertexEditing.setWallLength,
+      duplicateEquipment: equipment.duplicate,
+      flashHint,
     }),
-    [offsetX, offsetY, scale],
+    [commands, addOpeningOnWall, vertexEditing.setWallLength, equipment.duplicate, flashHint],
   );
 
-  // ── Snap resolver ────────────────────────────────────────────────────────
-  const resolveSnap = useCallback(
-    (raw: Vec2): Vec2 => {
-      const radiusMm = VERTEX_MERGE_PX / scale;
-      // 1) Snap to any vertex in the document (cross-room corners weld).
-      const allVertices = Object.values(project.vertices).map((v) => ({ x: v.x, y: v.y }));
-      const v = nearestVertex(raw, allVertices, radiusMm);
-      if (v) return v;
-      // 2) Snap to draft polygon (so close-to-start works).
-      if (draftPoints.length > 0) {
-        const dv = nearestVertex(raw, draftPoints, radiusMm);
-        if (dv) return dv;
-      }
-      // 3) Grid snap.
-      return snapToGrid(raw, SNAP_GRID_MM);
-    },
-    [draftPoints, project.vertices, scale],
+  const editorSettings = useMemo(
+    () => ({
+      defaultThickness, setDefaultThickness, defaultHeight, setDefaultHeight,
+      gridMm, setGridMm, snapOn, setSnapOn, orthoOn, setOrthoOn,
+      showGrid, setShowGrid, showDims, setShowDims, lengthUnit, setLengthUnit,
+    }),
+    [defaultThickness, setDefaultThickness, defaultHeight, setDefaultHeight, gridMm, setGridMm, snapOn, setSnapOn, orthoOn, setOrthoOn, showGrid, setShowGrid, showDims, setShowDims, lengthUnit, setLengthUnit],
   );
 
-  // ── Polygon completion → builder ─────────────────────────────────────────
-  const finishPolygon = useCallback(
-    (loop: Vec2[]) => {
-      if (loop.length < 3) {
-        cancelDraft();
-        return;
+  // ── Hit test for the context menu ────────────────────────────────────────
+  const hitTest = useCallback(
+    (world: Vec2): SelectionRef | { kind: 'canvas' } => {
+      const r = 12 / scale;
+      for (const h of handles) {
+        if (Math.hypot(h.point.x - world.x, h.point.y - world.y) <= r) return { kind: 'vertex', id: h.id };
       }
-      const newId = createPolygonRoom(loop, {
-        name: `Room ${Object.keys(project.rooms).length + 1}`,
-      });
-      cancelDraft();
-      selectRoom(newId);
-      setTool('select');
-    },
-    [cancelDraft, createPolygonRoom, project.rooms, selectRoom, setTool],
-  );
-
-  // ── Pointer handlers ─────────────────────────────────────────────────────
-  const onStageMouseDown = (e: KonvaEventObject<MouseEvent>) => {
-    const stage = e.target.getStage();
-    if (!stage) return;
-    const pos = stage.getPointerPosition();
-    if (!pos) return;
-    const rawWorld = stageToWorld(pos.x, pos.y);
-    const world = resolveSnap(rawWorld);
-
-    const native = e.evt as MouseEvent;
-    if (
-      native.button === 1 ||
-      tool === 'pan' ||
-      (native.button === 0 && (native.altKey || native.metaKey))
-    ) {
-      isPanningRef.current = true;
-      panStartRef.current = { x: pos.x, y: pos.y, ox: offsetX, oy: offsetY };
-      stage.container().style.cursor = 'grabbing';
-      return;
-    }
-
-    const clickedOnEmpty = e.target === e.target.getStage();
-
-    // Ürün yerleştirme — katalogdan seçili (armed) ürünü tıklanan noktaya bırak.
-    // 3D editörle AYNI store'a yazar → 3D'de de anında görünür.
-    if (armedProduct && native.button === 0) {
-      const l = armedProduct.l;
-      const w = armedProduct.w;
-      const category = mapEquipmentCategory(armedProduct.cat);
-      const mount = defaultMountFor(category);
-      const z = defaultZForMount(mount);
-      // position = footprint MIN-CORNER (domain convention); tıklama merkezde.
-      const minCorner = containFloorItem(
-        project,
-        { x: rawWorld.x - l / 2, y: rawWorld.y - w / 2 },
-        0,
-        l,
-        w,
-      );
-      const newId = addEquipment({
-        catalogId: armedProduct.id,
-        name: armedProduct.name,
-        category,
-        position: { x: minCorner.x, y: minCorner.y, z },
-        rotation: 0,
-        mount,
-        footprint: { width: l, depth: w },
-        heightMm: parseHeightMm(armedProduct.h),
-        allowOverlap: getCatalogEntry(armedProduct.id)?.allowOverlap,
-      });
-      setSelectedEquipmentId(newId);
-      if (!native.shiftKey) setArmedProduct(null);
-      return;
-    }
-
-    if (tool === 'draw-room' && native.button === 0) {
-      if (draftPoints.length === 0) {
-        beginDraft(world);
-        return;
+      for (const eq of equipmentList) {
+        const corners = obbCorners(obbFor(eq.position, eq.rotation, eq.footprint.width, eq.footprint.depth));
+        if (pointInPolygon(world, corners)) return { kind: 'equipment', id: eq.id };
       }
-      if (shouldClosePolygon(world, draftPoints, VERTEX_MERGE_PX / scale)) {
-        finishPolygon(draftPoints);
-        return;
-      }
-      pushDraftPoint(world);
-      return;
-    }
-
-    // Free-form wall chain (draw partition walls inside an existing room)
-    if (tool === 'draw-wall' && native.button === 0) {
-      if (draftPoints.length === 0) {
-        // First click: anchor the chain. Vertex auto-creates / merges with
-        // any existing vertex within the snap radius.
-        beginDraft(world);
-        return;
-      }
-      const last = draftPoints[draftPoints.length - 1];
-      // Skip degenerate (zero-length) clicks.
-      if (Math.hypot(world.x - last.x, world.y - last.y) < 1) return;
-      const va = ensureVertex(last);
-      const vb = ensureVertex(world);
-      addWall(va, vb);
-      pushDraftPoint(world);
-      return;
-    }
-
-    // Place door / window: nearest wall edge of the active room → addOpening
-    if ((tool === 'place-door' || tool === 'place-window') && native.button === 0) {
-      if (!activeRoom) return;
-      const edges = polygonToEdges(activeRoom.points);
-      const hit = nearestPointOnEdges(rawWorld, edges, (VERTEX_MERGE_PX * 4) / scale);
-      if (!hit) return;
-      const wallId = activeRoom.wallIds[hit.edgeIndex];
-      const wallLengthMm = Math.hypot(
-        activeRoom.points[(hit.edgeIndex + 1) % activeRoom.points.length].x -
-          activeRoom.points[hit.edgeIndex].x,
-        activeRoom.points[(hit.edgeIndex + 1) % activeRoom.points.length].y -
-          activeRoom.points[hit.edgeIndex].y,
-      );
-      const isDoor = tool === 'place-door';
-      const defs = isDoor ? OPENING_DEFAULTS.door : OPENING_DEFAULTS.window;
-      // Center the opening on the click, clamped to wall extents.
-      const clickU = hit.t * wallLengthMm;
-      const offset = Math.max(
-        50,
-        Math.min(wallLengthMm - defs.width - 50, clickU - defs.width / 2),
-      );
-      const openingId = addOpening({
-        kind: isDoor ? 'door' : 'window',
-        wallId,
-        offset,
-        width: defs.width,
-        height: defs.height,
-        sillHeight: defs.sillHeight,
-      });
-      selectOpening(openingId);
-      setTool('select');
-      return;
-    }
-
-    if (tool === 'select' && native.button === 0) {
-      // 1) Mavi oda ÇİZGİSİNE (kenara) tıklandı mı? Köşeye çok yakınsa köşe seçimi
-      //    (VertexHandlesLayer) önceliklidir, o yüzden kenar seçmeyi atla.
-      let edgePicked = false;
-      if (activeRoom && activeRoom.points.length >= 2) {
-        const nearV = nearestVertex(rawWorld, activeRoom.points, (VERTEX_MERGE_PX * 1.8) / scale);
-        if (!nearV) {
-          const edges = polygonToEdges(activeRoom.points);
-          const hit = nearestPointOnEdges(rawWorld, edges, (VERTEX_MERGE_PX * 2.5) / scale);
-          if (hit) {
-            selectVertex(null);
-            selectOpening(null);
-            selectWall(null);
-            setSelectedEquipmentId(null);
-            selectEdge(hit.edgeIndex);
-            selectRoom(activeRoom.id as RoomId);
-            edgePicked = true;
+      const hit = nearestWallHit(project, world, Math.max(r, 200));
+      if (hit) {
+        const wall = project.walls[hit.wallId];
+        if (wall && hit.distance <= wall.thickness / 2 + r) {
+          const u = hit.t * hit.lengthMm;
+          for (const op of Object.values(project.openings)) {
+            if (op.wallId === hit.wallId && u >= op.offset && u <= op.offset + op.width) return { kind: 'opening', id: op.id };
           }
+          return { kind: 'wall', id: hit.wallId };
         }
       }
-      // 2) Kenar seçilmediyse ve boş tuvale tıklandıysa: oda içindeyse odayı seç,
-      //    tamamen boşluğa tıklandıysa tüm seçimi kaldır.
-      if (!edgePicked && clickedOnEmpty) {
-        selectVertex(null);
-        selectEdge(null);
-        selectOpening(null);
-        selectWall(null);
-        setSelectedEquipmentId(null);
-        const hitRoom = roomForPoint(project, rawWorld);
-        selectRoom(hitRoom ? (hitRoom.id as RoomId) : null);
+      const room = roomContaining(project, world);
+      if (room) return { kind: 'room', id: room.id };
+      return { kind: 'canvas' };
+    },
+    [scale, handles, equipmentList, project],
+  );
+
+  const openMenuAt = useCallback(
+    (pos: { x: number; y: number }, world: Vec2) => {
+      const target = hitTest(world);
+      if (target.kind !== 'canvas') {
+        const already = selection.some((s) => s.kind === target.kind && s.id === target.id);
+        if (!already) commands.pick(target, false);
       }
+      openContextMenu({ x: pos.x, y: pos.y, world, target });
+    },
+    [hitTest, selection, commands, openContextMenu],
+  );
+
+  // ── Long press (touch) → context menu ────────────────────────────────────
+  const longPressRef = useRef<{ timer: ReturnType<typeof setTimeout>; pos: { x: number; y: number } } | null>(null);
+  const cancelLongPress = useCallback(() => {
+    if (longPressRef.current) {
+      clearTimeout(longPressRef.current.timer);
+      longPressRef.current = null;
     }
+  }, []);
+
+  // ── Stage handlers ───────────────────────────────────────────────────────
+  const pointerInfo = (e: KonvaEventObject<PointerEvent | MouseEvent | TouchEvent>) => {
+    const stage = e.target.getStage();
+    const pos = stage?.getPointerPosition();
+    if (!pos) return null;
+    return { pos, world: stageToWorld(pos.x, pos.y) };
   };
 
-  const onStageMouseMove = (e: KonvaEventObject<MouseEvent>) => {
-    const stage = e.target.getStage();
-    if (!stage) return;
-    const pos = stage.getPointerPosition();
-    if (!pos) return;
+  const isPlacing = tool === 'place-door' || tool === 'place-window' || tool === 'place-pass';
 
-    if (isPanningRef.current && panStartRef.current) {
-      const dx = pos.x - panStartRef.current.x;
-      const dy = pos.y - panStartRef.current.y;
-      setOffset(panStartRef.current.ox + dx, panStartRef.current.oy + dy);
+  const onStagePointerDown = (e: KonvaEventObject<PointerEvent>) => {
+    const native = e.evt;
+    if (native.pointerType === 'touch' && !touch) setTouch(true);
+    if (viewport.isPinching()) return;
+    const info = pointerInfo(e);
+    if (!info) return;
+    const { pos, world } = info;
+    closeContextMenu();
+
+    if (native.button === 1 || tool === 'pan' || spacePan || (native.button === 0 && (native.altKey || native.metaKey))) {
+      viewport.startPan(pos);
       return;
     }
-
-    if ((tool === 'draw-room' || tool === 'draw-wall') && draftPoints.length > 0) {
-      const raw = stageToWorld(pos.x, pos.y);
-      setDraftCursor(resolveSnap(raw));
+    if (native.button !== 0) return;
+    if (native.pointerType === 'touch') {
+      cancelLongPress();
+      longPressRef.current = {
+        pos,
+        timer: setTimeout(() => {
+          longPressRef.current = null;
+          openMenuAt(pos, world);
+        }, LONG_PRESS_MS),
+      };
     }
+    const clickedOnEmpty = e.target === e.target.getStage();
+    if (equipment.placeAt(world, native.shiftKey)) return;
+    if (draw.isDrawing) {
+      const anchor = draftPoints.length ? draftPoints[draftPoints.length - 1] : null;
+      const r = snap.resolve(world, { anchor, shift: native.shiftKey });
+      draw.onCanvasClick(r.point, r.hit);
+      return;
+    }
+    if (isPlacing) {
+      openings.placeAt(world, native.shiftKey);
+      return;
+    }
+    if (tool === 'select' && clickedOnEmpty) commands.pickAt(world, native.shiftKey);
   };
 
-  const onStageMouseUp = (e: KonvaEventObject<MouseEvent>) => {
-    if (isPanningRef.current) {
-      isPanningRef.current = false;
-      panStartRef.current = null;
-      const stage = e.target.getStage();
-      if (stage) stage.container().style.cursor = 'default';
+  const onStagePointerMove = (e: KonvaEventObject<PointerEvent>) => {
+    const info = pointerInfo(e);
+    if (!info) return;
+    if (viewport.isPinching()) return;
+    if (viewport.movePan(info.pos)) return;
+    const lp = longPressRef.current;
+    if (lp && Math.hypot(info.pos.x - lp.pos.x, info.pos.y - lp.pos.y) > 8) cancelLongPress();
+    if (openings.onStageMove(info.world)) return;
+    if (draw.isDrawing) {
+      draw.onCanvasMove(info.world, e.evt.shiftKey);
+      return;
     }
+    if (isPlacing) {
+      setHoverWallId(openings.hoverWallFor(info.world));
+      return;
+    }
+    if (snapHit) setSnapHit(null);
   };
 
-  /** Right-click on an active-room edge → split wall, insert vertex. */
+  const onStagePointerUp = () => {
+    viewport.endPan();
+    openings.onStageUp();
+    cancelLongPress();
+  };
+
   const onStageContextMenu = (e: KonvaEventObject<PointerEvent>) => {
     e.evt.preventDefault();
-    if (!activeRoom) return;
-    const stage = e.target.getStage();
-    if (!stage) return;
-    const pos = stage.getPointerPosition();
-    if (!pos) return;
-    const world = stageToWorld(pos.x, pos.y);
-    const edges = polygonToEdges(activeRoom.points);
-    const hit = nearestPointOnEdges(world, edges, (VERTEX_MERGE_PX * 2) / scale);
-    if (!hit) return;
-    splitWallAction(activeRoom.wallIds[hit.edgeIndex], hit.t);
+    const info = pointerInfo(e);
+    if (!info) return;
+    openMenuAt(info.pos, info.world);
   };
 
-  // ── Wheel zoom (zoom-to-cursor) ─────────────────────────────────────────
-  const onWheel = (e: KonvaEventObject<WheelEvent>) => {
-    e.evt.preventDefault();
-    const stage = stageRef.current;
-    if (!stage) return;
-    const pointer = stage.getPointerPosition();
-    if (!pointer) return;
-    const direction = e.evt.deltaY > 0 ? -1 : 1;
-    const factor = direction > 0 ? WHEEL_ZOOM_FACTOR : 1 / WHEEL_ZOOM_FACTOR;
-    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, scale * factor));
-    if (newScale === scale) return;
-    const worldX = (pointer.x - offsetX) / scale;
-    const worldY = (pointer.y - offsetY) / scale;
-    const newOffsetX = pointer.x - worldX * newScale;
-    const newOffsetY = pointer.y - worldY * newScale;
-    setViewport(newScale, newOffsetX, newOffsetY);
-  };
-
-  // ── Selected loose wall (free-form partition wall) ──────────────────────
-  const selectedLooseWall = useMemo(() => {
-    if (!selectedWallId) return null;
-    const wall = project.walls[selectedWallId as WallId];
-    if (!wall) return null;
-    // Skip room walls — they're edited via vertex handles on the active room.
-    for (const r of Object.values(project.rooms)) {
-      if (r.wallLoop.includes(wall.id)) return null;
-    }
-    const va = project.vertices[wall.a];
-    const vb = project.vertices[wall.b];
-    if (!va || !vb) return null;
-    return {
-      wall,
-      vertexIds: [wall.a, wall.b] as VertexId[],
-      points: [
-        { x: va.x, y: va.y },
-        { x: vb.x, y: vb.y },
-      ] as Vec2[],
-    };
-  }, [project, selectedWallId]);
-
-  const [wallDragOverride, setWallDragOverride] = useState<Vec2[] | null>(null);
-  const onWallEndDragMove = useCallback(
-    (i: number, world: Vec2) => {
-      if (!selectedLooseWall) return;
-      const snapped = resolveSnap(world);
-      const next = selectedLooseWall.points.map((p, idx) => (idx === i ? snapped : p));
-      setWallDragOverride(next);
-    },
-    [resolveSnap, selectedLooseWall],
+  // ── Fit ──────────────────────────────────────────────────────────────────
+  // Keep the drawing clear of the side panels (right properties panel, left catalog).
+  const fitToContent = useCallback(
+    () => viewport.fitTo(projectBounds(project), 1500, { right: 300, left: catalogOpen ? 360 : 48, top: 70, bottom: 40 }),
+    [viewport, project, catalogOpen],
   );
-  const onWallEndDragEnd = useCallback(
-    (i: number, world: Vec2) => {
-      if (!selectedLooseWall) return;
-      const snapped = resolveSnap(world);
-      setWallDragOverride(null);
-      moveVertex(selectedLooseWall.vertexIds[i], snapped);
-    },
-    [moveVertex, resolveSnap, selectedLooseWall],
+
+  // ── Keyboard ─────────────────────────────────────────────────────────────
+  const keyHandlers = useMemo<KeyboardHandlers>(
+    () => ({
+      isTyping: () => !!useEditor2DState.getState().entry,
+      setTool,
+      setSpacePan,
+      setOrthoOn: (fn) => setOrthoOn(fn(useEditor2DState.getState().orthoOn)),
+      escape: () => {
+        const e = useEditor2DState.getState();
+        if (e.contextMenu) return e.closeContextMenu();
+        if (e.entry) return e.closeEntry();
+        if (equipment.armedProduct) return equipment.setArmedProduct(null);
+        if (e.draftPoints.length > 0) return draw.cancel();
+        if (vertexEditing.editingEdge) return vertexEditing.setEditingEdge(null);
+        if (vertexEditing.editingAngle) return vertexEditing.setEditingAngle(null);
+        if (e.tool !== 'select') return setTool('select');
+        clearSelection();
+      },
+      enter: () => draw.finishOnEnter(),
+      backspace: () => {
+        const e = useEditor2DState.getState();
+        if (e.tool === 'draw-room' && e.draftPoints.length > 1) {
+          draw.undoLastPoint();
+          return true;
+        }
+        return false;
+      },
+      deleteSelection: commands.deleteSelection,
+      undo,
+      redo,
+      duplicate: () => equipment.duplicate(idsOfKind(useEditor2DState.getState().selection, 'equipment')),
+      selectAllEquipment: () =>
+        select(Object.keys(useProjectStore.getState().project.equipment).map((id) => ({ kind: 'equipment' as const, id }))),
+      nudge: (dx, dy) => equipment.nudge(idsOfKind(useEditor2DState.getState().selection, 'equipment'), dx, dy),
+      rotate: (deg) => equipment.rotate(idsOfKind(useEditor2DState.getState().selection, 'equipment'), (deg * Math.PI) / 180),
+      digit: draw.onDigit,
+    }),
+    [setTool, setSpacePan, setOrthoOn, equipment, draw, vertexEditing, clearSelection, commands.deleteSelection, undo, redo, select],
   );
-  const livePointsWall: Vec2[] | null = selectedLooseWall
-    ? wallDragOverride ?? selectedLooseWall.points
-    : null;
+  useKeyboardShortcuts(keyHandlers);
 
-  // ── Vertex drag — rubber-band + commit on drag end ──────────────────────
-  const [dragOverride, setDragOverride] = useState<Vec2[] | null>(null);
-  const onVertexDragMove = useCallback(
-    (i: number, world: Vec2) => {
-      if (!activeRoom) return;
-      const snapped = resolveSnap(world);
-      const next = activeRoom.points.map((p, idx) => (idx === i ? snapped : p));
-      setDragOverride(next);
-    },
-    [activeRoom, resolveSnap],
-  );
-  const onVertexDragEnd = useCallback(
-    (i: number, world: Vec2) => {
-      if (!activeRoom) return;
-      const snapped = resolveSnap(world);
-      setDragOverride(null);
-      // Domain-level move — affects every wall that shares this vertex.
-      moveVertex(activeRoom.vertexIds[i], snapped);
-    },
-    [activeRoom, moveVertex, resolveSnap],
-  );
-  const livePoints: Vec2[] = dragOverride ?? activeRoom?.points ?? [];
-
-  // ── Wall length editing — moves end vertex along edge direction ─────────
-  const [editingEdge, setEditingEdge] = useState<{ index: number; valueM: string } | null>(null);
-  const beginEditEdge = (index: number) => {
-    if (!activeRoom) return;
-    const a = livePoints[index];
-    const b = livePoints[(index + 1) % livePoints.length];
-    if (!a || !b) return;
-    const d = Math.hypot(b.x - a.x, b.y - a.y);
-    setEditingEdge({ index, valueM: (d / 1000).toFixed(2) });
-    selectEdge(index);
-  };
-  const commitEditEdge = () => {
-    if (!editingEdge || !activeRoom) return;
-    const meters = Number.parseFloat(editingEdge.valueM.replace(',', '.'));
-    if (!Number.isFinite(meters) || meters <= 0) {
-      setEditingEdge(null);
-      return;
-    }
-    // Compute new end position by resizing along the current direction…
-    const newPoints = resizeEdgeLength(activeRoom.points, editingEdge.index, mToMm(meters));
-    const endIndex = (editingEdge.index + 1) % activeRoom.vertexIds.length;
-    // …then move just the end vertex (every wall sharing it follows).
-    moveVertex(activeRoom.vertexIds[endIndex], newPoints[endIndex]);
-    setEditingEdge(null);
-  };
-
-  // ── Corner angle editing — rotates the next wall about the corner ────────
-  const [editingAngle, setEditingAngle] = useState<{ index: number; valueDeg: string } | null>(null);
-  const beginEditAngle = (index: number) => {
-    if (!activeRoom) return;
-    setEditingEdge(null);
-    setEditingAngle({ index, valueDeg: String(Math.round(cornerAngleDeg(livePoints, index))) });
-    selectVertex(index);
-  };
-  const commitEditAngle = (override?: number) => {
-    if (!editingAngle || !activeRoom) return;
-    const deg = override ?? Number.parseFloat(editingAngle.valueDeg.replace(',', '.'));
-    if (!Number.isFinite(deg)) {
-      setEditingAngle(null);
-      return;
-    }
-    // Rotate the next wall about this corner to the target angle, keeping both
-    // wall lengths; move just the next vertex (every wall sharing it follows).
-    const newPoints = setCornerAngle(activeRoom.points, editingAngle.index, deg);
-    const nextIndex = (editingAngle.index + 1) % activeRoom.vertexIds.length;
-    moveVertex(activeRoom.vertexIds[nextIndex], newPoints[nextIndex]);
-    setEditingAngle(null);
-  };
-
-  // Length-edit input for the selected loose wall (single edge a→b).
-  const [editingWallLen, setEditingWallLen] = useState<string | null>(null);
-  const beginEditWallLen = () => {
-    if (!selectedLooseWall || !livePointsWall) return;
-    const [a, b] = livePointsWall;
-    const d = Math.hypot(b.x - a.x, b.y - a.y);
-    setEditingWallLen((d / 1000).toFixed(2));
-  };
-  const commitEditWallLen = () => {
-    if (editingWallLen == null || !selectedLooseWall) return;
-    const meters = Number.parseFloat(editingWallLen.replace(',', '.'));
-    if (!Number.isFinite(meters) || meters <= 0) {
-      setEditingWallLen(null);
-      return;
-    }
-    const [a, b] = selectedLooseWall.points;
-    const dirX = b.x - a.x;
-    const dirY = b.y - a.y;
-    const len = Math.hypot(dirX, dirY);
-    if (len < 1) {
-      setEditingWallLen(null);
-      return;
-    }
-    const ratio = mToMm(meters) / len;
-    moveVertex(selectedLooseWall.vertexIds[1], {
-      x: a.x + dirX * ratio,
-      y: a.y + dirY * ratio,
+  // ── Context menu items ───────────────────────────────────────────────────
+  const menu = useMemo(() => {
+    if (!contextMenu) return null;
+    return buildContextMenuItems({
+      t,
+      project,
+      target: contextMenu.target,
+      world: contextMenu.world,
+      selection,
+      scale,
+      deleteRefs: commands.deleteRefs,
+      requestDeleteRoom: commands.requestDeleteRoom,
+      splitWallAt: commands.splitWallAt,
+      addOpeningOnWall,
+      setWallThickness: (wallId, mm) =>
+        updateProject((d) => {
+          const w = d.walls[wallId];
+          if (w) w.thickness = mm;
+        }),
+      applyThicknessToRoom: (wallId) =>
+        updateProject((d) => {
+          const w = d.walls[wallId];
+          if (!w) return;
+          for (const r of Object.values(d.rooms)) {
+            if (!r.wallLoop.includes(wallId)) continue;
+            for (const wid of r.wallLoop) {
+              const o = d.walls[wid];
+              if (o) o.thickness = w.thickness;
+            }
+          }
+        }),
+      beginEditEdge: vertexEditing.beginEditEdge,
+      dissolveVertex: (vid) => commands.deleteRefs([{ kind: 'vertex', id: vid }]),
+      beginEditAngle: vertexEditing.beginEditAngle,
+      flipHinge: (id) => {
+        const op = project.openings[id];
+        if (op) updateOpening(id, { hinge: (op.hinge ?? 'start') === 'start' ? 'end' : 'start' });
+      },
+      flipSwing: (id) => {
+        const op = project.openings[id];
+        if (op) updateOpening(id, { swing: (op.swing ?? 'left') === 'left' ? 'right' : 'left' });
+      },
+      duplicateEquipment: equipment.duplicate,
+      rotateEquipment: (ids, deg) => equipment.rotate(ids, (deg * Math.PI) / 180),
+      toggleLockEquipment: equipment.toggleLock,
+      renameRoom: (roomId) => {
+        commands.pick({ kind: 'room', id: roomId }, false);
+        setActiveRoom(roomId);
+      },
+      createRoomFromSelectedWalls: commands.createRoomFromSelectedWalls,
+      fitToContent,
+      selectRoomWalls: (roomId) => {
+        const room = project.rooms[roomId];
+        if (!room) return;
+        select(room.wallLoop.map((id) => ({ kind: 'wall' as const, id })));
+        setActiveRoom(roomId);
+      },
     });
-    setEditingWallLen(null);
-  };
+  }, [contextMenu, t, project, selection, scale, commands, addOpeningOnWall, updateProject, vertexEditing, updateOpening, equipment, setActiveRoom, fitToContent, select]);
 
-  // ── Keyboard shortcuts ───────────────────────────────────────────────────
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (
-        target &&
-        (target.tagName === 'INPUT' ||
-          target.tagName === 'TEXTAREA' ||
-          target.isContentEditable)
-      ) {
-        return;
-      }
-      if (e.key === 'Escape') {
-        if (draftPoints.length > 0) cancelDraft();
-        setEditingEdge(null);
-        setEditingWallLen(null);
-        setEditingAngle(null);
-        if (selectedWallId) selectWall(null);
-        if (armedProduct) setArmedProduct(null);
-        if (selectedEquipmentId) setSelectedEquipmentId(null);
-        return;
-      }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedVertex !== null && activeRoom) {
-        // Seçili köşeyi sil → komşu iki duvar birleşir (L-şekli/çentik = alan çıkar/ekle).
-        const vid = activeRoom.vertexIds[selectedVertex];
-        if (vid) {
-          const ok = dissolveVertex(vid);
-          if (ok) selectVertex(null);
-          else flashHint(t('design3d.hint.vertexNotDeletable'));
-        }
-        e.preventDefault();
-        return;
-      }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEdge !== null && activeRoom) {
-        // Seçili KENARI (mavi çizgi) sil → uç köşesini çöz; komşu kenarla birleşir.
-        const n = activeRoom.vertexIds.length;
-        const endVid = activeRoom.vertexIds[(selectedEdge + 1) % n];
-        const startVid = activeRoom.vertexIds[selectedEdge];
-        let ok = false;
-        if (endVid) ok = dissolveVertex(endVid);
-        if (!ok && startVid) ok = dissolveVertex(startVid);
-        if (ok) selectEdge(null);
-        else flashHint(t('design3d.hint.edgeNotDeletable'));
-        e.preventDefault();
-        return;
-      }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedEquipmentId) {
-        // Tasarımdan + (proje modunda) teklif listesinden kaldır. Otomatik kaydedilir.
-        removeEquipmentEverywhere(selectedEquipmentId);
-        setSelectedEquipmentId(null);
-        e.preventDefault();
-        return;
-      }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedOpeningId) {
-        // Seçili kapı/pencereyi sil.
-        removeOpening(selectedOpeningId);
-        selectOpening(null);
-        e.preventDefault();
-        return;
-      }
-      if ((e.key === 'Delete' || e.key === 'Backspace') && selectedWallId) {
-        removeWall(selectedWallId as WallId);
-        selectWall(null);
-        e.preventDefault();
-        return;
-      }
-      // Seçili odayı sil — köşe/duvar/ürün seçili DEĞİLKEN. Yalnız BU oda ve KENDİ
-      // duvarları+kapıları gider; içinde kalan başka çizim (loose bölme) KORUNUR.
-      if (
-        (e.key === 'Delete' || e.key === 'Backspace') &&
-        selectedRoomId &&
-        selectedVertex === null &&
-        !selectedWallId &&
-        !selectedEquipmentId
-      ) {
-        removeRoom(selectedRoomId as RoomId);
-        selectRoom(null);
-        e.preventDefault();
-        return;
-      }
-      if (e.key === 'Enter' && tool === 'draw-room' && draftPoints.length >= 3) {
-        finishPolygon(draftPoints);
-        return;
-      }
-      if (e.key.toLowerCase() === 'r' && selectedEquipmentId) {
-        // Seçili ürünü 90° döndür (3D editör ile aynı; Shift = ters yön).
-        const eq = project.equipment[selectedEquipmentId];
-        if (eq) {
-          const delta = ((e.shiftKey ? -90 : 90) * Math.PI) / 180;
-          updateEquipment(selectedEquipmentId, { rotation: eq.rotation + delta });
-        }
-        e.preventDefault();
-        return;
-      }
-      if (e.key.toLowerCase() === 'v') setTool('select');
-      if (e.key.toLowerCase() === 'r') setTool('draw-room');
-      if (e.key.toLowerCase() === 'w') setTool('draw-wall');
-      if (e.key.toLowerCase() === 'h' || e.key === ' ') setTool('pan');
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
-        if (e.shiftKey) redo();
-        else undo();
-        e.preventDefault();
-      }
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
-        redo();
-        e.preventDefault();
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [
-    cancelDraft,
-    draftPoints,
-    finishPolygon,
-    redo,
-    removeWall,
-    selectWall,
-    selectedWallId,
-    setTool,
-    tool,
-    undo,
-    armedProduct,
-    selectedEquipmentId,
-    project,
-    updateEquipment,
-    selectedVertex,
-    activeRoom,
-    selectVertex,
-    dissolveVertex,
-    selectedRoomId,
-    removeRoom,
-    selectRoom,
-    selectedEdge,
-    selectEdge,
-    flashHint,
-    selectedOpeningId,
-    removeOpening,
-    selectOpening,
-    t,
-  ]);
-
-  // ── Equipment drag (2D) — 3D ile ORTAK çözücü (snap + çakışma + clamp) ─────
-  const dragCenterRef = useRef<{ x: number; y: number } | null>(null);
-  const resolveEqDrag = useCallback(
-    (id: string, center: { x: number; y: number }) => {
-      const eq = project.equipment[id];
-      if (!eq) return null;
-      const w = eq.footprint.width;
-      const d = eq.footprint.depth;
-      const res = resolveEquipmentDrag({
-        project,
-        eq,
-        desiredMinCornerMm: { x: center.x - w / 2, y: center.y - d / 2 },
-        snapGridMm: 10,
-        edgeSnapTolMm: 50,
-        collisionEnabled: true,
-        prevValidCenter: dragCenterRef.current,
-      });
-      dragCenterRef.current = res.validCenter;
-      return {
-        nodeX: res.x + w / 2,
-        nodeY: res.y + d / 2,
-        rotationDeg: (res.rotation * 180) / Math.PI,
-        rotationRad: res.rotation,
-        minX: res.x,
-        minY: res.y,
-      };
-    },
-    [project],
-  );
-
-  // ── Fit to content ───────────────────────────────────────────────────────
-  const fitToContent = useCallback(() => {
-    const points: Vec2[] = [];
-    for (const r of [activeRoom, ...otherRooms]) {
-      if (r) points.push(...r.points);
-    }
-    if (points.length === 0) {
-      setViewport(0.05, 200, 200);
-      return;
-    }
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const p of points) {
-      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
-      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
-    }
-    const padding = 1500;
-    minX -= padding; minY -= padding; maxX += padding; maxY += padding;
-    const w = Math.max(1, maxX - minX);
-    const h = Math.max(1, maxY - minY);
-    const sx = width / w;
-    const sy = height / h;
-    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, Math.min(sx, sy)));
-    const newOffsetX = -minX * newScale + (width - w * newScale) / 2;
-    const newOffsetY = -minY * newScale + (height - h * newScale) / 2;
-    setViewport(newScale, newOffsetX, newOffsetY);
-  }, [activeRoom, height, otherRooms, setViewport, width]);
-
-  // ── Render ───────────────────────────────────────────────────────────────
+  // ── Render helpers ───────────────────────────────────────────────────────
   const cursor =
-    tool === 'pan'
+    tool === 'pan' || spacePan
       ? 'grab'
-      : armedProduct ||
-        tool === 'draw-room' ||
-        tool === 'draw-wall' ||
-        tool === 'place-door' ||
-        tool === 'place-window'
-      ? 'crosshair'
-      : 'default';
+      : equipment.armedProduct || draw.isDrawing || isPlacing
+        ? 'crosshair'
+        : 'default';
+
+  const editingEdgeScreen = useMemo(() => {
+    if (!vertexEditing.editingEdge) return null;
+    const band = bands.bands.get(vertexEditing.editingEdge.wallId as WallId);
+    if (!band) return null;
+    return worldToScreen({ x: (band.a.x + band.b.x) / 2, y: (band.a.y + band.b.y) / 2 });
+  }, [vertexEditing.editingEdge, bands, worldToScreen]);
+
+  const editingAngleScreen = useMemo(() => {
+    if (!vertexEditing.editingAngle) return null;
+    const p = vertexPos(vertexEditing.editingAngle.vertexId);
+    return p ? worldToScreen(p) : null;
+  }, [vertexEditing.editingAngle, vertexPos, worldToScreen]);
+
+  const entryScreen = useMemo(() => {
+    const anchor = draftCursor ?? (draftPoints.length ? draftPoints[draftPoints.length - 1] : null);
+    return anchor ? worldToScreen(anchor) : { x: width / 2, y: height / 2 };
+  }, [draftCursor, draftPoints, worldToScreen, width, height]);
+
+  const drawMode = tool === 'draw-rect' ? 'rect' : tool === 'draw-wall' ? 'wall' : 'room';
+  const hasSelection = selection.length > 0;
 
   return (
-    <div className="relative h-full w-full bg-white overflow-hidden" style={{ cursor }}>
+    <div className="relative h-full w-full overflow-hidden bg-[#f3f4f2]" style={{ cursor, touchAction: 'none' }}>
       <Stage
         ref={stageRef}
         width={width}
@@ -857,81 +598,90 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
         y={offsetY}
         scaleX={scale}
         scaleY={scale}
-        onMouseDown={onStageMouseDown}
-        onMouseMove={onStageMouseMove}
-        onMouseUp={onStageMouseUp}
+        onPointerDown={onStagePointerDown}
+        onPointerMove={onStagePointerMove}
+        onPointerUp={onStagePointerUp}
+        onPointerCancel={onStagePointerUp}
         onContextMenu={onStageContextMenu}
-        onWheel={onWheel}
+        onWheel={viewport.onWheel}
+        onTouchMove={viewport.onTouchMove}
+        onTouchEnd={viewport.onTouchEnd}
       >
         <Layer listening={false}>
-          <GridLayer
-            width={width}
-            height={height}
-            scale={scale}
-            offsetX={offsetX}
-            offsetY={offsetY}
-          />
+          {showGrid && <GridLayer width={width} height={height} scale={scale} offsetX={offsetX} offsetY={offsetY} />}
         </Layer>
 
+        {/* Rooms (floor wash + name/area) under walls + dimensions + angle pills */}
         <Layer>
-          {otherRooms.map((r) => (
-            <WallLayer key={r.id} points={r.points} scale={scale} />
-          ))}
-          {/* Free-form partition walls (drawn with the W tool). */}
-          <LooseWallsLayer
+          <RoomLayer
+            part="fill"
             project={project}
+            bands={bands.bands}
             scale={scale}
-            selectedWallId={selectedWallId}
-            onSelect={(id) => {
-              selectWall(id);
-              setEditingWallLen(null);
-            }}
+            activeRoomId={activeRoomId}
+            selectedRoomIds={selectedRoomIds}
           />
-        </Layer>
-
-        <Layer>
-          {livePoints.length >= 3 && (
-            <>
-              <WallLayer points={livePoints} scale={scale} selected />
-              {/* Seçili kenar vurgusu (silmeye hazır → kırmızı) */}
-              {selectedEdge !== null &&
-                livePoints[selectedEdge] &&
-                livePoints[(selectedEdge + 1) % livePoints.length] && (
-                  <Line
-                    points={[
-                      livePoints[selectedEdge].x,
-                      livePoints[selectedEdge].y,
-                      livePoints[(selectedEdge + 1) % livePoints.length].x,
-                      livePoints[(selectedEdge + 1) % livePoints.length].y,
-                    ]}
-                    stroke="#DC2626"
-                    strokeWidth={4 / scale}
-                    lineCap="round"
-                    listening={false}
-                  />
-                )}
-              <DimensionLayer
-                points={livePoints}
-                scale={scale}
-                onEdgeClick={(i) => beginEditEdge(i)}
-              />
-              <AngleLayer
-                points={livePoints}
-                scale={scale}
-                selectedIndex={selectedVertex}
-                onCornerClick={tool === 'select' ? (i) => beginEditAngle(i) : undefined}
-              />
-            </>
+          <WallBandsLayer
+            bands={bands}
+            scale={scale}
+            selectedWallIds={selectedWallIds}
+            activeWallIds={activeWallIds}
+            hoverWallId={isPlacing ? hoverWallId : hover?.kind === 'wall' ? hover.id : null}
+            hitPx={touch ? 22 : 14}
+            onSelect={
+              tool === 'select' && !equipment.armedProduct
+                ? (wallId, evt) => commands.pick({ kind: 'wall', id: wallId }, !!evt.evt.shiftKey)
+                : undefined
+            }
+          />
+          {/* Room name / area pills sit on top of the walls (a partition may cross the centre). */}
+          <RoomLayer
+            part="label"
+            project={project}
+            bands={bands.bands}
+            scale={scale}
+            activeRoomId={activeRoomId}
+            selectedRoomIds={selectedRoomIds}
+          />
+          <DimensionLayer
+            edges={dimEdges}
+            scale={scale}
+            onEdgeClick={tool === 'select' ? (wallId) => vertexEditing.beginEditEdge(wallId) : undefined}
+          />
+          {activeRoom && activeRoom.points.length >= 3 && showDims && (
+            <AngleLayer
+              points={activeRoom.points}
+              scale={scale}
+              selectedIndex={selectedVertexIndex}
+              onCornerClick={tool === 'select' ? (i) => vertexEditing.beginEditAngle(activeRoom.vertexIds[i]) : undefined}
+            />
           )}
         </Layer>
 
+        {/* Openings (symbols + selected-opening handles) */}
         <Layer>
           <OpeningsLayer
             project={project}
             scale={scale}
-            selectedOpeningId={selectedOpeningId}
-            onClick={(id) => selectOpening(id)}
+            selectedIds={selectedOpeningIds}
+            hoverId={hover?.kind === 'opening' ? hover.id : null}
+            previewOffset={openings.previewOffset}
+            previewWidth={openings.previewWidth}
+            onPointerDown={openings.onOpeningPointerDown}
+            touch={touch}
           />
+          {tool === 'select' && (
+            <OpeningHandlesLayer
+              project={project}
+              scale={scale}
+              selectedIds={selectedOpeningIds}
+              previewOffset={openings.previewOffset}
+              previewWidth={openings.previewWidth}
+              onHandleDown={openings.onHandleDown}
+              liveLabelFor={openings.liveId}
+              touch={touch}
+            />
+          )}
         </Layer>
 
         {/* Equipment — shared with 3D editor (same project.equipment) */}
@@ -939,454 +689,193 @@ export default function DesignStudio2D({ width, height }: DesignStudio2DProps) {
           <EquipmentLayer2D
             equipment={equipmentList}
             scale={scale}
-            selectedId={selectedEquipmentId}
-            draggable={tool === 'select'}
-            onSelect={(id) => {
-              setSelectedEquipmentId(id);
-              selectVertex(null);
-              selectEdge(null);
-              selectOpening(null);
-              selectWall(null);
-            }}
-            onDragStart={(id) => {
-              const eq = project.equipment[id];
-              dragCenterRef.current = eq
-                ? obbCenterFromMinCorner(eq.position.x, eq.position.y, eq.rotation, eq.footprint.width, eq.footprint.depth)
-                : null;
-            }}
-            onDragMove={(id, center) => {
-              const r = resolveEqDrag(id, center);
-              return r ? { x: r.nodeX, y: r.nodeY, rotation: r.rotationDeg } : undefined;
-            }}
-            onDragEnd={(id, center) => {
-              const r = resolveEqDrag(id, center);
-              const eq = project.equipment[id];
-              if (r && eq) {
-                updateEquipment(id, {
-                  position: { x: r.minX, y: r.minY, z: eq.position.z },
-                  rotation: r.rotationRad,
-                });
-              }
-              dragCenterRef.current = null;
-            }}
+            selectedIds={selectedEquipmentIds}
+            hoverId={hover?.kind === 'equipment' ? hover.id : null}
+            draggable={tool === 'select' && !equipment.armedProduct}
+            onSelect={(id, evt) => commands.pick({ kind: 'equipment', id }, !!evt.evt.shiftKey)}
+            onDragStart={equipment.onDragStart}
+            onDragMove={equipment.onDragMove}
+            onDragEnd={equipment.onDragEnd}
           />
         </Layer>
 
+        {/* Corner handles + draft + snap glyph */}
         <Layer>
-          {activeRoom && livePoints.length > 0 && (
+          {tool === 'select' && handles.length > 0 && (
             <VertexHandlesLayer
-              points={livePoints}
+              handles={handles}
               scale={scale}
-              selectedIndex={selectedVertex}
-              onClick={(i) => selectVertex(i)}
-              onDragMove={onVertexDragMove}
-              onDragEnd={onVertexDragEnd}
+              selectedIds={selectedVertexIds}
+              touch={touch}
+              onSelect={(id, evt) => commands.pick({ kind: 'vertex', id }, !!evt.evt.shiftKey)}
+              onDragMove={(id, world) => vertexEditing.onDragMove(id, world)}
+              onDragEnd={vertexEditing.onDragEnd}
             />
           )}
-        </Layer>
-
-        <Layer>
-          {livePointsWall && (
-            <VertexHandlesLayer
-              points={livePointsWall}
-              scale={scale}
-              selectedIndex={null}
-              onClick={() => {}}
-              onDragMove={onWallEndDragMove}
-              onDragEnd={onWallEndDragEnd}
-            />
-          )}
-        </Layer>
-
-        <Layer listening={false}>
           <DraftLayer
             points={draftPoints}
             cursor={draftCursor}
             scale={scale}
-            closeRadiusMm={VERTEX_MERGE_PX / scale}
+            closeRadiusMm={draw.closeRadiusMm}
+            mode={drawMode}
+            thicknessMm={defaultThickness}
           />
+          <SnapIndicatorLayer hit={snapHit} scale={scale} />
         </Layer>
       </Stage>
 
-      {/* ── Plot decorations — pushed left of the right-side panel ───── */}
-      <div className="absolute inset-y-0 right-72 w-0 pointer-events-none">
+      {/* ── Plot decorations — pushed left of the floating right-side panel ── */}
+      <div className="pointer-events-none absolute inset-y-0 right-3 w-0 sm:right-[19.5rem]">
         <CompassRose />
-        <TitleBlock project={project} />
+        {/* Dar tuvalde (bölünmüş görünüm) antet sol-alt HUD'larla çakışır → gizle. */}
+        {width >= 900 && <TitleBlock project={project} />}
       </div>
-      <ScaleBar scale={scale} />
+      {/* Sol-alt referanslar katalog açıkken onun altında kalırdı → gizle. */}
+      {!catalogOpen && <ScaleBar scale={scale} />}
 
-      {/* ── Right-side properties panel ─────────────────────────────── */}
-      <PropertiesPanel />
-
-      {/* Seçili ürün için 2B özellik paneli (renk / üst-üste / yön / sil) */}
-      {selectedEquipmentId && (
-        <EquipmentPropertiesPanel2D
-          equipmentId={selectedEquipmentId}
-          onClose={() => setSelectedEquipmentId(null)}
-        />
-      )}
+      {/* ── Right-side context properties panel ────────────────────────── */}
+      <ContextPropertiesPanel
+        primary={primary}
+        selectionCount={selection.length}
+        actions={panelActions}
+        editorSettings={editorSettings}
+        onClose={clearSelection}
+      />
 
       {/* ── Equipment catalog (shared with 3D) — arm a product, click to drop ── */}
       <EquipmentCatalogPanel
         side="left"
-        armedProductId={armedProduct?.id ?? null}
+        armedProductId={equipment.armedProduct?.id ?? null}
         onArm={(item) => {
-          setArmedProduct(item);
-          if (item) setSelectedEquipmentId(null);
+          equipment.setArmedProduct(item);
+          if (item) clearSelection();
         }}
         open={catalogOpen}
         onToggleOpen={() => setCatalogOpen((v) => !v)}
       />
 
-      {/* Armed-product hint */}
-      {armedProduct && (
-        <div className="absolute top-16 left-1/2 -translate-x-1/2 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-medium bg-brand-red text-white shadow-lg shadow-slate-900/10 pointer-events-none">
-          {armedProduct.name} · {t('design3d.armed.hint2d')}
-        </div>
-      )}
-
-      {/* Silme geri bildirimi (sessiz no-op yerine) */}
-      {deleteHint && (
-        <div className="absolute bottom-24 left-1/2 -translate-x-1/2 max-w-sm inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200 shadow-lg shadow-slate-900/5 pointer-events-none text-center">
-          {deleteHint}
-        </div>
-      )}
-
       {/* ── Toolbar ─────────────────────────────────────────────────────── */}
-      <div className="absolute top-3 left-1/2 -translate-x-1/2 inline-flex items-center gap-1 px-2 py-1.5 rounded-2xl bg-white/95 backdrop-blur border border-slate-200/70 shadow-lg shadow-slate-900/5">
-        <ToolBtn active={tool === 'select'} onClick={() => setTool('select')} title={t('design3d.tool.select')}>
-          <MousePointer2 size={14} />
-        </ToolBtn>
-        <ToolBtn active={tool === 'draw-room'} onClick={() => setTool('draw-room')} title={t('design3d.tool.drawRoom')}>
-          <PenTool size={14} />
-        </ToolBtn>
-        <ToolBtn active={tool === 'draw-wall'} onClick={() => setTool('draw-wall')} title={t('design3d.tool.drawWall')}>
-          <Slash size={14} />
-        </ToolBtn>
-        <ToolBtn active={tool === 'pan'} onClick={() => setTool('pan')} title={t('design3d.tool.pan')}>
-          <Hand size={14} />
-        </ToolBtn>
-        <Sep />
-        <ToolBtn
-          active={catalogOpen || !!armedProduct}
-          onClick={() => setCatalogOpen((v) => !v)}
-          title={t('design3d.tool.addProduct')}
-        >
-          <Package size={14} />
-        </ToolBtn>
-        <Sep />
-        <ToolBtn onClick={() => setScale(Math.min(MAX_SCALE, scale * WHEEL_ZOOM_FACTOR))} title={t('design3d.tool.zoomIn')}>
-          <Plus size={14} />
-        </ToolBtn>
-        <ToolBtn onClick={() => setScale(Math.max(MIN_SCALE, scale / WHEEL_ZOOM_FACTOR))} title={t('design3d.tool.zoomOut')}>
-          <Minus size={14} />
-        </ToolBtn>
-        <ToolBtn onClick={fitToContent} title={t('design3d.tool.fitToContent')}>
-          <Maximize2 size={14} />
-        </ToolBtn>
-        <Sep />
-        <ToolBtn
-          danger
-          disabled={!activeRoom}
-          onClick={() => {
-            if (!activeRoom) return;
-            removeRoom(activeRoom.id as RoomId);
-            selectRoom(null);
-          }}
-          title={t('design3d.tool.deleteRoom')}
-        >
-          <Trash2 size={14} />
-        </ToolBtn>
-        <ToolBtn
-          danger
-          onClick={() => {
-            // Tüm çizimi temizle (oda + bölme + kapı + ürün). Ctrl+Z geri alır.
-            newProject();
-            selectRoom(null);
-            selectEdge(null);
-            selectVertex(null);
-            selectWall(null);
-            selectOpening(null);
-            setSelectedEquipmentId(null);
-            setArmedProduct(null);
-          }}
-          title={t('design3d.tool.clearAll')}
-        >
-          <Eraser size={14} />
-        </ToolBtn>
-      </div>
+      <Toolbar2D
+        tool={tool}
+        setTool={setTool}
+        catalogOpen={catalogOpen}
+        toggleCatalog={() => setCatalogOpen((v) => !v)}
+        armed={!!equipment.armedProduct}
+        zoomIn={viewport.zoomIn}
+        zoomOut={viewport.zoomOut}
+        fit={fitToContent}
+        snapOn={snapOn}
+        toggleSnap={() => setSnapOn(!snapOn)}
+        orthoOn={orthoOn}
+        toggleOrtho={() => setOrthoOn(!orthoOn)}
+        showGrid={showGrid}
+        toggleGrid={() => setShowGrid(!showGrid)}
+        showDims={showDims}
+        toggleDims={() => setShowDims(!showDims)}
+        gridMm={gridMm}
+        setGridMm={setGridMm}
+        hasSelection={hasSelection}
+        deleteSelection={commands.deleteSelection}
+        clearAll={commands.requestClearAll}
+        undo={undo}
+        redo={redo}
+        canUndo={canUndo}
+        canRedo={canRedo}
+      />
 
-      {/* Zoom HUD sits above the scale bar so they don't overlap. */}
-      <div className="absolute bottom-20 left-3 px-2 py-1 bg-white/90 border border-slate-200 rounded text-[11px] font-mono text-slate-500">
+      {/* Armed-product hint */}
+      {equipment.armedProduct && (
+        <div className="pointer-events-none absolute left-1/2 top-16 z-20 inline-flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-brand-red px-3.5 py-1.5 text-[11px] font-medium text-white shadow-lg shadow-brand-red/25">
+          {equipment.armedProduct.name} · {t('design3d.armed.hint2d')}
+        </div>
+      )}
+
+      {/* Drawing hints */}
+      {!equipment.armedProduct && (draw.isDrawing || isPlacing) && (
+        <div className="pointer-events-none absolute left-1/2 top-16 z-20 inline-flex max-w-[80%] -translate-x-1/2 items-center gap-1.5 rounded-full bg-slate-900/90 px-3.5 py-1.5 text-[11px] font-medium text-white shadow-lg backdrop-blur">
+          {tool === 'draw-room'
+            ? draftPoints.length === 0 ? t('design3d.hint.drawRoomStart') : t('design3d.hint.drawRoom')
+            : tool === 'draw-rect'
+              ? draftPoints.length === 0 ? t('design3d.hint.drawRectStart') : t('design3d.hint.drawRect')
+              : tool === 'draw-wall'
+                ? draftPoints.length === 0 ? t('design3d.hint.drawWallStart') : t('design3d.hint.drawWall')
+                : t('design3d.openings.placeHint')}
+        </div>
+      )}
+
+      {/* Toast */}
+      {hint && (
+        <div className="pointer-events-none absolute bottom-24 left-1/2 z-20 inline-flex max-w-sm -translate-x-1/2 items-center gap-1.5 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-center text-[11px] font-medium text-amber-700 shadow-lg shadow-slate-900/5">
+          {hint}
+        </div>
+      )}
+
+      {/* Zoom HUD */}
+      <div className={`pointer-events-none absolute bottom-[4.75rem] left-3 px-3 py-1 tabular-nums ${HUD} ${catalogOpen ? 'hidden' : ''}`}>
         {t('design3d.hud.gridScale2d', { px: (scale * 1000).toFixed(2) })}
-        {tool === 'draw-room' && draftPoints.length > 0 && (
-          <span className="ml-2 text-blue-600">
-            {t('design3d.hint.drawRoom')}
-          </span>
-        )}
-        {tool === 'draw-wall' && (
-          <span className="ml-2 text-blue-600">
-            {t('design3d.hint.drawWall')}
-          </span>
-        )}
+        {orthoOn && <span className="ml-2 font-semibold text-amber-600">ORTHO</span>}
+        {!snapOn && <span className="ml-2 text-slate-400">SNAP OFF</span>}
       </div>
 
-      <div className="absolute bottom-3 right-3 flex gap-1">
-        <button
-          onClick={undo}
-          disabled={!canUndo}
-          className="px-2 h-7 bg-white border border-slate-200 rounded text-[11px] font-medium text-slate-600 disabled:text-slate-300"
-        >
-          {t('design3d.tool.undo')}
-        </button>
-        <button
-          onClick={redo}
-          disabled={!canRedo}
-          className="px-2 h-7 bg-white border border-slate-200 rounded text-[11px] font-medium text-slate-600 disabled:text-slate-300"
-        >
-          {t('design3d.tool.redo')}
-        </button>
-      </div>
-
-      {editingEdge && activeRoom && livePoints.length >= 2 && (
+      {/* Floating inputs */}
+      {vertexEditing.editingEdge && editingEdgeScreen && (
         <EdgeLengthInput
-          midScreen={(() => {
-            const a = livePoints[editingEdge.index];
-            const b = livePoints[(editingEdge.index + 1) % livePoints.length];
-            const mx = (a.x + b.x) / 2;
-            const my = (a.y + b.y) / 2;
-            return { x: mx * scale + offsetX, y: my * scale + offsetY };
-          })()}
-          value={editingEdge.valueM}
-          onChange={(v) => setEditingEdge({ ...editingEdge, valueM: v })}
-          onCommit={commitEditEdge}
-          onCancel={() => setEditingEdge(null)}
+          screen={editingEdgeScreen}
+          value={vertexEditing.editingEdge.value}
+          onChange={(v) => vertexEditing.setEditingEdge({ ...vertexEditing.editingEdge!, value: v })}
+          onCommit={vertexEditing.commitEditEdge}
+          onCancel={() => vertexEditing.setEditingEdge(null)}
         />
       )}
-
-      {editingAngle && activeRoom && livePoints.length >= 3 && livePoints[editingAngle.index] && (
+      {vertexEditing.editingAngle && editingAngleScreen && (
         <AngleInput
-          screen={{
-            x: livePoints[editingAngle.index].x * scale + offsetX,
-            y: livePoints[editingAngle.index].y * scale + offsetY,
-          }}
-          value={editingAngle.valueDeg}
-          onChange={(v) => setEditingAngle({ ...editingAngle, valueDeg: v })}
-          onCommit={() => commitEditAngle()}
-          onSnap90={() => commitEditAngle(90)}
-          onCancel={() => setEditingAngle(null)}
+          screen={editingAngleScreen}
+          value={vertexEditing.editingAngle.value}
+          onChange={(v) => vertexEditing.setEditingAngle({ ...vertexEditing.editingAngle!, value: v })}
+          onCommit={() => vertexEditing.commitEditAngle()}
+          onSnap90={() => vertexEditing.commitEditAngle(90)}
+          onCancel={() => vertexEditing.setEditingAngle(null)}
+        />
+      )}
+      {entry && draw.canType && (
+        <LengthEntryHud
+          entry={entry}
+          unit={lengthUnit}
+          screen={entryScreen}
+          labels={draw.entryLabels}
+          onChange={updateEntry}
+          onToggleField={() => updateEntry({ field: entry.field === 'length' ? 'angle' : 'length' })}
+          onCommit={draw.commitEntry}
+          onCancel={closeEntry}
+          onUnitChange={setLengthUnit}
         />
       )}
 
-      {/* ── Selected loose-wall floating actions ──────────────────────── */}
-      {selectedLooseWall && livePointsWall && editingWallLen == null && (
-        <SelectedWallActions
-          midScreen={(() => {
-            const [a, b] = livePointsWall;
-            const mx = (a.x + b.x) / 2;
-            const my = (a.y + b.y) / 2;
-            return { x: mx * scale + offsetX, y: my * scale + offsetY };
-          })()}
-          lengthM={(() => {
-            const [a, b] = livePointsWall;
-            return Math.hypot(b.x - a.x, b.y - a.y) / 1000;
-          })()}
-          onEditLength={beginEditWallLen}
-          onDelete={() => {
-            if (!selectedLooseWall) return;
-            removeWall(selectedLooseWall.wall.id as WallId);
-            selectWall(null);
-          }}
+      {/* Context menu */}
+      {contextMenu && menu && (
+        <ContextMenu
+          x={contextMenu.x}
+          y={contextMenu.y}
+          hostWidth={width}
+          hostHeight={height}
+          title={menu.title}
+          items={menu.items}
+          onClose={closeContextMenu}
         />
       )}
 
-      {selectedLooseWall && livePointsWall && editingWallLen != null && (
-        <EdgeLengthInput
-          midScreen={(() => {
-            const [a, b] = livePointsWall;
-            const mx = (a.x + b.x) / 2;
-            const my = (a.y + b.y) / 2;
-            return { x: mx * scale + offsetX, y: my * scale + offsetY };
-          })()}
-          value={editingWallLen}
-          onChange={(v) => setEditingWallLen(v)}
-          onCommit={commitEditWallLen}
-          onCancel={() => setEditingWallLen(null)}
-        />
-      )}
-    </div>
-  );
-}
-
-// ── Inline UI atoms ─────────────────────────────────────────────────────────
-function ToolBtn({
-  children,
-  active,
-  disabled,
-  danger,
-  title,
-  onClick,
-}: {
-  children: React.ReactNode;
-  active?: boolean;
-  disabled?: boolean;
-  danger?: boolean;
-  title?: string;
-  onClick?: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      title={title}
-      disabled={disabled}
-      className={[
-        'inline-flex items-center justify-center h-9 w-9 rounded-xl transition',
-        active
-          ? 'bg-brand-red/10 text-brand-red ring-1 ring-brand-red/20'
-          : danger
-            ? 'text-rose-500 hover:bg-rose-50 disabled:text-slate-300 disabled:hover:bg-transparent'
-            : 'text-slate-500 hover:bg-slate-100 disabled:text-slate-300 disabled:hover:bg-transparent',
-      ].join(' ')}
-    >
-      {children}
-    </button>
-  );
-}
-
-function Sep() {
-  return <div className="w-px h-5 bg-slate-200/70 mx-0.5" />;
-}
-
-function SelectedWallActions({
-  midScreen,
-  lengthM,
-  onEditLength,
-  onDelete,
-}: {
-  midScreen: { x: number; y: number };
-  lengthM: number;
-  onEditLength: () => void;
-  onDelete: () => void;
-}) {
-  const { t } = useTranslation();
-  return (
-    <div
-      style={{ left: midScreen.x, top: midScreen.y }}
-      className="absolute -translate-x-1/2 -translate-y-[140%] flex items-center gap-1 px-1.5 py-1 bg-white border border-blue-500 rounded shadow text-[11px] font-medium text-slate-700"
-    >
-      <button
-        type="button"
-        onClick={onEditLength}
-        className="inline-flex items-center gap-1 px-1.5 h-6 rounded hover:bg-blue-50 text-blue-700"
-        title={t('design3d.wall.editLength')}
-      >
-        <Pencil size={11} />
-        <span className="tabular-nums">{lengthM.toFixed(2)} m</span>
-      </button>
-      <div className="w-px h-4 bg-slate-200" />
-      <button
-        type="button"
-        onClick={onDelete}
-        className="inline-flex items-center justify-center w-6 h-6 rounded text-rose-500 hover:bg-rose-50"
-        title={t('design3d.wall.delete')}
-      >
-        <Trash2 size={11} />
-      </button>
-    </div>
-  );
-}
-
-function EdgeLengthInput({
-  midScreen,
-  value,
-  onChange,
-  onCommit,
-  onCancel,
-}: {
-  midScreen: { x: number; y: number };
-  value: string;
-  onChange: (v: string) => void;
-  onCommit: () => void;
-  onCancel: () => void;
-}) {
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  useEffect(() => {
-    inputRef.current?.focus();
-    inputRef.current?.select();
-  }, []);
-  return (
-    <div
-      style={{ left: midScreen.x, top: midScreen.y }}
-      className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-1 bg-white border-2 border-blue-500 rounded shadow"
-    >
-      <input
-        ref={inputRef}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') onCommit();
-          if (e.key === 'Escape') onCancel();
-        }}
-        onBlur={onCommit}
-        className="w-16 text-xs px-1 py-0.5 outline-none"
+      {/* Confirm dialogs */}
+      <ConfirmDialog
+        open={!!commands.confirm}
+        title={commands.confirm?.title ?? ''}
+        description={commands.confirm?.description}
+        confirmLabel={t('common.delete')}
+        cancelLabel={t('common.cancel')}
+        onConfirm={commands.runConfirm}
+        onCancel={commands.cancelConfirm}
       />
-      <span className="text-[10px] text-slate-500">m</span>
     </div>
   );
 }
 
-function AngleInput({
-  screen,
-  value,
-  onChange,
-  onCommit,
-  onSnap90,
-  onCancel,
-}: {
-  screen: { x: number; y: number };
-  value: string;
-  onChange: (v: string) => void;
-  onCommit: () => void;
-  onSnap90: () => void;
-  onCancel: () => void;
-}) {
-  const { t } = useTranslation();
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  useEffect(() => {
-    inputRef.current?.focus();
-    inputRef.current?.select();
-  }, []);
-  return (
-    <div
-      style={{ left: screen.x, top: screen.y }}
-      className="absolute -translate-x-1/2 -translate-y-1/2 flex items-center gap-1 px-1.5 py-1 bg-white border-2 border-blue-500 rounded shadow"
-    >
-      <input
-        ref={inputRef}
-        value={value}
-        inputMode="decimal"
-        onChange={(e) => onChange(e.target.value)}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter') onCommit();
-          if (e.key === 'Escape') onCancel();
-        }}
-        onBlur={onCommit}
-        className="w-12 text-xs px-1 py-0.5 outline-none"
-      />
-      <span className="text-[10px] text-slate-500">°</span>
-      {/* onMouseDown+preventDefault keeps input focus so onBlur doesn't fire first */}
-      <button
-        type="button"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          onSnap90();
-        }}
-        className="text-[10px] px-1.5 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 font-medium"
-        title={t('design3d.angle.set90')}
-      >
-        90°
-      </button>
-    </div>
-  );
-}
+void ((_: VertexId) => _);

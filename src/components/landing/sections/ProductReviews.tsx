@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Star, ChevronLeft, ChevronRight, MessageSquare, Quote } from 'lucide-react';
 
 const REVIEWS = [
@@ -41,6 +42,7 @@ const REVIEWS = [
 ];
 
 export function ProductReviews() {
+  const { t } = useTranslation();
   const [activeIndex, setActiveIndex] = useState(0);
 
   const handleNext = () => {
@@ -61,13 +63,13 @@ export function ProductReviews() {
         <div className="max-w-2xl mb-8 sm:mb-16 text-left">
           <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
             <span className="w-6 h-px bg-brand-red" />
-            KUNDENSTIMMEN
+            {t('landing.reviews.eyebrow')}
           </span>
           <h2 className="lp-h2 font-display font-bold text-[#0F2440] tracking-tight">
-            Was unsere Partner <span className="text-brand-red">sagen</span>
+            {t('landing.reviews.headingLead')} <span className="text-brand-red">{t('landing.reviews.headingAccent')}</span>
           </h2>
           <p className="mt-3 text-xs text-slate-500">
-            Erfahrungsberichte von echten Gastronomen über unsere Produkte und unseren Service.
+            {t('landing.reviews.subtitle')}
           </p>
         </div>
 
@@ -149,14 +151,14 @@ export function ProductReviews() {
               <button
                 onClick={handlePrev}
                 className="w-10 h-10 border border-slate-200 hover:border-brand-red hover:text-brand-red text-[#0F2440] rounded-full flex items-center justify-center transition-all bg-white shadow-sm cursor-pointer"
-                aria-label="Previous Review"
+                aria-label={t('landing.reviews.prev', 'Önceki yorum')}
               >
                 <ChevronLeft size={18} />
               </button>
               <button
                 onClick={handleNext}
                 className="w-10 h-10 border border-slate-200 hover:border-brand-red hover:text-brand-red text-[#0F2440] rounded-full flex items-center justify-center transition-all bg-white shadow-sm cursor-pointer"
-                aria-label="Next Review"
+                aria-label={t('landing.reviews.next', 'Sonraki yorum')}
               >
                 <ChevronRight size={18} />
               </button>

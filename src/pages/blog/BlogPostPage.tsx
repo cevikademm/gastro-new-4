@@ -70,8 +70,8 @@ export default function BlogPostPage() {
       url: `/blog/${post.slug}`,
     }),
     breadcrumbSchema([
-      { name: 'Ana Sayfa', url: '/' },
-      { name: 'Blog', url: '/blog' },
+      { name: t('common.home'), url: '/' },
+      { name: t('blog.breadcrumb'), url: '/blog' },
       { name: post.title, url: `/blog/${post.slug}` },
     ]),
   ];

@@ -40,13 +40,13 @@ export default function ImpressumPage() {
         </div>
       ) : (
         <div className="space-y-2 text-sm text-on-surface-variant">
-          <p><strong>Şirket Adı:</strong> 2MC Gastro GmbH</p>
-          <p><strong>Müdür:</strong> [Müdür Adı]</p>
-          <p><strong>Adres:</strong><br />[Cadde ve Ev Numarası]<br />[Posta Kodu Şehir]<br />Almanya</p>
-          <p><strong>Ticaret Sicili:</strong> HRB XXXXX, Ağır Ceza Mahkemesi [Şehir]</p>
-          <p><strong>KDV No.:</strong> DE365660948</p>
-          <p><strong>E-posta:</strong> <a href="mailto:info@2mcgastro.de" className="text-primary hover:underline">info@2mcgastro.de</a></p>
-          <p><strong>Telefon:</strong> +49 (0) 221 1234 5678</p>
+          <p><strong>{t('legal.impressum.company.nameLabel')}</strong> 2MC Gastro GmbH</p>
+          <p><strong>{t('legal.impressum.company.directorLabel')}</strong> [{t('legal.impressum.company.directorPlaceholder')}]</p>
+          <p><strong>{t('legal.impressum.company.addressLabel')}</strong><br />[{t('legal.impressum.company.addressStreetPlaceholder')}]<br />[{t('legal.impressum.company.addressZipPlaceholder')}]<br />{t('legal.impressum.company.addressCountry')}</p>
+          <p><strong>{t('legal.impressum.company.registerLabel')}</strong> HRB XXXXX, {t('legal.impressum.company.registerCourt')} [{t('legal.impressum.company.registerCityPlaceholder')}]</p>
+          <p><strong>{t('legal.impressum.company.vatLabel')}</strong> DE365660948</p>
+          <p><strong>{t('legal.impressum.company.emailLabel')}</strong> <a href="mailto:info@2mcgastro.de" className="text-primary hover:underline">info@2mcgastro.de</a></p>
+          <p><strong>{t('legal.impressum.company.phoneLabel')}</strong> +49 (0) 221 1234 5678</p>
         </div>
       ),
     },
@@ -65,8 +65,7 @@ export default function ImpressumPage() {
         </p>
       ) : (
         <p className="text-sm text-on-surface-variant">
-          Alman medya yasasına göre, sağlayıcı bu web sitesinin içeriğinden sorumludur.
-          Sorumlu taraf: 2MC Gastro GmbH, [Müdür Adı] tarafından temsil edilen, [Adres].
+          {t('legal.impressum.responsible.text', { director: `[${t('legal.impressum.company.directorPlaceholder')}]`, address: `[${t('legal.impressum.company.addressPlaceholder')}]` })}
         </p>
       ),
     },
@@ -87,9 +86,9 @@ export default function ImpressumPage() {
         </div>
       ) : (
         <div className="space-y-2 text-sm text-on-surface-variant">
-          <p>Tüketiciler, Avrupa Komisyonu'nun Çevrimiçi Uyuşmazlık Çözüm (ODR) platformuna şikayetler sunma fırsatına sahiptir:</p>
+          <p>{t('legal.impressum.dispute.p1')}</p>
           <p><a href="https://ec.europa.eu/consumers/odr/" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">https://ec.europa.eu/consumers/odr/</a></p>
-          <p>Uyuşmazlık çözüm prosedürlerine katılmaya istekli değiliz ve yükümlü değiliz.</p>
+          <p>{t('legal.impressum.dispute.p2')}</p>
         </div>
       ),
     },
@@ -120,14 +119,8 @@ export default function ImpressumPage() {
         </div>
       ) : (
         <div className="space-y-2 text-sm text-on-surface-variant">
-          <p>
-            Dikkatli içerik denetimesine rağmen, harici bağlantıların içeriğinden sorumlu değiliz.
-            Bağlantılı sayfaların işletmeleri yalnızca kendi içeriklerinden sorumludur.
-          </p>
-          <p>
-            Bu web sitesinde sağlanan bilgiler doğruluk veya tamlık garantisi olmaksızın sağlanır.
-            Bu web sitesinin veya içeriğinin kullanılması veya kullanılmamasından kaynaklanan hasarlardan sorumlu değiliz.
-          </p>
+          <p>{t('legal.impressum.disclaimer.p1')}</p>
+          <p>{t('legal.impressum.disclaimer.p2')}</p>
         </div>
       ),
     },
@@ -148,8 +141,7 @@ export default function ImpressumPage() {
         </p>
       ) : (
         <p className="text-sm text-on-surface-variant">
-          Bu web sitesinin içeriği telif hakkı tarafından korunmaktadır. Metin, grafikler, logolar ve resimler de dahil olmak üzere tüm içerik,
-          2MC Gastro GmbH'nin veya ilgili sahiplerinin mülkiyetindedir ve açık izin olmaksızın çoğaltılamaz, dağıtılamaz veya iletilemez.
+          {t('legal.impressum.copyright.text')}
         </p>
       ),
     },
@@ -166,7 +158,7 @@ export default function ImpressumPage() {
         </p>
       ) : (
         <p className="text-sm text-on-surface-variant">
-          Kişisel verilerinizin korunması hakkında bilgiler, <a href="/datenschutz" className="text-primary hover:underline">Gizlilik Politikamızda</a> bulunabilir.
+          {t('legal.impressum.privacy.textPrefix')} <a href="/datenschutz" className="text-primary hover:underline">{t('legal.impressum.privacy.textLink')}</a>{t('legal.impressum.privacy.textSuffix')}
         </p>
       ),
     },
@@ -178,10 +170,10 @@ export default function ImpressumPage() {
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-black text-on-surface font-headline mb-4">
-            {isGerman ? 'Impressum' : i18n.language === 'en' ? 'Legal Notice' : 'Hukuki Uyarı'}
+            {isGerman ? 'Impressum' : i18n.language === 'en' ? 'Legal Notice' : t('legal.impressum.pageTitle')}
           </h1>
           <p className="text-sm text-on-surface-variant">
-            {isGerman ? 'Aktualisiert' : i18n.language === 'en' ? 'Updated' : 'Güncellendi'} {new Date().toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric' })}
+            {isGerman ? 'Aktualisiert' : i18n.language === 'en' ? 'Updated' : t('legal.impressum.updatedLabel')} {new Date().toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
@@ -215,7 +207,7 @@ export default function ImpressumPage() {
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="mt-12 inline-flex items-center gap-2 text-sm font-bold text-primary hover:opacity-70 transition-opacity"
         >
-          ↑ {isGerman ? 'Nach oben' : i18n.language === 'en' ? 'Back to top' : 'Üste git'}
+          ↑ {isGerman ? 'Nach oben' : i18n.language === 'en' ? 'Back to top' : t('legal.impressum.backToTop')}
         </button>
       </div>
     </div>

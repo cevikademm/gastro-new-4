@@ -25,6 +25,12 @@ export interface ChangelogEntry {
   status: ChangelogStatus;
   created_at: string;
   published_at: string | null;
+  /** Bildirenin KENDİ cümlesi — kaynak kayıttan kopyalanır (migration 049). */
+  request_text: string | null;
+  /** Sorunun bildirildiği an; çözüm tarihiyle "ne kadar sürdü" hesabı için. */
+  requested_at: string | null;
+  /** Sorunun görüldüğü sayfa yolu (ör. /magaza). */
+  request_path: string | null;
 }
 
 /**
@@ -150,4 +156,16 @@ export function fmtChangelogDate(iso: string | null, locale = 'tr-TR'): string {
   } catch {
     return iso;
   }
+}
+
+/**
+ * İki tarih arasındaki tam gün farkı. Bildirim → çözüm süresini göstermek için.
+ * Geçersiz/eksik tarihte null döner (UI o zaman süre rozeti çizmez).
+ */
+export function daysBetween(fromIso: string | null, toIso: string | null): number | null {
+  if (!fromIso || !toIso) return null;
+  const a = new Date(fromIso).getTime();
+  const b = new Date(toIso).getTime();
+  if (!Number.isFinite(a) || !Number.isFinite(b) || b < a) return null;
+  return Math.floor((b - a) / 86_400_000);
 }

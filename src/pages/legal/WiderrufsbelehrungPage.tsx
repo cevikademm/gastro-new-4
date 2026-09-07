@@ -39,11 +39,9 @@ export default function WiderrufsbelehrungPage() {
       ) : (
         <div className="space-y-2 text-sm text-on-surface-variant">
           <p>
-            <strong>Tüketiciler için Geri Çekme Hakkı:</strong> Herhangi bir neden göstermeden, malların tedarikine ilişkin sözleşmeyi imzaladığınız tarihten itibaren 14 gün içinde çözme hakkına sahipsiniz. Geri çekme süresi, siz veya sizin tarafından belirlenen üçüncü bir kişi (taşıyıcı değil) malları alması günü itibaren 14 gündür.
+            <strong>{t('legal.widerruf.right.label')}</strong> {t('legal.widerruf.right.p1')}
           </p>
-          <p>
-            Geri çekme hakkınızı kullanmak için, bu sözleşmeyi geri çekmek istediğiniz konusunda net bir beyanda bulunarak bize e-posta, mektup, telefon veya faks yoluyla bildirim yapmalısınız. Ekteki model geri çekme formunu kullanabilirsiniz, ancak bunu yapmanız zorunlu değildir.
-          </p>
+          <p>{t('legal.widerruf.right.p2')}</p>
         </div>
       ),
     },
@@ -72,12 +70,12 @@ export default function WiderrufsbelehrungPage() {
         </div>
       ) : (
         <div className="space-y-2 text-sm text-on-surface-variant">
-          <p>Geri çekme hakkı aşağıdaki sözleşmeleri kapsamaz:</p>
+          <p>{t('legal.widerruf.exceptions.intro')}</p>
           <ul className="list-disc list-inside space-y-1 ml-2">
-            <li>Müşteri özelliklerine göre üretilen özel siparişli malların tedarikine ilişkin sözleşmeler</li>
-            <li>Çabuk bozulabilen veya hızlı bir şekilde bozulabilecek malların tedarikine ilişkin sözleşmeler</li>
-            <li>Mühürü açıldıktan sonra iade hakkının hariç tutulduğu kapalı malların tedarikine ilişkin sözleşmeler (ör. hijyen ürünleri)</li>
-            <li>Satın alma sonrasında diğer mallarla ayrılmaz bir şekilde karışan malların tedarikine ilişkin sözleşmeler</li>
+            <li>{t('legal.widerruf.exceptions.item1')}</li>
+            <li>{t('legal.widerruf.exceptions.item2')}</li>
+            <li>{t('legal.widerruf.exceptions.item3')}</li>
+            <li>{t('legal.widerruf.exceptions.item4')}</li>
           </ul>
         </div>
       ),
@@ -122,18 +120,18 @@ export default function WiderrufsbelehrungPage() {
       ) : (
         <div className="space-y-2 text-sm text-on-surface-variant">
           <p>
-            <strong>Malların İadesi:</strong> Bu sözleşmeyi geri çekerseniz, almış olduğunuz tüm malları gecikmeden ve en geç geri çekme hakkı hakkında bizi bilgilendirdiğiniz günden itibaren 14 gün içinde iade etmelisiniz. Malları 14 günlük süre içinde gönderirseniz, süre sonu muhafaza edilir.
+            <strong>{t('legal.widerruf.consequences.returnLabel')}</strong> {t('legal.widerruf.consequences.returnText')}
           </p>
           <p>
-            <strong>Geri Ödeme:</strong> Tarafınızdan alınan tüm ödemeleri, kargo maliyetleri dahil (sunduğumuz en ucuz standart teslimat dışında farklı bir teslimat yöntemi seçmenizden kaynaklanan ek maliyetler hariç), gecikmeden ve geri çekme hakkında bilgilendirildiğimiz günden itibaren en geç 14 gün içinde iade edeceğiz.
+            <strong>{t('legal.widerruf.consequences.refundLabel')}</strong> {t('legal.widerruf.consequences.refundText')}
           </p>
           <p>
-            <strong>Iade Adresi:</strong> Lütfen malları şu adrese gönderin:<br />
+            <strong>{t('legal.widerruf.consequences.addressLabel')}</strong> {t('legal.widerruf.consequences.addressIntro')}<br />
             2MC Gastro GmbH<br />
-            İadeler<br />
+            {t('legal.widerruf.consequences.addressReturns')}<br />
             [Cadde ve Ev Numarası]<br />
             [Posta Kodu Şehir]<br />
-            Almanya
+            {t('legal.widerruf.consequences.addressCountry')}
           </p>
         </div>
       ),
@@ -155,9 +153,7 @@ export default function WiderrufsbelehrungPage() {
         </div>
       ) : (
         <div className="space-y-2 text-sm text-on-surface-variant">
-          <p>
-            Malların iadesi için doğrudan maliyetleri siz karşılarsınız. Mallar, bizim reklamımız veya hatamız sonucunda siz malları aldığınız yerden farklı bir yere gönderildiyse, bu maliyetleri karşılamanız gerekmez.
-          </p>
+          <p>{t('legal.widerruf.costs.p1')}</p>
         </div>
       ),
     },
@@ -214,26 +210,24 @@ export default function WiderrufsbelehrungPage() {
         </div>
       ) : (
         <div className="space-y-3 text-sm text-on-surface-variant">
-          <p className="italic">
-            Bu sözleşmeyi geri çekmek istiyorsanız, lütfen bu formu doldurun ve bize geri gönderin.
-          </p>
+          <p className="italic">{t('legal.widerruf.form.intro')}</p>
           <div className="bg-surface-container-lowest rounded p-4 border border-outline-variant/20 font-mono text-xs space-y-2">
-            <p>—— GERİ ÇEKME FORMU BAŞLANGIÇ ——</p>
-            <p>Konu satırı: Bir sözleşmeyi geri çekme</p>
+            <p>{t('legal.widerruf.form.beginMarker')}</p>
+            <p>{t('legal.widerruf.form.subjectLine')}</p>
             <p>
-              Aşağıdaki malların satın alınması için yapmış olduğum sözleşmeyi bundan böyle geri çekiyorum:<br />
-              Sipariş numarası: ________________<br />
-              Sipariş tarihi: ________________<br />
-              Tüketici adı: ________________<br />
-              Tüketici adresi: ________________<br />
-              Tüketici imzası (yalnızca kağıt üzerinde bildirim için): ________________<br />
-              Tarih: ________________
+              {t('legal.widerruf.form.declaration')}<br />
+              {t('legal.widerruf.form.orderNumber')}: ________________<br />
+              {t('legal.widerruf.form.orderDate')}: ________________<br />
+              {t('legal.widerruf.form.consumerName')}: ________________<br />
+              {t('legal.widerruf.form.consumerAddress')}: ________________<br />
+              {t('legal.widerruf.form.consumerSignature')}: ________________<br />
+              {t('legal.widerruf.form.date')}: ________________
             </p>
-            <p>—— GERİ ÇEKME FORMU SONU ——</p>
+            <p>{t('legal.widerruf.form.endMarker')}</p>
           </div>
           <p className="flex items-center gap-2">
             <Download size={14} />
-            <a href="#" className="text-primary hover:underline">Geri çekme formunu indir (PDF)</a>
+            <a href="#" className="text-primary hover:underline">{t('legal.widerruf.form.downloadLink')}</a>
           </p>
         </div>
       ),
@@ -248,7 +242,7 @@ export default function WiderrufsbelehrungPage() {
           </p>
           <div className="bg-primary/10 rounded p-4 border border-primary/30 flex flex-col gap-3">
             <button className="px-6 py-3 rounded-lg text-white font-bold text-sm hover:opacity-90 transition-opacity" style={{ backgroundColor: 'var(--brand-accent)' }}>
-              {isGerman ? 'Bestellung widerrufen' : i18n.language === 'en' ? 'Withdraw order' : 'Siparişi geri çek'}
+              {isGerman ? 'Bestellung widerrufen' : i18n.language === 'en' ? 'Withdraw order' : t('legal.widerruf.button.label')}
             </button>
             <p className="text-xs text-on-surface-variant">
               {isGerman ? 'Diese Schaltfläche wird in Ihrem Benutzerkonto angezeigt und ermöglicht es Ihnen, ein Widerrufsrecht auszuüben.' : i18n.language === 'en' ? 'This button will be displayed in your account and allows you to exercise a withdrawal right.' : 'Bu düğme hesabınızda görüntülenecek ve geri çekme hakkını kullanmanıza izin verecektir.'}
@@ -262,7 +256,7 @@ export default function WiderrufsbelehrungPage() {
           </p>
           <div className="bg-primary/10 rounded p-4 border border-primary/30 flex flex-col gap-3">
             <button className="px-6 py-3 rounded-lg text-white font-bold text-sm hover:opacity-90 transition-opacity" style={{ backgroundColor: 'var(--brand-accent)' }}>
-              {isGerman ? 'Bestellung widerrufen' : i18n.language === 'en' ? 'Withdraw order' : 'Siparişi geri çek'}
+              {isGerman ? 'Bestellung widerrufen' : i18n.language === 'en' ? 'Withdraw order' : t('legal.widerruf.button.label')}
             </button>
             <p className="text-xs text-on-surface-variant">
               This button will be displayed in your account and allows you to exercise a withdrawal right.
@@ -271,16 +265,12 @@ export default function WiderrufsbelehrungPage() {
         </div>
       ) : (
         <div className="space-y-3 text-sm text-on-surface-variant">
-          <p>
-            Mevcut AB yönergelerine göre, e-ticaret platformları geri çekme işlemini kolaylaştırmak için bir düğme sağlamalıdır. Bu düğme tipik olarak kullanıcı hesabında veya sipariş ayrıntılarında bulunur:
-          </p>
+          <p>{t('legal.widerruf.button.description')}</p>
           <div className="bg-primary/10 rounded p-4 border border-primary/30 flex flex-col gap-3">
             <button className="px-6 py-3 rounded-lg text-white font-bold text-sm hover:opacity-90 transition-opacity" style={{ backgroundColor: 'var(--brand-accent)' }}>
-              {isGerman ? 'Bestellung widerrufen' : i18n.language === 'en' ? 'Withdraw order' : 'Siparişi geri çek'}
+              {isGerman ? 'Bestellung widerrufen' : i18n.language === 'en' ? 'Withdraw order' : t('legal.widerruf.button.label')}
             </button>
-            <p className="text-xs text-on-surface-variant">
-              Bu düğme hesabınızda görüntülenecek ve geri çekme hakkını kullanmanıza izin verecektir.
-            </p>
+            <p className="text-xs text-on-surface-variant">{t('legal.widerruf.button.helper')}</p>
           </div>
         </div>
       ),
@@ -293,10 +283,10 @@ export default function WiderrufsbelehrungPage() {
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-black text-on-surface font-headline mb-4">
-            {isGerman ? 'Widerrufsbelehrung' : i18n.language === 'en' ? 'Withdrawal Policy' : 'Geri Çekme Politikası'}
+            {isGerman ? 'Widerrufsbelehrung' : i18n.language === 'en' ? 'Withdrawal Policy' : t('legal.widerruf.pageTitle')}
           </h1>
           <p className="text-sm text-on-surface-variant">
-            {isGerman ? 'Aktualisiert' : i18n.language === 'en' ? 'Updated' : 'Güncellendi'} {new Date().toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric' })}
+            {isGerman ? 'Aktualisiert' : i18n.language === 'en' ? 'Updated' : t('legal.widerruf.updatedLabel')} {new Date().toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
@@ -330,7 +320,7 @@ export default function WiderrufsbelehrungPage() {
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="mt-12 inline-flex items-center gap-2 text-sm font-bold text-primary hover:opacity-70 transition-opacity"
         >
-          ↑ {isGerman ? 'Nach oben' : i18n.language === 'en' ? 'Back to top' : 'Üste git'}
+          ↑ {isGerman ? 'Nach oben' : i18n.language === 'en' ? 'Back to top' : t('legal.widerruf.backToTop')}
         </button>
       </div>
     </div>

@@ -965,7 +965,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Hospital",
     "sectorOther": "Outro",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Mostrar palavra-passe",
+    "hidePassword": "Ocultar palavra-passe"
   },
   "welcome": {
     "headline": "O centro de comando",
@@ -1596,7 +1598,11 @@
     "sendFailed": "Não foi possível enviar o pedido. Escreva-nos diretamente:",
     "subtitle": "Abra um pedido de suporte com a sua questão ou contacte-nos diretamente.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Mensagens de suporte recebidas",
+    "inboxEmpty": "Ainda não há mensagens de suporte.",
+    "inboxGuest": "Convidado",
+    "savedEmailFailed": "A sua mensagem foi guardada, mas não foi possível enviar a notificação por e-mail."
   },
   "docs": {
     "title": "Documentação",
@@ -2171,8 +2177,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Imagem anterior",
+        "nextBanner": "Imagem seguinte",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2183,7 +2189,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Vista em corte",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2213,6 +2219,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Amassadeira espiral",
+            "title": "Por dentro da amassadeira espiral",
+            "desc": "Veio em aço temperado, motor com enrolamento de cobre e corpo de peça única, dimensionados para oito horas de trabalho contínuo por dia.",
+            "normalLabel": "Vista exterior",
+            "cutawayLabel": "Corte"
+          },
+          "ice": {
+            "label": "Máquina de gelo",
+            "title": "Por dentro da máquina de gelo",
+            "desc": "Cuba em inox, condensador a ar e filtro lavável mantêm o rendimento mesmo em cozinhas quentes.",
+            "normalLabel": "Vista exterior",
+            "cutawayLabel": "Corte"
           }
         }
       },
@@ -2259,6 +2281,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Avaliação anterior",
+      "next": "Avaliação seguinte"
     }
   },
   "developerApi": {
@@ -2808,7 +2834,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Recusar",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2977,7 +3003,21 @@
     "empty": "Ainda não há correções publicadas.",
     "technical": "Detalhe técnico",
     "reverted": "Revertida",
-    "revertedHint": "Esta correção causou um problema e foi revertida."
+    "revertedHint": "Esta correção causou um problema e foi revertida.",
+    "category": {
+      "fix": "Correção",
+      "improvement": "Melhoria",
+      "feature": "Novidade"
+    },
+    "reported": "Você reportou",
+    "done": "O que fizemos",
+    "statTotal": "Total de correções",
+    "statThisMonth": "Este mês",
+    "statMedian": "Tempo habitual",
+    "sameDay": "No mesmo dia",
+    "days": "{{count}} dias",
+    "solvedSameDay": "Resolvido no mesmo dia",
+    "solvedInDays": "Resolvido em {{count}} dias"
   },
   "seo": {
     "home": "Início",
@@ -3040,5 +3080,8 @@
     "subscribed": "Subscrito ✓",
     "rights": "Todos os direitos reservados.",
     "madeIn": "Feito com paixão em Colónia."
+  },
+  "chat": {
+    "assistantBadge": "Assistente de IA · 24/7"
   }
 }

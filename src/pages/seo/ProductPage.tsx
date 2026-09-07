@@ -16,6 +16,7 @@ import { ProductDetailBody, ProductDetailActions, useAccessoriesAndRelated } fro
 import { useLocalePath } from '../../lib/useLocalePath';
 import { supabase } from '../../lib/supabase';
 import { useEquipmentStore, type EquipmentItem } from '../../stores/equipmentStore';
+import { useProductDetailStore } from '../../stores/productDetailStore';
 import { normalizeRow, vmFromEquipment, TABLE, type VM } from '../../lib/productDetailVM';
 import { fetchProductBySlug, fetchProductList, productSeoToEquipment, equipmentIdFor, type ProductSeoCardRow } from '../../lib/productSeoAdapter';
 import { productTitle, productDescription, productJsonLd, productCrumbs } from '../../seo/model/pages';
@@ -132,8 +133,9 @@ export default function ProductPage() {
 
 /** Aksesuar/benzer ürün mini kartından global drawer'ı aç. */
 function useEquipmentStoreOpen() {
-  // ProductDetailDrawer store'u — döngüsel import olmaması için burada lazy alınır
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const { useProductDetailStore } = require('../../stores/productDetailStore') as typeof import('../../stores/productDetailStore');
+  // Eskiden `require()` ile alınıyordu — tarayıcı ESM bundle'ında `require`
+  // tanımlı değil, üretimde "ReferenceError: require is not defined" ile
+  // sayfa çöküyordu (Lighthouse errors-in-console). Store'un ProductPage'e
+  // geri bağımlılığı yok; statik import güvenli.
   return useProductDetailStore((s) => s.openFromItem);
 }

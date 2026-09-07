@@ -1,4 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+/* Google Fonts artık index.html <head> içinden non-blocking yüklenir (CSS @import
+   zinciri render'ı ~800 ms engelliyordu — Lighthouse render-blocking-insight). */
 @import "tailwindcss";
 
 @theme {

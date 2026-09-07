@@ -2,6 +2,7 @@ import type React from 'react';
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { SlidersHorizontal, X, ChevronDown, RotateCcw, Zap, Tag, Flame, Euro } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useDiamondStore } from '../stores/diamondStore';
 
 interface Props {
@@ -10,6 +11,7 @@ interface Props {
 }
 
 export default function CategoryFiltersSidebar({ mobileOpen, onMobileClose }: Props) {
+  const { t } = useTranslation();
   const { filters, categories, setFilter, resetFilters, totalCount } = useDiamondStore();
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
     price: true, family: true, status: true, power: false,
@@ -77,9 +79,9 @@ export default function CategoryFiltersSidebar({ mobileOpen, onMobileClose }: Pr
       <Section title="Durum" icon={Flame} open={openSections.status} onToggle={() => toggle('status')}>
         <Check label="Sadece indirimli"
           checked={filters.promoOnly} onChange={(v) => setFilter('promoOnly', v)} />
-        <Check label="Sadece yeni ürünler"
+        <Check label={t('filters.newOnly')}
           checked={filters.newOnly} onChange={(v) => setFilter('newOnly', v)} />
-        <Check label="Stokta olanlar"
+        <Check label={t('filters.inStockOnly')}
           checked={filters.inStockOnly} onChange={(v) => setFilter('inStockOnly', v)} />
       </Section>
 

@@ -171,7 +171,7 @@ export default function SiteFooter() {
           {/* Brand Info */}
           <div className="space-y-6">
             <Link to={lp('/')} className="flex items-center gap-2 group">
-              <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-11 w-auto max-w-[180px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
+              <img src="/logo-2mc-gastro.webp" width="400" height="95" alt="2MC Gastro" className="h-11 w-auto max-w-[180px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
             </Link>
             <p className="text-[14px] text-[var(--c-muted)] leading-relaxed">
               {t('footer.tagline', 'Gastronomiebedarf, 3D-Küchenplanung und schlüsselfertige Projekte – Ihr Partner für die Profiküche in Köln und ganz Europa.')}
@@ -192,7 +192,7 @@ export default function SiteFooter() {
               </a>
               <a
                 href={`mailto:${COMPANY_INFO.email}`}
-                aria-label="E-Mail"
+                aria-label={t('common.email', 'E-posta')}
                 title={COMPANY_INFO.email}
                 className="w-10 h-10 rounded-full bg-white border border-[var(--c-line)] flex items-center justify-center text-[var(--c-ink-soft)] hover:bg-[var(--c-clay-wash)] hover:text-[var(--c-clay)] transition-all"
               >

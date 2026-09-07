@@ -1,72 +1,88 @@
 /**
- * AutoCAD-style dimension lines for each edge of a polygon:
+ * AutoCAD-style dimension lines, one per edge:
  *   - Witness lines extend from each vertex outward (perpendicular to edge),
  *     with a small overshoot past the dimension line (CAD convention).
  *   - The dimension line itself runs parallel to the edge, offset outward.
  *   - End caps are short tick marks at 45°.
- *   - Length label sits centered on the dimension line.
+ *   - Length label sits centred on the dimension line and is flipped when it
+ *     would read upside-down, so every label is readable left-to-right.
  *
- * Editing the label is wired up by DesignStudio2D — this layer just renders
- * + reports clicks via onEdgeClick.
+ * Edges are keyed by wall id so clicking a label edits THAT wall's length.
  */
 
 import { Shape, Text } from 'react-konva';
 import type { Vec2 } from '../../../core/types';
 import { distance2, normalize2, perp2, sub2 } from '../../../core/math';
 
+export interface DimensionEdge {
+  wallId: string;
+  a: Vec2;
+  b: Vec2;
+  /** Which side of a→b the dimension sits on. Default 'left' (perp2(dir)). */
+  side?: 'left' | 'right';
+}
+
 interface DimensionLayerProps {
-  points: Vec2[];        // closed polygon
-  scale: number;         // px per mm
-  /** Offset of the dimension line outward from the polygon edge, in mm. */
+  edges: DimensionEdge[];
+  scale: number; // px per mm
+  /** Offset of the dimension line from the edge, in mm. */
   offsetMm?: number;
   /** Length of the witness lines past the dimension line, in mm. */
   overshootMm?: number;
-  onEdgeClick?: (edgeIndex: number) => void;
+  onEdgeClick?: (wallId: string) => void;
 }
 
+const FS = 140; // mm
+
 export default function DimensionLayer({
-  points,
+  edges,
   scale,
   offsetMm = 400,
   overshootMm = 100,
   onEdgeClick,
 }: DimensionLayerProps) {
-  if (points.length < 2) return null;
+  if (edges.length === 0) return null;
 
   const items: React.ReactNode[] = [];
-  for (let i = 0, n = points.length; i < n; i++) {
-    const a = points[i];
-    const b = points[(i + 1) % n];
+  for (const e of edges) {
+    const { a, b } = e;
     const dir = normalize2(sub2(b, a));
-    const normal = perp2(dir); // left-hand
+    const nLeft = perp2(dir);
+    const normal = e.side === 'right' ? { x: -nLeft.x, y: -nLeft.y } : nLeft;
     const off = { x: normal.x * offsetMm, y: normal.y * offsetMm };
     const a2 = { x: a.x + off.x, y: a.y + off.y };
     const b2 = { x: b.x + off.x, y: b.y + off.y };
-    const aw = {
-      x: a.x + normal.x * (offsetMm + overshootMm),
-      y: a.y + normal.y * (offsetMm + overshootMm),
-    };
-    const bw = {
-      x: b.x + normal.x * (offsetMm + overshootMm),
-      y: b.y + normal.y * (offsetMm + overshootMm),
-    };
+    const aw = { x: a.x + normal.x * (offsetMm + overshootMm), y: a.y + normal.y * (offsetMm + overshootMm) };
+    const bw = { x: b.x + normal.x * (offsetMm + overshootMm), y: b.y + normal.y * (offsetMm + overshootMm) };
 
     const lengthMm = distance2(a, b);
     const label = `${(lengthMm / 1000).toFixed(2)} m`;
     const mid = { x: (a2.x + b2.x) / 2, y: (a2.y + b2.y) / 2 };
-    const angleDeg = (Math.atan2(b2.y - a2.y, b2.x - a2.x) * 180) / Math.PI;
+    let angleDeg = (Math.atan2(b2.y - a2.y, b2.x - a2.x) * 180) / Math.PI;
+    // Readability flip: text drawn on screen with Y-down; angles in (90, 270)
+    // would render upside-down → rotate 180° and put the text on the same
+    // world side of the line.
+    const norm = ((angleDeg % 360) + 360) % 360;
+    const flip = norm > 90 && norm < 270;
+    if (flip) angleDeg += 180;
+    // Text sits "above" the dimension line (toward the normal side). Left/right
+    // side flips which world side that is; the offsets below keep it clear of
+    // the line in both cases.
+    const textOffsetY = flip ? -40 : FS + 30;
 
     items.push(
       <Shape
-        key={`dim-${i}`}
+        key={`dim-${e.wallId}`}
         listening={!!onEdgeClick}
-        onClick={() => onEdgeClick?.(i)}
-        onTap={() => onEdgeClick?.(i)}
+        onPointerDown={(ev) => {
+          ev.cancelBubble = true;
+          onEdgeClick?.(e.wallId);
+        }}
+        hitStrokeWidth={20 / scale}
         sceneFunc={(ctx) => {
-          ctx.strokeStyle = '#475569';
+          ctx.strokeStyle = '#7c8896';
           ctx.lineWidth = 1 / scale;
 
-          // Witness lines (from vertex outward through dimension line)
           ctx.beginPath();
           ctx.moveTo(a.x, a.y);
           ctx.lineTo(aw.x, aw.y);
@@ -74,14 +90,12 @@ export default function DimensionLayer({
           ctx.lineTo(bw.x, bw.y);
           ctx.stroke();
 
-          // Dimension line
           ctx.beginPath();
           ctx.moveTo(a2.x, a2.y);
           ctx.lineTo(b2.x, b2.y);
           ctx.stroke();
 
-          // 45° end ticks
-          const tick = 80 / 1; // mm
+          const tick = 80;
           const tA = { x: dir.x + normal.x, y: dir.y + normal.y };
           const tB = { x: -dir.x + normal.x, y: -dir.y + normal.y };
           const tAlen = Math.hypot(tA.x, tA.y) || 1;
@@ -93,20 +107,28 @@ export default function DimensionLayer({
           ctx.lineTo(b2.x + (tB.x / tBlen) * tick * 0.5, b2.y + (tB.y / tBlen) * tick * 0.5);
           ctx.stroke();
         }}
+        hitFunc={(ctx, shape) => {
+          // Clickable band along the dimension line.
+          ctx.beginPath();
+          ctx.moveTo(a2.x, a2.y);
+          ctx.lineTo(b2.x, b2.y);
+          ctx.lineWidth = 260;
+          (ctx as unknown as { strokeShape: (s: unknown) => void }).strokeShape(shape);
+        }}
       />,
     );
 
     items.push(
       <Text
-        key={`dim-text-${i}`}
+        key={`dim-text-${e.wallId}`}
         x={mid.x}
         y={mid.y}
         text={label}
-        fontSize={140}
+        fontSize={FS}
         fontFamily="Inter, system-ui, sans-serif"
-        fill="#0f172a"
+        fill="#334155"
         offsetX={label.length * 36}
-        offsetY={170}
+        offsetY={textOffsetY}
         rotation={angleDeg}
         listening={false}
       />,

@@ -116,7 +116,7 @@ export default function Layout() {
             {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
           <Link to="/" className="flex items-center gap-2 group">
-            <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-10 w-auto max-w-[164px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
+            <img src="/logo-2mc-gastro.webp" width="400" height="95" alt="2MC Gastro" className="h-10 w-auto max-w-[164px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
           </Link>
 
           <nav className="hidden lg:flex gap-6 items-center">
@@ -295,23 +295,28 @@ export default function Layout() {
 
       <div className="flex flex-1 pt-16 md:pt-20">
         {/* Desktop Sidebar — lg ve üzeri */}
-        <aside className="bg-surface-container-low fixed top-16 md:top-20 left-0 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] w-64 flex-col space-y-2 p-4 hidden lg:flex z-40 border-r border-outline-variant/10">
-          <div className="mb-4 px-2">
+        <aside className="bg-surface-container-low fixed top-16 md:top-20 left-0 h-[calc(100vh-4rem)] md:h-[calc(100vh-5rem)] w-64 flex-col space-y-1 p-3 hidden lg:flex z-40 border-r border-outline-variant/10">
+          <div className="mb-1.5 px-2">
             <Link to="/">
-              <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-12 w-auto max-w-[190px] object-contain object-left" />
+              <img src="/logo-2mc-gastro.webp" width="400" height="95" alt="2MC Gastro" className="h-8 w-auto max-w-[150px] object-contain object-left" />
             </Link>
-            <p className="font-body text-xs text-on-surface-variant mt-1 px-2">{t('brand.phase')}</p>
+            <p className="font-body text-[11px] leading-tight text-on-surface-variant mt-0.5 px-2">{t('brand.phase')}</p>
           </div>
 
           <Link
             to="/welcome"
-            className="flex items-center gap-3 px-3 py-2.5 rounded-xl mb-2 text-sm font-bold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
+            className="flex items-center gap-3 px-3 py-2 rounded-xl mb-1 text-sm font-bold bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
           >
-            <Home size={18} />
+            <Home size={17} />
             {t('nav.home')}
           </Link>
 
-          <nav className="flex-1 space-y-1">
+          {/* Tüm bağlantılar TEK ekranda görünsün: satırlar sıkı tutulur ve
+              kaydırma çubuğu gizlenir. Taşma yine de `auto` bırakıldı — çok
+              kısa ekranlarda (ör. 768 px dizüstü) son öğeler kırpılıp
+              ERİŞİLEMEZ hâle gelmesin; `min-h-0` olmadan flex çocuğu
+              içeriğinden kısalamaz ve taşma hiç çalışmaz. */}
+          <nav className="flex-1 min-h-0 overflow-y-auto space-y-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {SIDE_ITEMS.map((item) => {
               const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/') || (item.path === '/dashboard' && location.pathname === '/');
               const Icon = item.icon;
@@ -319,20 +324,24 @@ export default function Layout() {
                 <Link
                   key={item.id}
                   to={item.path}
-                  className={`w-full flex items-center gap-3 px-4 py-2 transition-all duration-200 rounded-md text-sm font-medium ${
+                  className={`w-full flex items-center gap-3 px-3 py-1.5 transition-all duration-200 rounded-md text-sm font-medium ${
                     isActive
                       ? 'bg-primary/10 text-primary border-r-4 border-primary'
                       : 'text-on-surface-variant hover:bg-primary/10 hover:translate-x-1'
                   }`}
                 >
-                  <Icon size={18} />
-                  {(item as any).raw ? item.labelKey : t(item.labelKey, { defaultValue: item.labelKey })}
+                  <Icon size={17} className="shrink-0" />
+                  {/* truncate: uzun çeviriler (DE/TR) satır kaydırıp satır
+                      yüksekliğini ikiye katlamasın — liste tek ekranda kalsın. */}
+                  <span className="truncate">
+                    {(item as any).raw ? item.labelKey : t(item.labelKey, { defaultValue: item.labelKey })}
+                  </span>
                 </Link>
               );
             })}
             {user?.role === 'admin' && (
-              <div className="mt-4 pt-4 border-t border-outline-variant/20 space-y-1">
-                <div className="px-4 pb-1 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">{t('nav.admin', 'Yönetici')}</div>
+              <div className="mt-2 pt-2 border-t border-outline-variant/20 space-y-0.5">
+                <div className="px-3 pb-0.5 text-[10px] font-bold uppercase tracking-wider text-on-surface-variant">{t('nav.admin', 'Yönetici')}</div>
                 {ADMIN_ITEMS.map((item) => {
                   const Icon = item.icon;
                   const isActive = location.pathname.startsWith(item.path);
@@ -340,14 +349,14 @@ export default function Layout() {
                     <Link
                       key={item.id}
                       to={item.path}
-                      className={`w-full flex items-center gap-3 px-4 py-2 transition-all duration-200 rounded-md text-sm font-medium ${
+                      className={`w-full flex items-center gap-3 px-3 py-1.5 transition-all duration-200 rounded-md text-sm font-medium ${
                         isActive
                           ? 'bg-primary/10 text-primary border-r-4 border-primary'
                           : 'text-on-surface-variant hover:bg-primary/10 hover:translate-x-1'
                       }`}
                     >
-                      <Icon size={18} />
-                      {t(item.labelKey, { defaultValue: item.fallback })}
+                      <Icon size={17} className="shrink-0" />
+                      <span className="truncate">{t(item.labelKey, { defaultValue: item.fallback })}</span>
                     </Link>
                   );
                 })}
@@ -356,30 +365,30 @@ export default function Layout() {
           </nav>
 
           {location.pathname === '/dashboard' && (
-            <Link to="/projects/new" className="mx-4 mt-4 py-3 brushed-metal text-white rounded-lg flex items-center justify-center gap-2 font-bold transition-transform active:scale-95 shadow-lg text-sm">
-              <PlusCircle size={18} /> {t('nav.newSpecification')}
+            <Link to="/projects/new" className="mx-3 mt-2 py-2.5 brushed-metal text-white rounded-lg flex items-center justify-center gap-2 font-bold transition-transform active:scale-95 shadow-lg text-sm">
+              <PlusCircle size={17} /> {t('nav.newSpecification')}
             </Link>
           )}
 
-          <div className="mt-auto pt-4 space-y-1 border-t border-outline-variant/20">
-            <Link to="/support" className="w-full flex items-center gap-3 text-slate-500 px-4 py-2 hover:bg-slate-200 transition-all rounded-md text-sm font-medium">
-              <HelpCircle size={18} /> {t('nav.support')}
+          <div className="mt-auto pt-2 space-y-0.5 border-t border-outline-variant/20">
+            <Link to="/support" className="w-full flex items-center gap-3 text-slate-500 px-3 py-1.5 hover:bg-slate-200 transition-all rounded-md text-sm font-medium">
+              <HelpCircle size={17} className="shrink-0" /> {t('nav.support')}
             </Link>
-            <Link to="/docs" className="w-full flex items-center gap-3 text-slate-500 px-4 py-2 hover:bg-slate-200 transition-all rounded-md text-sm font-medium">
-              <BookOpen size={18} /> {t('nav.documentation')}
+            <Link to="/docs" className="w-full flex items-center gap-3 text-slate-500 px-3 py-1.5 hover:bg-slate-200 transition-all rounded-md text-sm font-medium">
+              <BookOpen size={17} className="shrink-0" /> {t('nav.documentation')}
             </Link>
             {isAuthenticated ? (
               <>
-                <Link to="/profile" className="w-full flex items-center gap-3 text-slate-500 px-4 py-2 hover:bg-slate-200 transition-all rounded-md text-sm font-medium">
-                  <User size={18} /> {t('nav.profile')}
+                <Link to="/profile" className="w-full flex items-center gap-3 text-slate-500 px-3 py-1.5 hover:bg-slate-200 transition-all rounded-md text-sm font-medium">
+                  <User size={17} className="shrink-0" /> {t('nav.profile')}
                 </Link>
-                <button onClick={handleLogout} className="w-full flex items-center gap-3 text-error px-4 py-2 hover:bg-error-container transition-all rounded-md text-sm font-medium">
-                  <LogOut size={18} /> {t('nav.logout')}
+                <button onClick={handleLogout} className="w-full flex items-center gap-3 text-error px-3 py-1.5 hover:bg-error-container transition-all rounded-md text-sm font-medium">
+                  <LogOut size={17} className="shrink-0" /> {t('nav.logout')}
                 </button>
               </>
             ) : (
-              <Link to="/login" className="w-full flex items-center gap-3 text-primary px-4 py-2 hover:bg-primary/10 transition-all rounded-md text-sm font-bold">
-                <LogIn size={18} /> {t('nav.login')}
+              <Link to="/login" className="w-full flex items-center gap-3 text-primary px-3 py-1.5 hover:bg-primary/10 transition-all rounded-md text-sm font-bold">
+                <LogIn size={17} className="shrink-0" /> {t('nav.login')}
               </Link>
             )}
           </div>

@@ -61,7 +61,7 @@ export default function BranchePage() {
             {b.equipment.map((e) => (
               <Link key={e.path + e.label} to={lp(e.path)} className="p-4 bg-white border border-slate-200 rounded-2xl hover:border-brand-red transition">
                 <span className="font-bold text-[#0F2440]">{e.label}</span>
-                {e.note && <span className="block text-xs text-slate-500 mt-1">{e.note}</span>}
+                {e.note && <span className="block text-xs text-slate-600 mt-1">{e.note}</span>}
               </Link>
             ))}
           </div>
@@ -83,7 +83,7 @@ export default function BranchePage() {
             {b.regulations.map((r) => (
               <li key={r.url} className="text-sm text-slate-700">
                 <a href={r.url} target="_blank" rel="noopener" className="font-bold text-brand-red hover:underline inline-flex items-center gap-1">{r.label} <ExternalLink size={12} /></a>
-                <span className="text-slate-500"> – {r.note}</span>
+                <span className="text-slate-600"> – {r.note}</span>
               </li>
             ))}
           </ul>

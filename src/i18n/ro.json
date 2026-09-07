@@ -965,7 +965,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Spital",
     "sectorOther": "Altul",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Afișează parola",
+    "hidePassword": "Ascunde parola"
   },
   "welcome": {
     "headline": "Centrul de comandă",
@@ -1596,7 +1598,11 @@
     "sendFailed": "Tichetul nu a putut fi trimis. Scrieți-ne direct:",
     "subtitle": "Deschideți un tichet cu întrebarea dumneavoastră sau contactați-ne direct.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Mesaje de asistență primite",
+    "inboxEmpty": "Încă nu există mesaje de asistență.",
+    "inboxGuest": "Vizitator",
+    "savedEmailFailed": "Mesajul dumneavoastră a fost salvat, dar notificarea prin e-mail nu a putut fi trimisă."
   },
   "docs": {
     "title": "Documentație",
@@ -2171,8 +2177,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Imaginea anterioară",
+        "nextBanner": "Imaginea următoare",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2183,7 +2189,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Vedere în secțiune",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2213,6 +2219,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Malaxor spiral",
+            "title": "În interiorul malaxorului spiral",
+            "desc": "Ax din oțel călit, motor cu bobinaj din cupru și corp dintr-o singură piesă, dimensionate pentru opt ore de lucru continuu pe zi.",
+            "normalLabel": "Vedere exterioară",
+            "cutawayLabel": "Secțiune"
+          },
+          "ice": {
+            "label": "Mașină de gheață",
+            "title": "În interiorul mașinii de gheață",
+            "desc": "Cuva inox, condensatorul răcit cu aer și filtrul lavabil mențin randamentul chiar și în bucătării calde.",
+            "normalLabel": "Vedere exterioară",
+            "cutawayLabel": "Secțiune"
           }
         }
       },
@@ -2259,6 +2281,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Recenzia anterioară",
+      "next": "Recenzia următoare"
     }
   },
   "developerApi": {
@@ -2808,7 +2834,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Respinge",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2977,7 +3003,21 @@
     "empty": "Nicio remediere publicată încă.",
     "technical": "Detalii tehnice",
     "reverted": "Anulată",
-    "revertedHint": "Această remediere a cauzat o problemă și a fost anulată."
+    "revertedHint": "Această remediere a cauzat o problemă și a fost anulată.",
+    "category": {
+      "fix": "Remediere",
+      "improvement": "Îmbunătățire",
+      "feature": "Noutate"
+    },
+    "reported": "Ați raportat",
+    "done": "Ce am făcut",
+    "statTotal": "Total remedieri",
+    "statThisMonth": "Luna aceasta",
+    "statMedian": "Durata obișnuită",
+    "sameDay": "În aceeași zi",
+    "days": "{{count}} zile",
+    "solvedSameDay": "Rezolvat în aceeași zi",
+    "solvedInDays": "Rezolvat în {{count}} zile"
   },
   "seo": {
     "home": "Acasă",
@@ -3040,5 +3080,8 @@
     "subscribed": "Abonat ✓",
     "rights": "Toate drepturile rezervate.",
     "madeIn": "Realizat cu pasiune în Köln."
+  },
+  "chat": {
+    "assistantBadge": "Asistent AI · 24/7"
   }
 }

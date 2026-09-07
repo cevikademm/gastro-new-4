@@ -1310,7 +1310,7 @@ export default function ProjectDetailPage() {
                 </div>
               )}
               <button onClick={() => setViewProduct(null)} className="w-full py-2.5 text-sm font-bold text-slate-500 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors">
-                Kapat
+                {t('common.close')}
               </button>
             </div>
           </div>
@@ -1321,18 +1321,18 @@ export default function ProjectDetailPage() {
       <ConfirmDialog
         open={!!pendingProductRemove}
         tone="danger"
-        title="Ürünü projeden kaldır?"
+        title={t('projects.removeProductAskTitle')}
         description={
           pendingProductRemove && (
             <>
               <span className="font-bold text-slate-700">“{pendingProductRemove.name}”</span> tasarımdan,
               kat planından ve teklif listesinden kalıcı olarak silinecek.{' '}
-              <span className="font-semibold text-rose-600">Bu işlem geri alınamaz.</span>
+              <span className="font-semibold text-rose-600">{t('projects.cannotUndo')}</span>
             </>
           )
         }
-        confirmLabel="Evet, sil"
-        cancelLabel="Vazgeç"
+        confirmLabel={t('projects.yesDelete')}
+        cancelLabel={t('projects.giveUp')}
         busy={productRemoving}
         onConfirm={confirmProductRemove}
         onCancel={() => { if (!productRemoving) setPendingProductRemove(null); }}

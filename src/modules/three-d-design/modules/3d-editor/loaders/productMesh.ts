@@ -23,6 +23,7 @@
 import * as THREE from 'three';
 import type { EquipmentItem } from '../../../../../stores/equipmentStore';
 import { MM_TO_THREE } from '../../../core/to3d';
+import { addEdgeLines } from '../builders/sceneBuilders';
 
 // ── Texture cache ──────────────────────────────────────────────────────────
 const textureCache = new Map<string, Promise<THREE.Texture | null>>();
@@ -53,33 +54,49 @@ let steelSideMat: THREE.MeshStandardMaterial | null = null;
 let steelTopMat: THREE.MeshStandardMaterial | null = null;
 let steelBottomMat: THREE.MeshStandardMaterial | null = null;
 
+// Paylaşılan singleton'lar `userData.shared = true` taşır → dispose yardımcıları
+// (Editor3D.disposeObject, SceneManager.disposeObject) bunları atlar.
+function shared<M extends THREE.Material>(mat: M): M {
+  mat.userData.shared = true;
+  // Kenar çizgileri yüzeyin üstünde kalsın (bkz. sceneBuilders.addEdgeLines).
+  mat.polygonOffset = true;
+  mat.polygonOffsetFactor = 1;
+  mat.polygonOffsetUnits = 1;
+  return mat;
+}
 function getSteelSide(): THREE.MeshStandardMaterial {
   if (!steelSideMat) {
-    steelSideMat = new THREE.MeshStandardMaterial({
-      color: 0xc0c5cc,
-      roughness: 0.45,
-      metalness: 0.6,
-    });
+    steelSideMat = shared(
+      new THREE.MeshStandardMaterial({
+        color: 0xc0c5cc,
+        roughness: 0.45,
+        metalness: 0.6,
+      }),
+    );
   }
   return steelSideMat;
 }
 function getSteelTop(): THREE.MeshStandardMaterial {
   if (!steelTopMat) {
-    steelTopMat = new THREE.MeshStandardMaterial({
-      color: 0xd1d6dc,
-      roughness: 0.4,
-      metalness: 0.7,
-    });
+    steelTopMat = shared(
+      new THREE.MeshStandardMaterial({
+        color: 0xd1d6dc,
+        roughness: 0.4,
+        metalness: 0.7,
+      }),
+    );
   }
   return steelTopMat;
 }
 function getSteelBottom(): THREE.MeshStandardMaterial {
   if (!steelBottomMat) {
-    steelBottomMat = new THREE.MeshStandardMaterial({
-      color: 0x8a8f95,
-      roughness: 0.7,
-      metalness: 0.3,
-    });
+    steelBottomMat = shared(
+      new THREE.MeshStandardMaterial({
+        color: 0x8a8f95,
+        roughness: 0.7,
+        metalness: 0.3,
+      }),
+    );
   }
   return steelBottomMat;
 }
@@ -211,6 +228,9 @@ export async function buildProductMesh(
       color: opts.color,
       roughness: 0.5,
       metalness: 0.35,
+      polygonOffset: true,
+      polygonOffsetFactor: 1,
+      polygonOffsetUnits: 1,
     });
     materials = [tinted, tinted, tinted, tinted, tinted, tinted];
   } else {
@@ -223,6 +243,8 @@ export async function buildProductMesh(
   box.receiveShadow = true;
   // Centered in pivot — bottom of box sits on pivot's xy plane.
   box.position.set(0, 0, h / 2);
+  // İnce kenar çizgisi: gri kutular birbirinden ve duvardan ayrışır.
+  addEdgeLines(box, 30);
   pivot.add(box);
 
   // ── Optional: image stickers on the front face + top ────────────────

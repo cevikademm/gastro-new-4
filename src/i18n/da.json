@@ -818,7 +818,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Hospital",
     "sectorOther": "Andet",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Vis adgangskode",
+    "hidePassword": "Skjul adgangskode"
   },
   "welcome": {
     "headline": "Kommandocentralen",
@@ -1449,7 +1451,11 @@
     "sendFailed": "Sagen kunne ikke sendes. Skriv direkte til os:",
     "subtitle": "Opret en sag med dit spørgsmål, eller kontakt os direkte.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Indkomne supportbeskeder",
+    "inboxEmpty": "Ingen supportbeskeder endnu.",
+    "inboxGuest": "Gæst",
+    "savedEmailFailed": "Din besked blev gemt, men e-mailnotifikationen kunne ikke sendes."
   },
   "docs": {
     "title": "Dokumentation",
@@ -2024,8 +2030,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Forrige billede",
+        "nextBanner": "Næste billede",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2036,7 +2042,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Snitvisning",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2066,6 +2072,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Spiralælter",
+            "title": "Inde i spiralælteren",
+            "desc": "Hærdet stålaksel, kobberviklet motor og et kabinet i ét stykke – dimensioneret til otte timers uafbrudt drift om dagen.",
+            "normalLabel": "Udvendigt",
+            "cutawayLabel": "Snit"
+          },
+          "ice": {
+            "label": "Ismaskine",
+            "title": "Inde i ismaskinen",
+            "desc": "Beholder i rustfrit stål, luftkølet kondensator og vaskbart filter holder ydelsen oppe selv i et varmt køkken.",
+            "normalLabel": "Udvendigt",
+            "cutawayLabel": "Snit"
           }
         }
       },
@@ -2112,6 +2134,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Forrige anmeldelse",
+      "next": "Næste anmeldelse"
     }
   },
   "developerApi": {
@@ -2661,7 +2687,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Afvis",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2830,7 +2856,21 @@
     "empty": "Ingen rettelser offentliggjort endnu.",
     "technical": "Teknisk detalje",
     "reverted": "Rullet tilbage",
-    "revertedHint": "Denne rettelse skabte et problem og blev rullet tilbage."
+    "revertedHint": "Denne rettelse skabte et problem og blev rullet tilbage.",
+    "category": {
+      "fix": "Rettelse",
+      "improvement": "Forbedring",
+      "feature": "Nyhed"
+    },
+    "reported": "Du rapporterede",
+    "done": "Det gjorde vi",
+    "statTotal": "Rettelser i alt",
+    "statThisMonth": "Denne måned",
+    "statMedian": "Typisk tid",
+    "sameDay": "Samme dag",
+    "days": "{{count}} dage",
+    "solvedSameDay": "Rettet samme dag",
+    "solvedInDays": "Rettet på {{count}} dage"
   },
   "seo": {
     "home": "Forside",
@@ -2893,5 +2933,8 @@
     "subscribed": "Tilmeldt ✓",
     "rights": "Alle rettigheder forbeholdes.",
     "madeIn": "Lavet med passion i Köln."
+  },
+  "chat": {
+    "assistantBadge": "AI-assistent · døgnet rundt"
   }
 }

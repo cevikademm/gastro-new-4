@@ -174,7 +174,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.quickLinksHeading', 'Hızlı Bağlantılar')}</h4>
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.quickLinksHeading', 'Hızlı Bağlantılar')}</h3>
             <ul className="space-y-4 text-sm text-white/65">
               {FOOTER_QUICK_LINKS.map(key => (
                 <li key={key}><a href="#" className="hover:text-brand-red transition-colors">{t(key)}</a></li>
@@ -183,7 +183,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.helpCenterHeading', 'Yardım Merkezi')}</h4>
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.helpCenterHeading', 'Yardım Merkezi')}</h3>
             <ul className="space-y-4 text-sm text-white/65">
               {FOOTER_HELP_LINKS.map(key => (
                 <li key={key}><a href="#" className="hover:text-brand-red transition-colors">{t(key)}</a></li>
@@ -192,7 +192,7 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.contactHeading', 'İletişim')}</h4>
+            <h3 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.footer.contactHeading', 'İletişim')}</h3>
             <ul className="space-y-6 text-sm text-white/65">
               <li className="flex gap-4">
                 <MapPin className="w-5 h-5 text-brand-red shrink-0" />

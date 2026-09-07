@@ -1,41 +1,45 @@
+import { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import Product3DCard from './Product3DCard';
 
-const CARDS = [
+const CARD_BASE = [
   {
+    key: 'item1' as const,
     modelUrl: '/models/PSB-202MI-2V.glb',
     eyebrow: '01 · COOLING',
-    title: 'Profesyonel Soğutma Vitrini',
-    description:
-      'Çift kapaklı, 202 lt brüt, dijital sıcaklık kontrolü. A+ enerji sınıfı, sessiz kompresör, paslanmaz iç gövde.',
     accent: '#3D7DC4',
-    cta: 'Vitrini Keşfet',
     href: '/diamond',
   },
   {
+    key: 'item2' as const,
     modelUrl: '/models/Meshy_AI_Commercial_Planetary__0411175135_texture.glb',
     eyebrow: '02 · DYNAMIC PREP',
-    title: 'Endüstriyel Mikser',
-    description:
-      'Planetary hareket, 20 lt çelik haznesi, üç hızlı kademe. Restoran ve pastane mutfakları için sınıfında en iyi.',
     accent: '#DC2626',
-    cta: 'Mikseri İncele',
     href: '/combisteel',
   },
   {
+    key: 'item3' as const,
     modelUrl: '/models/Meshy_AI_Rainbow_Bottles_in_a__0411175104_texture.glb',
     eyebrow: '03 · BAR & DISPLAY',
-    title: 'Vitrinli Bar Soğutucu',
-    description:
-      'Şişe ve içecek teşhiri için tasarlanmış led aydınlatmalı vitrin. Çift kademeli soğutma, sessiz çalışma.',
     accent: '#C57A1B',
-    cta: 'Modelleri Gör',
     href: '/kategori',
   },
 ];
 
 export default function Product3DCardGrid() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  const CARDS = useMemo(
+    () =>
+      CARD_BASE.map((card) => ({
+        ...card,
+        title: t(`product.cards.${card.key}.title`),
+        description: t(`product.cards.${card.key}.description`),
+        cta: t(`product.cards.${card.key}.cta`),
+      })),
+    [t]
+  );
   return (
     <section className="relative z-10 py-32 bg-gradient-to-b from-white via-red-50/30 to-white border-y border-slate-200">
       <div className="max-w-[90rem] mx-auto px-6">

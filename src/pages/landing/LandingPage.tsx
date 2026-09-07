@@ -97,11 +97,11 @@ const HERO_SLIDES = [
 const HERO_BANNER_RATIO = { w: 1600, h: 656 };
 
 const HERO_BANNERS = [
-  { src: "/landing/slider-1.jpg", alt: "Professionelle Technik. Minimalistisches Design.", href: "#catalog", w: 1600, h: 656 },
-  { src: "/landing/slider-2.jpg", alt: "Professionelle Ausstattung für höchste Ansprüche.", href: "#catalog", w: 1600, h: 656 },
-  { src: "/landing/slider-3.jpg", alt: "Höchstleistung in jedem Schritt.", href: "#catalog", w: 1600, h: 656 },
-  { src: "/landing/slider-4.jpg", alt: "Die Zukunft professioneller Großküchen.", href: "#chatbotSection", w: 1600, h: 656 },
-  { src: "/landing/slider-5.jpg", alt: "Alles aus einer Hand.", href: "#quote", w: 1600, h: 656 },
+  { src: "/landing/slider-1.jpg", altKey: "landing.heroBanners.slide1", href: "#catalog", w: 1600, h: 656 },
+  { src: "/landing/slider-2.jpg", altKey: "landing.heroBanners.slide2", href: "#catalog", w: 1600, h: 656 },
+  { src: "/landing/slider-3.jpg", altKey: "landing.heroBanners.slide3", href: "#catalog", w: 1600, h: 656 },
+  { src: "/landing/slider-4.jpg", altKey: "landing.heroBanners.slide4", href: "#chatbotSection", w: 1600, h: 656 },
+  { src: "/landing/slider-5.jpg", altKey: "landing.heroBanners.slide5", href: "#quote", w: 1600, h: 656 },
 ];
 
 const HERO_VALUE_PROPS = [
@@ -832,7 +832,7 @@ export function LandingPage() {
                 >
                   <img
                     src={heroBanner.src}
-                    alt={heroBanner.alt}
+                    alt={t(heroBanner.altKey)}
                     className="w-full h-full object-cover object-center"
                     fetchPriority="high"
                     loading="eager"
@@ -866,10 +866,15 @@ export function LandingPage() {
                   {HERO_BANNERS.map((banner, idx) => (
                     <button
                       key={idx}
+                      type="button"
                       onClick={() => setCurrentSlide(idx)}
-                      className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${currentSlide === idx ? "w-8 bg-brand-red shadow-[0_0_10px_rgba(220,38,38,0.6)]" : "w-2 bg-white/60 hover:bg-white"}`}
-                      aria-label={t('landing.master.hero.bannerDot', { index: idx + 1, alt: banner.alt })}
-                    />
+                      // Buton 24 px yüksek (WCAG 2.5.8 target-size); görünen nokta içteki span
+                      className="flex h-6 min-w-6 items-center justify-center cursor-pointer"
+                      aria-label={t('landing.master.hero.bannerDot', { index: idx + 1, alt: t(banner.altKey) })}
+                      aria-current={currentSlide === idx ? 'true' : undefined}
+                    >
+                      <span className={`block h-2 rounded-full transition-all duration-300 ${currentSlide === idx ? "w-8 bg-brand-red shadow-[0_0_10px_rgba(220,38,38,0.6)]" : "w-2 bg-white/60 hover:bg-white"}`} />
+                    </button>
                   ))}
                 </div>
                 <div className="hidden sm:block w-[160px] h-[3px] bg-white/20 rounded overflow-hidden">
@@ -923,7 +928,7 @@ export function LandingPage() {
 
                   <div className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-2 flex justify-between items-center">
                     <span>{t('landing.master.catalog.categoriesLabel')}</span>
-                    <span className="bg-slate-100 text-slate-500 px-2 py-0.5 rounded text-[9px]">{t('landing.master.catalog.devicesCount', { count: filteredProducts.length })}</span>
+                    <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[9px]">{t('landing.master.catalog.devicesCount', { count: filteredProducts.length })}</span>
                   </div>
 
                   <div
@@ -960,7 +965,7 @@ export function LandingPage() {
                   <div className="mt-3 lg:mt-auto rounded-xl bg-[#0F2440] p-3 text-white overflow-hidden relative border border-white/10">
                     <div className="absolute inset-x-0 top-0 h-1 bg-brand-red" />
                     <Headphones size={14} className="text-brand-red mb-1" />
-                    <h4 className="font-display text-[13px] font-black leading-tight">{t('landing.master.catalog.advisorCard.title')}</h4>
+                    <h3 className="font-display text-[13px] font-black leading-tight">{t('landing.master.catalog.advisorCard.title')}</h3>
                     <p className="mt-1 text-[9px] leading-relaxed text-white/65">{t('landing.master.catalog.advisorCard.desc')}</p>
                     <a href="#quote" className="mt-2 inline-flex w-full items-center justify-center gap-1.5 rounded-md bg-white px-3 py-1.5 text-[8px] font-bold uppercase tracking-[0.16em] text-[#0F2440] transition-all hover:bg-brand-red hover:text-white">
                       {t('landing.master.catalog.advisorCard.cta')}
@@ -1001,7 +1006,7 @@ export function LandingPage() {
                              <div>
                                <div className="flex justify-between items-center mb-0.5">
 	                                 <span className="text-[8px] font-bold text-brand-red uppercase tracking-[0.18em]">{prod.sub}</span>
-	                                 <span className="flex items-center gap-0.5 text-[8px] text-emerald-600 font-bold">
+	                                 <span className="flex items-center gap-0.5 text-[8px] text-emerald-700 font-bold">
                                    <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />
                                    {t('common.inStock')}
                                  </span>
@@ -1010,7 +1015,7 @@ export function LandingPage() {
                                
                                <div className="mt-2 flex items-baseline gap-1.5">
                                  <span className="text-xl sm:text-2xl font-display font-black text-[#0F2440] leading-tight">€ {prod.price.toLocaleString("de-DE")}</span>
-                                 <span className="text-[9px] font-medium text-slate-400">{t('landing.master.catalog.card.net')}</span>
+                                 <span className="text-[9px] font-medium text-slate-600">{t('landing.master.catalog.card.net')}</span>
                                </div>
                                <div className="mt-1 text-[9px] font-bold text-slate-500">{t('landing.master.catalog.card.leasing')} <span className="text-brand-red">{t('landing.master.catalog.card.perMonth', { amount: Math.round((prod.price * 1.15) / 60) })}</span></div>
                              </div>
@@ -1308,8 +1313,9 @@ export function LandingPage() {
                   <h3 className="text-xl font-bold text-[#0F2440] mb-8">{t('landing.master.leasing.calcTitle')}</h3>
 
                   <div className="mb-6">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">{t('landing.master.leasing.projectValue')}</label>
+                    <label htmlFor="leasingValue" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">{t('landing.master.leasing.projectValue')}</label>
                     <input
+                      id="leasingValue"
                       type="range"
                       min="10000"
                       max="250000"
@@ -1322,45 +1328,46 @@ export function LandingPage() {
                   </div>
 
                   <div className="mb-8">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">Leasinglaufzeit</label>
+                    <label htmlFor="leasingMonths" className="text-[10px] font-bold text-slate-400 uppercase tracking-widest block mb-3">{t('landing.leasing.termLabel')}</label>
                     <select
+                      id="leasingMonths"
                       value={leasingMonths}
                       onChange={(e) => setLeasingMonths(parseInt(e.target.value, 10))}
                       className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-bold outline-none cursor-pointer"
                     >
-                      <option value="12">12 Monate</option>
-                      <option value="24">24 Monate</option>
-                      <option value="36">36 Monate</option>
-                      <option value="48">48 Monate</option>
-                      <option value="60">60 Monate</option>
+                      <option value="12">{t('landing.leasing.months', { count: 12 })}</option>
+                      <option value="24">{t('landing.leasing.months', { count: 24 })}</option>
+                      <option value="36">{t('landing.leasing.months', { count: 36 })}</option>
+                      <option value="48">{t('landing.leasing.months', { count: 48 })}</option>
+                      <option value="60">{t('landing.leasing.months', { count: 60 })}</option>
                     </select>
                   </div>
 
                   <div className="bg-red-50/40 border border-brand-red/10 p-5 rounded-xl flex justify-between items-center mb-8">
-                    <span className="text-xs font-bold text-slate-600">Leasing ab:</span>
-                    <span className="text-2xl font-display font-bold text-brand-red">€ {monthlyLeasingRate.toLocaleString("de-DE")} / M.</span>
+                    <span className="text-xs font-bold text-slate-600">{t('landing.leasing.leasingFrom')}</span>
+                    <span className="text-2xl font-display font-bold text-brand-red">{t('landing.leasing.perMonthShort', { amount: monthlyLeasingRate.toLocaleString('de-DE') })}</span>
                   </div>
 
-                  <a href="#quote" className="py-4 bg-[#0F2440] hover:bg-[#1E3A5F] text-white text-center text-xs font-bold tracking-[0.2em] rounded-full uppercase transition-all shadow-md">Finanzierung berechnen</a>
+                  <a href="#quote" className="py-4 bg-[#0F2440] hover:bg-[#1E3A5F] text-white text-center text-xs font-bold tracking-[0.2em] rounded-full uppercase transition-all shadow-md">{t('landing.leasing.calcButton')}</a>
                 </div>
 
                 {/* B2B Benefits grid */}
                 <div className="flex md:grid overflow-x-auto md:overflow-visible snap-x md:snap-none grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 items-start text-left [scrollbar-width:none] [&::-webkit-scrollbar]:hidden -mx-1 px-1 md:mx-0 md:px-0 pb-2 md:pb-0">
                   {[
-                    { icon: Zap, title: "Alles aus einer Hand", desc: "Von Planung und Geräteauswahl bis Leasing, Lieferung und Montage führen wir den Prozess zentral." },
-                    { icon: Truck, title: "Europaweite Lieferung", desc: "Sichere Logistik ab Köln für Deutschland und europäische Projektstandorte." },
-                    { icon: Wrench, title: "Montage & Installation", desc: "Gastro-Servicepartner prüfen Aufstellung, Wasser, Strom und Inbetriebnahme vor Ort." },
-                    { icon: PhoneCall, title: "Service & Wartung", desc: "Technischer Support und Wartungspläne sichern die laufende Küchenleistung." },
-                    { icon: Palette, title: "Planung inklusive", desc: "Bei Projektkauf verrechnen wir die 3D-Planung mit dem Auftragswert." },
-                    { icon: BadgeCheck, title: "Top Marken zu Top Preisen", desc: "Direkte B2B-Konditionen für Diamond, CombiSteel und ausgewählte Premiumpartner." }
-                  ].map(({ icon: Icon, title, desc }) => (
-                    <div key={title} className="flex gap-4 min-w-[250px] shrink-0 snap-start md:min-w-0 md:shrink">
+                    { icon: Zap,        titleKey: 'landing.leasing.benefits.oneHand.title',    descKey: 'landing.leasing.benefits.oneHand.desc' },
+                    { icon: Truck,      titleKey: 'landing.leasing.benefits.europe.title',     descKey: 'landing.leasing.benefits.europe.desc' },
+                    { icon: Wrench,     titleKey: 'landing.leasing.benefits.install.title',    descKey: 'landing.leasing.benefits.install.desc' },
+                    { icon: PhoneCall,  titleKey: 'landing.leasing.benefits.service.title',    descKey: 'landing.leasing.benefits.service.desc' },
+                    { icon: Palette,    titleKey: 'landing.leasing.benefits.planning.title',   descKey: 'landing.leasing.benefits.planning.desc' },
+                    { icon: BadgeCheck, titleKey: 'landing.leasing.benefits.topBrands.title',  descKey: 'landing.leasing.benefits.topBrands.desc' },
+                  ].map(({ icon: Icon, titleKey, descKey }) => (
+                    <div key={titleKey} className="flex gap-4 min-w-[250px] shrink-0 snap-start md:min-w-0 md:shrink">
                       <div className="w-11 h-11 bg-white border border-slate-200 rounded-xl flex items-center justify-center shrink-0 shadow-sm text-brand-red">
                         <Icon size={20} strokeWidth={1.8} />
                       </div>
                       <div>
-                        <h4 className="text-xs font-bold text-[#0F2440] mb-1.5">{title}</h4>
-                        <p className="text-slate-500 text-[11px] leading-relaxed">{desc}</p>
+                        <h4 className="text-xs font-bold text-[#0F2440] mb-1.5">{t(titleKey)}</h4>
+                        <p className="text-slate-500 text-[11px] leading-relaxed">{t(descKey)}</p>
                       </div>
                     </div>
                   ))}
@@ -1376,10 +1383,10 @@ export function LandingPage() {
               <div className="max-w-2xl mb-16 text-left">
                 <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
                   <span className="w-6 h-px bg-brand-red" />
-                  ANGEBOT ANFORDERN
+                  {t('landing.quote.eyebrow')}
                 </span>
                 <h2 className="lp-h2 font-display font-bold text-[#0F2440] tracking-tight">
-                  Unverbindliches <span className="text-brand-red">Angebot anfordern</span>
+                  {t('landing.quote.headingLead')} <span className="text-brand-red">{t('landing.quote.headingAccent')}</span>
                 </h2>
               </div>
 
@@ -1388,15 +1395,15 @@ export function LandingPage() {
                 {/* Cart selected items list */}
                 <div className="lg:col-span-7 bg-white border border-slate-200 p-8 rounded-3xl shadow-sm">
                   <div className="flex justify-between items-center border-b border-slate-100 pb-5 mb-6">
-                    <h3 className="font-display font-bold text-lg text-[#0F2440]">Ausgewählte Geräte</h3>
-                    <span className="bg-red-50 text-brand-red text-[11px] font-bold px-3 py-1 rounded-full">{cartItems.length} Positionen</span>
+                    <h3 className="font-display font-bold text-lg text-[#0F2440]">{t('landing.quote.selectedDevices')}</h3>
+                    <span className="bg-red-50 text-brand-red text-[11px] font-bold px-3 py-1 rounded-full">{t('landing.quote.positions', { count: cartItems.length })}</span>
                   </div>
 
                   <ul className="space-y-4 max-h-[360px] overflow-y-auto pr-2 custom-scrollbar">
                     {cartItems.length === 0 ? (
                       <li className="py-12 text-center text-slate-400 flex flex-col items-center gap-4">
                         <ShoppingBag size={40} className="text-slate-300" />
-                        <span className="text-xs font-bold">Ihre Angebotsliste ist leer. Fügen Sie Bestseller aus dem Katalog hinzu.</span>
+                        <span className="text-xs font-bold">{t('landing.quote.emptyHint')}</span>
                       </li>
                     ) : (
                       cartItems.map((item, itemIdx) => (
@@ -1404,7 +1411,7 @@ export function LandingPage() {
                         <li key={`${item.product.id}-${itemIdx}`} className="flex justify-between items-center bg-slate-50 border border-slate-200/50 p-4 rounded-2xl">
                           <div>
                             <span className="font-bold text-xs text-[#0F2440] block mb-1">{item.product.name}</span>
-                            <span className="text-[10px] text-slate-400 uppercase tracking-widest">{item.product.id} · Menge: {item.quantity} · € {(item.product.price || 0).toLocaleString("de-DE")}</span>
+                            <span className="text-[10px] text-slate-400 uppercase tracking-widest">{item.product.id} · {t('landing.quote.quantityLabel')}: {item.quantity} · € {(item.product.price || 0).toLocaleString("de-DE")}</span>
                           </div>
                           <button
                             onClick={() => removeItem(item.product.id)}
@@ -1419,16 +1426,16 @@ export function LandingPage() {
 
                   <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Netto Warenwert</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('landing.quote.netTotal')}</p>
                       <p className="mt-1 font-display text-2xl font-black text-[#0F2440]">€ {quoteNetTotal.toLocaleString("de-DE")}</p>
                     </div>
                     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">Brutto</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-400">{t('landing.quote.grossTotal')}</p>
                       <p className="mt-1 font-display text-2xl font-black text-[#0F2440]">€ {quoteGrossTotal.toLocaleString("de-DE")}</p>
                     </div>
                     <div className="rounded-2xl border border-brand-red/25 bg-red-50 p-4">
-                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-red">Leasing ab</p>
-                      <p className="mt-1 font-display text-2xl font-black text-brand-red">€ {quoteMonthlyRate.toLocaleString("de-DE")}/M.</p>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-brand-red">{t('landing.quote.leasingFromLabel')}</p>
+                      <p className="mt-1 font-display text-2xl font-black text-brand-red">{t('landing.leasing.perMonthShort', { amount: quoteMonthlyRate.toLocaleString('de-DE') })}</p>
                     </div>
                   </div>
                 </div>
@@ -1436,16 +1443,16 @@ export function LandingPage() {
                 {/* RFQ Form */}
                 <div className="lg:col-span-5 bg-white border border-slate-200 p-8 rounded-3xl shadow-sm">
                   <div className="border-b border-slate-100 pb-5 mb-6">
-                    <h3 className="font-display font-bold text-lg text-[#0F2440]">Projekt Details</h3>
+                    <h3 className="font-display font-bold text-lg text-[#0F2440]">{t('landing.quote.projectDetails')}</h3>
                     <div className="mt-3 grid grid-cols-3 gap-2">
                       {[
-                        { icon: PhoneCall, label: "Rückruf" },
-                        { icon: Clock, label: "24h Antwort" },
-                        { icon: ShieldCheck, label: "B2B sicher" },
-                      ].map(({ icon: Icon, label }) => (
-                        <div key={label} className="rounded-xl bg-slate-50 px-2 py-2 text-center">
+                        { icon: PhoneCall,   labelKey: 'landing.quote.badges.callback' },
+                        { icon: Clock,       labelKey: 'landing.quote.badges.answer24' },
+                        { icon: ShieldCheck, labelKey: 'landing.quote.badges.b2bSafe' },
+                      ].map(({ icon: Icon, labelKey }) => (
+                        <div key={labelKey} className="rounded-xl bg-slate-50 px-2 py-2 text-center">
                           <Icon size={15} className="mx-auto mb-1 text-brand-red" />
-                          <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-500">{label}</span>
+                          <span className="text-[8px] font-bold uppercase tracking-[0.12em] text-slate-500">{t(labelKey)}</span>
                         </div>
                       ))}
                     </div>
@@ -1453,20 +1460,20 @@ export function LandingPage() {
 
                   <form onSubmit={handleRfqSubmit} className="space-y-5">
                     <div>
-                      <label htmlFor="projectName" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Name des Objekts / Firma</label>
+                      <label htmlFor="projectName" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">{t('landing.quote.form.projectName')}</label>
                       <input
                         type="text"
                         id="projectName"
                         value={projectName}
                         onChange={(e) => setProjectName(e.target.value)}
-                        placeholder="z.B. Pizzeria Köln Mitte"
+                        placeholder={t('landing.quote.form.projectNamePlaceholder')}
                         className="w-full bg-slate-50 border border-slate-200 focus:border-brand-red rounded-xl py-3 px-4 text-xs outline-none transition-all"
                       />
                     </div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
-                        <label htmlFor="contactPhone" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Telefon / WhatsApp</label>
+                        <label htmlFor="contactPhone" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">{t('landing.quote.form.phone')}</label>
                         <input
                           type="tel"
                           id="contactPhone"
@@ -1477,42 +1484,42 @@ export function LandingPage() {
                         />
                       </div>
                       <div>
-                        <label htmlFor="contactEmail" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">E-Mail</label>
+                        <label htmlFor="contactEmail" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">{t('landing.quote.form.email')}</label>
                         <input
                           type="email"
                           id="contactEmail"
                           value={contactEmail}
                           onChange={(e) => setContactEmail(e.target.value)}
-                          placeholder="angebot@firma.de"
+                          placeholder={t('landing.quote.form.emailPlaceholder')}
                           className="w-full bg-slate-50 border border-slate-200 focus:border-brand-red rounded-xl py-3 px-4 text-xs outline-none transition-all"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label htmlFor="projectSegment" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Betriebs-Segment</label>
+                      <label htmlFor="projectSegment" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">{t('landing.quote.form.segment')}</label>
                       <select
                         id="projectSegment"
                         value={projectSegment}
                         onChange={(e) => setProjectSegment(e.target.value)}
                         className="w-full bg-slate-50 border border-slate-200 focus:border-brand-red rounded-xl py-3 px-4 text-xs font-bold outline-none cursor-pointer"
                       >
-                        <option value="" disabled>Bitte Segment wählen</option>
-                        <option value="restoran">Restaurant & Café</option>
-                        <option value="otel">Hotel & Gastgewerbe</option>
-                        <option value="catering">Catering & Großküche</option>
-                        <option value="market">Supermarkt & Bäckerei</option>
+                        <option value="" disabled>{t('landing.quote.form.segmentPlaceholder')}</option>
+                        <option value="restoran">{t('landing.quote.form.segmentRestaurant')}</option>
+                        <option value="otel">{t('landing.quote.form.segmentHotel')}</option>
+                        <option value="catering">{t('landing.quote.form.segmentCatering')}</option>
+                        <option value="market">{t('landing.quote.form.segmentMarket')}</option>
                       </select>
                     </div>
 
                     <div>
-                      <label htmlFor="projectNote" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">Anforderungen / Bemerkungen</label>
+                      <label htmlFor="projectNote" className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">{t('landing.quote.form.notes')}</label>
                       <textarea
                         id="projectNote"
                         value={projectNote}
                         onChange={(e) => setProjectNote(e.target.value)}
                         rows={4}
-                        placeholder="Wünsche zu Abmessungen, Sonderstromstärken oder Gasanschluss..."
+                        placeholder={t('landing.quote.form.notesPlaceholder')}
                         className="w-full bg-slate-50 border border-slate-200 focus:border-brand-red rounded-xl py-3 px-4 text-xs outline-none transition-all resize-none"
                       />
                     </div>
@@ -1521,7 +1528,7 @@ export function LandingPage() {
                       type="submit"
                       className="w-full py-4 bg-brand-red hover:bg-[#B91C1C] text-white text-xs font-bold uppercase tracking-[0.2em] rounded-full transition-all shadow-[0_8px_20px_-4px_rgba(220,38,38,0.4)] cursor-pointer inline-flex items-center justify-center gap-2"
                     >
-                      ANGEBOTSANFRAGE SENDEN
+                      {t('landing.quote.form.submit')}
                       <ArrowRight size={14} />
                     </button>
 
@@ -1542,21 +1549,21 @@ export function LandingPage() {
               <div className="text-left">
                 <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
                   <span className="w-6 h-px bg-brand-red" />
-                  PROJEKT STARTEN
+                  {t('landing.projectStart.eyebrow')}
                 </span>
                 <h2 className="max-w-3xl font-display lp-h2 font-black leading-tight tracking-tight">
-                  Ihre Küche kann heute geplant und morgen angeboten werden.
+                  {t('landing.projectStart.heading')}
                 </h2>
                 <p className="mt-5 max-w-2xl text-sm leading-relaxed text-white/65">
-                  Senden Sie Ihre Geräteauswahl, ein Foto oder einen Grundriss. Wir prüfen Verfügbarkeit, Leasing, Montagebedarf und erstellen daraus ein belastbares B2B-Angebot.
+                  {t('landing.projectStart.subtitle')}
                 </p>
                 <div className="mt-8 flex flex-col sm:flex-row gap-3">
                   <a href="#quote" className="inline-flex items-center justify-center gap-2 rounded-xl bg-brand-red px-7 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white shadow-[0_14px_30px_-16px_rgba(220,38,38,0.85)] transition-all hover:bg-[#B91C1C]">
-                    Angebot jetzt sichern
+                    {t('landing.projectStart.ctaQuote')}
                     <ArrowRight size={14} />
                   </a>
                   <a href="#chatbotSection" className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/20 px-7 py-4 text-[10px] font-bold uppercase tracking-[0.2em] text-white/85 transition-all hover:border-white hover:text-white">
-                    KI Planung starten
+                    {t('landing.projectStart.ctaPlanner')}
                     <Zap size={14} />
                   </a>
                 </div>
@@ -1564,14 +1571,14 @@ export function LandingPage() {
 
               <div className="grid grid-cols-2 gap-3">
                 {[
-                  { value: "10.000+", label: "Produkte" },
-                  { value: "15", label: "Marken" },
-                  { value: "24h", label: "Rückmeldung" },
-                  { value: "60 Mon.", label: "Leasing" },
+                  { value: '10.000+',  labelKey: 'landing.projectStart.stats.products' },
+                  { value: '15',       labelKey: 'landing.projectStart.stats.brands' },
+                  { value: '24h',      labelKey: 'landing.projectStart.stats.response' },
+                  { value: '60 Mon.',  labelKey: 'landing.projectStart.stats.leasing' },
                 ].map((item) => (
-                  <div key={item.label} className="rounded-2xl border border-white/10 bg-white/[0.08] p-5 text-left">
+                  <div key={item.labelKey} className="rounded-2xl border border-white/10 bg-white/[0.08] p-5 text-left">
                     <div className="font-display text-3xl font-black leading-none text-white">{item.value}</div>
-                    <div className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">{item.label}</div>
+                    <div className="mt-2 text-[10px] font-bold uppercase tracking-[0.18em] text-white/55">{t(item.labelKey)}</div>
                   </div>
                 ))}
               </div>
@@ -1587,43 +1594,43 @@ export function LandingPage() {
                     <img src="/logo-2mc-gastro-white.png" alt="2MC Gastro" className="h-16 md:h-20 w-auto max-w-[280px] object-contain drop-shadow-[0_8px_18px_rgba(0,0,0,0.35)]" loading="lazy" decoding="async" />
                   </div>
                   <p className="text-white/65 text-sm leading-relaxed mb-8">
-                    Planung, Vertrieb und Montage erstklassiger Großküchenausstattung nach europäischen B2B standards. Diamond und Premiumpartner.
+                    {t('landing.landingFooter.tagline')}
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">Plattform</h4>
+                  <h3 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.landingFooter.platform')}</h3>
                   <ul className="space-y-4 text-sm text-white/65 list-none p-0">
-                    <li><a href="#hero" className="hover:text-brand-red transition-colors">Gastro Planer</a></li>
-                    <li><a href="#catalog" className="hover:text-brand-red transition-colors">Produktkatalog</a></li>
-                    <li><a href="#inspection" className="hover:text-brand-red transition-colors">Baugruppen-Analyse</a></li>
-                    <li><a href="#leasingSection" className="hover:text-brand-red transition-colors">Leasingrechner</a></li>
+                    <li><a href="#hero" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.gastroPlanner')}</a></li>
+                    <li><a href="#catalog" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.catalog')}</a></li>
+                    <li><a href="#inspection" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.inspection')}</a></li>
+                    <li><a href="#leasingSection" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.leasingCalc')}</a></li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">Kontakt & Logistik</h4>
+                  <h3 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.landingFooter.contactLogistics')}</h3>
                   <ul className="space-y-4 text-sm text-white/65 list-none p-0">
                     <li>2MC Werbung</li>
                     <li>Bergisch Gladbacher Str. 172, 51063 Köln</li>
-                    <li>Deutschland</li>
-                    <li>Tel: +49 176 70295844</li>
+                    <li>{t('landing.landingFooter.germany')}</li>
+                    <li>{t('landing.landingFooter.telPrefix')}: +49 176 70295844</li>
                   </ul>
                 </div>
 
                 <div>
-                  <h4 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">Impressum</h4>
+                  <h3 className="text-xs font-bold uppercase tracking-[0.2em] mb-8 border-b border-white/15 pb-4">{t('landing.landingFooter.imprint')}</h3>
                   <ul className="space-y-4 text-sm text-white/65 list-none p-0">
-                    <li><a href="#siteFooter" className="hover:text-brand-red transition-colors">Datenschutz</a></li>
-                    <li><a href="#siteFooter" className="hover:text-brand-red transition-colors">AGB & B2B Richtlinien</a></li>
-                    <li><a href="#siteFooter" className="hover:text-brand-red transition-colors">Impressum</a></li>
+                    <li><a href="#siteFooter" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.privacy')}</a></li>
+                    <li><a href="#siteFooter" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.termsB2B')}</a></li>
+                    <li><a href="#siteFooter" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.imprint')}</a></li>
                   </ul>
                 </div>
               </div>
 
               {/* Ödeme yöntemleri — gerçek marka logoları (public/payment) */}
               <div className="border-t border-white/10 pt-10 mb-2">
-                <p className="text-center text-[10px] font-bold uppercase tracking-[0.22em] text-white/45 mb-5">Sichere Zahlungsarten</p>
+                <p className="text-center text-[10px] font-bold uppercase tracking-[0.22em] text-white/45 mb-5">{t('landing.landingFooter.securePayments')}</p>
                 <div className="flex flex-wrap items-center justify-center gap-2.5">
                   {[
                     { src: "/payment/paypal.svg",     name: "PayPal" },
@@ -1647,11 +1654,11 @@ export function LandingPage() {
               </div>
 
               <div className="border-t border-white/15 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
-                <p className="text-[10px] text-white/50 uppercase tracking-widest">© 2026 2MC Gastro GmbH. Alle Rechte vorbehalten.</p>
+                <p className="text-[10px] text-white/50 uppercase tracking-widest">{t('landing.landingFooter.copyright', { year: 2026 })}</p>
                 <div className="flex gap-8 text-[10px] text-white/50 uppercase tracking-widest">
-                  <a href="#siteFooter" className="hover:text-brand-red transition-colors">Datenschutz</a>
-                  <a href="#siteFooter" className="hover:text-brand-red transition-colors">Cookies</a>
-                  <a href="#siteFooter" className="hover:text-brand-red transition-colors">Impressum</a>
+                  <a href="#siteFooter" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.privacy')}</a>
+                  <a href="#siteFooter" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.cookies')}</a>
+                  <a href="#siteFooter" className="hover:text-brand-red transition-colors">{t('landing.landingFooter.imprint')}</a>
                 </div>
               </div>
             </div>
@@ -1665,15 +1672,17 @@ export function LandingPage() {
               <div className="flex items-center gap-2">
                 <span className="inline-flex h-2 w-2 rounded-full bg-emerald-500" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-                  {cartItems.length > 0 ? `${cartItems.length} Positionen im Angebot` : "Angebotsliste bereit"}
+                  {cartItems.length > 0 ? t('landing.floatingCta.positionsInQuote', { count: cartItems.length }) : t('landing.floatingCta.ready')}
                 </span>
               </div>
               <div className="mt-0.5 truncate font-display text-lg font-black leading-tight text-[#0F2440]">
-                {quoteNetTotal > 0 ? `€ ${quoteNetTotal.toLocaleString("de-DE")} netto · ab € ${quoteMonthlyRate.toLocaleString("de-DE")}/M.` : "Bestseller auswählen und 24h-Angebot erhalten"}
+                {quoteNetTotal > 0
+                  ? t('landing.floatingCta.summary', { net: quoteNetTotal.toLocaleString('de-DE'), monthly: quoteMonthlyRate.toLocaleString('de-DE') })
+                  : t('landing.floatingCta.hint')}
               </div>
             </div>
             <a href="#quote" className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl bg-brand-red px-4 py-3 text-[9px] font-bold uppercase tracking-[0.16em] text-white shadow-[0_12px_24px_-16px_rgba(220,38,38,0.8)] transition-all hover:bg-[#B91C1C] sm:px-5">
-              Angebot
+              {t('landing.floatingCta.button')}
               <ArrowRight size={13} />
             </a>
           </div>

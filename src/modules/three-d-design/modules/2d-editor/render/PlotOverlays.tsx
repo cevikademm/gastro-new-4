@@ -11,18 +11,19 @@
 import { useTranslation } from 'react-i18next';
 
 import { roomAreaM2, roomPerimeterM, type ProjectDocument } from '../../..';
+import { HUD, PANEL } from '../../../components/ui/chrome';
 
-// ── Compass rose (top-right) ───────────────────────────────────────────────
+// ── Compass rose (top-right, under the toolbar band) ───────────────────────
 
 export function CompassRose() {
   const { t } = useTranslation();
   return (
-    <div className="absolute top-3 right-3 pointer-events-none select-none">
-      <svg width={64} height={64} viewBox="0 0 64 64">
-        <circle cx={32} cy={32} r={28} fill="white" stroke="#0f172a" strokeWidth={1} opacity={0.95} />
+    <div className="absolute top-16 right-3 pointer-events-none select-none drop-shadow-[0_4px_10px_rgba(15,23,42,0.12)]">
+      <svg width={56} height={56} viewBox="0 0 64 64">
+        <circle cx={32} cy={32} r={28} fill="rgba(255,255,255,0.92)" stroke="#cbd5e1" strokeWidth={1} />
         {/* North arrow */}
-        <polygon points="32,8 27,32 32,28 37,32" fill="#0f172a" />
-        <polygon points="32,56 27,32 32,36 37,32" fill="#cbd5e1" stroke="#0f172a" strokeWidth={0.5} />
+        <polygon points="32,8 27,32 32,28 37,32" fill="#1e293b" />
+        <polygon points="32,56 27,32 32,36 37,32" fill="#e2e8f0" stroke="#94a3b8" strokeWidth={0.5} />
         {/* N label */}
         <text
           x={32}
@@ -30,7 +31,7 @@ export function CompassRose() {
           textAnchor="middle"
           fontSize={9}
           fontWeight={700}
-          fill="#0f172a"
+          fill="#1e293b"
           fontFamily="Inter, system-ui, sans-serif"
         >
           {t('design3d.plot.north')}
@@ -64,34 +65,28 @@ export function TitleBlock({ project, scale = '1:100' }: TitleBlockProps) {
   }
   const productAreaM2 = productAreaMm2 / 1_000_000;
 
+  const rows: Array<[string, string]> = [
+    [t('design3d.plot.area'), `${totalArea.toFixed(1)} m²`],
+    [t('design3d.plot.perimeter'), `${totalPerimeter.toFixed(1)} m`],
+    [t('design3d.plot.productArea'), `${productAreaM2.toFixed(1)} m²`],
+  ];
+
   return (
     <div className="absolute bottom-3 right-3 pointer-events-none select-none">
-      <table className="bg-white/95 backdrop-blur border border-slate-800 text-[11px] font-mono text-slate-800 shadow">
-        <tbody>
-          <tr className="border-b border-slate-800">
-            <td className="px-3 py-1 text-center font-bold uppercase tracking-wider" colSpan={2}>
-              2MC GASTRO
-            </td>
-          </tr>
-          <tr className="border-b border-slate-300">
-            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">{t('design3d.plot.area')}</td>
-            <td className="px-3 py-1 font-semibold tabular-nums">{totalArea.toFixed(1)} m²</td>
-          </tr>
-          <tr className="border-b border-slate-300">
-            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">{t('design3d.plot.perimeter')}</td>
-            <td className="px-3 py-1 font-semibold tabular-nums">{totalPerimeter.toFixed(1)} m</td>
-          </tr>
-          <tr>
-            <td className="px-3 py-1 border-r border-slate-300 text-slate-500">{t('design3d.plot.productArea')}</td>
-            <td className="px-3 py-1 font-semibold tabular-nums">{productAreaM2.toFixed(1)} m²</td>
-          </tr>
-          <tr>
-            <td className="px-3 py-0.5 border-t border-slate-300 text-[9px] text-slate-400 uppercase" colSpan={2}>
-              {t('design3d.plot.scale', { scale })}
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div className={`${PANEL} min-w-[11rem] overflow-hidden text-[11px] text-slate-700`}>
+        <div className="flex items-center justify-between border-b border-slate-100 bg-slate-900 px-3 py-1.5 text-white">
+          <span className="text-[10px] font-bold uppercase tracking-[0.18em]">2MC Gastro</span>
+          <span className="text-[9px] font-medium uppercase tracking-wider text-white/60">{t('design3d.plot.scale', { scale })}</span>
+        </div>
+        <dl className="divide-y divide-slate-100">
+          {rows.map(([label, value]) => (
+            <div key={label} className="flex items-center justify-between gap-4 px-3 py-1">
+              <dt className="text-[10px] font-medium uppercase tracking-wider text-slate-400">{label}</dt>
+              <dd className="font-semibold tabular-nums text-slate-800">{value}</dd>
+            </div>
+          ))}
+        </dl>
+      </div>
     </div>
   );
 }
@@ -131,16 +126,16 @@ export function ScaleBar({ scale }: ScaleBarProps) {
 
   return (
     <div className="absolute bottom-3 left-3 pointer-events-none select-none">
-      <div className="bg-white/90 backdrop-blur border border-slate-300 px-3 py-2 text-[10px] font-mono text-slate-700">
-        <div className="font-bold mb-1 tracking-wider">{t('design3d.plot.graphicScale')}</div>
-        <div className="relative" style={{ width: totalPx, height: 14 }}>
+      <div className={`${HUD} rounded-xl px-3 pb-3.5 pt-2 text-slate-700`}>
+        <div className="mb-1.5 text-[9px] font-semibold uppercase tracking-[0.16em] text-slate-400">{t('design3d.plot.graphicScale')}</div>
+        <div className="relative" style={{ width: totalPx, height: 12 }}>
           {/* Bar */}
-          <div className="absolute inset-x-0 top-1 h-2 flex border border-slate-800">
+          <div className="absolute inset-x-0 top-0.5 flex h-2 overflow-hidden rounded-[3px] ring-1 ring-slate-700">
             {ticks.map((i) => (
               <div
                 key={i}
                 className="flex-1"
-                style={{ background: i % 2 === 0 ? '#0f172a' : '#ffffff' }}
+                style={{ background: i % 2 === 0 ? '#1e293b' : '#ffffff' }}
               />
             ))}
           </div>
@@ -148,7 +143,7 @@ export function ScaleBar({ scale }: ScaleBarProps) {
           {ticks.concat([segments]).map((i) => (
             <span
               key={`l-${i}`}
-              className="absolute -bottom-3 text-[9px] tabular-nums"
+              className="absolute -bottom-3.5 text-[9px] font-medium tabular-nums text-slate-500"
               style={{
                 left: i * segPx,
                 transform: 'translateX(-50%)',
@@ -157,7 +152,7 @@ export function ScaleBar({ scale }: ScaleBarProps) {
               {((totalM / segments) * i).toFixed(((totalM / segments) % 1) === 0 ? 0 : 1)}
             </span>
           ))}
-          <span className="absolute -bottom-3 -right-3 text-[9px] text-slate-500">m</span>
+          <span className="absolute -bottom-3.5 -right-4 text-[9px] text-slate-400">m</span>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuthStore } from '../../stores/authStore';
 import { motion } from 'motion/react';
@@ -29,6 +29,7 @@ const FEATURES_KEYS = [
 export default function LoginPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, loginWithGoogle, isLoading, isAuthenticated, pendingApproval } = useAuthStore();
   // Dev convenience: localhost'ta sahip hesabıyla otomatik dolsun (prod'da boş kalır)
   const DEV_EMAIL = 'cevikademm@gmail.com';
@@ -38,15 +39,22 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
 
+  // RequireAuth, korumalı bir sayfadan buraya yönlendirirken hedefi `state.from`
+  // ile taşır → giriş sonrası kullanıcı gitmek istediği yere döner, panele değil.
+  // Açık yönlendirme (open redirect) olmasın diye yalnızca uygulama içi,
+  // tek eğik çizgiyle başlayan yollar kabul edilir.
+  const rawFrom = (location.state as { from?: string } | null)?.from;
+  const redirectTo = typeof rawFrom === 'string' && /^\/(?!\/)/.test(rawFrom) ? rawFrom : '/dashboard';
+
   // Google OAuth dönüşünde App → checkSession oturumu kurar; state'e göre yönlendir.
   // (signInWithOAuth tam sayfa yönlendirme yaptığı için buton tıklamasında navigate edemeyiz.)
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/dashboard', { replace: true });
+      navigate(redirectTo, { replace: true });
     } else if (pendingApproval) {
       navigate('/pending-approval', { replace: true });
     }
-  }, [isAuthenticated, pendingApproval, navigate]);
+  }, [isAuthenticated, pendingApproval, navigate, redirectTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +65,7 @@ export default function LoginPage() {
     }
     const result = await login(email, password);
     if (result.success) {
-      navigate('/dashboard');
+      navigate(redirectTo, { replace: true });
     } else if (result.pendingApproval) {
       navigate('/pending-approval');
     } else {
@@ -224,7 +232,7 @@ export default function LoginPage() {
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? t('auth.hidePassword', 'Şifreyi gizle') : t('auth.showPassword', 'Şifreyi göster')}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-[#777] hover:text-[rgb(220,38,38)] focus:text-[rgb(220,38,38)] focus:outline-none transition-colors"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}

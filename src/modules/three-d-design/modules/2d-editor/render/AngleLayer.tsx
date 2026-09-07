@@ -57,6 +57,8 @@ export default function AngleLayer({
     const pos = { x: cur.x + (bx / bl) * offsetMm, y: cur.y + (by / bl) * offsetMm };
 
     const deg = Math.round(cornerAngleDeg(points, i));
+    // Straight (split-point) corners carry no information — skip the pill.
+    if (Math.abs(deg - 180) < 1) continue;
     const txt = `${deg}°`;
     const w2 = txt.length * FS * 0.6 + 110;
     const h2 = FS * 1.55;

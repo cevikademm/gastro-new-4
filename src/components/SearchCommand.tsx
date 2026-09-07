@@ -7,7 +7,6 @@ import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import type { DiamondProduct } from '../stores/diamondStore';
 
-const POPULAR = ['Kombi Fırın', 'Soğutucu Dolap', 'Fritöz', 'Bulaşık Makinesi', 'Blast Chiller'];
 const RECENT_KEY = 'gastro.search.recent';
 
 function getRecent(): string[] {
@@ -22,6 +21,13 @@ function pushRecent(q: string) {
 export default function SearchCommand({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const POPULAR = [
+    t('search.popularCombiOven'),
+    'Soğutucu Dolap',
+    'Fritöz',
+    'Bulaşık Makinesi',
+    'Blast Chiller',
+  ];
   const inputRef = useRef<HTMLInputElement>(null);
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<DiamondProduct[]>([]);

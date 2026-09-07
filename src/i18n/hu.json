@@ -818,7 +818,9 @@
     "sectorCatering": "Vendéglátás",
     "sectorHospital": "Kórház",
     "sectorOther": "Egyéb",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Jelszó megjelenítése",
+    "hidePassword": "Jelszó elrejtése"
   },
   "welcome": {
     "headline": "A parancsnoki központ",
@@ -1449,7 +1451,11 @@
     "sendFailed": "A jegyet nem sikerült elküldeni. Írjon nekünk közvetlenül:",
     "subtitle": "Nyisson hibajegyet a kérdésével, vagy lépjen velünk közvetlenül kapcsolatba.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Beérkezett támogatási üzenetek",
+    "inboxEmpty": "Még nincsenek támogatási üzenetek.",
+    "inboxGuest": "Vendég",
+    "savedEmailFailed": "Üzenetét elmentettük, de az e-mail értesítést nem sikerült elküldeni."
   },
   "docs": {
     "title": "Dokumentáció",
@@ -2024,8 +2030,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Előző kép",
+        "nextBanner": "Következő kép",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2036,7 +2042,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Metszeti nézet",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2066,6 +2072,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Spirálkeverő",
+            "title": "A spirálkeverő belseje",
+            "desc": "Edzett acéltengely, rézhuzalos motor és egydarabos váz – napi nyolc óra folyamatos munkára méretezve.",
+            "normalLabel": "Külső nézet",
+            "cutawayLabel": "Metszet"
+          },
+          "ice": {
+            "label": "Jégkockagép",
+            "title": "A jégkockagép belseje",
+            "desc": "A rozsdamentes tartály, a léghűtéses kondenzátor és a mosható szűrő forró konyhában is tartja a teljesítményt.",
+            "normalLabel": "Külső nézet",
+            "cutawayLabel": "Metszet"
           }
         }
       },
@@ -2112,6 +2134,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Előző értékelés",
+      "next": "Következő értékelés"
     }
   },
   "developerApi": {
@@ -2661,7 +2687,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Elutasítás",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2830,7 +2856,21 @@
     "empty": "Még nincs közzétett javítás.",
     "technical": "Technikai részletek",
     "reverted": "Visszavonva",
-    "revertedHint": "Ez a javítás problémát okozott, ezért visszavontuk."
+    "revertedHint": "Ez a javítás problémát okozott, ezért visszavontuk.",
+    "category": {
+      "fix": "Javítás",
+      "improvement": "Fejlesztés",
+      "feature": "Újdonság"
+    },
+    "reported": "Ön jelezte",
+    "done": "Mit tettünk",
+    "statTotal": "Összes javítás",
+    "statThisMonth": "Ebben a hónapban",
+    "statMedian": "Szokásos átfutás",
+    "sameDay": "Ugyanaznap",
+    "days": "{{count}} nap",
+    "solvedSameDay": "Ugyanaznap javítva",
+    "solvedInDays": "{{count}} nap alatt javítva"
   },
   "seo": {
     "home": "Főoldal",
@@ -2893,5 +2933,8 @@
     "subscribed": "Feliratkozva ✓",
     "rights": "Minden jog fenntartva.",
     "madeIn": "Szenvedéllyel készült Kölnben."
+  },
+  "chat": {
+    "assistantBadge": "MI-asszisztens · 0–24"
   }
 }

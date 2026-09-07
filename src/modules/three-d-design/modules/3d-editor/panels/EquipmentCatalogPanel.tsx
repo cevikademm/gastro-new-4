@@ -17,7 +17,8 @@
 
 import { useEffect, useMemo, useRef, useState, type FC, type ReactNode, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Search, Star, X, ChevronRight, ChevronLeft, Box, Upload, Loader2 } from 'lucide-react';
+import { Search, Star, X, Box, Upload, Loader2 } from 'lucide-react';
+import { PANEL } from '../../../components/ui/chrome';
 import {
   CATEGORIES,
   useEquipmentStore,
@@ -32,6 +33,10 @@ import {
   GLB_CATEGORY_TO_TAXONOMY,
 } from '../loaders/glbManifest';
 import { importGlbFile, GLB_ACCEPT_ATTR } from '../loaders/customGlb';
+import LibraryTab from './LibraryTab';
+import ImportModelDialog from './ImportModelDialog';
+import { useAuthStore } from '../../../../../stores/authStore';
+import { useDesignModelLibrary } from '../../../../../stores/designModelLibraryStore';
 import { useMeshStore } from '../../../../../stores/meshStore';
 import {
   getAllProduct3DModels,
@@ -106,10 +111,26 @@ export default function EquipmentCatalogPanel({
   const [glbOnly, setGlbOnly] = useState(false);
   const [meshFetched, setMeshFetched] = useState(false);
 
+  // ── Sekme: ürün kataloğu | kalıcı model kütüphanem ────────────────────────
+  const [tab, setTab] = useState<'products' | 'library'>('products');
+  const [importOpen, setImportOpen] = useState(false);
+  const isSignedIn = useAuthStore((s) => !!s.user);
+  const libraryCount = useDesignModelLibrary((s) => s.models.length);
+
   // ── User-uploaded GLBs (session) ───────────────────────────────────────────
   const [uploaded, setUploaded] = useState<EquipmentItem[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
+
+  /**
+   * Yükleme girişi. Oturum varsa KALICI kütüphaneye (ImportModelDialog);
+   * yoksa eski oturumluk akış (blob URL) — anonim ziyaretçi de model
+   * deneyebilsin, ama yenilemede kaybolacağı kütüphane sekmesinde yazıyor.
+   */
+  const startUpload = (): void => {
+    if (isSignedIn) setImportOpen(true);
+    else fileRef.current?.click();
+  };
 
   const onPickGlb = async (file: File | null): Promise<void> => {
     if (!file) return;
@@ -229,38 +250,41 @@ export default function EquipmentCatalogPanel({
   }, [search, category, favOnly, glbOnly]);
   const visible = useMemo(() => filtered.slice(0, visibleLimit), [filtered, visibleLimit]);
 
+  // Kapalıyken hiçbir şey çizilmez — toolbar'daki "Ürün ekle" düğmesi yeniden
+  // açar. (Eski daraltılmış şerit alt köşedeki HUD/ölçek çubuğunu örtüyordu.)
+  if (!open) return null;
+
   return (
     <aside
       className={[
-        'absolute top-16 bottom-3 rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 transition-all flex flex-col overflow-hidden z-20',
-        side === 'left' ? 'left-3' : 'right-3',
-        open ? 'w-[74vw] max-w-[17rem] sm:w-80 sm:max-w-none xl:w-96 2xl:w-[26rem]' : 'w-9',
+        'absolute top-16 bottom-3 z-20 flex flex-col overflow-hidden',
+        PANEL,
+        // Solda: dikey araç rayının (left-3, 36 px) yanına oturur.
+        side === 'left' ? 'left-16' : 'right-3',
+        'w-[74vw] max-w-[17rem] sm:w-80 sm:max-w-none xl:w-96 2xl:w-[26rem]',
       ].join(' ')}
     >
       <header className="flex items-center gap-1 px-4 py-3 border-b border-slate-100">
-        {open && (
-          <h3 className="text-[13px] font-semibold text-slate-800 truncate">{t('design3d.catalog.title')}</h3>
-        )}
+        <h3 className="text-[13px] font-semibold text-slate-800 truncate">{t('design3d.catalog.title')}</h3>
         <div className="ml-auto flex items-center gap-1">
-          {open && (
-            <button
-              type="button"
-              onClick={() => fileRef.current?.click()}
-              disabled={uploading}
-              title={t('design3d.catalog.uploadTitle')}
-              className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-xl text-[11px] font-semibold bg-brand-red text-white shadow-sm hover:brightness-110 disabled:opacity-50 transition"
-            >
-              {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
-              {t('design3d.catalog.upload')}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={startUpload}
+            disabled={uploading}
+            title={t('design3d.catalog.uploadTitle')}
+            className="inline-flex items-center justify-center gap-1.5 h-8 px-2.5 rounded-xl text-[11px] font-semibold bg-brand-red text-white shadow-sm hover:brightness-110 disabled:opacity-50 transition"
+          >
+            {uploading ? <Loader2 size={12} className="animate-spin" /> : <Upload size={12} />}
+            {t('design3d.catalog.upload')}
+          </button>
           <button
             type="button"
             onClick={onToggleOpen}
             className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 transition"
-            aria-label={open ? t('design3d.catalog.collapse') : t('design3d.catalog.expand')}
+            aria-label={t('design3d.catalog.collapse')}
+            title={t('design3d.catalog.collapse')}
           >
-            {open ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
+            <X size={14} />
           </button>
         </div>
         <input
@@ -274,6 +298,21 @@ export default function EquipmentCatalogPanel({
 
       {open && (
         <>
+          {/* ── Sekmeler: Ürünler | Kütüphanem ───────────────────────── */}
+          <div className="flex items-center gap-1 px-4 pt-3">
+            <TabBtn
+              label={t('design3d.catalog.tabProducts')}
+              active={tab === 'products'}
+              onClick={() => setTab('products')}
+            />
+            <TabBtn
+              label={t('design3d.catalog.tabLibrary')}
+              count={libraryCount}
+              active={tab === 'library'}
+              onClick={() => setTab('library')}
+            />
+          </div>
+
           {/* ── Search ───────────────────────────────────────────────── */}
           <div className="px-4 py-3 border-b border-slate-100">
             <div className="relative">
@@ -293,7 +332,10 @@ export default function EquipmentCatalogPanel({
                 </button>
               )}
             </div>
-            <div className="flex items-center justify-between gap-1.5 mt-2.5 flex-wrap">
+            <div
+              className="flex items-center justify-between gap-1.5 mt-2.5 flex-wrap"
+              hidden={tab !== 'products'}
+            >
               <div className="flex items-center gap-1.5">
                 <button
                   type="button"
@@ -330,6 +372,7 @@ export default function EquipmentCatalogPanel({
           </div>
 
           {/* ── Category chips — tek satır yatay kaydırma ────────────── */}
+          {tab === 'products' && (
           <div className="px-4 py-3 border-b border-slate-100">
             <div className="flex gap-1.5 overflow-x-auto -mx-4 px-4 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
               <CategoryChip
@@ -349,8 +392,22 @@ export default function EquipmentCatalogPanel({
               ))}
             </div>
           </div>
+          )}
+
+          {/* ── Kütüphane sekmesi ────────────────────────────────────── */}
+          {tab === 'library' && (
+            <LibraryTab
+              armedProductId={armedProductId}
+              onArm={onArm}
+              onPlace={onPlace}
+              onPreload={onPreload}
+              onUploadClick={startUpload}
+              search={search}
+            />
+          )}
 
           {/* ── Results list ─────────────────────────────────────────── */}
+          {tab === 'products' && (
           <div className="flex-1 overflow-y-auto p-3">
             {filtered.length === 0 ? (
               <p className="text-[11px] text-slate-400 px-2 py-6 text-center">
@@ -381,10 +438,10 @@ export default function EquipmentCatalogPanel({
                           }}
                           onMouseEnter={() => onPreload?.(item)}
                           className={[
-                            'w-full flex gap-2.5 p-2 pr-9 rounded-xl border text-left transition',
+                            'w-full flex gap-2.5 p-2 pr-9 rounded-xl border text-left transition-all duration-150',
                             armed
                               ? 'bg-brand-red/5 border-brand-red/40 ring-1 ring-brand-red/20'
-                              : 'bg-white border-slate-200/70 hover:border-brand-red/40 hover:shadow-sm',
+                              : 'bg-white border-slate-200/70 hover:border-slate-300 hover:shadow-[0_6px_18px_-10px_rgba(15,23,42,0.35)] hover:-translate-y-px',
                           ].join(' ')}
                         >
                           <Thumb item={item} glb={glb} />
@@ -430,9 +487,48 @@ export default function EquipmentCatalogPanel({
               </>
             )}
           </div>
+          )}
+
+          <ImportModelDialog
+            open={importOpen}
+            onClose={() => setImportOpen(false)}
+            onUploaded={() => setTab('library')}
+          />
         </>
       )}
     </aside>
+  );
+}
+
+function TabBtn({
+  label,
+  count,
+  active,
+  onClick,
+}: {
+  label: string;
+  count?: number;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={[
+        'inline-flex items-center gap-1 px-3 h-8 rounded-xl text-[11px] font-semibold border transition',
+        active
+          ? 'bg-slate-900 text-white border-slate-900'
+          : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50',
+      ].join(' ')}
+    >
+      {label}
+      {typeof count === 'number' && count > 0 && (
+        <span className={['tabular-nums', active ? 'opacity-80' : 'text-slate-400'].join(' ')}>
+          {count}
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -451,7 +547,7 @@ function Thumb({ item, glb }: { item: EquipmentItem; glb: boolean }) {
   );
 
   return (
-    <div className="relative flex-shrink-0 w-12 h-12 xl:w-14 xl:h-14 bg-slate-50 border border-slate-200/70 rounded-lg overflow-hidden flex items-center justify-center">
+    <div className="relative flex-shrink-0 w-12 h-12 xl:w-14 xl:h-14 bg-white border border-slate-200/70 rounded-lg overflow-hidden flex items-center justify-center p-0.5">
       {item.img ? (
         <img src={item.img} alt="" className="w-full h-full object-contain" loading="lazy" />
       ) : glbUrl ? (

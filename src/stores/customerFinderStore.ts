@@ -61,6 +61,18 @@ export interface MailLogEntry {
   created_at: string;
 }
 
+/** E-posta dışındaki satış temasları. WhatsApp kaydı, gönderimin değil taslağın açıldığını belirtir. */
+export interface ContactLogEntry {
+  id: string;
+  lead_id: string | null;
+  lead_isim: string | null;
+  channel: 'whatsapp' | 'phone';
+  destination: string | null;
+  message: string | null;
+  status: 'taslak_acildi' | 'arama_baslatildi';
+  created_at: string;
+}
+
 /** Bir arama kaydı (customer_searches) — ülke/şehir gruplaması + sekmeler için. */
 export interface CustomerSearch {
   id: string;
@@ -117,6 +129,7 @@ interface CustomerFinderState {
   leads: CustomerLead[];
   searches: CustomerSearch[];
   mailLog: MailLogEntry[];
+  contactLog: ContactLogEntry[];
   loading: boolean;
   searching: boolean;
   sending: boolean;
@@ -128,9 +141,11 @@ interface CustomerFinderState {
   fetchReviews: (leadId: string, placeUrl: string, max?: number) => Promise<LeadReview[]>;
   updateLeadStatus: (id: string, durum: LeadStatus) => Promise<boolean>;
   updateLeadNote: (id: string, notlar: string) => Promise<boolean>;
-  markWhatsapp: (id: string) => Promise<void>;
+  markWhatsapp: (id: string, message: string) => Promise<void>;
+  logPhoneCall: (id: string) => Promise<void>;
   sendMail: (ids: string[], subject: string, bodyTemplate: string) => Promise<SendMailResult>;
   fetchMailLog: () => Promise<void>;
+  fetchContactLog: () => Promise<void>;
   deleteLeads: (ids: string[]) => Promise<boolean>;
 }
 
@@ -157,6 +172,7 @@ export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => 
   leads: [],
   searches: [],
   mailLog: [],
+  contactLog: [],
   loading: false,
   searching: false,
   sending: false,
@@ -254,8 +270,9 @@ export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => 
     return true;
   },
 
-  markWhatsapp: async (id) => {
+  markWhatsapp: async (id, message) => {
     const now = new Date().toISOString();
+    const lead = get().leads.find((l) => l.id === id);
     set((s) => ({
       leads: s.leads.map((l) =>
         l.id === id ? { ...l, whatsapp_durumu: 'gonderildi', whatsapp_sent_at: now } : l,
@@ -267,6 +284,30 @@ export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => 
         .update({ whatsapp_durumu: 'gonderildi', whatsapp_sent_at: now })
         .eq('id', id);
     }
+    if (lead && supabase) {
+      const { data } = await supabase.from('customer_contact_log').insert({
+        lead_id: lead.id,
+        lead_isim: lead.isim,
+        channel: 'whatsapp',
+        destination: lead.telefon,
+        message,
+        status: 'taslak_acildi',
+      }).select().single();
+      if (data) set((s) => ({ contactLog: [data as ContactLogEntry, ...s.contactLog] }));
+    }
+  },
+
+  logPhoneCall: async (id) => {
+    const lead = get().leads.find((l) => l.id === id);
+    if (!lead || !supabase) return;
+    const { data } = await supabase.from('customer_contact_log').insert({
+      lead_id: lead.id,
+      lead_isim: lead.isim,
+      channel: 'phone',
+      destination: lead.telefon,
+      status: 'arama_baslatildi',
+    }).select().single();
+    if (data) set((s) => ({ contactLog: [data as ContactLogEntry, ...s.contactLog] }));
   },
 
   sendMail: async (ids, subject, bodyTemplate) => {
@@ -346,6 +387,20 @@ export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => 
       return;
     }
     set({ mailLog: (data || []) as MailLogEntry[] });
+  },
+
+  fetchContactLog: async () => {
+    if (!supabase) return;
+    const { data, error } = await supabase
+      .from('customer_contact_log')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(500);
+    if (error) {
+      set({ error: error.message });
+      return;
+    }
+    set({ contactLog: (data || []) as ContactLogEntry[] });
   },
 
   deleteLeads: async (ids) => {

@@ -14,12 +14,12 @@ interface Message extends ChatMessage {
 }
 
 const STORAGE_KEY = 'gastro.chat.history';
-const QUICK_REPLIES = [
-  'Kombi fırın önerir misin?',
-  'Kargo ne kadar sürer?',
-  'İade koşulları nedir?',
-  'Mutfak planlayıcı nasıl çalışır?',
-];
+const QUICK_REPLY_KEYS = [
+  'chat.quickReplyCombiOven',
+  'chat.quickReplyShipping',
+  'chat.quickReplyReturn',
+  'chat.quickReplyPlanner',
+] as const;
 
 function uid() { return Math.random().toString(36).slice(2, 10); }
 
@@ -95,7 +95,7 @@ export default function LiveChatWidget() {
       setMessages((prev) =>
         prev.map((m) =>
           m.id === assistantId
-            ? { ...m, streaming: false, error: true, content: 'Bağlantı kurulamadı. Lütfen tekrar deneyin.' }
+            ? { ...m, streaming: false, error: true, content: t('chat.connectionError') }
             : m
         )
       );
@@ -122,7 +122,7 @@ export default function LiveChatWidget() {
             transition={{ type: 'spring', damping: 15 }}
             onClick={() => { setOpen(true); setMinimized(false); }}
             className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-[90] group"
-            aria-label="Canlı destek"
+            aria-label={t('chat.liveSupport')}
           >
             <div className="absolute inset-0 bg-gradient-to-br from-[#DC2626] to-[#991B1B] rounded-full blur-xl opacity-50 group-hover:opacity-75 transition" />
             <div className="relative w-14 h-14 rounded-full bg-gradient-to-br from-[#DC2626] to-[#991B1B] shadow-2xl flex items-center justify-center text-white hover:scale-110 transition">
@@ -139,7 +139,7 @@ export default function LiveChatWidget() {
               />
             </div>
             <span className="absolute right-full mr-3 top-1/2 -translate-y-1/2 whitespace-nowrap px-3 py-1.5 bg-slate-900 text-white text-xs font-semibold rounded-lg shadow-lg opacity-0 group-hover:opacity-100 transition pointer-events-none">
-              AI Asistan · 7/24
+              {t('chat.assistantBadge', 'Yapay zekâ asistanı · 7/24')}
             </span>
           </motion.button>
         )}
@@ -176,7 +176,7 @@ export default function LiveChatWidget() {
                     <Sparkles size={12} className="text-yellow-300" />
                   </p>
                   <p className="text-[10px] text-white/80">
-                    {streaming ? 'Yazıyor...' : 'Çevrimiçi · Anında yanıt'}
+                    {streaming ? t('chat.typing') : 'Çevrimiçi · Anında yanıt'}
                   </p>
                 </div>
               </div>
@@ -278,15 +278,18 @@ export default function LiveChatWidget() {
                       <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider text-center">
                         Hızlı sorular
                       </p>
-                      {QUICK_REPLIES.map((q) => (
-                        <button
-                          key={q}
-                          onClick={() => sendMessage(q)}
-                          className="w-full text-left px-3 py-2 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-300 rounded-xl text-xs text-slate-700 transition"
-                        >
-                          {q}
-                        </button>
-                      ))}
+                      {QUICK_REPLY_KEYS.map((k) => {
+                        const q = t(k);
+                        return (
+                          <button
+                            key={k}
+                            onClick={() => sendMessage(q)}
+                            className="w-full text-left px-3 py-2 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-300 rounded-xl text-xs text-slate-700 transition"
+                          >
+                            {q}
+                          </button>
+                        );
+                      })}
                     </div>
                   )}
                 </div>
@@ -301,7 +304,7 @@ export default function LiveChatWidget() {
                       ref={inputRef}
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
-                      placeholder={streaming ? 'AI düşünüyor...' : 'Mesajınızı yazın...'}
+                      placeholder={streaming ? t('chat.aiThinking') : 'Mesajınızı yazın...'}
                       disabled={streaming}
                       className="flex-1 h-10 px-3 rounded-xl bg-slate-50 border border-slate-200 text-sm focus:border-[#DC2626] focus:ring-2 focus:ring-red-100 outline-none transition disabled:opacity-50"
                     />

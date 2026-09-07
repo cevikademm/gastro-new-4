@@ -79,6 +79,24 @@ Deno.serve(async (req) => {
     return jsonError("forbidden", "Hesabınız henüz onaylanmadı", cors());
   }
 
+  // ── Özellik kapısı: API anahtarları şimdilik YALNIZ hesap sahibine açık ──
+  // Diğer üyeler VE yöneticiler "Yakında" görür. Karar burada verilir; arayüz
+  // yalnız bu yanıtı yansıtır — böylece sahibin e-postası tarayıcı paketine
+  // girmez ve kapı istemci atlanarak (doğrudan fonksiyon çağrısıyla) aşılamaz.
+  // Devreye alırken: OWNER_EMAILS'i genişlet ya da bu bloğu kaldır.
+  const OWNER_EMAILS = (Deno.env.get("API_KEYS_OWNER_EMAILS") || "cevikademm@gmail.com")
+    .split(",")
+    .map((e) => e.trim().toLowerCase())
+    .filter(Boolean);
+  const callerEmail = (userData.user.email || "").toLowerCase();
+  if (!OWNER_EMAILS.includes(callerEmail)) {
+    return jsonError(
+      "coming_soon",
+      "API anahtarları yakında tüm üyelere açılacak.",
+      cors(),
+    );
+  }
+
   // ── Input ──────────────────────────────────────────────────
   let body: Body;
   try {

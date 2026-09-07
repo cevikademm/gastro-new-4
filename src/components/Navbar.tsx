@@ -1,15 +1,18 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { FileText, Search, ShoppingCart, Menu, X, LogIn, User, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Link, useNavigate } from 'react-router-dom';
 import { useCartStore } from '../stores/cartStore';
 import { useAuthStore } from '../stores/authStore';
 import LanguageSelector from './LanguageSelector';
 import { CartDrawer } from './CartDrawer';
-import { ProductsMegaMenu } from './ProductsMegaMenu';
-import { CATEGORIES } from '../stores/equipmentStore';
+// Mega menü katalog verisini (products.json, 551 KB gzip) kullanır — yalnızca menü
+// açılınca insin diye lazy. Navbar her sayfada eager olduğundan bu zincir kritik yol.
+const ProductsMegaMenu = lazy(() => import('./ProductsMegaMenu').then((m) => ({ default: m.ProductsMegaMenu })));
+// Kategori adları: ürün verisinden bağımsız hafif modül (bkz. equipmentCategories.ts).
+import { CATEGORIES } from '../stores/equipmentCategories';
 import { pathForTaxonomy } from '../content/seo/categoryTree.de';
 
 const NAV_ITEMS = [
@@ -119,7 +122,7 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
         )}>
           <div className="flex items-center gap-7 lg:gap-10 min-w-0">
             <Link to="/" className="flex items-center gap-2 group relative z-50">
-              <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-9 sm:h-10 md:h-11 w-auto max-w-[148px] sm:max-w-[176px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
+              <img src="/logo-2mc-gastro.webp" width="400" height="95" alt="2MC Gastro" className="h-9 sm:h-10 md:h-11 w-auto max-w-[148px] sm:max-w-[176px] object-contain transition-transform duration-200 group-hover:scale-[1.03]" />
             </Link>
 
             <nav className="hidden lg:flex items-center gap-5 xl:gap-7">
@@ -158,7 +161,9 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                       <AnimatePresence>
                         {isProductsOpen && (
                           <div className="absolute left-0 top-full z-50 pt-4">
-                            <ProductsMegaMenu onClose={() => setIsProductsOpen(false)} />
+                            <Suspense fallback={null}>
+                              <ProductsMegaMenu onClose={() => setIsProductsOpen(false)} />
+                            </Suspense>
                           </div>
                         )}
                       </AnimatePresence>
@@ -269,7 +274,8 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
 
             <button
               onClick={() => setIsCartOpen(true)}
-              aria-label={t('landing.navbar.cartAria', 'Sepet')}
+              // Görünür rozet metni (adet) erişilebilir ada dahil olmalı (axe: label-content-name-mismatch)
+              aria-label={`${t('landing.navbar.cartAria', 'Sepet')} (${cartCount})`}
               className={cn(
                 "relative hover:text-brand-red transition-colors cursor-pointer",
                 isScrolled
@@ -293,8 +299,10 @@ export function Navbar({ transparent = false }: { transparent?: boolean }) {
                     : "text-[#0F2440]"
               )}
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label={isMobileMenuOpen ? t('landing.navbar.closeMenuAria', 'Menüyü kapat') : t('landing.navbar.openMenuAria', 'Menüyü aç')}
+              aria-expanded={isMobileMenuOpen}
             >
-              {isMobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" />}
+              {isMobileMenuOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" /> : <Menu className="w-5 h-5 sm:w-6 sm:h-6" aria-hidden="true" />}
             </button>
 
             <button

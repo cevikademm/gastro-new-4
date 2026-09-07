@@ -243,14 +243,14 @@ export default function Catalog() {
                 <button
                   onClick={(e) => { e.stopPropagation(); handleShowOnFloorPlan(item.id); }}
                   className="p-1.5 rounded-full bg-white/90 text-on-surface-variant/40 hover:text-primary hover:bg-primary/10 shadow-sm transition-all"
-                  title="Kat planina ekle"
+                  title={t('catalog.addToFloorPlan')}
                 >
                   <MapPin size={12} />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); addToCart(item); }}
                   className={`p-1.5 rounded-full shadow-sm transition-all ${isInCart(item.id) ? 'bg-emerald-50 text-emerald-600' : 'bg-white/90 text-on-surface-variant/40 hover:text-emerald-600 hover:bg-emerald-50'}`}
-                  title="Sepete ekle"
+                  title={t('cart.addToCart')}
                 >
                   <ShoppingCart size={12} />
                 </button>

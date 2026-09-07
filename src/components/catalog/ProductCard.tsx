@@ -8,6 +8,7 @@
  */
 import { useState } from 'react';
 import { Package, GitCompareArrows, Zap, MapPin, Box } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import CartQuantityButton from '../CartQuantityButton';
 import { htmlToText } from '../../lib/htmlText';
 import type { EquipmentItem } from '../../stores/equipmentStore';
@@ -91,8 +92,11 @@ export default function ProductCard({
   brand, code, codeMono = true, name, description, subtitle, price, pricePromo,
   kw, dims, imageUrl, badges, has3D, inCompare, cartProduct, formatPrice,
   onOpenDetail, onToggleCompare, onFloorPlan, on3D,
-  floorPlanTitle = 'Kat Planına Ekle', compareTitle = 'Karşılaştır',
+  floorPlanTitle, compareTitle,
 }: ProductCardProps) {
+  const { t } = useTranslation();
+  const resolvedFloorPlanTitle = floorPlanTitle ?? t('catalog.addToFloorPlan');
+  const resolvedCompareTitle = compareTitle ?? t('product.compare');
   const hasPromo = (pricePromo ?? 0) > 0;
   const hasBadge = !!(badges?.new || badges?.deal || badges?.promo || badges?.stock);
 
@@ -118,7 +122,7 @@ export default function ProductCard({
       {/* Karşılaştır (sağ-üst) */}
       <button
         onClick={(e) => { e.stopPropagation(); onToggleCompare(); }}
-        title={compareTitle}
+        title={resolvedCompareTitle}
         aria-pressed={inCompare}
         className={`absolute top-2 right-2 z-10 w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${inCompare ? 'bg-violet-500 border-violet-500 text-white' : 'bg-white/80 border-slate-300 text-transparent opacity-0 group-hover:opacity-100'}`}
       >
@@ -180,7 +184,7 @@ export default function ProductCard({
             <button
               onClick={(e) => { e.stopPropagation(); onFloorPlan(); }}
               className="flex items-center justify-center gap-1 py-1.5 px-2 rounded-lg text-[10px] font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-500 hover:text-white transition-all"
-              title={floorPlanTitle}
+              title={resolvedFloorPlanTitle}
             >
               <MapPin size={10} />
             </button>

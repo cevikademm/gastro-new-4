@@ -131,7 +131,7 @@ export default function BrandSeoPage() {
       )}
 
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
-        <h2 className="text-xl font-display font-black text-[#0F2440] mb-5">{cat ? cat.name : t('seo.products', 'Produkte')} <span className="text-slate-400 font-medium text-base">{total ? `· ${total.toLocaleString('de-DE')}` : ''}</span></h2>
+        <h2 className="text-xl font-display font-black text-[#0F2440] mb-5">{cat ? cat.name : t('seo.products', 'Produkte')} <span className="text-slate-600 font-medium text-base">{total ? `· ${total.toLocaleString('de-DE')}` : ''}</span></h2>
         {loading ? <div className="py-20 grid place-items-center"><Loader2 className="animate-spin text-brand-red" /></div>
           : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">{rows.map((p) => <ProductSeoCard key={`${p.source}-${p.source_id}`} p={p} />)}</div>}
         {pages > 1 && (

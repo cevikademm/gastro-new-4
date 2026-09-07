@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useState } from 'react';
 import { Mail, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { submitLead } from '../lib/leadCapture';
 
 type Props = {
@@ -11,9 +12,12 @@ type Props = {
 
 export default function NewsletterSignup({
   variant = 'card',
-  title = 'Şef Bülteni',
-  description = 'Haftalık endüstriyel mutfak rehberleri, yeni ürünler ve özel fırsatlar.',
+  title,
+  description,
 }: Props) {
+  const { t } = useTranslation();
+  const resolvedTitle = title ?? t('newsletter.chefTitle');
+  const resolvedDescription = description ?? t('newsletter.chefDescription');
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
@@ -23,7 +27,7 @@ export default function NewsletterSignup({
     e.preventDefault();
     setError(null);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Geçerli bir email adresi girin.');
+      setError(t('newsletter.invalidEmail'));
       return;
     }
     setLoading(true);
@@ -31,7 +35,7 @@ export default function NewsletterSignup({
       await submitLead(email, 'newsletter');
       setDone(true);
     } catch {
-      setError('Bir sorun oluştu, tekrar deneyin.');
+      setError(t('newsletter.errorTryAgain'));
     } finally {
       setLoading(false);
     }
@@ -74,9 +78,9 @@ export default function NewsletterSignup({
         <div className="w-10 h-10 bg-[#DC2626] rounded-xl flex items-center justify-center">
           <Mail className="text-white" size={20} />
         </div>
-        <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+        <h3 className="text-lg font-bold text-slate-900">{resolvedTitle}</h3>
       </div>
-      <p className="text-sm text-slate-600 mb-4">{description}</p>
+      <p className="text-sm text-slate-600 mb-4">{resolvedDescription}</p>
 
       <form onSubmit={handleSubmit} className="space-y-2">
         <input

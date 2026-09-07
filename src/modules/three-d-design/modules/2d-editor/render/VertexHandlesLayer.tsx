@@ -1,49 +1,61 @@
 /**
- * Square handles on each polygon vertex; selected vertex glows blue.
- * Drag is wired in DesignStudio2D — these handles just emit drag events.
+ * Square handles on vertices (room corners + ends of selected partitions);
+ * selected vertices glow blue. Drag is wired by the editor — handles only
+ * emit drag events with the vertex ID.
  */
 
 import { Rect } from 'react-konva';
 import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Vec2 } from '../../../core/types';
 
+export interface VertexHandle {
+  id: string;
+  point: Vec2;
+}
+
 interface VertexHandlesLayerProps {
-  points: Vec2[];
+  handles: VertexHandle[];
   scale: number;
-  selectedIndex: number | null;
-  onDragMove: (index: number, world: Vec2) => void;
-  onDragEnd: (index: number, world: Vec2) => void;
-  onClick: (index: number) => void;
+  selectedIds: ReadonlySet<string>;
+  /** Larger targets for touch. */
+  touch?: boolean;
+  onSelect: (id: string, evt: KonvaEventObject<PointerEvent>) => void;
+  onDragMove: (id: string, world: Vec2) => void;
+  onDragEnd: (id: string, world: Vec2) => void;
 }
 
 export default function VertexHandlesLayer({
-  points,
+  handles,
   scale,
-  selectedIndex,
+  selectedIds,
+  touch = false,
+  onSelect,
   onDragMove,
   onDragEnd,
-  onClick,
 }: VertexHandlesLayerProps) {
-  const sizePx = 10;
+  const sizePx = touch ? 22 : 10;
   const sizeMm = sizePx / scale;
 
   return (
     <>
-      {points.map((p, i) => {
-        const selected = i === selectedIndex;
+      {handles.map((h) => {
+        const selected = selectedIds.has(h.id);
         return (
           <Rect
-            key={`v-${i}`}
-            x={p.x - sizeMm / 2}
-            y={p.y - sizeMm / 2}
+            key={`v-${h.id}`}
+            x={h.point.x - sizeMm / 2}
+            y={h.point.y - sizeMm / 2}
             width={sizeMm}
             height={sizeMm}
             fill={selected ? '#2563eb' : '#ffffff'}
             stroke={selected ? '#1d4ed8' : '#0f172a'}
             strokeWidth={1.5 / scale}
+            hitStrokeWidth={Math.max(sizeMm, 16 / scale)}
             draggable
-            onClick={() => onClick(i)}
-            onTap={() => onClick(i)}
+            onPointerDown={(e: KonvaEventObject<PointerEvent>) => {
+              e.cancelBubble = true;
+              onSelect(h.id, e);
+            }}
             onMouseEnter={(e) => {
               const stage = e.target.getStage();
               if (stage) stage.container().style.cursor = 'move';
@@ -54,19 +66,11 @@ export default function VertexHandlesLayer({
             }}
             onDragMove={(e: KonvaEventObject<DragEvent>) => {
               const node = e.target;
-              const world = {
-                x: node.x() + sizeMm / 2,
-                y: node.y() + sizeMm / 2,
-              };
-              onDragMove(i, world);
+              onDragMove(h.id, { x: node.x() + sizeMm / 2, y: node.y() + sizeMm / 2 });
             }}
             onDragEnd={(e: KonvaEventObject<DragEvent>) => {
               const node = e.target;
-              const world = {
-                x: node.x() + sizeMm / 2,
-                y: node.y() + sizeMm / 2,
-              };
-              onDragEnd(i, world);
+              onDragEnd(h.id, { x: node.x() + sizeMm / 2, y: node.y() + sizeMm / 2 });
             }}
           />
         );

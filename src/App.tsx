@@ -4,7 +4,11 @@ import { useLocale } from './lib/useLocalePath';
 import Layout from './components/Layout';
 import CookieBanner from './components/CookieBanner';
 import ComparePanel from './components/ComparePanel';
-import ProductDetailDrawer from './components/ProductDetailDrawer';
+// Ürün detay paneli katalog verisini (products.json, 551 KB gzip) çeker; eager
+// import'ta bu veri HER sayfanın giriş paketine giriyordu. Panel yalnızca bir ürün
+// açıldığında mount edilir — kritik yoldan çıkar. Tetikleyici store hafiftir.
+const ProductDetailDrawer = lazy(() => import('./components/ProductDetailDrawer'));
+import { useProductDetailStore } from './stores/productDetailStore';
 import LocaleLayout from './components/LocaleLayout';
 import MarketingLayout from './components/MarketingLayout';
 import { useAuthStore } from './stores/authStore';
@@ -13,6 +17,7 @@ import { CATEGORY_TREE } from './content/seo/categoryTree.de';
 
 // Eager: minimal shell
 import AdminGuard from './components/AdminGuard';
+import RequireAuth from './components/RequireAuth';
 import RouteErrorBoundary from './components/RouteErrorBoundary';
 import AnalyticsListener from './components/AnalyticsListener';
 import NotFoundPage from './pages/NotFoundPage';
@@ -66,7 +71,9 @@ const ResourcesPage = lazy(() => import('./pages/resources/ResourcesPage'));
 const ChangelogPage = lazy(() => import('./pages/changelog/ChangelogPage'));
 const ApiKeysPage = lazy(() => import('./pages/account/ApiKeysPage'));
 const ApiDocsPage = lazy(() => import('./pages/developers/ApiDocsPage'));
-import LandingPage from './pages/landing/LandingPage';
+// Landing eager import edildiğinde katalog verisi (products.json) TÜM SEO
+// sayfalarının kritik yoluna giriyordu; lazy → yalnızca ana sayfa öder.
+const LandingPage = lazy(() => import('./pages/landing/LandingPage'));
 const InfoPage = lazy(() => import('./pages/info/InfoPage'));
 const FloorPlan3DPage = lazy(() => import('./pages/design/FloorPlan3DPage'));
 const ThreeDDesignPage = lazy(() => import('./pages/design/ThreeDDesignPage'));
@@ -207,39 +214,49 @@ export default function App() {
 
           {/* Uygulama rotaları (kenar çubuklu Layout, öneksiz) */}
           <Route element={<Layout />}>
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="design" element={<DesignStudio />} />
-            <Route path="design/3d" element={<FloorPlan3DPage />} />
-            <Route path="3d-design" element={<ThreeDDesignPage />} />
-            <Route path="bom" element={<BOM />} />
-            <Route path="bom/:id" element={<BOM />} />
+            {/* ── Üyelik gerektiren rotalar ────────────────────────────────
+                Müşteri/iş verisi okuyan ya da hizmet çalıştıran her sayfa
+                RequireAuth ile kapatılır; oturumsuz ziyaretçi /login'e gider
+                ve girişten sonra istediği adrese döner. SEO sayfaları bu
+                gruba GİRMEZ (LocaleLayout altında, herkese açık). */}
+            <Route path="dashboard" element={<RequireAuth><Dashboard /></RequireAuth>} />
+            <Route path="design" element={<RequireAuth><DesignStudio /></RequireAuth>} />
+            <Route path="design/3d" element={<RequireAuth><FloorPlan3DPage /></RequireAuth>} />
+            <Route path="3d-design" element={<RequireAuth><ThreeDDesignPage /></RequireAuth>} />
+            <Route path="bom" element={<RequireAuth><BOM /></RequireAuth>} />
+            <Route path="bom/:id" element={<RequireAuth><BOM /></RequireAuth>} />
             {/* Birleşik Ürünler paneli (Diamond + CombiSteel sekmeli) */}
-            <Route path="katalog" element={<ProductsPage />} />
+            <Route path="katalog" element={<RequireAuth><ProductsPage /></RequireAuth>} />
             <Route path="diamond" element={<Navigate to="/marke/diamond" replace />} />
             <Route path="combisteel" element={<Navigate to="/marke/combisteel" replace />} />
-            <Route path="checkout" element={<CheckoutPage />} />
-            <Route path="kitchen-planner" element={<KitchenPlannerPage />} />
-            <Route path="cart" element={<Cart />} />
-            <Route path="favorites" element={<FavoritesPage />} />
-            <Route path="orders" element={<OrdersPage />} />
-            <Route path="orders/:id" element={<OrderDetailPage />} />
+            <Route path="checkout" element={<RequireAuth><CheckoutPage /></RequireAuth>} />
+            <Route path="kitchen-planner" element={<RequireAuth><KitchenPlannerPage /></RequireAuth>} />
+            <Route path="cart" element={<RequireAuth><Cart /></RequireAuth>} />
+            <Route path="favorites" element={<RequireAuth><FavoritesPage /></RequireAuth>} />
+            <Route path="orders" element={<RequireAuth><OrdersPage /></RequireAuth>} />
+            <Route path="orders/:id" element={<RequireAuth><OrderDetailPage /></RequireAuth>} />
 
-            <Route path="teklifler" element={<QuotesPage />} />
-            <Route path="projects" element={<ProjectListPage />} />
-            <Route path="projects/new" element={<NewProjectPage />} />
-            <Route path="projects/:id" element={<ProjectDetailPage />} />
-            <Route path="projects/:projectId/products/add" element={<SelectProductPage />} />
-            <Route path="projects/:projectId/products/new" element={<AddProductPage />} />
-            <Route path="projects/:id/design" element={<ThreeDDesignPage />} />
-            <Route path="projects/:id/design/3d" element={<FloorPlan3DPage />} />
-            <Route path="settings" element={<SettingsPage />} />
+            <Route path="teklifler" element={<RequireAuth><QuotesPage /></RequireAuth>} />
+            <Route path="projects" element={<RequireAuth><ProjectListPage /></RequireAuth>} />
+            <Route path="projects/new" element={<RequireAuth><NewProjectPage /></RequireAuth>} />
+            <Route path="projects/:id" element={<RequireAuth><ProjectDetailPage /></RequireAuth>} />
+            <Route path="projects/:projectId/products/add" element={<RequireAuth><SelectProductPage /></RequireAuth>} />
+            <Route path="projects/:projectId/products/new" element={<RequireAuth><AddProductPage /></RequireAuth>} />
+            <Route path="projects/:id/design" element={<RequireAuth><ThreeDDesignPage /></RequireAuth>} />
+            <Route path="projects/:id/design/3d" element={<RequireAuth><FloorPlan3DPage /></RequireAuth>} />
+            <Route path="settings" element={<RequireAuth><SettingsPage /></RequireAuth>} />
+            <Route path="profile" element={<RequireAuth><ProfilePage /></RequireAuth>} />
+            <Route path="payment" element={<RequireAuth><PaymentPage /></RequireAuth>} />
+            {/* Marka kimliği sayfası (kurumsal "Über uns" InfoPage'e taşındı; /brand → /ueber-uns) */}
+            <Route path="brand-kit" element={<RequireAuth><BrandPage /></RequireAuth>} />
+            <Route path="account/api-keys" element={<RequireAuth><ApiKeysPage /></RequireAuth>} />
+
+            {/* ── Herkese açık bilgi/iletişim sayfaları ────────────────────
+                Kamuya açık SEO sayfalarından bunlara bağlantı veriliyor
+                (ör. "sprechen Sie mit uns" → /support), üst menüde de yer
+                alırlar; kapatılırsa ziyaretçi firmaya ulaşamaz. Veri okumaz. */}
             <Route path="support" element={<SupportPage />} />
             <Route path="docs" element={<DocsPage />} />
-            <Route path="profile" element={<ProfilePage />} />
-            <Route path="payment" element={<PaymentPage />} />
-            {/* Marka kimliği sayfası (kurumsal "Über uns" InfoPage'e taşındı; /brand → /ueber-uns) */}
-            <Route path="brand-kit" element={<BrandPage />} />
-
             <Route path="tools/kitchen-calculator" element={<KitchenCalculatorPage />} />
             <Route path="resources" element={<ResourcesPage />} />
             {/* Neler Düzeldi — otomatik düzeltme ajanının yayınladığı changelog */}
@@ -248,8 +265,7 @@ export default function App() {
             <Route path="help" element={<Navigate to="/support" replace />} />
             <Route path="catalog" element={<Navigate to="/katalog" replace />} />
 
-            {/* Developer API: self-service keys + interactive docs */}
-            <Route path="account/api-keys" element={<ApiKeysPage />} />
+            {/* Developer API: genel dokümantasyon açık, anahtar yönetimi kapalı */}
             <Route path="developers/api" element={<ApiDocsPage />} />
 
             <Route path="admin/orders" element={<AdminGuard><AdminOrdersPage /></AdminGuard>} />
@@ -267,7 +283,7 @@ export default function App() {
       {/* Ürün karşılaştırma — tüm sayfalarda (ana sayfa + mağaza dahil) yüzen çubuk/modal */}
       <ComparePanel />
       {/* Tek standart ürün detay kartı — mağaza + katalog ortak (sağdan kayan panel) */}
-      <ProductDetailDrawer />
+      <ProductDetailDrawerMount />
       {/* Hata Bildir FAB — Layout'ta değil burada: ana sayfa, mağaza, blog gibi
           Layout dışı rotalarda da çıksın. Admin değilse chunk hiç indirilmez. */}
       {isAdmin && (
@@ -286,6 +302,21 @@ function TrOnly({ children }: { children: React.ReactNode }) {
   const { pathname, search } = useLocation();
   if (locale === DEFAULT_LOCALE) return <Navigate to={`/tr${pathname}${search}`} replace />;
   return <>{children}</>;
+}
+
+/**
+ * Ürün detay panelini yalnızca bir ürün açıkken mount eder. React.lazy tek başına
+ * yetmez: bileşen her zaman render edilseydi chunk (ve içindeki katalog verisi)
+ * ilk boyamada inerdi. Store hafif — kapalıyken hiçbir ek chunk indirilmez.
+ */
+function ProductDetailDrawerMount() {
+  const isOpen = useProductDetailStore((s) => s.current !== null);
+  if (!isOpen) return null;
+  return (
+    <Suspense fallback={null}>
+      <ProductDetailDrawer />
+    </Suspense>
+  );
 }
 
 /** /compare/:slug → /vergleich/:slug */

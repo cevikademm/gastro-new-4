@@ -27,6 +27,18 @@ export interface GlbManifestEntry {
   dimensionsMm?: { width: number; depth: number; height: number };
   /** Yetkili tarafından eklenen "sistem ekipmanı" mı (true) yoksa dekoratif/marka asset mi (false). */
   isEquipment?: boolean;
+  /**
+   * Dosyanın "yukarı" ekseni. glTF standardı Y-up'tır (Meshy/Blender çıktıları
+   * dâhil) → varsayılan 'y'; yükleyici Z-up sahnemize çevirir. Yalnız Z-up
+   * olarak dışa aktarılmış (Blender "+Y up" kapalı) dosyalar için 'z'.
+   */
+  upAxis?: 'y' | 'z';
+  /**
+   * Modelin ÖN yüzü glTF +Z'ye bakmıyorsa düzeltme (derece, yukarı eksen
+   * etrafında). Sahnede ürünün önü "odaya bakan" yüzdür (bkz. placement.ts);
+   * yanlış yöne bakan bir model için 180 yazılır.
+   */
+  frontYawDeg?: number;
 }
 
 /**

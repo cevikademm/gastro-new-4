@@ -40,10 +40,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <!-- Google Fonts: render'ı engellemeden yükle (print→all takası); JS kapalıysa noscript.
+         Eskiden src/index.css içinden @import ile geliyordu (seri zincir, ~800 ms). -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'" />
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" /></noscript>
     <link rel="preconnect" href="https://images.diamond-europe.com" crossorigin />
     <link rel="dns-prefetch" href="https://pim.combisteel.com" />
-    <!-- Ekranda gerçekten render edilen logo bu PNG'dir (Navbar/Layout/Footer). -->
-    <link rel="preload" as="image" href="/logo-2mc-gastro.png" fetchpriority="high" />
+    <!-- Ekranda gerçekten render edilen logo bu WebP'dir (Navbar/Layout/Footer); 400px, ~25 KB.
+         Eski 1208px PNG (275 KB) og:image/JSON-LD için duruyor, ekranda kullanılmaz. -->
+    <link rel="preload" as="image" href="/logo-2mc-gastro.webp" fetchpriority="high" />
 
     <!-- Geo meta (local SEO) -->
     <meta name="geo.region" content="DE-NW" />

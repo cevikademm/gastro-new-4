@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Zap } from 'lucide-react';
 
 /**
@@ -7,6 +8,7 @@ import { ArrowRight, Zap } from 'lucide-react';
  * Pushes urgency above the fold.
  */
 export function FlashStrip() {
+  const { t } = useTranslation();
   const [endsAt] = useState(
     () => Date.now() + (47 * 3600 + 23 * 60 + 8) * 1000
   );
@@ -27,6 +29,12 @@ export function FlashStrip() {
   }, [endsAt]);
 
   const pad = (n: number) => n.toString().padStart(2, '0');
+
+  const units: Array<{ n: number; labelKey: string }> = [
+    { n: h, labelKey: 'landing.flash.units.hour' },
+    { n: m, labelKey: 'landing.flash.units.minute' },
+    { n: s, labelKey: 'landing.flash.units.second' },
+  ];
 
   return (
     <section
@@ -62,27 +70,23 @@ export function FlashStrip() {
           </span>
           <div>
             <div className="c-serif text-[22px] sm:text-[28px] font-bold leading-tight">
-              Flash Sale: Diamond Soğutucularda %30'a Varan İndirim
+              {t('landing.flash.title')}
             </div>
             <div className="text-[14px] opacity-90 mt-0.5">
-              Son 48 saat — stoklar hızla tükeniyor
+              {t('landing.flash.subtitle')}
             </div>
           </div>
         </div>
 
         <div className="flex gap-2.5">
-          {[
-            { n: h, l: 'Saat' },
-            { n: m, l: 'Dakika' },
-            { n: s, l: 'Saniye' },
-          ].map(({ n, l }) => (
+          {units.map(({ n, labelKey }) => (
             <div
-              key={l}
+              key={labelKey}
               className="text-center min-w-[62px] px-3.5 py-2 rounded-[10px] backdrop-blur-md"
               style={{ background: 'rgba(255,255,255,0.18)' }}
             >
               <div className="c-serif text-[28px] font-bold leading-none">{pad(n)}</div>
-              <div className="text-[10px] uppercase tracking-[0.08em] opacity-80">{l}</div>
+              <div className="text-[10px] uppercase tracking-[0.08em] opacity-80">{t(labelKey)}</div>
             </div>
           ))}
         </div>
@@ -92,7 +96,7 @@ export function FlashStrip() {
           className="inline-flex items-center gap-2 bg-white px-6 py-3.5 rounded-full font-bold text-[15px] hover:scale-105 transition-transform"
           style={{ color: 'var(--c-clay-deep)' }}
         >
-          İndirimleri İncele
+          {t('landing.flash.cta')}
           <ArrowRight size={16} strokeWidth={2.5} />
         </Link>
       </div>

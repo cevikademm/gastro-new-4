@@ -415,6 +415,7 @@ export default function ShopPage() {
                     <ArrowUpDown className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" size={15} />
                     <select
                       value={sort}
+                      aria-label={t('shop.sort', 'Sırala')}
                       onChange={(e) => { setSort(e.target.value as SortKey); resetPage(); }}
                       className="w-full bg-white border border-slate-200 rounded-lg py-2.5 pl-9 pr-8 text-sm font-semibold text-[#0F2440] shadow-sm focus:ring-2 focus:ring-brand-red outline-none appearance-none cursor-pointer"
                     >
@@ -507,7 +508,7 @@ export default function ShopPage() {
                             {/* eyebrow — sabit */}
                             <div className="flex items-center justify-between gap-1 h-4">
                               <span className="text-[8px] font-bold text-brand-red uppercase tracking-[0.14em] truncate">{item.sub || item.fam || t('shop.professional')}</span>
-                              <span className="flex items-center gap-1 text-[8px] text-emerald-600 font-bold shrink-0">
+                              <span className="flex items-center gap-1 text-[8px] text-emerald-700 font-bold shrink-0">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" /> {t('shop.inStockBadge')}
                               </span>
                             </div>
@@ -516,7 +517,7 @@ export default function ShopPage() {
                             <h3 className="mt-1.5 text-[13px] font-bold text-[#0F2440] leading-[1.3] line-clamp-2 h-[34px] group-hover:text-brand-red transition-colors">{item.name?.trim() || item.sub || item.fam || item.id}</h3>
 
                             {/* kod — sabit */}
-                            <p className="mt-1 text-[9px] font-mono text-slate-400 truncate h-3">{item.id}</p>
+                            <p className="mt-1 text-[9px] font-mono text-slate-600 truncate h-3">{item.id}</p>
 
                             {/* ölçü — sabit yükseklik, tüm kartlarda hizalı */}
                             <p className="mt-0.5 text-[10px] font-medium text-slate-500 truncate h-3.5">{formatDims(item.l, item.w, item.h) || ' '}</p>
@@ -524,7 +525,7 @@ export default function ShopPage() {
                             {/* fiyat — sabit */}
                             <div className="mt-2 flex items-baseline gap-1.5 h-7">
                               <span className="text-2xl font-display font-black text-[#0F2440] leading-none">{formatPrice(item.price)}</span>
-                              {item.price > 0 && <span className="text-[9px] font-medium text-slate-400">{t('shop.net')}</span>}
+                              {item.price > 0 && <span className="text-[9px] font-medium text-slate-600">{t('shop.net')}</span>}
                             </div>
 
                             {/* leasing + kW — her zaman render, sabit yükseklik */}
@@ -535,7 +536,7 @@ export default function ShopPage() {
                                   : <span className="text-slate-400">{t('shop.priceViaQuote')}</span>}
                               </span>
                               {item.kw > 0 && (
-                                <span className="inline-flex items-center gap-0.5 text-[10px] text-slate-400 shrink-0"><Zap size={10} className="text-amber-500" />{item.kw}kW</span>
+                                <span className="inline-flex items-center gap-0.5 text-[10px] text-slate-600 shrink-0"><Zap size={10} className="text-amber-500" />{item.kw}kW</span>
                               )}
                             </div>
 
@@ -567,17 +568,19 @@ export default function ShopPage() {
                       <button
                         onClick={() => { setPage(Math.max(1, safePage - 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         disabled={safePage === 1}
+                        aria-label={t('common.previous', 'Geri')}
                         className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-red/40 text-slate-500 disabled:opacity-30 transition-colors shadow-sm"
                       >
-                        <ChevronLeft size={18} />
+                        <ChevronLeft size={18} aria-hidden="true" />
                       </button>
                       <span className="text-sm font-bold text-[#0F2440] px-3">{safePage} / {totalPages}</span>
                       <button
                         onClick={() => { setPage(Math.min(totalPages, safePage + 1)); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                         disabled={safePage === totalPages}
+                        aria-label={t('common.next', 'İleri')}
                         className="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-brand-red/40 text-slate-500 disabled:opacity-30 transition-colors shadow-sm"
                       >
-                        <ChevronRight size={18} />
+                        <ChevronRight size={18} aria-hidden="true" />
                       </button>
                     </div>
                   </div>

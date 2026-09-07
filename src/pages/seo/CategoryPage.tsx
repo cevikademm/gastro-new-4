@@ -122,7 +122,7 @@ export default function CategoryPage(props: { category?: string; subcategory?: s
       <section className="max-w-[1400px] mx-auto px-4 sm:px-6 py-6">
         <div className="flex flex-wrap items-center justify-between gap-3 mb-5">
           <h2 className="text-xl font-display font-black text-[#0F2440]">
-            {node.name} <span className="text-slate-400 font-medium text-base">{total ? `· ${total.toLocaleString('de-DE')} ${t('seo.products', 'Produkte')}` : ''}</span>
+            {node.name} <span className="text-slate-600 font-medium text-base">{total ? `· ${total.toLocaleString('de-DE')} ${t('seo.products', 'Produkte')}` : ''}</span>
           </h2>
           <div className="flex flex-wrap items-center gap-2">
             <select value={brandFilter} onChange={(e) => setParam('marke', e.target.value)} className="text-sm border border-slate-200 rounded-xl px-3 py-2 bg-white" aria-label={t('seo.brand', 'Marke')}>
@@ -148,14 +148,14 @@ export default function CategoryPage(props: { category?: string; subcategory?: s
         )}
         {pages > 1 && (
           <nav aria-label={t('seo.pagination', 'Seiten')} className="mt-8 flex items-center justify-center gap-2 flex-wrap">
-            {page > 1 && <Link to={pageLink(page - 1)} rel="prev" className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-bold hover:border-brand-red"><ChevronLeft size={16} /></Link>}
+            {page > 1 && <Link to={pageLink(page - 1)} rel="prev" aria-label="Vorherige Seite" className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-bold hover:border-brand-red"><ChevronLeft size={16} aria-hidden="true" /></Link>}
             {Array.from({ length: pages }, (_, i) => i + 1).filter((n) => Math.abs(n - page) <= 2 || n === 1 || n === pages).map((n, i, arr) => (
               <span key={n} className="flex items-center gap-2">
                 {i > 0 && arr[i - 1] !== n - 1 && <span className="text-slate-400">…</span>}
                 <Link to={pageLink(n)} aria-current={n === page ? 'page' : undefined} className={`min-w-[40px] text-center px-3 py-2 rounded-xl border text-sm font-bold ${n === page ? 'bg-brand-red text-white border-brand-red' : 'bg-white border-slate-200 hover:border-brand-red'}`}>{n}</Link>
               </span>
             ))}
-            {page < pages && <Link to={pageLink(page + 1)} rel="next" className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-bold hover:border-brand-red"><ChevronRight size={16} /></Link>}
+            {page < pages && <Link to={pageLink(page + 1)} rel="next" aria-label="Nächste Seite" className="px-3 py-2 rounded-xl border border-slate-200 bg-white text-sm font-bold hover:border-brand-red"><ChevronRight size={16} aria-hidden="true" /></Link>}
           </nav>
         )}
       </section>

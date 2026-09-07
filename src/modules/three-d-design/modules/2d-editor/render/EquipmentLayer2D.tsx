@@ -12,16 +12,13 @@ import type { KonvaEventObject } from 'konva/lib/Node';
 import type { Equipment } from '../../../core/types';
 import { colorForKey, darkenHex } from '../../../lib/equipmentColor';
 
-// Her ÜRÜN'e ayrı renk: kategoriye göre değil, ürün anahtarından (catalogId)
-// türetilen kararlı bir ton (ortak `equipmentColor` util'inden). Override (eq.color)
-// varsa onu kullanır; aynı ürün hep aynı rengi alır.
-
 interface EquipmentLayer2DProps {
   equipment: Equipment[];
   scale: number;
-  selectedId: string | null;
+  selectedIds: ReadonlySet<string>;
+  hoverId?: string | null;
   draggable: boolean;
-  onSelect: (id: string) => void;
+  onSelect: (id: string, evt: KonvaEventObject<PointerEvent>) => void;
   /** Sürükleme başında — anti-tünel referansını kurmak için. */
   onDragStart?: (id: string) => void;
   /** Canlı: kısıtlanmış düğüm merkezini (mm) + dönüşü (derece) döndür → sürüklerken snap. */
@@ -33,7 +30,8 @@ interface EquipmentLayer2DProps {
 export default function EquipmentLayer2D({
   equipment,
   scale,
-  selectedId,
+  selectedIds,
+  hoverId = null,
   draggable,
   onSelect,
   onDragStart,
@@ -51,17 +49,12 @@ export default function EquipmentLayer2D({
         const cx = eq.position.x + w / 2;
         const cy = eq.position.y + d / 2;
         const deg = (eq.rotation * 180) / Math.PI;
-        const selected = eq.id === selectedId;
+        const selected = selectedIds.has(eq.id);
+        const hovered = hoverId === eq.id;
         const colors = colorForKey(eq.catalogId || eq.name || eq.id);
-        // Kullanıcı override rengi varsa onu kullan; yoksa deterministik ton.
         const fill = eq.color ?? colors.fill;
         const line = selected ? '#DC2626' : (eq.color ? darkenHex(eq.color, 0.35) : colors.stroke);
         const showLabel = Math.min(w, d) * scale > 18;
-
-        const select = (e: KonvaEventObject<MouseEvent>) => {
-          e.cancelBubble = true;
-          onSelect(eq.id);
-        };
 
         return (
           <Group
@@ -69,9 +62,11 @@ export default function EquipmentLayer2D({
             x={cx}
             y={cy}
             rotation={deg}
-            draggable={draggable}
-            onMouseDown={select}
-            onTap={select as unknown as (e: KonvaEventObject<Event>) => void}
+            draggable={draggable && !eq.locked}
+            onPointerDown={(e: KonvaEventObject<PointerEvent>) => {
+              e.cancelBubble = true;
+              onSelect(eq.id, e);
+            }}
             onDragStart={() => onDragStart?.(eq.id)}
             onDragMove={(e) => {
               const r = onDragMove?.(eq.id, { x: e.target.x(), y: e.target.y() });
@@ -91,11 +86,11 @@ export default function EquipmentLayer2D({
               fill={fill}
               opacity={1}
               stroke={line}
-              strokeWidth={selected ? stroke * 1.6 : stroke}
+              strokeWidth={selected ? stroke * 1.6 : hovered ? stroke * 1.3 : stroke}
               cornerRadius={Math.min(w, d) * 0.05}
               shadowColor={selected ? '#DC2626' : '#0F172A'}
-              shadowBlur={(selected ? 12 : 6) / scale}
-              shadowOpacity={selected ? 0.45 : 0.28}
+              shadowBlur={(selected ? 12 : 5) / scale}
+              shadowOpacity={selected ? 0.35 : 0.16}
               shadowOffset={{ x: 0, y: 2 / scale }}
             />
             {/* front-edge marker (helps read facing direction) */}
@@ -108,9 +103,20 @@ export default function EquipmentLayer2D({
               opacity={0.35}
               cornerRadius={0}
             />
+            {eq.locked && (
+              <Rect
+                x={-w / 2}
+                y={-d / 2}
+                width={w}
+                height={d}
+                stroke="#0f172a"
+                strokeWidth={1 / scale}
+                dash={[40 / scale, 40 / scale]}
+                listening={false}
+              />
+            )}
             {showLabel && (
               <>
-                {/* Ürün adı (üst satır) */}
                 <Text
                   text={eq.name}
                   x={-w / 2 + 30}
@@ -124,7 +130,6 @@ export default function EquipmentLayer2D({
                   wrap="none"
                   ellipsis
                 />
-                {/* Birebir ölçü etiketi: G×D (mm) — 3B kutu ile aynı footprint */}
                 <Text
                   text={`${Math.round(w)}×${Math.round(d)}`}
                   x={-w / 2 + 30}

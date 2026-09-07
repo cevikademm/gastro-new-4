@@ -1993,7 +1993,7 @@ var COMPETITORS = [
 ];
 
 // src/content/ratgeber/index.generated.ts
-var RATGEBER_INDEX = [];
+var RATGEBER_INDEX = [{ "slug": "haccp-gastronomiekueche-planen", "title": "HACCP-konforme Gastronomiek\xFCche planen: Ablauf, Zonen und Kontrollpunkte", "description": "Wie Sie eine Gastronomiek\xFCche HACCP-konform planen: Arbeitsabl\xE4ufe trennen, kritische Kontrollpunkte definieren, K\xFChlung und Reinigung dokumentieren und die passende Ausstattung w\xE4hlen.", "locale": "de", "category": "hygiene-haccp", "tags": ["HACCP", "Lebensmittelhygiene", "Gastronomiek\xFCche", "K\xFCchenplanung"], "author": "2MC Gastro Redaktion", "datePublished": "2026-09-06", "dateModified": "2026-09-06", "image": "/landing/hero-kitchen-tablet.webp", "imageAlt": "Digitale Planung einer professionellen Gastronomiek\xFCche", "status": "published", "faq": [{ "q": "Was bedeutet HACCP in der Gastronomie?", "a": "HACCP steht f\xFCr Hazard Analysis and Critical Control Points. Das Verfahren hilft Lebensmittelunternehmen, gesundheitliche Gefahren im Arbeitsablauf zu erkennen, zu beherrschen und die Wirksamkeit der Ma\xDFnahmen zu dokumentieren." }, { "q": "Muss jede K\xFCche identische HACCP-Formulare verwenden?", "a": "Nein. Das HACCP-Konzept muss zur T\xE4tigkeit, Gr\xF6\xDFe und zum Risiko des Betriebs passen. Entscheidend sind nachvollziehbare Gefahrenanalyse, geeignete Kontrollen, Korrekturma\xDFnahmen und Aufzeichnungen." }, { "q": "Welche Rolle spielt die K\xFCchenplanung f\xFCr HACCP?", "a": "Die Planung schafft die Voraussetzungen f\xFCr hygienische Abl\xE4ufe: Sie trennt reine und unreine Bereiche, vermeidet Kreuzungen im Waren- und Geschirrfluss und l\xE4sst gen\xFCgend Platz f\xFCr Reinigung, Wartung und Temperaturkontrolle." }], "relatedCategories": ["kuehlung", "edelstahlmoebel", "spueltechnik"], "relatedProducts": [], "sources": [{ "title": "Verordnung (EG) Nr. 852/2004 \xFCber Lebensmittelhygiene", "url": "https://eur-lex.europa.eu/legal-content/DE/TXT/?uri=CELEX:32004R0852", "publisher": "EUR-Lex" }, { "title": "Hygieneregeln in der Gemeinschaftsgastronomie", "url": "https://www.bfr.bund.de/publikationen/hygieneregeln-in-der-gemeinschaftsgastronomie-deutsch/", "publisher": "Bundesinstitut f\xFCr Risikobewertung" }, { "title": "Fragen und Antworten zum HACCP-Konzept", "url": "https://www.bfr.bund.de/cm/350/fragen_und_antworten_zum_hazard_analysis_and_critical_control_point__haccp__konzept.pdf", "publisher": "Bundesinstitut f\xFCr Risikobewertung" }], "readingMinutes": 4, "wordCount": 785, "html": '<p>Eine HACCP-konforme Gastronomiek\xFCche entsteht nicht erst mit der Temperatur- oder Reinigungsdokumentation. Sie beginnt mit einem nachvollziehbaren Grundriss und einem Arbeitsablauf, der Risiken gar nicht erst entstehen l\xE4sst. F\xFCr Lebensmittelunternehmen verlangt Artikel 5 der Verordnung (EG) Nr. 852/2004 dauerhafte Verfahren auf Basis der HACCP-Grunds\xE4tze. Das bedeutet nicht, dass jede K\xFCche dieselben Formulare oder dieselbe Ausstattung braucht. Das Konzept muss zur Speisekarte, Produktionsmenge, Betriebsgr\xF6\xDFe und zu den tats\xE4chlichen Risiken passen.</p>\n<p>Dieser Beitrag ist eine Planungshilfe, keine Rechtsberatung und kein Ersatz f\xFCr die Abstimmung mit der zust\xE4ndigen Lebensmittel\xFCberwachung. Wer baut, umbaut oder einen Betrieb \xFCbernimmt, sollte den Ablauf vor der Bestellung von Ger\xE4ten festlegen und ihn anschlie\xDFend in der t\xE4glichen Praxis \xFCberpr\xFCfen.</p>\n<h2 id="was-haccp-fuer-die-kuechenplanung-bedeutet">Was HACCP f\xFCr die K\xFCchenplanung bedeutet</h2>\n<p>HACCP steht f\xFCr <em>Hazard Analysis and Critical Control Points</em>: Gefahren analysieren und kritische Kontrollpunkte beherrschen. Die EU-Verordnung nennt daf\xFCr sieben Bausteine: Gefahren erkennen, kritische Kontrollpunkte festlegen, Grenzwerte bestimmen, \xFCberwachen, bei Abweichungen handeln, die Wirksamkeit pr\xFCfen und die Anwendung dokumentieren.</p>\n<p>In einer K\xFCche k\xF6nnen Gefahren biologisch, chemisch oder physikalisch sein. Praktisch geht es beispielsweise um eine unterbrochene K\xFChlkette beim Wareneingang, Kreuzkontamination zwischen rohem Gefl\xFCgel und verzehrfertigen Speisen, Reinigungsmittelr\xFCckst\xE4nde oder Fremdk\xF6rper. Gute K\xFCchenplanung ersetzt das HACCP-System nicht; sie reduziert aber die Zahl der Situationen, in denen Mitarbeitende unter Zeitdruck improvisieren m\xFCssten.</p>\n<h2 id="den-warenfluss-zuerst-zeichnen">Den Warenfluss zuerst zeichnen</h2>\n<p>Der sinnvollste Start ist ein einfacher Ablaufplan vom Wareneingang bis zur Ausgabe. Zeichnen Sie f\xFCr jede Produktgruppe ein, wo sie angenommen, gelagert, vorbereitet, gegart, bereitgehalten und ausgegeben wird. Erg\xE4nzen Sie einen zweiten Weg f\xFCr schmutziges Geschirr, Abfall und R\xFCcklauf. Diese Wege sollen sich m\xF6glichst nicht kreuzen.</p>\n<p>Ein praxistauglicher Grundriss gliedert sich h\xE4ufig in folgende Zonen:</p>\n<ul>\n<li>Wareneingang und Kontrolle: Anlieferung auf Verpackung, Zustand und bei k\xFChlpflichtiger Ware auf die Temperatur pr\xFCfen.</li>\n<li>Lagerung: Trockenlager, K\xFChllager und Tiefk\xFChlung getrennt und mit ausreichend zug\xE4nglichen Regalen planen.</li>\n<li>Vorbereitung: Rohware, insbesondere Fleisch, Fisch und ungewaschenes Gem\xFCse, r\xE4umlich oder zeitlich von verzehrfertigen Lebensmitteln trennen.</li>\n<li>Produktion und Ausgabe: Kochlinie, Pass und Warmhaltebereich so anordnen, dass kurze, eindeutige Wege entstehen.</li>\n<li>Sp\xFClk\xFCche und Abfall: Geschirrr\xFCcklauf, Vorsp\xFClen, Sp\xFClmaschine und sauberes Geschirr als eigener Ablauf; Abfall darf keine reine Zone kreuzen.</li>\n</ul>\n<p>Die BfR-Hygienehinweise betonen genau diese Trennung: Ger\xE4te f\xFCr rohe und bereits gegarte Speisen d\xFCrfen nicht ohne sorgf\xE4ltliche Reinigung dazwischen verwendet werden. Auch der Wareneingang geh\xF6rt in den Ablauf: besch\xE4digte oder verunreinigte Verpackungen k\xF6nnen Keime oder Sch\xE4dlinge in das Lager eintragen.</p>\n<h2 id="kontrollpunkte-konkret-und-beobachtbar-festlegen">Kontrollpunkte konkret und beobachtbar festlegen</h2>\n<p>Ein Kontrollpunkt ist nur n\xFCtzlich, wenn klar ist, wer was wann pr\xFCft und was bei einer Abweichung passiert. Statt \u201EK\xFChlung kontrollieren\u201C schreiben Sie beispielsweise: \u201EDie verantwortliche Person pr\xFCft und dokumentiert die Lagertemperatur des K\xFChlraums zu Schichtbeginn. Bei Abweichung werden die betroffenen Waren bewertet, die Ursache gemeldet und eine Korrekturma\xDFnahme dokumentiert.\u201C Die konkreten Grenzwerte und Pr\xFCfintervalle legt der Betrieb risikobasiert f\xFCr seine Produkte und Verfahren fest.</p>\n<p>Typische Punkte, die in Gastronomiebetrieben gepr\xFCft werden, sind:</p>\n<ul>\n<li>Wareneingang und die ununterbrochene K\xFChlkette.</li>\n<li>Lager- und Prozessbedingungen f\xFCr k\xFChlpflichtige Lebensmittel.</li>\n<li>Trennung von roh und verzehrfertig in Vorbereitung, Lagerung und Ausgabe.</li>\n<li>Erhitzung, Abk\xFChlung, Regenerieren und Warmhalten \u2013 jeweils passend zur Speise und zum Verfahren.</li>\n<li>Reinigungs- und Desinfektionsabl\xE4ufe sowie die Funktionsf\xE4higkeit von Messmitteln.</li>\n</ul>\n<p>Das BfR weist darauf hin, dass die Dokumentation nicht nur Messwerte umfasst. Dazu geh\xF6ren auch Arbeitsanweisungen, Pr\xFCfmethoden, Abweichungen, Korrekturen, Verifizierungen und Checklisten. Ein digitales Temperaturprotokoll ist daher sinnvoll, aber allein noch kein HACCP-Konzept.</p>\n<h2 id="ausstattung-nach-dem-ablauf-auswaehlen">Ausstattung nach dem Ablauf ausw\xE4hlen</h2>\n<p>Erst wenn die Zonen und Kontrollpunkte feststehen, l\xE4sst sich die Ausstattung pr\xE4zise ausw\xE4hlen. K\xFChlger\xE4te m\xFCssen zum ben\xF6tigten Volumen, zur Umgebung und zum Arbeitsablauf passen; offene K\xFChlung neben einer hei\xDFen Kochlinie ist meist keine gute Ausgangslage. Bei <a href="/kuehlung">Gastro-K\xFChlung</a> sind zug\xE4ngliche Temperaturanzeigen, ausreichend Arbeitsfl\xE4che und leicht zu reinigende Oberfl\xE4chen wichtige Auswahlkriterien.</p>\n<p>F\xFCr Vorbereitungs- und Sp\xFClbereiche helfen <a href="/edelstahlmoebel">Edelstahlm\xF6bel</a>, klare Ablagen und getrennte Becken dabei, rein und unrein sichtbar zu organisieren. In der <a href="/spueltechnik">Sp\xFCltechnik</a> z\xE4hlt nicht nur die Maschinenleistung: Auch Stellfl\xE4chen f\xFCr schmutziges und sauberes Geschirr, der R\xFCcklaufweg und die t\xE4gliche Reinigung m\xFCssen eingeplant werden. Planen Sie au\xDFerdem Bewegungs- und Reinigungsfl\xE4chen ein. Ger\xE4te, die zwar in den Raum passen, aber nicht erreichbar oder wartbar sind, erzeugen im Betrieb neue Risiken.</p>\n<h2 id="das-konzept-im-betrieb-verifizieren">Das Konzept im Betrieb verifizieren</h2>\n<p>Ein Plan ist erst dann gut, wenn er w\xE4hrend einer echten Schicht funktioniert. Beobachten Sie den Ablauf zur Sto\xDFzeit: Wo kreuzen sich Wege? Sind Thermometer und Checklisten dort erreichbar, wo sie gebraucht werden? Werden saubere Beh\xE4lter vom R\xFCcklauf getrennt? Lassen sich Fl\xE4chen ohne Umr\xE4umen reinigen?</p>\n<p>\xC4ndern sich Speisekarte, Produktionsmenge, Ger\xE4te oder Arbeitsabl\xE4ufe, muss auch das HACCP-Verfahren gepr\xFCft und angepasst werden. Die EU-Verordnung verlangt diese \xDCberpr\xFCfung bei \xC4nderungen; das BfR nennt unter anderem Audits, Stichproben, Personalbeobachtung, Aufzeichnungspr\xFCfung und die Kalibrierung von Messmitteln als Verifizierungsmethoden.</p>\n<p>F\xFCr den Start gen\xFCgt kein allgemeiner Musterordner. Erstellen Sie einen Grundriss, einen tats\xE4chlichen Waren- und Geschirrfluss, klare Verantwortlichkeiten und nur die Aufzeichnungen, die Ihren Prozess nachweisbar beherrschen. Mit dieser Grundlage kann eine 2D/3D-Planung zeigen, ob Ger\xE4te, Wege und Anschl\xFCsse vor der Bestellung wirklich zusammenpassen.</p>\n', "excerpt": "Eine HACCP-konforme Gastronomiek\xFCche entsteht nicht erst mit der Temperatur- oder Reinigungsdokumentation. Sie beginnt mit einem nachvollziehbaren Grundriss und einem Arbeitsablauf, der Risiken gar nicht erst entstehen l\xE4sst. F\xFCr Lebensmittelunternehmen verlangt Artikel 5 der Verordnung (EG) Nr. 852", "toc": [{ "id": "was-haccp-fuer-die-kuechenplanung-bedeutet", "text": "Was HACCP f\xFCr die K\xFCchenplanung bedeutet", "level": 2 }, { "id": "den-warenfluss-zuerst-zeichnen", "text": "Den Warenfluss zuerst zeichnen", "level": 2 }, { "id": "kontrollpunkte-konkret-und-beobachtbar-festlegen", "text": "Kontrollpunkte konkret und beobachtbar festlegen", "level": 2 }, { "id": "ausstattung-nach-dem-ablauf-auswaehlen", "text": "Ausstattung nach dem Ablauf ausw\xE4hlen", "level": 2 }, { "id": "das-konzept-im-betrieb-verifizieren", "text": "Das Konzept im Betrieb verifizieren", "level": 2 }] }];
 
 // src/content/ratgeber/types.ts
 var RATGEBER_CATEGORY_LABEL = {
@@ -2838,65 +2838,69 @@ async function renderPage(url, shell) {
 }
 
 // src/seo/server/_shell.generated.ts
-var SHELL = `<!doctype html>
-<html lang="de">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="theme-color" content="#931315" />
-    <meta name="color-scheme" content="dark light" />
-
-    <!--
-      SEO kabu\u011Fu \u2014 rota-\xF6zel ba\u015Fl\u0131k/meta/canonical/hreflang/JSON-LD a\u015Fa\u011F\u0131daki
-      i\u015Faret\xE7iler aras\u0131na bas\u0131l\u0131r: build'de scripts/seo/prerender.ts (statik
-      sayfalar), istek an\u0131nda api/render.ts (\xFCr\xFCnler, sayfalama, 404).
-      Buradaki varsay\u0131lanlar yaln\u0131zca \`vite dev\` ve yedek durumlar i\xE7indir.
-      Elle canonical/JSON-LD EKLEME \u2014 src/seo/model/* tek kaynakt\u0131r.
-    -->
-    <!--seo:head--><title>2MC Gastro</title><!--/seo:head-->
-
-    <meta name="author" content="2MC Gastro" />
-    <meta name="twitter:site" content="@2mcgastro" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <!-- Google Search Console do\u011Frulamas\u0131: Adem'den gelen token buraya \u2014
-         <meta name="google-site-verification" content="\u2026" /> -->
-
-    <!-- Icons & PWA -->
-    <link rel="icon" type="image/png" href="https://vwuqvweorjbqxcebnaym.supabase.co/storage/v1/object/public/product-3d/logo/2mc%20gastro%20favicon.png" />
-    <link rel="apple-touch-icon" href="https://vwuqvweorjbqxcebnaym.supabase.co/storage/v1/object/public/product-3d/logo/2mc%20gastro%20favicon.png" />
-    <link rel="manifest" href="/site.webmanifest" />
-
-    <!-- Performance hints -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://images.diamond-europe.com" crossorigin />
-    <link rel="dns-prefetch" href="https://pim.combisteel.com" />
-    <!-- Ekranda ger\xE7ekten render edilen logo bu PNG'dir (Navbar/Layout/Footer). -->
-    <link rel="preload" as="image" href="/logo-2mc-gastro.png" fetchpriority="high" />
-
-    <!-- Geo meta (local SEO) -->
-    <meta name="geo.region" content="DE-NW" />
-    <meta name="geo.placename" content="K\xF6ln" />
-    <meta name="geo.position" content="50.9648;7.0273" />
-    <meta name="ICBM" content="50.9648, 7.0273" />
-
-    <!-- Feed & AI discovery (GEO) -->
-    <link rel="alternate" type="application/rss+xml" title="2MC Gastro \u2014 Ratgeber & Neuigkeiten" href="https://www.2mcgastro.de/rss.xml" />
-    <link rel="alternate" type="text/plain" title="llms.txt" href="https://www.2mcgastro.de/llms.txt" />
-    <script type="module" crossorigin src="/assets/index-CqiqggvZ.js"></script>
-    <link rel="modulepreload" crossorigin href="/assets/react-DVs2NkFc.js">
-    <link rel="modulepreload" crossorigin href="/assets/pdf-BNMWRwDm.js">
-    <link rel="modulepreload" crossorigin href="/assets/i18n-BvNubqYy.js">
-    <link rel="modulepreload" crossorigin href="/assets/state-BvHujI36.js">
+var SHELL = `<!doctype html>\r
+<html lang="de">\r
+  <head>\r
+    <meta charset="UTF-8" />\r
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />\r
+    <meta name="theme-color" content="#931315" />\r
+    <meta name="color-scheme" content="dark light" />\r
+\r
+    <!--\r
+      SEO kabu\u011Fu \u2014 rota-\xF6zel ba\u015Fl\u0131k/meta/canonical/hreflang/JSON-LD a\u015Fa\u011F\u0131daki\r
+      i\u015Faret\xE7iler aras\u0131na bas\u0131l\u0131r: build'de scripts/seo/prerender.ts (statik\r
+      sayfalar), istek an\u0131nda api/render.ts (\xFCr\xFCnler, sayfalama, 404).\r
+      Buradaki varsay\u0131lanlar yaln\u0131zca \`vite dev\` ve yedek durumlar i\xE7indir.\r
+      Elle canonical/JSON-LD EKLEME \u2014 src/seo/model/* tek kaynakt\u0131r.\r
+    -->\r
+    <!--seo:head--><title>2MC Gastro</title><!--/seo:head-->\r
+\r
+    <meta name="author" content="2MC Gastro" />\r
+    <meta name="twitter:site" content="@2mcgastro" />\r
+    <meta property="og:image:width" content="1200" />\r
+    <meta property="og:image:height" content="630" />\r
+    <!-- Google Search Console do\u011Frulamas\u0131: Adem'den gelen token buraya \u2014\r
+         <meta name="google-site-verification" content="\u2026" /> -->\r
+\r
+    <!-- Icons & PWA -->\r
+    <link rel="icon" type="image/png" href="https://vwuqvweorjbqxcebnaym.supabase.co/storage/v1/object/public/product-3d/logo/2mc%20gastro%20favicon.png" />\r
+    <link rel="apple-touch-icon" href="https://vwuqvweorjbqxcebnaym.supabase.co/storage/v1/object/public/product-3d/logo/2mc%20gastro%20favicon.png" />\r
+    <link rel="manifest" href="/site.webmanifest" />\r
+\r
+    <!-- Performance hints -->\r
+    <link rel="preconnect" href="https://fonts.googleapis.com" />\r
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />\r
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />\r
+    <!-- Google Fonts: render'\u0131 engellemeden y\xFCkle (print\u2192all takas\u0131); JS kapal\u0131ysa noscript.\r
+         Eskiden src/index.css i\xE7inden @import ile geliyordu (seri zincir, ~800 ms). -->\r
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" />\r
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" media="print" onload="this.media='all'" />\r
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800;900&family=Inter:wght@300;400;500;600;700;800;900&display=swap" /></noscript>\r
+    <link rel="preconnect" href="https://images.diamond-europe.com" crossorigin />\r
+    <link rel="dns-prefetch" href="https://pim.combisteel.com" />\r
+    <!-- Ekranda ger\xE7ekten render edilen logo bu WebP'dir (Navbar/Layout/Footer); 400px, ~25 KB.\r
+         Eski 1208px PNG (275 KB) og:image/JSON-LD i\xE7in duruyor, ekranda kullan\u0131lmaz. -->\r
+    <link rel="preload" as="image" href="/logo-2mc-gastro.webp" fetchpriority="high" />\r
+\r
+    <!-- Geo meta (local SEO) -->\r
+    <meta name="geo.region" content="DE-NW" />\r
+    <meta name="geo.placename" content="K\xF6ln" />\r
+    <meta name="geo.position" content="50.9648;7.0273" />\r
+    <meta name="ICBM" content="50.9648, 7.0273" />\r
+\r
+    <!-- Feed & AI discovery (GEO) -->\r
+    <link rel="alternate" type="application/rss+xml" title="2MC Gastro \u2014 Ratgeber & Neuigkeiten" href="https://www.2mcgastro.de/rss.xml" />\r
+    <link rel="alternate" type="text/plain" title="llms.txt" href="https://www.2mcgastro.de/llms.txt" />\r
+    <script type="module" crossorigin src="/assets/index-CHlZSLQN.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/react-OOQ9L-sP.js">
+    <link rel="modulepreload" crossorigin href="/assets/i18n-CKKom6EK.js">
+    <link rel="modulepreload" crossorigin href="/assets/state-C4hkmzCB.js">
     <link rel="modulepreload" crossorigin href="/assets/supabase-Dsb38-Dp.js">
-    <link rel="modulepreload" crossorigin href="/assets/icons-Cc2T78SC.js">
-    <link rel="modulepreload" crossorigin href="/assets/motion-m847y5Lc.js">
-    <link rel="modulepreload" crossorigin href="/assets/data-products-C_Sx8pgF.js">
-    <link rel="stylesheet" crossorigin href="/assets/index-DsIhZmEj.css">
-  </head>
-  <body>
+    <link rel="modulepreload" crossorigin href="/assets/icons-BGuwjwTx.js">
+    <link rel="modulepreload" crossorigin href="/assets/motion-jDj5LsQc.js">
+    <link rel="stylesheet" crossorigin href="/assets/index-DKuhPcxZ.css">
+  </head>\r
+  <body>\r
     <style>
       html, body { background:#0e0e10; margin:0; padding:0; }
       body { font-family: 'Inter', ui-sans-serif, system-ui, sans-serif; color:#fff; -webkit-font-smoothing:antialiased; }
@@ -2925,29 +2929,114 @@ var SHELL = `<!doctype html>
       @media (prefers-reduced-motion: reduce) { #app-splash .ring { animation: none; } }
       /* Sunucu g\xF6vdesi (React mount'a kadar): splash alt\u0131nda, ekranda g\xF6r\xFCnmez ama DOM'da */
       #root > header, #root > main, #root > footer { max-width: 72rem; margin: 0 auto; padding: 0 1rem; color: #ddd; }
-    </style>
-    <div id="app-splash" aria-hidden="true">
-      <div class="ring"></div>
-      <div class="brand">2MC GASTRO</div>
-      <div class="accent"></div>
-    </div>
-    <!--
-      Rota-\xF6zel semantik HTML (Googlebot, Bing, ChatGPT/Perplexity/Claude botlar\u0131 ham
-      HTML'i okur). React \`createRoot\` ilk render'da bu d\xFC\u011F\xFCmleri de\u011Fi\u015Ftirir; kullan\u0131c\u0131
-      splash arkas\u0131nda hi\xE7 g\xF6rmez. Kaynak: src/seo/model/pages.ts \u2014 elle d\xFCzenleme.
-    -->
-    <div id="root"><!--seo:body--><!--/seo:body--></div>
-    <noscript>
-      <div style="padding:40px;font-family:system-ui;text-align:center;background:#020817;color:#fff;min-height:100vh;">
-        <p><strong>2MC Gastro \u2014 Gastronomiebedarf &amp; Gro\xDFk\xFCchentechnik</strong></p>
-        <p>Diese Anwendung ben\xF6tigt JavaScript. Bitte aktivieren Sie JavaScript in Ihrem Browser.</p>
-        <p>\xDCber 14.000 Produkte von Diamond, CombiSteel und HENDI \xB7 2D/3D-K\xFCchenplanung \xB7 Angebote f\xFCr Gewerbekunden.</p>
-        <p>2MC Gastro GmbH \xB7 Bergisch Gladbacher Str. 172, 51063 K\xF6ln \xB7 Tel.: +49 176 70295844 \xB7 info@2mcgastro.de</p>
-      </div>
-    </noscript>
-  </body>
-</html>
+    </style>\r
+    <div id="app-splash" aria-hidden="true">\r
+      <div class="ring"></div>\r
+      <div class="brand">2MC GASTRO</div>\r
+      <div class="accent"></div>\r
+    </div>\r
+    <!--\r
+      Rota-\xF6zel semantik HTML (Googlebot, Bing, ChatGPT/Perplexity/Claude botlar\u0131 ham\r
+      HTML'i okur). React \`createRoot\` ilk render'da bu d\xFC\u011F\xFCmleri de\u011Fi\u015Ftirir; kullan\u0131c\u0131\r
+      splash arkas\u0131nda hi\xE7 g\xF6rmez. Kaynak: src/seo/model/pages.ts \u2014 elle d\xFCzenleme.\r
+    -->\r
+    <div id="root"><!--seo:body--><!--/seo:body--></div>\r
+    <noscript>\r
+      <div style="padding:40px;font-family:system-ui;text-align:center;background:#020817;color:#fff;min-height:100vh;">\r
+        <p><strong>2MC Gastro \u2014 Gastronomiebedarf &amp; Gro\xDFk\xFCchentechnik</strong></p>\r
+        <p>Diese Anwendung ben\xF6tigt JavaScript. Bitte aktivieren Sie JavaScript in Ihrem Browser.</p>\r
+        <p>\xDCber 14.000 Produkte von Diamond, CombiSteel und HENDI \xB7 2D/3D-K\xFCchenplanung \xB7 Angebote f\xFCr Gewerbekunden.</p>\r
+        <p>2MC Gastro GmbH \xB7 Bergisch Gladbacher Str. 172, 51063 K\xF6ln \xB7 Tel.: +49 176 70295844 \xB7 info@2mcgastro.de</p>\r
+      </div>\r
+    </noscript>\r\r
+  </body>\r
+</html>\r
 `;
+
+// src/seo/server/geoLocale.ts
+var AUTO_REDIRECT_LOCALES = ["tr", "en", "nl", "fr", "es"];
+var COUNTRY_LOCALE = {
+  TR: "tr",
+  NL: "nl",
+  FR: "fr",
+  LU: "fr",
+  MC: "fr",
+  ES: "es",
+  MX: "es",
+  AR: "es",
+  CO: "es",
+  CL: "es",
+  PE: "es",
+  VE: "es",
+  EC: "es",
+  GT: "es",
+  BO: "es",
+  DO: "es",
+  HN: "es",
+  PY: "es",
+  NI: "es",
+  CR: "es",
+  PA: "es",
+  UY: "es",
+  SV: "es",
+  CU: "es",
+  PR: "es",
+  GB: "en",
+  IE: "en",
+  US: "en",
+  CA: "en",
+  AU: "en",
+  NZ: "en",
+  ZA: "en",
+  IN: "en",
+  SG: "en",
+  MT: "en",
+  PH: "en",
+  NG: "en",
+  KE: "en"
+  // DE/AT/CH listelenmez: zaten varsayılan Almanca.
+};
+var BOT_UA = /bot|crawler|spider|crawling|googlebot|bingbot|slurp|duckduckbot|baiduspider|yandex|sogou|exabot|facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|ia_archiver|ahrefs|semrush|mj12|dotbot|petalbot|gptbot|claudebot|claude-web|anthropic|perplexity|ccbot|google-extended|chatgpt-user|oai-searchbot|bytespider|amazonbot|lighthouse|headlesschrome|pagespeed/i;
+var NON_PAGE = /^\/(api|assets|brand-logos|3d|models)\/|\.[a-z0-9]{2,5}$/i;
+function header(req, name) {
+  const v = req.headers?.[name] ?? req.headers?.[name.toLowerCase()];
+  return (Array.isArray(v) ? v[0] : v) || "";
+}
+function storedLocale(cookieHeader) {
+  const m = cookieHeader.match(/(?:^|;\s*)2mc_lang=([^;]+)/);
+  return m ? decodeURIComponent(m[1]) : null;
+}
+function fromAcceptLanguage(accept) {
+  for (const part of accept.split(",")) {
+    const tag = part.split(";")[0].trim().slice(0, 2).toLowerCase();
+    if (isLocale(tag) && AUTO_REDIRECT_LOCALES.includes(tag)) return tag;
+    if (tag === "de") return DEFAULT_LOCALE;
+  }
+  return null;
+}
+function pickLocale(country, accept) {
+  if (country === "BE" || country === "CH") return fromAcceptLanguage(accept);
+  const byCountry = COUNTRY_LOCALE[country];
+  if (byCountry) return byCountry;
+  return fromAcceptLanguage(accept);
+}
+function geoRedirect(req, url) {
+  if (req.method && req.method !== "GET") return null;
+  const [pathname, query] = url.split("?");
+  if (NON_PAGE.test(pathname)) return null;
+  const { locale: current } = splitLocale(pathname);
+  if (current !== DEFAULT_LOCALE) return null;
+  if (storedLocale(header(req, "cookie"))) return null;
+  if (BOT_UA.test(header(req, "user-agent"))) return null;
+  const country = header(req, "x-vercel-ip-country").toUpperCase();
+  const accept = header(req, "accept-language");
+  if (!country && !accept) return null;
+  const target = pickLocale(country, accept);
+  if (!target || target === DEFAULT_LOCALE) return null;
+  if (!AUTO_REDIRECT_LOCALES.includes(target)) return null;
+  const rest2 = pathname === "/" ? "" : pathname;
+  return { to: `/${target}${rest2}${query ? `?${query}` : ""}`, locale: target };
+}
 
 // src/seo/server/render.ts
 var cachedShell = null;
@@ -2994,6 +3083,15 @@ async function handler(req, res) {
   }
   const shell = loadShell();
   const url = requestUrl(req);
+  const geo = geoRedirect(req, url);
+  if (geo) {
+    res.setHeader("Location", geo.to);
+    res.setHeader("Cache-Control", "private, no-store");
+    res.setHeader("Vary", "X-Vercel-IP-Country, Accept-Language, Cookie, User-Agent");
+    res.setHeader("Set-Cookie", `2mc_lang=${geo.locale}; Path=/; Max-Age=31536000; SameSite=Lax`);
+    res.status(302).end();
+    return;
+  }
   try {
     const out = await renderPage(url, shell);
     for (const [k, v] of Object.entries(out.headers)) res.setHeader(k, v);

@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { useCartStore } from '../../../stores/cartStore';
 import { useCompareStore, brandToSource, type CompareItem } from '../../../stores/compareStore';
 import { BadgeCheck, CreditCard, GitCompareArrows } from 'lucide-react';
@@ -92,6 +93,7 @@ const toCompareItem = (prod: typeof TOP_PRODUCTS[number]): CompareItem => ({
 });
 
 export function TopProductsCarousel() {
+  const { t } = useTranslation();
   const { addItem, removeItem, isInCart } = useCartStore();
   const compareItems = useCompareStore((s) => s.items);
   const toggleCompare = useCompareStore((s) => s.toggleItem);
@@ -107,17 +109,17 @@ export function TopProductsCarousel() {
           <div>
             <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
               <span className="w-6 h-px bg-brand-red" />
-              TOP PRODUKTE
+              {t('landing.topProducts.eyebrow')}
             </span>
             <h2 className="lp-h3 font-display font-bold text-[#0F2440] tracking-tight">
-              Professionelle Küchentechnik. <span className="text-brand-red">Direkt konfigurierbar</span>.
+              {t('landing.topProducts.headingLead')} <span className="text-brand-red">{t('landing.topProducts.headingAccent')}</span>.
             </h2>
             <p className="mt-2 text-xs text-slate-500">
-              10.000+ Produkte führender Hersteller für Ihr Gastro-Projekt.
+              {t('landing.topProducts.subtitle')}
             </p>
           </div>
           <a href="#catalog" className="text-xs font-bold uppercase tracking-[0.2em] text-[#0F2440] hover:text-brand-red transition-all mt-4 md:mt-0">
-            ALLE GERÄTE ANZEGEN &gt;
+            {t('landing.topProducts.viewAll')} &gt;
           </a>
         </div>
 
@@ -153,7 +155,7 @@ export function TopProductsCarousel() {
                     {prod.brand}
                   </div>
                   <div className="absolute right-3 top-3 z-40 rounded-md bg-brand-red px-1.5 py-0.5 text-[8px] font-bold uppercase tracking-wider text-white shadow-[0_6px_12px_-7px_rgba(220,38,38,0.9)]">
-                    BESTSELLER
+                    {t('landing.topProducts.bestseller')}
                   </div>
 
                   <div className="relative z-30 flex flex-1 flex-col justify-between bg-white px-4 pb-4 pt-3">
@@ -162,7 +164,7 @@ export function TopProductsCarousel() {
                       <span className="text-[8px] font-bold text-brand-red uppercase tracking-[0.2em]">{prod.sub}</span>
                       <span className="flex items-center gap-1 text-[8px] text-emerald-600 font-bold">
                         <span className="w-1 h-1 rounded-full bg-emerald-500 animate-ping" />
-                        LAGERND
+                        {t('landing.topProducts.inStock')}
                       </span>
                     </div>
                     <h3 className="text-xs font-bold text-[#0F2440] leading-snug line-clamp-2 mb-2 min-h-[32px] group-hover:text-brand-red transition-colors">
@@ -173,11 +175,11 @@ export function TopProductsCarousel() {
                     <div className="mb-2">
                       <div className="mb-1 flex items-center gap-2">
                         <span className="text-[9px] font-bold text-slate-400 line-through">€ {listPrice.toLocaleString("de-DE")}</span>
-                        <span className="rounded bg-red-50 px-1.5 py-0.5 text-[8px] font-bold text-brand-red">Save € {saving.toLocaleString("de-DE")}</span>
+                        <span className="rounded bg-red-50 px-1.5 py-0.5 text-[8px] font-bold text-brand-red">{t('landing.topProducts.save', { amount: saving.toLocaleString('de-DE') })}</span>
                       </div>
                       <div className="text-base font-display font-black text-[#0F2440]">
                         € {prod.price.toLocaleString("de-DE")}
-                        <span className="text-[9px] font-medium text-slate-400 ml-1">zzgl. MwSt.</span>
+                        <span className="text-[9px] font-medium text-slate-600 ml-1">{t('landing.topProducts.plusVat')}</span>
                       </div>
                     </div>
 
@@ -185,9 +187,9 @@ export function TopProductsCarousel() {
                     <div className="bg-slate-50 border border-slate-100 rounded-lg p-1.5 text-[9px] font-bold text-[#0F2440] flex justify-between items-center mb-2">
                       <span className="text-slate-500 flex items-center gap-1">
                         <CreditCard size={11} />
-                        Leasing ab:
+                        {t('landing.topProducts.leasingFrom')}
                       </span>
-                      <span className="text-brand-red">€ {Math.round((prod.price * 1.15) / 60)}/Monat</span>
+                      <span className="text-brand-red">{t('landing.topProducts.perMonth', { amount: Math.round((prod.price * 1.15) / 60) })}</span>
                     </div>
                   </div>
 
@@ -219,13 +221,13 @@ export function TopProductsCarousel() {
                       className={`flex-1 py-2.5 rounded-lg text-[9px] font-bold tracking-[0.1em] uppercase transition-colors cursor-pointer border inline-flex items-center justify-center gap-1.5 ${added ? "bg-slate-100 border-slate-300 text-slate-600 hover:bg-slate-200" : "bg-brand-red border-brand-red text-white hover:bg-[#B91C1C]"}`}
                     >
                       {added && <BadgeCheck size={12} />}
-                      {added ? "IM ANGEBOT" : "ZUM ANGEBOT"}
+                      {added ? t('landing.topProducts.inQuote') : t('landing.topProducts.toQuote')}
                     </button>
-                    
+
                     <button
                       onClick={() => toggleCompare(toCompareItem(prod))}
-                      title={inCompare ? 'Vergleich entfernen' : 'Vergleichen'}
-                      aria-label="Vergleichen"
+                      title={inCompare ? t('landing.topProducts.removeCompare') : t('landing.topProducts.compare')}
+                      aria-label={t('landing.topProducts.compare')}
                       aria-pressed={inCompare}
                       className={`px-2.5 py-2.5 rounded-lg transition-colors flex items-center justify-center border ${
                         inCompare
@@ -239,9 +241,9 @@ export function TopProductsCarousel() {
                     <a
                       href="#quote"
                       className="px-3 py-2.5 border border-slate-200 text-[#0F2440] hover:text-brand-red hover:border-brand-red/30 rounded-lg transition-colors text-[9px] font-bold flex items-center justify-center"
-                      title="Projektanfrage"
+                      title={t('landing.topProducts.projectRequest')}
                     >
-                      Projekt
+                      {t('landing.topProducts.project')}
                     </a>
                   </div>
                   </div>

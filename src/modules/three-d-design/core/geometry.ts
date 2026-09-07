@@ -26,6 +26,8 @@ import {
   polygonSignedArea,
 } from './math';
 import { offsetPolygon } from './polygon';
+import { walkRoomLoop } from './loops';
+import { roomInnerPolygon, wallBandPolygons, type WallBand } from './wallBands';
 
 // ── Vertex / wall dereference ───────────────────────────────────────────────
 
@@ -67,15 +69,27 @@ export function calculateWallLength(project: ProjectDocument, wallId: WallId): n
   return distance2(a, b);
 }
 
+// ── Room loop walking (direction-agnostic) — see loops.ts ───────────────────
+export { walkRoomLoop, walkWallLoop, type LoopStep } from './loops';
+
 // ── Room polygon ────────────────────────────────────────────────────────────
 
 /**
- * Resolve a room's polygon by walking its `wallLoop`. Each wall contributes
- * its START vertex; the loop closes implicitly because invariant I-2
- * guarantees walls[wn].b === walls[w1].a.
+ * Resolve a room's polygon by walking its `wallLoop`. Each step contributes
+ * its START vertex (in walk order), so the polygon closes implicitly.
+ * Falls back to "each wall's `a`" for a broken loop so a corrupt room still
+ * draws something instead of vanishing (dev asserts catch the corruption).
  */
 export function roomPolygon(project: ProjectDocument, room: Room): Vec2[] {
+  const steps = walkRoomLoop(project, room);
   const out: Vec2[] = [];
+  if (steps) {
+    for (const s of steps) {
+      const v = project.vertices[s.start];
+      if (v) out.push({ x: v.x, y: v.y });
+    }
+    return out;
+  }
   for (const wid of room.wallLoop) {
     const w = project.walls[wid];
     if (!w) continue;
@@ -87,12 +101,20 @@ export function roomPolygon(project: ProjectDocument, room: Room): Vec2[] {
 
 /** Vertex IDs (in loop order) of a room — useful for hit-testing handles. */
 export function roomVertexIds(project: ProjectDocument, room: Room): string[] {
+  const steps = walkRoomLoop(project, room);
+  if (steps) return steps.map((s) => s.start);
   const out: string[] = [];
   for (const wid of room.wallLoop) {
     const w = project.walls[wid];
     if (w) out.push(w.a);
   }
   return out;
+}
+
+/** Wall ids in walk order (same order as `roomPolygon` edges: edge i = wallIds[i]). */
+export function roomWallIdsInOrder(project: ProjectDocument, room: Room): WallId[] {
+  const steps = walkRoomLoop(project, room);
+  return steps ? steps.map((s) => s.wallId) : [...room.wallLoop];
 }
 
 // ── Area, perimeter, bounds ────────────────────────────────────────────────
@@ -145,22 +167,29 @@ export function roomWallThickness(project: ProjectDocument, room: Room): number 
 }
 
 /**
- * Inner containment polygon for a room: the room outline (wall CENTER line)
- * inset by half the wall thickness so equipment rests against the wall's INNER
- * face instead of its center line. Returns CCW points (matching roomPolygon's
- * orientation). Returns null when the room has fewer than 3 corners.
+ * Inner containment polygon for a room: the room-side FACE of every wall in
+ * loop order, so equipment rests against the wall's inner face instead of its
+ * centre line. Built from the shared wall bands (`core/wallBands.ts`) so it is
+ * exact per wall even when thicknesses differ — the same geometry the 2D plan
+ * fills and the 3D editor extrudes. Returns null when the room has fewer
+ * than 3 corners.
  *
- * `offsetPolygon` shifts each edge along its LEFT-hand normal. For a CCW loop
- * the left normal points OUTWARD, so a negative distance insets. We detect the
- * loop orientation from the signed area so the inset is correct either way.
+ * Pass `bands` when the caller already computed them (hot paths); otherwise
+ * they are computed on demand. `insetMm` forces the legacy uniform inset
+ * (used by tests / callers that need a specific gap).
  */
 export function roomContainmentPolygon(
   project: ProjectDocument,
   room: Room,
   insetMm?: number,
+  bands?: Map<WallId, WallBand>,
 ): Vec2[] | null {
   const poly = roomPolygon(project, room);
   if (poly.length < 3) return null;
+  if (insetMm === undefined) {
+    const inner = roomInnerPolygon(project, room, bands ?? wallBandPolygons(project).bands);
+    if (inner && inner.length >= 3 && polygonArea(inner) >= polygonArea(poly) * 0.05) return inner;
+  }
   const inset = insetMm ?? roomWallThickness(project, room) / 2;
   if (inset <= 0) return poly;
   // signedArea > 0 is CCW under polygonSignedArea's convention; for a CCW loop
@@ -185,6 +214,20 @@ export function pointInPolygon(p: Vec2, poly: ReadonlyArray<Vec2>): boolean {
     if (intersects) inside = !inside;
   }
   return inside;
+}
+
+/**
+ * STRICT containment: the room whose polygon contains `point`, or null.
+ * Use this for click-to-select (clicking empty canvas must deselect); use
+ * `roomForPoint` when a "closest room" fallback is wanted (equipment
+ * containment, wall mounting).
+ */
+export function roomContaining(project: ProjectDocument, point: Vec2): Room | null {
+  for (const room of Object.values(project.rooms) as Room[]) {
+    const poly = roomPolygon(project, room);
+    if (poly.length >= 3 && pointInPolygon(point, poly)) return room;
+  }
+  return null;
 }
 
 /**

@@ -33,7 +33,9 @@ import {
   PanelLeft as WallIcon,
   Layers as OverlapIcon,
   Focus as FocusIcon,
+  Boxes,
 } from 'lucide-react';
+import AssignModelDialog from './AssignModelDialog';
 import { useProjectStore } from '../../../store';
 import { removeEquipmentEverywhere } from '../../../../../lib/designDelete';
 import type { Equipment, EquipmentId } from '../../../core/types';
@@ -45,6 +47,9 @@ import {
   snapFloorItemToWalls,
 } from '../interaction/placement';
 import { deterministicHex } from '../../../lib/equipmentColor';
+import TransientRange from '../../../components/ui/TransientRange';
+import { NumField, TextField } from '../../shared/panels/ui';
+import { PANEL } from '../../../components/ui/chrome';
 
 interface EquipmentPropertiesPanelProps {
   equipmentId: string | null;
@@ -80,6 +85,8 @@ export default function EquipmentPropertiesPanel({
   const [rotInput, setRotInput] = useState('');
   const [tiltXInput, setTiltXInput] = useState('');
   const [tiltYInput, setTiltYInput] = useState('');
+  /** "3B model ata" diyaloğu açık mı? */
+  const [assignOpen, setAssignOpen] = useState(false);
   useEffect(() => {
     if (!eq) return;
     setXInput(Math.round(eq.position.x).toString());
@@ -288,7 +295,7 @@ export default function EquipmentPropertiesPanel({
   const yMax = yMm + 20000;
 
   return (
-    <aside className="absolute top-3 right-3 w-72 rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 text-[11px] flex flex-col max-h-[calc(100vh-7rem)] overflow-y-auto">
+    <aside className={`absolute top-3 right-3 z-30 flex max-h-[calc(100vh-7rem)] w-72 flex-col overflow-y-auto text-[11px] ${PANEL}`}>
       <header className="px-4 h-11 flex items-center gap-2 border-b border-slate-100">
         <Move size={13} className="text-brand-red shrink-0" />
         <span className="text-[12px] font-semibold text-slate-800 truncate flex-1" title={eq.name}>
@@ -324,14 +331,65 @@ export default function EquipmentPropertiesPanel({
         </button>
       </header>
 
-      {/* Read-only scale info — kullanıcının ölçek bilgisini her zaman görmesi için. */}
+      {/* Ad + ölçüler (düzenlenebilir) — 2B panel ile aynı alanlar. */}
+      <Section title={t('design3d.props.equipmentName')}>
+        <TextField
+          value={eq.name}
+          disabled={!!eq.locked}
+          onCommit={(name) =>
+            update((d) => {
+              const e = d.equipment[eq.id];
+              if (e) e.name = name;
+            })
+          }
+        />
+      </Section>
       <Section title={t('design3d.dimensions')}>
         <div className="grid grid-cols-3 gap-1.5 tabular-nums text-slate-700">
-          <Stat label="G" value={eq.footprint.width} unit="mm" />
-          <Stat label="D" value={eq.footprint.depth} unit="mm" />
-          <Stat label="Y" value={eq.heightMm} unit="mm" />
+          <label className="flex flex-col gap-1">
+            <span className="text-[10px] text-slate-500">{t('design3d.props.dimW')}</span>
+            <NumField value={eq.footprint.width} step={10} min={10} disabled={!!eq.locked} onCommit={(mm) => update((d) => { const e = d.equipment[eq.id]; if (e) e.footprint = { ...e.footprint, width: Math.round(mm) }; })} />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-[10px] text-slate-500">{t('design3d.props.dimD')}</span>
+            <NumField value={eq.footprint.depth} step={10} min={10} disabled={!!eq.locked} onCommit={(mm) => update((d) => { const e = d.equipment[eq.id]; if (e) e.footprint = { ...e.footprint, depth: Math.round(mm) }; })} />
+          </label>
+          <label className="flex flex-col gap-1">
+            <span className="text-[10px] text-slate-500">{t('design3d.props.dimH')}</span>
+            <NumField value={eq.heightMm} step={10} min={10} disabled={!!eq.locked} onCommit={(mm) => update((d) => { const e = d.equipment[eq.id]; if (e) e.heightMm = Math.round(mm); })} />
+          </label>
         </div>
+        <p className="mt-1.5 text-[10px] leading-snug text-slate-400">{t('design3d.props.dimsHelp')}</p>
       </Section>
+
+      {/* 3B model — bu örneğe kütüphaneden/yüklemeden model ata (modelRef). */}
+      <Section title={t('design3d.assign.section')}>
+        <button
+          type="button"
+          onClick={() => setAssignOpen(true)}
+          disabled={!!eq.locked}
+          className="w-full h-8 inline-flex items-center justify-center gap-1.5 rounded-lg border border-slate-200 text-[11px] font-semibold text-slate-700 hover:bg-slate-50 disabled:opacity-40 transition"
+        >
+          <Boxes size={12} />
+          {eq.modelRef ? t('design3d.assign.change') : t('design3d.assign.choose')}
+        </button>
+        <p className="mt-1.5 text-[10px] leading-snug text-slate-400">
+          {eq.modelRef ? t('design3d.assign.assignedHelp') : t('design3d.assign.help')}
+        </p>
+      </Section>
+      <AssignModelDialog
+        open={assignOpen}
+        equipment={eq}
+        onClose={() => setAssignOpen(false)}
+        onAssign={(modelRef) =>
+          update((d) => {
+            const item = d.equipment[eq.id];
+            if (!item) return;
+            if (modelRef) item.modelRef = modelRef;
+            else delete item.modelRef;
+          })
+        }
+      />
 
       {/* Görünüm — ayırt edici renk (2B dolgu + 3B fallback tonu) + üst üste izni */}
       <Section title={t('design3d.appearance')}>
@@ -417,8 +475,8 @@ export default function EquipmentPropertiesPanel({
 
         {mount === 'wall' && (
           <Row label={t('design3d.props.wallHeight')}>
-            <input
-              type="range"
+            <TransientRange
+              
               min={0}
               max={2400}
               step={10}
@@ -444,8 +502,8 @@ export default function EquipmentPropertiesPanel({
 
       <Section title={t('design3d.props.position')}>
         <Row label={t('design3d.props.posX')}>
-          <input
-            type="range"
+          <TransientRange
+            
             min={xMin}
             max={xMax}
             step={10}
@@ -462,8 +520,8 @@ export default function EquipmentPropertiesPanel({
           />
         </Row>
         <Row label={t('design3d.props.posY')}>
-          <input
-            type="range"
+          <TransientRange
+            
             min={yMin}
             max={yMax}
             step={10}
@@ -480,8 +538,8 @@ export default function EquipmentPropertiesPanel({
           />
         </Row>
         <Row label={t('design3d.props.posZ')}>
-          <input
-            type="range"
+          <TransientRange
+            
             min={0}
             max={3000}
             step={10}
@@ -530,8 +588,8 @@ export default function EquipmentPropertiesPanel({
           </button>
         )}
         <Row label={t('design3d.props.angle')}>
-          <input
-            type="range"
+          <TransientRange
+            
             min={0}
             max={360}
             step={1}
@@ -599,8 +657,8 @@ export default function EquipmentPropertiesPanel({
 
       <Section title={t('design3d.props.tilt')}>
         <Row label={t('design3d.props.tiltX')}>
-          <input
-            type="range"
+          <TransientRange
+            
             min={-180}
             max={180}
             step={1}
@@ -618,8 +676,8 @@ export default function EquipmentPropertiesPanel({
           />
         </Row>
         <Row label={t('design3d.props.tiltY')}>
-          <input
-            type="range"
+          <TransientRange
+            
             min={-180}
             max={180}
             step={1}

@@ -34,6 +34,13 @@ interface AuthState {
   user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  /**
+   * `checkSession()` en az bir kez TAMAMLANDI mı? Rota koruması (RequireAuth)
+   * bunu bekler: Google OAuth dönüşünde kaydedilmiş durum yoktur ve oturum
+   * doğrulaması asenkron biter — bayrak olmadan kullanıcı, oturumu geçerliyken
+   * bir an için giriş sayfasına atılırdı. KALICI DEĞİLDİR (her açılışta false).
+   */
+  sessionChecked: boolean;
   pendingApproval: boolean;
   login: (email: string, password: string) => Promise<{ success: boolean; pendingApproval?: boolean; error?: string }>;
   loginWithGoogle: () => Promise<void>;
@@ -96,6 +103,7 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isAuthenticated: false,
       isLoading: false,
+      sessionChecked: false,
       pendingApproval: false,
 
       login: async (email: string, password: string) => {
@@ -216,7 +224,9 @@ export const useAuthStore = create<AuthState>()(
 
       // Called on app load to check OAuth callback & existing session
       checkSession: async () => {
-        if (!supabase) return;
+        // Supabase yapılandırılmamışsa da "denetim bitti" say — aksi halde
+        // RequireAuth sonsuza kadar yükleniyor ekranında kalır.
+        if (!supabase) { set({ sessionChecked: true }); return; }
         set({ isLoading: true });
 
         const { data: { session } } = await supabase.auth.getSession();
@@ -224,7 +234,7 @@ export const useAuthStore = create<AuthState>()(
           // Geçerli oturum yok (süresi dolmuş / iptal edilmiş) → kaydedilmiş "girişli"
           // durumu temizle. Aksi halde panel girişli görünür ama DB sorguları RLS'e
           // takılıp boş döner ("hayalet admin"). Böylece login'e yönlendirilir.
-          set({ isLoading: false, user: null, isAuthenticated: false });
+          set({ isLoading: false, sessionChecked: true, user: null, isAuthenticated: false });
           return;
         }
 
@@ -233,11 +243,11 @@ export const useAuthStore = create<AuthState>()(
 
         if (!user.approved) {
           await supabase.auth.signOut();
-          set({ isLoading: false, pendingApproval: true, isAuthenticated: false, user: null });
+          set({ isLoading: false, sessionChecked: true, pendingApproval: true, isAuthenticated: false, user: null });
           return;
         }
 
-        set({ user, isAuthenticated: true, isLoading: false, pendingApproval: false });
+        set({ user, isAuthenticated: true, isLoading: false, sessionChecked: true, pendingApproval: false });
       },
     }),
     {

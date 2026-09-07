@@ -31,8 +31,8 @@ export default function GridLayer({
         const minorPx = MINOR_MM * scale;
         const majorPx = MAJOR_MM * scale;
 
-        // Hide minor lines when they collapse below ~6 px (visual noise).
-        const drawMinor = minorPx >= 6;
+        // Hide minor lines when they collapse below ~8 px (visual noise).
+        const drawMinor = minorPx >= 8;
 
         // Visible world bounds (mm)
         const worldLeft = -offsetX / scale;
@@ -52,7 +52,8 @@ export default function GridLayer({
             ctx.moveTo(worldLeft, y);
             ctx.lineTo(worldRight, y);
           }
-          ctx.strokeStyle = '#e5e7eb';
+          // Çok hafif: kağıt dokusu gibi hissedilsin, çizimle yarışmasın.
+          ctx.strokeStyle = 'rgba(15,23,42,0.045)';
           ctx.lineWidth = 1 / scale;
           ctx.stroke();
         }
@@ -69,17 +70,17 @@ export default function GridLayer({
           ctx.moveTo(worldLeft, y);
           ctx.lineTo(worldRight, y);
         }
-        ctx.strokeStyle = '#cbd5e1';
-        ctx.lineWidth = (majorPx > 80 ? 1.4 : 1) / scale;
+        ctx.strokeStyle = 'rgba(15,23,42,0.10)';
+        ctx.lineWidth = (majorPx > 80 ? 1.2 : 1) / scale;
         ctx.stroke();
 
-        // Origin crosshair
+        // Origin crosshair (soft red, short)
         ctx.beginPath();
-        ctx.moveTo(-30 / scale, 0);
-        ctx.lineTo(30 / scale, 0);
-        ctx.moveTo(0, -30 / scale);
-        ctx.lineTo(0, 30 / scale);
-        ctx.strokeStyle = '#ef4444';
+        ctx.moveTo(-22 / scale, 0);
+        ctx.lineTo(22 / scale, 0);
+        ctx.moveTo(0, -22 / scale);
+        ctx.lineTo(0, 22 / scale);
+        ctx.strokeStyle = 'rgba(220,38,38,0.65)';
         ctx.lineWidth = 1.5 / scale;
         ctx.stroke();
       }}

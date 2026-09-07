@@ -14,6 +14,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { renderPage } from '../render/page';
 import { SHELL as FALLBACK_SHELL } from './_shell.generated';
+import { geoRedirect } from './geoLocale';
 
 type Req = { url?: string; method?: string; query?: Record<string, string | string[] | undefined>; headers?: Record<string, string | string[] | undefined> };
 type Res = {
@@ -72,6 +73,19 @@ export default async function handler(req: Req, res: Res) {
   }
   const shell = loadShell();
   const url = requestUrl(req);
+
+  // Ülkeye göre dil yönlendirmesi — botlar ve tercihini yapmış kullanıcılar hariç.
+  // Yanıt ziyaretçiye özel: CDN paylaşırsa herkes aynı dile giderdi, o yüzden private.
+  const geo = geoRedirect(req, url);
+  if (geo) {
+    res.setHeader('Location', geo.to);
+    res.setHeader('Cache-Control', 'private, no-store');
+    res.setHeader('Vary', 'X-Vercel-IP-Country, Accept-Language, Cookie, User-Agent');
+    res.setHeader('Set-Cookie', `2mc_lang=${geo.locale}; Path=/; Max-Age=31536000; SameSite=Lax`);
+    res.status(302).end();
+    return;
+  }
+
   try {
     const out = await renderPage(url, shell);
     for (const [k, v] of Object.entries(out.headers)) res.setHeader(k, v);

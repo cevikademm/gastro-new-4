@@ -5,6 +5,8 @@ import {
   Users, Search, MapPin, Phone, Globe, Star, Mail, Download, Loader2, Filter,
   X, Trash2, FileSpreadsheet, FileText, Send, StickyNote, CheckSquare, Square,
   SlidersHorizontal, ArrowUpDown, History, MessageSquare, MessageCircle, Database,
+  Target, Clock3, PhoneCall, Sparkles, ChevronRight,
+  type LucideIcon,
 } from 'lucide-react';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
@@ -15,6 +17,7 @@ import {
   type MailStatus,
   type LeadReview,
   type MailLogEntry,
+  type ContactLogEntry,
   type SearchParams,
 } from '../../stores/customerFinderStore';
 
@@ -366,8 +369,8 @@ const locKey = (loc: { ulke: string; sehir: string }) => `${loc.ulke}||${loc.seh
 
 export default function CustomerFinderPage() {
   const {
-    leads, searches, mailLog, loading, searching, sending, error, lastSearch,
-    runSearch, fetchLeads, fetchReviews, updateLeadStatus, updateLeadNote, markWhatsapp, sendMail, fetchMailLog, deleteLeads,
+    leads, searches, mailLog, contactLog, loading, searching, sending, error, lastSearch,
+    runSearch, fetchLeads, fetchReviews, updateLeadStatus, updateLeadNote, markWhatsapp, logPhoneCall, sendMail, fetchMailLog, fetchContactLog, deleteLeads,
   } = useCustomerFinderStore();
 
   // Arama formu
@@ -402,7 +405,7 @@ export default function CustomerFinderPage() {
   const [toast, setToast] = useState<string | null>(null);
   const [view, setView] = useState<'leads' | 'mail'>('leads');
 
-  useEffect(() => { fetchLeads(); fetchMailLog(); }, [fetchLeads, fetchMailLog]);
+  useEffect(() => { fetchLeads(); fetchMailLog(); fetchContactLog(); }, [fetchLeads, fetchMailLog, fetchContactLog]);
   useEffect(() => {
     if (lastSearch) setToast(`${lastSearch.found} işletme bulundu, ${lastSearch.inserted} kayıt güncellendi.`);
   }, [lastSearch]);
@@ -494,6 +497,24 @@ export default function CustomerFinderPage() {
     return by;
   }, [leads]);
 
+  const outreach = useMemo(() => ({
+    emails: mailLog.filter((m) => m.status === 'gonderildi').length,
+    whatsapp: contactLog.filter((c) => c.channel === 'whatsapp').length,
+    active: leads.filter((l) => l.durum === 'ilgilendi' || l.durum === 'arandi').length,
+    waiting: leads.filter((l) => l.durum === 'yeni' && (l.email || l.telefon)).length,
+  }), [leads, mailLog, contactLog]);
+
+  const recentActivity = useMemo(() => [
+    ...mailLog.map((m) => ({
+      id: `mail-${m.id}`, channel: 'mail' as const, name: m.lead_isim || 'İsimsiz işletme',
+      detail: m.subject || 'E-posta gönderildi', at: m.created_at, status: m.status,
+    })),
+    ...contactLog.map((c) => ({
+      id: `contact-${c.id}`, channel: c.channel, name: c.lead_isim || 'İsimsiz işletme',
+      detail: c.channel === 'whatsapp' ? 'WhatsApp taslağı açıldı' : 'Arama başlatıldı', at: c.created_at, status: c.status,
+    })),
+  ].sort((a, b) => b.at.localeCompare(a.at)).slice(0, 5), [mailLog, contactLog]);
+
   const allVisibleSelected = filtered.length > 0 && filtered.every((l) => selected.has(l.id));
 
   function toggleSelect(id: string) {
@@ -556,7 +577,48 @@ export default function CustomerFinderPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 w-full">
+    <div className="max-w-7xl mx-auto space-y-6 w-full pb-8">
+      <header className="relative overflow-hidden rounded-[28px] bg-[#102b4e] px-5 py-6 text-white shadow-xl shadow-slate-900/10 sm:px-7 sm:py-7">
+        <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#e85d26]/25 blur-3xl" />
+        <div className="absolute bottom-0 right-20 h-32 w-32 rounded-full border border-white/10" />
+        <div className="relative flex flex-col gap-5 xl:flex-row xl:items-end xl:justify-between">
+          <div className="max-w-2xl">
+            <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-[11px] font-black uppercase tracking-[0.14em] text-white/80">
+              <Sparkles size={13} className="text-[#ff9a72]" /> Lead workspace
+            </div>
+            <h1 className="font-headline text-2xl font-black tracking-tight sm:text-4xl">Müşteri Bulma Merkezi</h1>
+            <p className="mt-2 text-sm leading-relaxed text-white/70 sm:text-base">Doğru işletmeleri bulun, temasları tek yerde takip edin ve sıradaki fırsata odaklanın.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button onClick={() => setView('mail')} className="inline-flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-4 py-2.5 text-sm font-bold hover:bg-white/15"><History size={16} /> İletişim geçmişi</button>
+            <button onClick={fetchLeads} className="inline-flex items-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-black text-[#102b4e] hover:bg-white/90">Yenile <ChevronRight size={16} /></button>
+          </div>
+        </div>
+        <div className="relative mt-6 grid grid-cols-2 gap-2 sm:grid-cols-4">
+          <InsightCard icon={Users} label="Toplam potansiyel" value={leads.length} detail="Kayıtlı işletme" />
+          <InsightCard icon={Mail} label="Gönderilen e-posta" value={outreach.emails} detail="Tam metin kayıtlı" tone="orange" />
+          <InsightCard icon={MessageCircle} label="WhatsApp taslağı" value={outreach.whatsapp} detail="Açılan konuşma" tone="green" />
+          <InsightCard icon={Clock3} label="Takip bekleyen" value={outreach.waiting} detail={`${outreach.active} aktif görüşme`} tone="blue" />
+        </div>
+      </header>
+
+      {recentActivity.length > 0 && (
+        <section className="rounded-2xl border border-outline-variant/10 bg-surface-container-lowest p-4 shadow-sm sm:p-5">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <div><h2 className="flex items-center gap-2 text-sm font-black text-on-surface"><Target size={16} className="text-primary" /> Son temaslar</h2><p className="mt-0.5 text-xs text-on-surface-variant">Kime, hangi kanaldan ve ne zaman ulaşıldığını görün.</p></div>
+            <button onClick={() => setView('mail')} className="text-xs font-black text-primary hover:underline">Tümünü gör</button>
+          </div>
+          <div className="grid gap-2 lg:grid-cols-5">
+            {recentActivity.map((item) => {
+              const Icon = item.channel === 'mail' ? Mail : item.channel === 'whatsapp' ? MessageCircle : PhoneCall;
+              return <button key={item.id} onClick={() => setView('mail')} className="min-w-0 rounded-xl border border-outline-variant/10 bg-surface-container-low px-3 py-3 text-left transition hover:-translate-y-0.5 hover:bg-surface-container-high">
+                <span className="mb-2 flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-primary"><Icon size={12} /> {item.channel === 'mail' ? 'E-posta' : item.channel === 'whatsapp' ? 'WhatsApp' : 'Arama'}</span>
+                <span className="block truncate text-xs font-black text-on-surface">{item.name}</span><span className="mt-1 block truncate text-[11px] text-on-surface-variant">{item.detail}</span><span className="mt-2 block text-[10px] font-medium text-on-surface-variant">{new Date(item.at).toLocaleString('tr-TR')}</span>
+              </button>;
+            })}
+          </div>
+        </section>
+      )}
       <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-xl sm:text-3xl font-black font-headline text-primary tracking-tight flex items-center gap-2">
@@ -919,7 +981,7 @@ export default function CustomerFinderPage() {
                       {l.telefon && (
                         phoneIsWhatsapp(l.telefon) ? (
                           <a href={waLink(l.telefon, fillVars(WA_TEMPLATES[0].text.de, l))} target="_blank" rel="noreferrer"
-                            onClick={() => markWhatsapp(l.id)} title="WhatsApp mesajı gönder"
+                            onClick={() => markWhatsapp(l.id, fillVars(WA_TEMPLATES[0].text.de, l))} title="WhatsApp mesajı gönder"
                             className={`inline-flex rounded-lg p-1.5 mr-1 align-middle ${
                               l.whatsapp_durumu === 'gonderildi'
                                 ? 'text-success'
@@ -967,7 +1029,7 @@ export default function CustomerFinderPage() {
               : `Mail gönderilemedi (${r.failed} başarısız · ${r.skipped} atlandı).`);
             return r.sent > 0;
           }}
-          onWhatsapp={() => markWhatsapp(detail.id)}
+          onWhatsapp={(message) => markWhatsapp(detail.id, message)}
           onFetchReviews={(max) => fetchReviews(detail.id, detail.place_url || '', max)}
           onCopied={(what) => setToast(`${what} panoya kopyalandı.`)}
         />
@@ -1029,6 +1091,47 @@ function Toggle({ label, checked, onChange }: { label: string; checked: boolean;
 }
 
 /**
+ * Başlıktaki özet kutucuğu (koyu lacivert hero üzerinde yarı saydam kart).
+ * `tone` yalnız ikon rozetinin rengini değiştirir; sayı ve etiket her zaman
+ * beyaz kalır ki dört kutu tek blok gibi okunsun.
+ */
+function InsightCard({
+  icon: Icon,
+  label,
+  value,
+  detail,
+  tone = 'neutral',
+}: {
+  icon: LucideIcon;
+  label: string;
+  value: number | string;
+  detail?: string;
+  tone?: 'neutral' | 'orange' | 'green' | 'blue';
+}) {
+  const toneCls = {
+    neutral: 'bg-white/10 text-white',
+    orange: 'bg-[#e85d26]/25 text-[#ff9a72]',
+    green: 'bg-emerald-400/20 text-emerald-300',
+    blue: 'bg-sky-400/20 text-sky-300',
+  }[tone];
+
+  return (
+    <div className="rounded-2xl border border-white/10 bg-white/[0.07] p-3 backdrop-blur-sm sm:p-4">
+      <div className="flex items-center gap-2">
+        <span className={`inline-flex h-7 w-7 items-center justify-center rounded-lg ${toneCls}`}>
+          <Icon size={14} />
+        </span>
+        <span className="text-[11px] font-bold uppercase tracking-wider text-white/60">{label}</span>
+      </div>
+      <div className="mt-2 text-2xl font-black tabular-nums leading-none text-white sm:text-3xl">
+        {value}
+      </div>
+      {detail && <p className="mt-1 text-[11px] leading-snug text-white/50">{detail}</p>}
+    </div>
+  );
+}
+
+/**
  * Sağ panel — bir işletmenin TÜM kartı: künye, iletişim, satış durumu,
  * hazır mesaj taslakları (e-posta + WhatsApp, 7 dil), Google yorumları ve not.
  * Taslaklar ayrı pencerede değil burada; yer tutucular ({{isim}} vb.) canlı
@@ -1043,7 +1146,8 @@ function LeadDrawer({
   onStatus: (s: LeadStatus) => Promise<void>;
   onNote: (n: string) => Promise<void>;
   onSendMail: (subject: string, body: string) => Promise<boolean>;
-  onWhatsapp: () => void;
+  /** Doldurulmuş mesaj metni iletişim günlüğüne yazılmak üzere yukarı taşınır. */
+  onWhatsapp: (message: string) => void;
   onFetchReviews: (max: number) => Promise<LeadReview[]>;
   onCopied: (what: string) => void;
 }) {
@@ -1321,7 +1425,7 @@ function LeadDrawer({
                       <a
                         href={lead.telefon ? waLink(lead.telefon, filledWa) : undefined}
                         target="_blank" rel="noreferrer"
-                        onClick={() => { if (lead.telefon) onWhatsapp(); }}
+                        onClick={() => { if (lead.telefon) onWhatsapp(filledWa); }}
                         className={`flex-1 px-3 py-2.5 rounded-lg font-bold text-sm inline-flex items-center justify-center gap-2 ${
                           lead.telefon
                             ? 'bg-[#25D366] text-white hover:opacity-90'

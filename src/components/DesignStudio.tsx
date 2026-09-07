@@ -1201,32 +1201,32 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                 activeTool === 'draw' ? 'bg-[#ffb783] text-[#371800] shadow-lg' : 'text-white/70 hover:bg-white/10'
               }`}
               onClick={startDrawingRoom}
-              title="Duvar Çiz (W)"
+              title={t('design.tool.drawWall')}
             >
               <Pen size={20} />
             </button>
-            <button 
+            <button
               className="w-11 h-11 rounded-xl text-white/70 hover:bg-white/10 flex items-center justify-center transition-colors"
-              title="Ölçüm Aracı"
+              title={t('design.tool.measure')}
             >
               <Ruler size={20} />
             </button>
             <div className="h-[1px] bg-white/10 mx-2" />
-            <button 
+            <button
               className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
                 showGrid ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10'
               }`}
               onClick={() => setShowGrid(!showGrid)}
-              title="Izgarayı Göster"
+              title={t('design.tool.showGrid')}
             >
               <Grid3x3 size={20} />
             </button>
-            <button 
+            <button
               className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
                 snapToGrid ? 'bg-white/20 text-white' : 'text-white/70 hover:bg-white/10'
               }`}
               onClick={() => setSnapToGrid(!snapToGrid)}
-              title="Mıknatıs Modu"
+              title={t('design.tool.snapMode')}
             >
               <Magnet size={20} />
             </button>
@@ -1636,7 +1636,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                         </g>
                       ))}
                       <text x={rulerX + segs * seg + 8} y={rulerY + 3} fontSize={10} fontFamily="'Consolas','Courier New',monospace" fontWeight="bold" fill={CAD.dimColor}>m</text>
-                      <text x={rulerX} y={rulerY - h / 2 - 6} fontSize={9} fontFamily="'Consolas','Courier New',monospace" fill={CAD.dimColor}>GRAFİK ÖLÇEK 1:100</text>
+                      <text x={rulerX} y={rulerY - h / 2 - 6} fontSize={9} fontFamily="'Consolas','Courier New',monospace" fill={CAD.dimColor}>{t('design3d.plot.graphicScale')}</text>
                     </g>
                   );
                 }
@@ -1914,17 +1914,17 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                   <label className="text-[9px] font-bold text-slate-400 uppercase">Kullanım Türü</label>
                   <select value={roomProps.usageType} onChange={e => setRoomProps(p => ({ ...p, usageType: e.target.value }))}
                     className="w-full mt-0.5 px-2 py-1.5 text-xs border border-slate-200 rounded-lg bg-white outline-none focus:ring-2 focus:ring-primary">
-                    <option value="">Seçin...</option>
-                    <option value="sicak-mutfak">Sıcak Mutfak</option>
-                    <option value="soguk-mutfak">Soğuk Mutfak</option>
-                    <option value="hazirlik">Hazırlık Alanı</option>
-                    <option value="bulaşıkhane">Bulaşıkhane</option>
+                    <option value="">{t('design.roomProps.selectPlaceholder')}</option>
+                    <option value="sicak-mutfak">{t('design.roomProps.usage.hotKitchen')}</option>
+                    <option value="soguk-mutfak">{t('design.roomProps.usage.coldKitchen')}</option>
+                    <option value="hazirlik">{t('design.roomProps.usage.prepArea')}</option>
+                    <option value="bulaşıkhane">{t('design.roomProps.usage.dishRoom')}</option>
                     <option value="depo">Depo</option>
-                    <option value="soguk-oda">Soğuk Oda</option>
-                    <option value="servis">Servis Alanı</option>
+                    <option value="soguk-oda">{t('design.roomProps.usage.coldRoom')}</option>
+                    <option value="servis">{t('design.roomProps.usage.serviceArea')}</option>
                     <option value="ofis">Ofis</option>
                     <option value="wc-soyunma">WC / Soyunma</option>
-                    <option value="diger">Diğer</option>
+                    <option value="diger">{t('design.roomProps.usage.other')}</option>
                   </select>
                 </div>
 
@@ -1955,7 +1955,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                   <div className="flex gap-1 mb-2">
                     <button onClick={() => { setAddOpeningMode(addOpeningMode === 'door' ? null : 'door'); setActiveTool('select'); }}
                       className={`flex-1 py-1 text-[9px] font-bold rounded flex items-center justify-center gap-0.5 transition-all ${addOpeningMode === 'door' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
-                      <DoorOpen size={10} /> Kapı</button>
+                      <DoorOpen size={10} /> {t('design.opening.door')}</button>
                     <button onClick={() => { setAddOpeningMode(addOpeningMode === 'double-door' ? null : 'double-door'); setActiveTool('select'); }}
                       className={`flex-1 py-1 text-[9px] font-bold rounded flex items-center justify-center gap-0.5 transition-all ${addOpeningMode === 'double-door' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}>
                       <DoorOpen size={10} /> Çift</button>
@@ -2047,7 +2047,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                   </button>
                   <select value={catalogCategory} onChange={(e) => setCatalogCategory(e.target.value)}
                     className="flex-1 text-[10px] font-bold px-2 py-1 border border-slate-200 rounded-md bg-white text-slate-600 outline-none">
-                    <option value="">Tüm Kategoriler</option>
+                    <option value="">{t('design.catalog.allCategories')}</option>
                     {CATEGORIES.filter(c => c.count > 0).map(c => <option key={c.id} value={c.id}>{c.name} ({c.count})</option>)}
                   </select>
                 </div>
@@ -2081,7 +2081,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                         <button onClick={(e) => { e.stopPropagation(); if (canAdd) addEquipmentToFloorPlan(item); }}
                           disabled={!canAdd}
                           className="absolute top-1 left-1 z-10 p-0.5 rounded-full bg-primary text-white shadow-sm opacity-0 group-hover:opacity-100 transition-opacity disabled:opacity-0"
-                          title="Mutfağa ekle">
+                          title={t('design.catalog.addToKitchen')}>
                           <Plus size={10} />
                         </button>
                         {/* Image */}
@@ -2176,7 +2176,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                         <button
                           onClick={() => { setAddOpeningMode(addOpeningMode === 'door' ? null : 'door'); setActiveTool('select'); }}
                           className={`flex-1 py-1 text-[9px] font-bold rounded flex items-center justify-center gap-0.5 transition-all ${addOpeningMode === 'door' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
-                        ><DoorOpen size={10} /> Kapı</button>
+                        ><DoorOpen size={10} /> {t('design.opening.door')}</button>
                         <button
                           onClick={() => { setAddOpeningMode(addOpeningMode === 'double-door' ? null : 'double-door'); setActiveTool('select'); }}
                           className={`flex-1 py-1 text-[9px] font-bold rounded flex items-center justify-center gap-0.5 transition-all ${addOpeningMode === 'double-door' ? 'bg-blue-500 text-white' : 'bg-slate-100 text-slate-500 hover:bg-slate-200'}`}
@@ -2348,7 +2348,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Proje veya oda hakkında açıklama..."
+                  placeholder={t('design.info.descriptionPlaceholder')}
                   rows={4}
                   className="w-full text-xs border border-slate-200 rounded-xl p-2.5 resize-none focus:ring-2 focus:ring-primary outline-none text-slate-700 placeholder:text-slate-300 leading-relaxed"
                 />
@@ -2381,7 +2381,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                         setNewTaskAssignee('');
                       }
                     }}
-                    placeholder="Yeni görev ekle (Enter ile kaydet)"
+                    placeholder={t('design.task.newPlaceholder')}
                     className="w-full px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none"
                   />
                   <div className="flex gap-1.5">
@@ -2389,7 +2389,7 @@ export default function DesignStudio({ manualMode = false }: { manualMode?: bool
                       type="text"
                       value={newTaskAssignee}
                       onChange={(e) => setNewTaskAssignee(e.target.value)}
-                      placeholder="Atanan kişi (opsiyonel)"
+                      placeholder={t('design.task.assigneePlaceholder')}
                       className="flex-1 px-2.5 py-1.5 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary outline-none"
                     />
                     <button

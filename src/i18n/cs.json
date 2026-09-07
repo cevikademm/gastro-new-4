@@ -965,7 +965,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Nemocnice",
     "sectorOther": "Jiné",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Zobrazit heslo",
+    "hidePassword": "Skrýt heslo"
   },
   "welcome": {
     "headline": "Velitelské centrum",
@@ -1596,7 +1598,11 @@
     "sendFailed": "Požadavek se nepodařilo odeslat. Napište nám přímo:",
     "subtitle": "Založte požadavek se svým dotazem nebo nás kontaktujte přímo.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Doručené zprávy podpory",
+    "inboxEmpty": "Zatím žádné zprávy podpory.",
+    "inboxGuest": "Host",
+    "savedEmailFailed": "Vaše zpráva byla uložena, ale e-mailové oznámení se nepodařilo odeslat."
   },
   "docs": {
     "title": "Dokumentace",
@@ -2171,8 +2177,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Předchozí obrázek",
+        "nextBanner": "Další obrázek",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2183,7 +2189,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Pohled v řezu",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2213,6 +2219,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Spirálový hnětač",
+            "title": "Uvnitř spirálového hnětače",
+            "desc": "Kalený ocelový hřídel, motor s měděným vinutím a jednodílné tělo – dimenzované na osm hodin nepřetržitého provozu denně.",
+            "normalLabel": "Vnější pohled",
+            "cutawayLabel": "Řez"
+          },
+          "ice": {
+            "label": "Výrobník ledu",
+            "title": "Uvnitř výrobníku ledu",
+            "desc": "Nerezová nádoba, vzduchem chlazený kondenzátor a omyvatelný filtr udrží výkon i v horké kuchyni.",
+            "normalLabel": "Vnější pohled",
+            "cutawayLabel": "Řez"
           }
         }
       },
@@ -2259,6 +2281,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Předchozí hodnocení",
+      "next": "Další hodnocení"
     }
   },
   "developerApi": {
@@ -2808,7 +2834,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Odmítnout",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2977,7 +3003,21 @@
     "empty": "Zatím nebyly zveřejněny žádné opravy.",
     "technical": "Technické podrobnosti",
     "reverted": "Vráceno zpět",
-    "revertedHint": "Tato oprava způsobila problém a byla vrácena zpět."
+    "revertedHint": "Tato oprava způsobila problém a byla vrácena zpět.",
+    "category": {
+      "fix": "Oprava",
+      "improvement": "Vylepšení",
+      "feature": "Novinka"
+    },
+    "reported": "Nahlásili jste",
+    "done": "Co jsme udělali",
+    "statTotal": "Celkem oprav",
+    "statThisMonth": "Tento měsíc",
+    "statMedian": "Obvyklá doba",
+    "sameDay": "Tentýž den",
+    "days": "{{count}} dní",
+    "solvedSameDay": "Vyřešeno tentýž den",
+    "solvedInDays": "Vyřešeno za {{count}} dní"
   },
   "seo": {
     "home": "Domů",
@@ -3040,5 +3080,8 @@
     "subscribed": "Přihlášeno ✓",
     "rights": "Všechna práva vyhrazena.",
     "madeIn": "S vášní vytvořeno v Kolíně nad Rýnem."
+  },
+  "chat": {
+    "assistantBadge": "Asistent s AI · 24/7"
   }
 }

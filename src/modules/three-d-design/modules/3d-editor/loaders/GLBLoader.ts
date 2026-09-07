@@ -64,8 +64,30 @@ function loadTemplate(entry: CatalogEntry): Promise<THREE.Group> {
   return p;
 }
 
-/** Normalize a freshly-loaded template in place: scale + anchor + shadow. */
+/** Normalize a freshly-loaded template in place: orient + scale + anchor + shadow. */
 function normalizeTemplate(root: THREE.Group, entry: CatalogEntry): void {
+  // 0) Axis convention. glTF is Y-up with the front facing +Z. Meshes live in
+  //    RENDER space (contentRoot, Z-up) where an item's front is local +Y —
+  //    the product boxes put their image sticker on the +Y face and, through
+  //    the render-space mirror (renderSpace.ts), that is the side placement.ts
+  //    turns toward the room. So: yaw 180° about the model's own up (+Z → -Z),
+  //    then +90° about X (Y → Z up, -Z → +Y front). Baking it HERE, before
+  //    measuring, means the bbox, footprint (x = width, y = depth) and the
+  //    bottom-centre pivot are all right and the user's tilt stays 0 for an
+  //    upright model. (The old approach — a +90° `tiltX` applied on the pivot
+  //    after anchoring — left the model half a depth outside its footprint.)
+  if (entry.needsUprightTilt) {
+    const orient = new THREE.Group();
+    orient.name = 'orient-zup';
+    // Euler XYZ = Rx · Ry · Rz → the yaw (about the model's own up = glTF Y)
+    // is applied to the vertices first, then the up-axis swap.
+    const yaw = Math.PI + THREE.MathUtils.degToRad(entry.frontYawDeg ?? 0);
+    orient.rotation.set(Math.PI / 2, yaw, 0);
+    while (root.children.length > 0) orient.add(root.children[0]);
+    root.add(orient);
+    root.updateMatrixWorld(true);
+  }
+
   // 1) Scale uniformly to match catalog dimensions.
   const targetMaxM =
     Math.max(entry.dimensionsMm.width, entry.dimensionsMm.depth, entry.dimensionsMm.height) *

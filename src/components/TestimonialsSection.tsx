@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { Star, Quote } from 'lucide-react';
 import { TESTIMONIALS, aggregateRating, type Testimonial } from '../content/testimonials';
 
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export default function TestimonialsSection({ segment, limit = 6, heading }: Props) {
+  const { t } = useTranslation();
   const items = (segment ? TESTIMONIALS.filter((t) => t.segment === segment) : TESTIMONIALS).slice(0, limit);
   if (items.length === 0) return null;
 
@@ -18,7 +20,7 @@ export default function TestimonialsSection({ segment, limit = 6, heading }: Pro
       <div className="max-w-6xl mx-auto px-4 py-16">
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
-            {heading || 'Müşterilerimiz Ne Diyor?'}
+            {heading || t('landing.testimonialsSection.title')}
           </h2>
           <div className="mt-3 inline-flex items-center gap-2 text-sm text-slate-600">
             <div className="flex items-center gap-0.5">
@@ -27,7 +29,7 @@ export default function TestimonialsSection({ segment, limit = 6, heading }: Pro
               ))}
             </div>
             <span className="font-bold text-slate-900">{agg.value}</span>
-            <span>· {agg.count}+ doğrulanmış yorum</span>
+            <span>· {t('landing.testimonialsSection.verifiedReviews', { count: agg.count })}</span>
           </div>
         </div>
 

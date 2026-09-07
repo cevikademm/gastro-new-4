@@ -38,13 +38,13 @@ export default function BlogListPage() {
   return (
     <div className="max-w-6xl mx-auto py-10">
       <SEO forceIndex hreflang={false}
-        title="Blog — Endüstriyel Mutfak Rehberleri"
-        description="Endüstriyel mutfak kurulumu, ekipman seçimi, HACCP uyumu ve restoran işletmeciliği üzerine uzman rehberler, karşılaştırmalar ve ipuçları."
+        title={t('blog.seoTitle')}
+        description={t('blog.seoDescription')}
         jsonLd={[
           organizationSchema(),
           breadcrumbSchema([
-            { name: 'Ana Sayfa', url: '/' },
-            { name: 'Blog', url: '/blog' },
+            { name: t('common.home'), url: '/' },
+            { name: t('blog.breadcrumb'), url: '/blog' },
           ]),
         ]}
       />
@@ -110,6 +110,8 @@ export default function BlogListPage() {
               <img
                 src={post.image}
                 alt={post.title}
+                width={800}
+                height={450}
                 className="w-full h-full object-cover group-hover:scale-[1.04] transition-transform duration-700 ease-out"
                 loading="lazy"
                 decoding="async"

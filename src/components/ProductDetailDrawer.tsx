@@ -37,6 +37,9 @@ function DrawerImage({ src, alt, priority = false }: { src?: string; alt: string
       fetchPriority={priority ? 'high' : undefined}
       decoding="async"
       onError={() => setErr(true)}
+      // Boyut ipucu: görsel gelene kadar alan ayrılır (CLS "media element lacking explicit size")
+      width={800}
+      height={800}
       className="max-h-full max-w-full object-contain"
     />
   );
@@ -125,7 +128,7 @@ export function ProductDetailBody({ vm, catId = null, accessories = [], related 
                 aria-label={`${t('product.image', 'Bild')} ${i + 1}`}
                 className={`w-12 h-12 rounded-lg border-2 overflow-hidden bg-white grid place-items-center ${i === imgIdx ? 'border-brand-red' : 'border-slate-200'}`}
               >
-                <img src={img} alt="" className="w-full h-full object-contain" />
+                <img src={img} alt="" width={48} height={48} loading="lazy" decoding="async" className="w-full h-full object-contain" />
               </button>
             ))}
           </div>
@@ -147,7 +150,7 @@ export function ProductDetailBody({ vm, catId = null, accessories = [], related 
           <p className="text-[11px] font-bold text-brand-red uppercase tracking-wider">{vm.category}</p>
         )}
         <Title className={`font-display font-black text-[#0F2440] leading-snug mt-1 ${isPage ? 'text-2xl md:text-3xl' : 'text-lg'}`}>{vm.name}</Title>
-        <p className="text-[11px] text-slate-400 font-mono mt-0.5">{vm.brand} · {vm.displayId}</p>
+        <p className="text-[11px] text-slate-600 font-mono mt-0.5">{vm.brand} · {vm.displayId}</p>
 
         {/* Fiyat + stok */}
         <div className="flex items-end flex-wrap gap-x-3 gap-y-1 mt-3">

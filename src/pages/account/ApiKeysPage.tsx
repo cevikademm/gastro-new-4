@@ -2,6 +2,7 @@ import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { Clock } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
 
@@ -27,6 +28,15 @@ interface ApiKey {
 
 type Action = 'list' | 'create' | 'revoke' | 'rotate';
 
+/** Sunucudan gelen makine-okunur hata kodunu taşıyan hata tipi. */
+class ApiError extends Error {
+  code: string;
+  constructor(code: string, message: string) {
+    super(message);
+    this.code = code;
+  }
+}
+
 async function callApi<T = unknown>(action: Action, body: Record<string, unknown> = {}): Promise<T> {
   if (!SUPABASE_URL) throw new Error('Supabase not configured');
   const { data: sess } = supabase ? await supabase.auth.getSession() : { data: { session: null } };
@@ -41,7 +51,12 @@ async function callApi<T = unknown>(action: Action, body: Record<string, unknown
     body: JSON.stringify({ action, ...body }),
   });
   const payload = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(payload?.error?.message || `Request failed (${res.status})`);
+  if (!res.ok) {
+    throw new ApiError(
+      payload?.error?.code || 'internal',
+      payload?.error?.message || `Request failed (${res.status})`,
+    );
+  }
   return payload.data as T;
 }
 
@@ -67,13 +82,21 @@ export default function ApiKeysPage() {
   const [fOrigins, setFOrigins] = useState('');
   const [creating, setCreating] = useState(false);
 
+  /** Sunucu bu hesaba özelliği açmadıysa (coming_soon) "Yakında" gösterilir. */
+  const [comingSoon, setComingSoon] = useState(false);
+
   const load = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
       setKeys(await callApi<ApiKey[]>('list'));
+      setComingSoon(false);
     } catch (e) {
-      setError((e as Error).message);
+      if (e instanceof ApiError && e.code === 'coming_soon') {
+        setComingSoon(true);
+      } else {
+        setError((e as Error).message);
+      }
     } finally {
       setLoading(false);
     }
@@ -100,6 +123,40 @@ export default function ApiKeysPage() {
         <Link to="/login" className="inline-block mt-2 px-5 py-2.5 rounded-lg bg-brand-red text-white font-semibold">
           {t('developerApi.keys.login')}
         </Link>
+      </div>
+    );
+  }
+
+  // Özellik bu hesaba açık değil → yönetim arayüzü hiç render edilmez.
+  if (comingSoon) {
+    return (
+      <div className="max-w-2xl mx-auto py-10 px-4">
+        <div className="rounded-2xl border border-outline-variant/20 bg-surface-container-lowest p-8 text-center">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-[11px] font-black uppercase tracking-wider text-amber-800">
+            <Clock size={12} />
+            {t('developerApi.keys.comingSoonBadge')}
+          </span>
+          <h1 className="mt-4 text-2xl font-black text-on-surface">
+            {t('developerApi.keys.comingSoonTitle')}
+          </h1>
+          <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed text-on-surface-variant">
+            {t('developerApi.keys.comingSoonDesc')}
+          </p>
+          <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
+            <Link
+              to="/developers/api"
+              className="rounded-lg border border-outline-variant/30 px-4 py-2.5 text-sm font-semibold text-on-surface hover:bg-surface-container-low"
+            >
+              {t('developerApi.keys.comingSoonDocs')}
+            </Link>
+            <Link
+              to="/support"
+              className="rounded-lg bg-brand-red px-4 py-2.5 text-sm font-semibold text-white hover:brightness-110"
+            >
+              {t('developerApi.keys.comingSoonContact')}
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }

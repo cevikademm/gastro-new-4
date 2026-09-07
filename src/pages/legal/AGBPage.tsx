@@ -384,122 +384,92 @@ export default function AGBPage() {
     {
       id: 's1',
       num: '§1',
-      title: 'Kapsam',
+      title: t('legal.agb.s1.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
-          <p>
-            Bu Genel Ticari Şartlar (GTS), 2MC Gastro GmbH tarafından ticari müşterilere (B2B) ürün ve hizmetlerin satışı için geçerlidir.
-            Bu GTS, sağlayıcı ve alıcı arasındaki tüm yasal işlemlerin temelini oluşturur.
-          </p>
-          <p>
-            Alıcının farklı şartları ancak sağlayıcı tarafından açıkça yazılı olarak kabul edilmişse geçerlidir.
-          </p>
+          <p>{t('legal.agb.s1.p1')}</p>
+          <p>{t('legal.agb.s1.p2')}</p>
         </div>
       ),
     },
     {
       id: 's2',
       num: '§2',
-      title: 'Sözleşme Yapılması',
+      title: t('legal.agb.s2.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
-          <p>
-            Web sitesinde ürünlerin sunulması bir teklif oluşturur. Sipariş vererek, alıcı bağlayıcı bir teklif yapmış olur.
-          </p>
-          <p>
-            Sözleşme, sağlayıcı tarafından e-posta veya onay mektubu yoluyla açık kabul ile imzalanır.
-            Kabul, siparişin alınmasından sonra 14 gün içinde gerçekleşmelidir.
-          </p>
-          <p>
-            Alıcı, sözleşme yapılmadan önce yazılı bildirim yoluyla siparişini istediği zaman iptal edebilir.
-          </p>
+          <p>{t('legal.agb.s2.p1')}</p>
+          <p>{t('legal.agb.s2.p2')}</p>
+          <p>{t('legal.agb.s2.p3')}</p>
         </div>
       ),
     },
     {
       id: 's3',
       num: '§3',
-      title: 'Fiyatlar ve Ödeme',
+      title: t('legal.agb.s3.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
+          <p>{t('legal.agb.s3.p1')}</p>
           <p>
-            Tüm fiyatlar net fiyatlardır (katma değer vergisi hariç). KDV faturalama sırasında ayrı olarak eklenir,
-            teslimat sırasında geçerli olan yasal vergi oranlarına uygun olarak.
+            <strong>{t('legal.agb.s3.termsLabel')}</strong>
+            <br />{t('legal.agb.s3.term1')}
+            <br />{t('legal.agb.s3.term2')}
+            <br />{t('legal.agb.s3.term3')}
           </p>
           <p>
-            <strong>B2B Ödeme Şartları:</strong>
-            <br />- Net-30: Fatura tarihinden itibaren 30 gün içinde ödeme
-            <br />- Net-60: Fatura tarihinden itibaren 60 gün içinde ödeme (kredi değeri olan müşteriler için talep üzerine)
-            <br />- Ön ödeme: Kargo göndermeden önce ödeme
+            <strong>{t('legal.agb.s3.discountLabel')}</strong> {t('legal.agb.s3.discountText')}
           </p>
-          <p>
-            <strong>İskonto:</strong> Fatura tarihinden itibaren 10 gün içinde ödeme yapılırsa %2 indirim verilir.
-          </p>
-          <p>
-            Ödemeler SEPA havalesi, kredi kartı veya fatura yoluyla yapılır. Ödeme yöntemlerinin kabulü durum bazında onaylanır.
-          </p>
+          <p>{t('legal.agb.s3.p2')}</p>
         </div>
       ),
     },
     {
       id: 's4',
       num: '§4',
-      title: 'Teslimat ve Kargo',
+      title: t('legal.agb.s4.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
           <p>
-            <strong>Kargo Yöntemleri:</strong>
-            <br />- Küçük ekipman için kuryeler (DHL, DPD, UPS)
-            <br />- Büyük ekipman için kargo taşımacılığı (boşaltma talep üzerine)
-            <br />- Kendi aracılığıyla teslim alma
+            <strong>{t('legal.agb.s4.methodsLabel')}</strong>
+            <br />{t('legal.agb.s4.method1')}
+            <br />{t('legal.agb.s4.method2')}
+            <br />{t('legal.agb.s4.method3')}
           </p>
           <p>
-            <strong>Teslimat Bölgesi:</strong> Almanya, Avusturya, Hollanda, Belçika, Fransa ve tüm AB ülkeleri.
+            <strong>{t('legal.agb.s4.areaLabel')}</strong> {t('legal.agb.s4.areaText')}
           </p>
           <p>
-            <strong>Teslimat Süreleri:</strong> Standart 5-10 iş günü. Express seçenekleri mevcuttur.
+            <strong>{t('legal.agb.s4.timesLabel')}</strong> {t('legal.agb.s4.timesText')}
           </p>
-          <p>
-            Sağlayıcı, mallar mevcut değilse kısmi gönderim yapma hakkını saklı tutar.
-          </p>
-          <p>
-            Kayıp riski: Ticari müşteriler için, kayıp riski taşıyıcıya teslim ile devredilir.
-          </p>
+          <p>{t('legal.agb.s4.p1')}</p>
+          <p>{t('legal.agb.s4.p2')}</p>
         </div>
       ),
     },
     {
       id: 's5',
       num: '§5',
-      title: 'Mülkiyet Rezervi',
+      title: t('legal.agb.s5.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
-          <p>
-            Tüm ödenmemiş faturaların tamamen ödenmesine kadar, sağlayıcı teslim edilen malların mülkiyetini saklı tutar.
-            Alıcı, malları yalnızca işletmenin olağan akışında geçirebilir.
-          </p>
+          <p>{t('legal.agb.s5.p1')}</p>
         </div>
       ),
     },
     {
       id: 's6',
       num: '§6',
-      title: 'Garanti',
+      title: t('legal.agb.s6.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
           <p>
-            <strong>B2B için Garanti Süresi:</strong> Teslimatdan sonra 1 yıl.
+            <strong>{t('legal.agb.s6.periodLabel')}</strong> {t('legal.agb.s6.periodText')}
           </p>
+          <p>{t('legal.agb.s6.p1')}</p>
+          <p>{t('legal.agb.s6.p2')}</p>
           <p>
-            Kusurlar derhal, teslimatdan en geç 10 gün sonra yazılı olarak sağlayıcıya bildirilmelidir.
-            Zamanında bildirilmeyen kusurlar, garanti haklarının kaybına neden olur.
-          </p>
-          <p>
-            Sağlayıcı, kendi kararı doğrultusunda onarım veya değişim yoluyla garanti sağlar.
-          </p>
-          <p>
-            <strong>Hariç Tutulma:</strong> Garanti, aşınma, normal kullanım, yanlış kullanım veya
-            alıcı veya üçüncü şahıslar tarafından kuruluma uygulanmaz.
+            <strong>{t('legal.agb.s6.exclusionLabel')}</strong> {t('legal.agb.s6.exclusionText')}
           </p>
         </div>
       ),
@@ -507,57 +477,45 @@ export default function AGBPage() {
     {
       id: 's7',
       num: '§7',
-      title: 'Sorumluluk',
+      title: t('legal.agb.s7.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
-          <p>
-            Sağlayıcı, ölümler, vücut yaralanmaları veya sağlık zararlarından kaynaklanan zararlar ile
-            kasıt veya ağır ihmale neden olan zararlar için sınırsız sorumludur.
-          </p>
-          <p>
-            Yukarıda belirtilmeyen zararlar için, sağlayıcı yalnızca kasıt veya ağır ihmal için sorumlu ve
-            etkilenen malın değeri tutarında sorumludur.
-          </p>
-          <p>
-            Sağlayıcı, entâr kaybı veya diğer dolaylı zararlar için sorumlu değildir.
-          </p>
+          <p>{t('legal.agb.s7.p1')}</p>
+          <p>{t('legal.agb.s7.p2')}</p>
+          <p>{t('legal.agb.s7.p3')}</p>
         </div>
       ),
     },
     {
       id: 's8',
       num: '§8',
-      title: 'Veri Koruma',
+      title: t('legal.agb.s8.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
           <p>
-            Kişisel verilerin işlenmesi <a href="/datenschutz" className="text-primary hover:underline">Gizlilik Politikamız</a> uyarınca yapılır.
+            {t('legal.agb.s8.p1Prefix')} <a href="/datenschutz" className="text-primary hover:underline">{t('legal.agb.s8.p1Link')}</a> {t('legal.agb.s8.p1Suffix')}
           </p>
-          <p>
-            Alıcı, verilerinin sözleşme yerine getirilme, faturalandırma ve
-            müşteri hizmetleri amacıyla işlenmesine izin verir.
-          </p>
+          <p>{t('legal.agb.s8.p2')}</p>
         </div>
       ),
     },
     {
       id: 's9',
       num: '§9',
-      title: 'Son Hükümler',
+      title: t('legal.agb.s9.title'),
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
           <p>
-            <strong>Uygulanacak Hukuk:</strong> Uluslararası Ticari Mal Satışı Sözleşmesine ilişkin BM Sözleşmesi hariç olmak üzere yalnızca Alman hukuku uygulanır.
+            <strong>{t('legal.agb.s9.lawLabel')}</strong> {t('legal.agb.s9.lawText')}
           </p>
           <p>
-            <strong>Yetki:</strong> Bu sözleşmeden kaynaklanan tüm uyuşmazlıklar için yetki, alıcı tüketici olmadığı sürece Köln, Almanya'dadır.
+            <strong>{t('legal.agb.s9.jurisdictionLabel')}</strong> {t('legal.agb.s9.jurisdictionText')}
           </p>
           <p>
-            <strong>Kurtarma Koşulu:</strong> Bu GTS'nin herhangi bir hükmü geçersiz olursa, geri kalan hükümlerin geçerliliği etkilenmez.
+            <strong>{t('legal.agb.s9.severabilityLabel')}</strong> {t('legal.agb.s9.severabilityText')}
           </p>
           <p>
-            <strong>Değişiklikler:</strong> Sağlayıcı bu GTS'yi değiştirme hakkını saklı tutar. Değişiklikler yalnızca gelecekteki sözleşmelere uygulanır
-            ve alıcıya önceden bildirilir.
+            <strong>{t('legal.agb.s9.changesLabel')}</strong> {t('legal.agb.s9.changesText')}
           </p>
         </div>
       ),
@@ -570,13 +528,13 @@ export default function AGBPage() {
         {/* Header */}
         <div className="mb-12">
           <h1 className="text-4xl md:text-5xl font-black text-on-surface font-headline mb-4">
-            {isGerman ? 'Allgemeine Geschäftsbedingungen (AGB)' : i18n.language === 'en' ? 'Terms and Conditions' : 'Genel Ticari Şartlar'}
+            {isGerman ? 'Allgemeine Geschäftsbedingungen (AGB)' : i18n.language === 'en' ? 'Terms and Conditions' : t('legal.agb.pageTitle')}
           </h1>
           <p className="text-sm text-on-surface-variant mb-4">
-            {isGerman ? 'B2B Geschäftskunden · Professionelle Küchengeräte' : i18n.language === 'en' ? 'B2B Business Customers · Professional Kitchen Equipment' : 'B2B İşletme Müşterileri · Profesyonel Mutfak Ekipmanı'}
+            {isGerman ? 'B2B Geschäftskunden · Professionelle Küchengeräte' : i18n.language === 'en' ? 'B2B Business Customers · Professional Kitchen Equipment' : t('legal.agb.pageSubtitle')}
           </p>
           <p className="text-sm text-on-surface-variant">
-            {isGerman ? 'Aktualisiert' : i18n.language === 'en' ? 'Updated' : 'Güncellendi'} {new Date().toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric' })}
+            {isGerman ? 'Aktualisiert' : i18n.language === 'en' ? 'Updated' : t('legal.agb.updatedLabel')} {new Date().toLocaleDateString(i18n.language, { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
         </div>
 
@@ -613,7 +571,7 @@ export default function AGBPage() {
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="mt-12 inline-flex items-center gap-2 text-sm font-bold text-primary hover:opacity-70 transition-opacity"
         >
-          ↑ {isGerman ? 'Nach oben' : i18n.language === 'en' ? 'Back to top' : 'Üste git'}
+          ↑ {isGerman ? 'Nach oben' : i18n.language === 'en' ? 'Back to top' : t('legal.agb.backToTop')}
         </button>
       </div>
     </div>

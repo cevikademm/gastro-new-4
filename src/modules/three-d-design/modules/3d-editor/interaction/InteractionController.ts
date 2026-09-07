@@ -317,6 +317,7 @@ export class InteractionController {
     if (this.selectedRoot) this.applyOutline(this.selectedRoot, null);
     this.selectedRoot = root;
     if (root) this.applyOutline(root, this.emissiveSelected);
+    this.manager.requestRender();
     const id: string | null = root?.userData?.equipmentId ?? null;
     this.events.onSelect?.(id);
   }
@@ -336,12 +337,14 @@ export class InteractionController {
     if (root && root !== this.selectedRoot) {
       this.applyOutline(root, this.emissiveHovered);
     }
+    this.manager.requestRender();
     this.events.onHover?.(root?.userData?.equipmentId ?? null);
   }
 
   private clearHover(): void {
     if (this.hoveredRoot && this.hoveredRoot !== this.selectedRoot) {
       this.applyOutline(this.hoveredRoot, null);
+      this.manager.requestRender();
     }
     this.hoveredRoot = null;
   }
@@ -494,6 +497,7 @@ export class InteractionController {
     if (!equipmentId) return;
     const newRenderYaw = this.selectedRoot.rotation.z + (deltaDeg * Math.PI) / 180;
     this.selectedRoot.rotation.z = newRenderYaw; // render
+    this.manager.requestRender();
     const rxMm = this.selectedRoot.position.x * THREE_TO_MM;
     const ryMm = this.selectedRoot.position.y * THREE_TO_MM;
     useProjectStore.getState().update((d) => {

@@ -5,9 +5,9 @@ import { useTranslation } from 'react-i18next';
 
 interface BlogPost {
   id: string;
-  title: string;
-  excerpt: string;
-  category: string;
+  titleKey: string;
+  excerptKey: string;
+  categoryKey: string;
   date: string;
   readMin: number;
   image: string;
@@ -17,9 +17,9 @@ interface BlogPost {
 const POSTS: BlogPost[] = [
   {
     id: 'p1',
-    title: 'Restoran Mutfağı Kurarken Yapılan 7 Pahalı Hata',
-    excerpt: 'Yeni bir mutfak kurulumunda sık karşılaşılan hatalar ve profesyonel çözümleri.',
-    category: 'Rehber',
+    titleKey: 'landing.blogPreview.posts.p1.title',
+    excerptKey: 'landing.blogPreview.posts.p1.excerpt',
+    categoryKey: 'landing.blogPreview.posts.p1.category',
     date: '2026-04-05',
     readMin: 8,
     image: 'https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=800&q=80',
@@ -27,9 +27,9 @@ const POSTS: BlogPost[] = [
   },
   {
     id: 'p2',
-    title: 'Kombi Fırın Nasıl Seçilir? Kapasite ve Enerji Rehberi',
-    excerpt: 'İşletmeniz için doğru kombi fırın kapasitesini hesaplamanın pratik yolları.',
-    category: 'Ürün Rehberi',
+    titleKey: 'landing.blogPreview.posts.p2.title',
+    excerptKey: 'landing.blogPreview.posts.p2.excerpt',
+    categoryKey: 'landing.blogPreview.posts.p2.category',
     date: '2026-03-28',
     readMin: 6,
     image: 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=800&q=80',
@@ -37,9 +37,9 @@ const POSTS: BlogPost[] = [
   },
   {
     id: 'p3',
-    title: 'HACCP Uyumlu Soğuk Zincir: Soğutma Ekipmanları',
-    excerpt: 'Gıda güvenliği mevzuatına uygun soğutma sistemleri ve sertifikasyon.',
-    category: 'Mevzuat',
+    titleKey: 'landing.blogPreview.posts.p3.title',
+    excerptKey: 'landing.blogPreview.posts.p3.excerpt',
+    categoryKey: 'landing.blogPreview.posts.p3.category',
     date: '2026-03-20',
     readMin: 10,
     image: 'https://images.unsplash.com/photo-1578916171728-46686eac8d58?w=800&q=80',
@@ -191,47 +191,50 @@ export default function BlogPreviewSection() {
             width: `${total * 2 * (100 / visible)}%`,
           }}
         >
-          {[...POSTS, ...POSTS].map((post, i) => (
-            <div
-              key={`${post.id}-${i}`}
-              style={{
-                flex: `0 0 ${100 / (total * 2)}%`,
-                padding: '0 10px',
-              }}
-            >
-              <a
-                href={`#${post.href}`}
-                className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 block"
+          {[...POSTS, ...POSTS].map((post, i) => {
+            const postTitle = t(post.titleKey);
+            return (
+              <div
+                key={`${post.id}-${i}`}
+                style={{
+                  flex: `0 0 ${100 / (total * 2)}%`,
+                  padding: '0 10px',
+                }}
               >
-                <div className="aspect-video bg-slate-100 overflow-hidden relative">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                    loading="lazy"
-                    draggable={false}
-                  />
-                  <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-bold text-[#DC2626] rounded-full uppercase tracking-wider">
-                    {post.category}
-                  </span>
-                </div>
-                <div className="p-5">
-                  <h3 className="text-base font-bold text-slate-900 line-clamp-2 group-hover:text-[#DC2626] transition">
-                    {post.title}
-                  </h3>
-                  <p className="text-sm text-slate-500 mt-2 line-clamp-2">{post.excerpt}</p>
-                  <div className="flex items-center gap-4 mt-4 text-xs text-slate-400">
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} /> {new Date(post.date).toLocaleDateString('tr-TR')}
-                    </span>
-                    <span className="flex items-center gap-1">
-                      <Clock size={12} /> {post.readMin} dk
+                <a
+                  href={`#${post.href}`}
+                  className="group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all border border-slate-100 block"
+                >
+                  <div className="aspect-video bg-slate-100 overflow-hidden relative">
+                    <img
+                      src={post.image}
+                      alt={postTitle}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                      draggable={false}
+                    />
+                    <span className="absolute top-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-sm text-[10px] font-bold text-[#DC2626] rounded-full uppercase tracking-wider">
+                      {t(post.categoryKey)}
                     </span>
                   </div>
-                </div>
-              </a>
-            </div>
-          ))}
+                  <div className="p-5">
+                    <h3 className="text-base font-bold text-slate-900 line-clamp-2 group-hover:text-[#DC2626] transition">
+                      {postTitle}
+                    </h3>
+                    <p className="text-sm text-slate-500 mt-2 line-clamp-2">{t(post.excerptKey)}</p>
+                    <div className="flex items-center gap-4 mt-4 text-xs text-slate-400">
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} /> {new Date(post.date).toLocaleDateString('tr-TR')}
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Clock size={12} /> {t('landing.blogPreview.readMin', { count: post.readMin })}
+                      </span>
+                    </div>
+                  </div>
+                </a>
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

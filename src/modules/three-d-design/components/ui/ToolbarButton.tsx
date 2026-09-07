@@ -4,6 +4,7 @@
  */
 
 import { type ReactNode } from 'react';
+import { headerBtnClass } from './chrome';
 
 interface ToolbarButtonProps {
   onClick?: () => void;
@@ -26,12 +27,8 @@ export default function ToolbarButton({
       onClick={onClick}
       disabled={disabled}
       title={title}
-      className={[
-        'inline-flex items-center justify-center gap-1.5 px-2.5 h-9 rounded-xl text-[11px] font-medium transition',
-        active
-          ? 'bg-brand-red/10 text-brand-red ring-1 ring-brand-red/20'
-          : 'text-slate-500 hover:bg-slate-100 disabled:text-slate-300 disabled:hover:bg-transparent',
-      ].join(' ')}
+      aria-label={title}
+      className={headerBtnClass(!!active)}
     >
       {children}
     </button>

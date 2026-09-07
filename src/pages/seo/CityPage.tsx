@@ -60,9 +60,9 @@ export default function CityPage() {
 
       <article className="max-w-5xl mx-auto px-4 sm:px-6 py-10 space-y-10">
         <section className="grid md:grid-cols-3 gap-4">
-          <div className="p-5 bg-white border border-slate-200 rounded-2xl"><Truck className="text-brand-red mb-2" /><h3 className="font-bold text-[#0F2440]">Lieferung</h3><p className="text-sm text-slate-600 mt-1">{eigen ? `Eigenes Fahrzeug, ${c.deliveryDays}` : `Spedition frei Bordsteinkante, ${c.deliveryDays}`}</p></div>
-          <div className="p-5 bg-white border border-slate-200 rounded-2xl"><Wrench className="text-brand-red mb-2" /><h3 className="font-bold text-[#0F2440]">Montage</h3><p className="text-sm text-slate-600 mt-1">{c.montageAvailable ? 'Vertragen, Aufstellung und Montage durch unser Team' : 'Auf Anfrage über Partnerbetriebe vor Ort'}</p></div>
-          <div className="p-5 bg-white border border-slate-200 rounded-2xl"><MapPin className="text-brand-red mb-2" /><h3 className="font-bold text-[#0F2440]">Entfernung</h3><p className="text-sm text-slate-600 mt-1">{c.distanceKm ? `ca. ${c.distanceKm} km von Köln` : 'Unser Standort'}</p></div>
+          <div className="p-5 bg-white border border-slate-200 rounded-2xl"><Truck className="text-brand-red mb-2" /><p className="font-bold text-[#0F2440]">Lieferung</p><p className="text-sm text-slate-600 mt-1">{eigen ? `Eigenes Fahrzeug, ${c.deliveryDays}` : `Spedition frei Bordsteinkante, ${c.deliveryDays}`}</p></div>
+          <div className="p-5 bg-white border border-slate-200 rounded-2xl"><Wrench className="text-brand-red mb-2" /><p className="font-bold text-[#0F2440]">Montage</p><p className="text-sm text-slate-600 mt-1">{c.montageAvailable ? 'Vertragen, Aufstellung und Montage durch unser Team' : 'Auf Anfrage über Partnerbetriebe vor Ort'}</p></div>
+          <div className="p-5 bg-white border border-slate-200 rounded-2xl"><MapPin className="text-brand-red mb-2" /><p className="font-bold text-[#0F2440]">Entfernung</p><p className="text-sm text-slate-600 mt-1">{c.distanceKm ? `ca. ${c.distanceKm} km von Köln` : 'Unser Standort'}</p></div>
         </section>
         <section>
           <h2 className="text-2xl font-display font-black tracking-tight text-[#0F2440] mb-3">Lieferung nach {c.name}</h2>

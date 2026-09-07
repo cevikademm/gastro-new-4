@@ -36,7 +36,7 @@ export default function ProductSeoCard({ p }: { p: ProductSeoCardRow }) {
       <div className="p-4 flex flex-col gap-1.5 flex-1">
         <span className="text-[10px] font-black uppercase tracking-[0.16em] text-brand-red">{p.brand}</span>
         <h3 className="text-sm font-bold text-[#0F2440] leading-snug line-clamp-2 min-h-[2.5rem]">{p.name_de}</h3>
-        <span className="text-[11px] text-slate-400 font-mono">{p.sku}</span>
+        <span className="text-[11px] text-slate-600 font-mono">{p.sku}</span>
         <div className="mt-auto pt-2 flex items-end justify-between gap-2">
           <div>
             {price

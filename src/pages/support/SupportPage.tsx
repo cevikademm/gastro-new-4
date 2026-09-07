@@ -1,21 +1,19 @@
-import React, { useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Send, HelpCircle, ChevronDown, ChevronUp, MessageSquare, Phone, Mail, Loader2 } from 'lucide-react';
+import { Send, HelpCircle, MessageSquare, Phone, Mail, Loader2, Inbox } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuthStore } from '../../stores/authStore';
+import { createSupportTicket, fetchSupportTickets, type SupportTicket } from '../../lib/supportTickets';
 
 // Destek biletlerinin gittiği kutu. Alıcıyı edge function sunucu tarafında
 // sabitler (SUPPORT_INBOX); buradaki değer yalnızca hata durumundaki
 // mailto yedeği ve ekranda gösterim içindir.
 const SUPPORT_INBOX = 'info@2mcgastro.de';
 
-// SSS içerikleri i18n'de `faq.q1..q10 / faq.a1..a10` altında yaşar (15 dilde).
-// Sıra: teklif → sipariş → ödeme → fiyat → 3D tasarım → kayıt → teslimat →
-// markalar → danışmanlık → garanti (satış hunisindeki doğal akış).
-const faqData = Array.from({ length: 10 }, (_, i) => ({
-  qKey: `faq.q${i + 1}`,
-  aKey: `faq.a${i + 1}`,
-}));
+// NOT: Buradaki SSS (akordiyon) bölümü 2026-09-06'da KALDIRILDI. `faq.q1..q10 /
+// faq.a1..a10` anahtarları 15 dilin hiçbirinde yoktu; ekrana çeviri yerine ham
+// anahtar basılıyordu. Geri kurulacaksa önce çeviriler yazılmalı (bkz. git
+// geçmişi: bu dosyanın eski sürümü + `support.faq` başlık anahtarı duruyor).
 
 export default function SupportPage() {
   const { t } = useTranslation();
@@ -24,47 +22,68 @@ export default function SupportPage() {
   const [submitted, setSubmitted] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState('');
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [emailWarning, setEmailWarning] = useState(false);
+
+  const isAdmin = user?.role === 'admin';
+  const [tickets, setTickets] = useState<SupportTicket[]>([]);
+  const [ticketsLoading, setTicketsLoading] = useState(false);
+
+  const loadTickets = useCallback(async () => {
+    if (!isAdmin) return;
+    setTicketsLoading(true);
+    setTickets(await fetchSupportTickets());
+    setTicketsLoading(false);
+  }, [isAdmin]);
+
+  useEffect(() => { void loadTickets(); }, [loadTickets]);
 
   /**
-   * Bileti send-email edge function'ı üzerinden info@2mcgastro.de'ye yollar.
-   * Alıcıyı function sabitler; yanıtla adresi bileti açan kullanıcıdır.
-   * Gönderim başarısızsa form KORUNUR ve mailto yedeği sunulur — eskiden
-   * hiçbir şey gönderilmeden "başarıyla oluşturuldu" yazılıyordu.
+   * Bileti önce support_tickets'a YAZAR, sonra e-posta bildirimini dener.
+   * Sıra önemli: e-posta ikincildir, düşerse bilet yine de kayıtlıdır ve
+   * yönetici zil bildiriminden (migration 050 trigger'ı) görür. Kayıt
+   * başarısızsa form KORUNUR ve mailto yedeği sunulur.
    */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.subject.trim() || !form.message.trim() || sending) return;
     setSending(true);
     setError('');
-    try {
-      if (!supabase) throw new Error('Supabase yapılandırılmamış.');
-      const { data, error: fnError } = await supabase.functions.invoke('send-email', {
-        body: {
-          template: 'support-ticket',
-          to: SUPPORT_INBOX,
-          replyTo: user?.email || undefined,
-          data: {
-            subject: form.subject.trim(),
-            message: form.message.trim(),
-            priority: form.priority,
-            reporterName: user?.fullName || user?.email || '',
-            reporterEmail: user?.email || '',
-            reporterCompany: user?.company || '',
-          },
-        },
-      });
-      if (fnError) throw new Error(fnError.message);
-      if (data?.error) throw new Error(String(data.error));
+    setEmailWarning(false);
 
-      setSubmitted(true);
-      setForm({ subject: '', message: '', priority: 'medium' });
-      setTimeout(() => setSubmitted(false), 5000);
+    const payload = {
+      subject: form.subject.trim(),
+      message: form.message.trim(),
+      priority: form.priority,
+      reporterName: user?.fullName || user?.email || '',
+      reporterEmail: user?.email || '',
+      reporterCompany: user?.company || '',
+    };
+
+    try {
+      await createSupportTicket(payload);
     } catch (err) {
       setError((err as Error)?.message || t('support.sendFailed'));
-    } finally {
       setSending(false);
+      return;
     }
+
+    // Buradan sonrası "en iyi çaba": bilet zaten kayıtlı, e-posta düşse de
+    // kullanıcıya hata gösterip yeniden göndertmeyiz (mükerrer bilet olur).
+    try {
+      if (!supabase) throw new Error('no client');
+      const { data, error: fnError } = await supabase.functions.invoke('send-email', {
+        body: { template: 'support-ticket', to: SUPPORT_INBOX, replyTo: user?.email || undefined, data: payload },
+      });
+      if (fnError || data?.error) throw new Error(fnError?.message || String(data?.error));
+    } catch {
+      setEmailWarning(true);
+    }
+
+    setSubmitted(true);
+    setForm({ subject: '', message: '', priority: 'medium' });
+    setSending(false);
+    setTimeout(() => setSubmitted(false), 5000);
+    void loadTickets();
   };
 
   // Gönderim başarısızsa kullanıcı yazdığını kaybetmesin — hazır mailto.
@@ -86,7 +105,12 @@ export default function SupportPage() {
             </h2>
 
             {submitted && (
-              <div className="bg-success-container text-success px-4 py-3 rounded-lg mb-4 text-sm font-medium border border-success/20">{t('support.ticketSubmitted')}</div>
+              <div className="bg-success-container text-success px-4 py-3 rounded-lg mb-4 text-sm font-medium border border-success/20">
+                {t('support.ticketSubmitted')}
+                {emailWarning && (
+                  <p className="mt-1 font-normal opacity-80">{t('support.savedEmailFailed')}</p>
+                )}
+              </div>
             )}
 
             {error && (
@@ -128,28 +152,54 @@ export default function SupportPage() {
             </form>
           </div>
 
-          <div className="bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_rgba(15,36,64,0.04),0_8px_24px_-12px_rgba(15,36,64,0.06)] p-6 sm:p-8 border border-outline-variant/40">
-            <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs mb-6 flex items-center gap-2">
-              <span className="w-6 h-px bg-primary" />
-              {t('support.faq')}
-            </h2>
-            <div className="space-y-2">
-              {faqData.map((faq, i) => {
-                const open = openFaq === i;
-                return (
-                  <div key={i} className={`border rounded-xl overflow-hidden transition-colors ${open ? 'border-primary/30 bg-primary-fixed/40' : 'border-outline-variant/40 hover:border-outline-variant'}`}>
-                    <button type="button" onClick={() => setOpenFaq(open ? null : i)} className="w-full flex items-center justify-between p-4 text-left">
-                      <span className="text-sm font-medium text-on-surface pr-4">{t(faq.qKey)}</span>
-                      {open ? <ChevronUp size={16} className="text-primary shrink-0" /> : <ChevronDown size={16} className="text-on-surface-variant shrink-0" />}
-                    </button>
-                    {open && (
-                      <div className="px-4 pb-4 text-sm text-on-surface-variant leading-relaxed">{t(faq.aKey)}</div>
-                    )}
-                  </div>
-                );
-              })}
+          {/* Gelen kutusu — YALNIZCA yönetici. Listeyi asıl kısıtlayan RLS
+              (migration 050); buradaki koşul sadece arayüzü sadeleştirir. */}
+          {isAdmin && (
+            <div className="bg-surface-container-lowest rounded-2xl shadow-[0_1px_3px_rgba(15,36,64,0.04),0_8px_24px_-12px_rgba(15,36,64,0.06)] p-6 sm:p-8 border border-outline-variant/40">
+              <h2 className="font-headline font-bold text-primary uppercase tracking-[0.2em] text-xs mb-6 flex items-center gap-2">
+                <span className="w-6 h-px bg-primary" />
+                {t('support.adminInbox')}
+                {tickets.length > 0 && (
+                  <span className="ml-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] tabular-nums">{tickets.length}</span>
+                )}
+              </h2>
+
+              {ticketsLoading && tickets.length === 0 ? (
+                <div className="py-8 text-center"><Loader2 size={18} className="animate-spin mx-auto text-on-surface-variant" /></div>
+              ) : tickets.length === 0 ? (
+                <div className="py-8 text-center text-sm text-on-surface-variant flex flex-col items-center gap-2">
+                  <Inbox size={22} strokeWidth={1.5} className="opacity-50" />
+                  {t('support.inboxEmpty')}
+                </div>
+              ) : (
+                <ul className="divide-y divide-outline-variant/20 -my-3">
+                  {tickets.map((ticket) => (
+                    <li key={ticket.id} className="py-4">
+                      <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                        <span className="font-bold text-sm text-on-surface break-words">{ticket.subject}</span>
+                        <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide ${
+                          ticket.priority === 'critical' || ticket.priority === 'high'
+                            ? 'bg-error-container text-error'
+                            : 'bg-surface-container-high text-on-surface-variant'
+                        }`}>
+                          {t(`support.${ticket.priority}`)}
+                        </span>
+                        <span className="ml-auto text-[11px] text-on-surface-variant tabular-nums">
+                          {new Date(ticket.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="mt-1.5 text-sm text-on-surface-variant whitespace-pre-wrap break-words">{ticket.message}</p>
+                      <p className="mt-2 text-[11px] text-on-surface-variant/80 break-words">
+                        {ticket.reporter_name || ticket.reporter_email || t('support.inboxGuest')}
+                        {ticket.reporter_email && ticket.reporter_name ? ` · ${ticket.reporter_email}` : ''}
+                        {ticket.reporter_company ? ` · ${ticket.reporter_company}` : ''}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-4">

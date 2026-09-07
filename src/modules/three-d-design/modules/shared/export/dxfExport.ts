@@ -17,6 +17,7 @@
  */
 
 import type { ProjectDocument, Vec2 } from '../../../core/types';
+import { wallBandPolygons } from '../../../core/wallBands';
 import { useProjectStore } from '../../../store/projectStore';
 
 interface Pt { x: number; y: number }
@@ -119,8 +120,10 @@ export function hasExportableGeometry(project: ProjectDocument): boolean {
 export function projectToDxf(project: ProjectDocument): string {
   const w = new DxfWriter();
   const V = project.vertices;
+  // Duvar bantları — 2B/3B ile aynı köşe birleşimleri (mitre, T, serbest uç).
+  const { bands } = wallBandPolygons(project);
 
-  // Duvarlar — kalınlık kadar dikdörtgen
+  // Duvarlar — kalınlık kadar (köşeleri birleştirilmiş) poligon
   for (const wall of Object.values(project.walls)) {
     const a = V[wall.a]; const b = V[wall.b];
     if (!a || !b) continue;
@@ -130,12 +133,18 @@ export function projectToDxf(project: ProjectDocument): string {
     const ux = dx / len; const uy = dy / len;
     const half = Math.max(wall.thickness, 1) / 2;
     const nx = -uy * half; const ny = ux * half;
-    w.polyline('WALLS', [
-      toCad({ x: a.x + nx, y: a.y + ny }),
-      toCad({ x: b.x + nx, y: b.y + ny }),
-      toCad({ x: b.x - nx, y: b.y - ny }),
-      toCad({ x: a.x - nx, y: a.y - ny }),
-    ]);
+    const band = bands.get(wall.id);
+    w.polyline(
+      'WALLS',
+      band
+        ? band.polygon.map(toCad)
+        : [
+            toCad({ x: a.x + nx, y: a.y + ny }),
+            toCad({ x: b.x + nx, y: b.y + ny }),
+            toCad({ x: b.x - nx, y: b.y - ny }),
+            toCad({ x: a.x - nx, y: a.y - ny }),
+          ],
+    );
 
     // Bu duvardaki açıklıklar
     for (const op of Object.values(project.openings)) {

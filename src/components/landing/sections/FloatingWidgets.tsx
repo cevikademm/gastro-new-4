@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, MessageCircle, X } from 'lucide-react';
 
 /**
  * Floating widgets: WhatsApp button (bottom-right) + live chat bubble (bottom-left).
  */
 export function FloatingWidgets() {
+  const { t } = useTranslation();
   const [showTooltip, setShowTooltip] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
 
@@ -45,7 +47,7 @@ export function FloatingWidgets() {
           style={{ boxShadow: '0 24px 64px rgba(11,26,46,0.16)' }}
         >
           <MessageCircle size={16} className="text-brand-red" />
-          Hemen fiyat teklifi al — yanıt 2 dakika
+          {t('landing.chat.whatsappTooltip')}
           <span
             className="absolute right-[-6px] top-1/2 -translate-y-1/2"
             style={{
@@ -62,7 +64,7 @@ export function FloatingWidgets() {
       {/* WhatsApp */}
       <a
         href="https://wa.me/4917670295844"
-        aria-label="WhatsApp ile iletişime geç"
+        aria-label={t('landing.chat.whatsappAria')}
         className="fixed bottom-28 right-5 z-[90] h-14 w-14 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform sm:bottom-24 sm:right-6 sm:h-16 sm:w-16 md:bottom-6"
         style={{
           background: '#25D366',
@@ -94,7 +96,7 @@ export function FloatingWidgets() {
         >
           <button
             onClick={() => setChatOpen(false)}
-            aria-label="Kapat"
+            aria-label={t('landing.chat.closeAria')}
             className="absolute top-1.5 right-2 p-1 text-white/50 hover:text-white"
           >
             <X size={18} />
@@ -109,16 +111,16 @@ export function FloatingWidgets() {
           </div>
           <div className="text-[13px]">
             <strong className="block text-white mb-0.5">
-              Adem · Gastro Danışmanı
+              {t('landing.chat.consultantName')}
             </strong>
             <p className="text-white/60 leading-snug mb-1.5">
-              Merhaba! Mutfak projen için 5 dakikada ücretsiz teklif hazırlayalım.
+              {t('landing.chat.consultantIntro')}
             </p>
             <Link
               to="/support"
               className="inline-flex items-center gap-1 text-brand-red font-bold text-[12px]"
             >
-              Sohbete başla <ArrowRight size={12} strokeWidth={2.5} />
+              {t('landing.chat.startChat')} <ArrowRight size={12} strokeWidth={2.5} />
             </Link>
           </div>
         </div>

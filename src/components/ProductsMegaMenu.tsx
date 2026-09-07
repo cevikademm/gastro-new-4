@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { ChevronRight, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { CATEGORIES, useEquipmentStore } from '../stores/equipmentStore';
 import { getSubGroupsFor } from '../lib/categoryTaxonomy';
 import { pathForTaxonomy, subcategoryPath } from '../content/seo/categoryTree.de';
@@ -39,6 +40,7 @@ interface Props {
 }
 
 export function ProductsMegaMenu({ onClose }: Props) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const allItems = useEquipmentStore((s) => s.allItems);
 
@@ -75,7 +77,7 @@ export function ProductsMegaMenu({ onClose }: Props) {
             onClick={() => go('/produkte')}
             className="inline-flex items-center gap-1.5 rounded-full bg-[#0F2440] px-3.5 py-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white transition-colors hover:bg-brand-red"
           >
-            Tüm Ürünler
+            {t('shop.allProducts')}
             <ArrowRight className="h-3 w-3" />
           </button>
         </div>

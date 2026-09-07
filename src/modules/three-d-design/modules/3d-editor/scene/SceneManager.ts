@@ -34,6 +34,7 @@
 
 import * as THREE from 'three';
 import CameraControls from 'camera-controls';
+import { createGradientBackground, createGroundGrid, createShadowCatcher } from './GroundGrid';
 
 // camera-controls needs a one-time install with the THREE namespace before any
 // instance is created. Guard so HMR / multiple SceneManagers don't re-install.
@@ -45,8 +46,13 @@ function ensureCameraControlsInstalled(): void {
 }
 
 export interface SceneManagerOptions {
-  /** Background color (hex). Default light room. */
+  /** Solid background colour (hex) — used for fog and as the capture fallback. */
   background?: number;
+  /**
+   * Vertical gradient sweep behind the scene (CSS colours, top → bottom).
+   * Pass `null` for a flat `background`. Default: soft studio sweep.
+   */
+  gradient?: { top: string; bottom: string } | null;
   /** Whether to enable antialias. Default true. */
   antialias?: boolean;
   /** Whether to enable shadows (perf cost ~30%). Default true. */
@@ -77,6 +83,17 @@ export class SceneManager {
   private tickFns: Set<FrameTickFn> = new Set();
   private disposed = false;
 
+  // ── Render-on-demand ──────────────────────────────────────────────────
+  // The RAF loop keeps ticking (camera-controls damping needs dt), but the
+  // GPU only renders when the camera moved, something asked for a frame
+  // (`requestRender`), a continuous interaction is running (drag / gizmo /
+  // interaction lock), or the idle heartbeat is due. Idle GPU load → ~0.
+  private needsRender = true;
+  private continuousDepth = 0;
+  private lastRenderAt = 0;
+  /** Safety heartbeat so a missed `requestRender` never leaves a stale frame. */
+  idleHeartbeatMs = 500;
+
   /**
    * Reference count for "pause the camera while something is being dragged".
    * Equipment-body drag and the rotate gizmo each push on start / pop on end.
@@ -89,11 +106,17 @@ export class SceneManager {
   readonly ambient: THREE.AmbientLight;
   readonly sun: THREE.DirectionalLight;
   readonly fill: THREE.HemisphereLight;
-  readonly grid: THREE.GridHelper;
+  /** Distance-faded reference grid (shader plane, see GroundGrid.ts). */
+  readonly grid: THREE.Mesh;
+  /** Shadow-only ground plane — contact shadows outside the room floors. */
+  readonly ground: THREE.Mesh;
+  /** Solid colour behind everything (fog colour + flat fallback). */
+  readonly backgroundColor: THREE.Color;
 
   constructor(opts: SceneManagerOptions = {}) {
     const {
-      background = 0xf8fafc,
+      background = 0xeef1f5,
+      gradient = { top: '#fbfcfd', bottom: '#dfe4ea' },
       antialias = true,
       shadows = true,
       fog = false,
@@ -120,14 +143,20 @@ export class SceneManager {
     this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.0;
     this.renderer.shadowMap.enabled = shadows;
-    this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    // PCFSoftShadowMap r183'te kaldırıldı; PCF + `shadow.radius` yumuşak kenar verir.
+    this.renderer.shadowMap.type = THREE.PCFShadowMap;
 
     // ── Scene ─────────────────────────────────────────────────────────
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(background);
+    this.backgroundColor = new THREE.Color(background);
+    // Yumuşak dikey geçiş: üst açık, zemin çizgisine doğru hafif koyu → derinlik
+    // hissi; duvarlar arka plandan ayrışır. Düz renk istenirse gradient=null.
+    this.scene.background = gradient
+      ? createGradientBackground(gradient.top, gradient.bottom)
+      : this.backgroundColor.clone();
     if (fog) {
       // Sis çok uzakta başlasın ki büyük sahnelerde bile yakın objeler net kalsın.
-      this.scene.fog = new THREE.Fog(background, 80, 200);
+      this.scene.fog = new THREE.Fog(this.backgroundColor, 80, 200);
     }
 
     // ── Camera ────────────────────────────────────────────────────────
@@ -140,14 +169,16 @@ export class SceneManager {
     // Z extrudes up; that way wall builders match the 2D editor exactly.
 
     // ── Lights ────────────────────────────────────────────────────────
-    this.ambient = new THREE.AmbientLight(0xffffff, 0.7);
+    // Az ambient + gökyüzü/zemin dolgu + sıcak tonlu güneş: duvar yüzeyleri
+    // birbirinden ayrışır (düz beyaz kutu görünümü yerine hacim okunur).
+    this.ambient = new THREE.AmbientLight(0xffffff, 0.25);
     this.scene.add(this.ambient);
 
-    this.fill = new THREE.HemisphereLight(0xffffff, 0xc8cdd4, 0.7);
+    this.fill = new THREE.HemisphereLight(0xffffff, 0xb9c2cd, 0.55);
     this.scene.add(this.fill);
 
-    this.sun = new THREE.DirectionalLight(0xffffff, 1.0);
-    this.sun.position.set(8, 12, 6);
+    this.sun = new THREE.DirectionalLight(0xfff3e4, 1.35);
+    this.sun.position.set(9, 13, 5);
     this.sun.castShadow = shadows;
     this.sun.shadow.mapSize.set(2048, 2048);
     this.sun.shadow.camera.near = 0.5;
@@ -156,16 +187,18 @@ export class SceneManager {
     this.sun.shadow.camera.right = 20;
     this.sun.shadow.camera.top = 20;
     this.sun.shadow.camera.bottom = -20;
-    this.sun.shadow.bias = -0.0005;
+    this.sun.shadow.bias = -0.00025;
+    this.sun.shadow.normalBias = 0.02;
+    this.sun.shadow.radius = 4;
     this.scene.add(this.sun);
 
-    // ── Grid (1 m squares, 100 m total) ──────────────────────────────
-    this.grid = new THREE.GridHelper(100, 100, 0xcbd5e1, 0xe2e8f0);
-    (this.grid.material as THREE.Material).transparent = true;
-    (this.grid.material as THREE.Material).opacity = 0.6;
+    // ── Ground: distance-faded grid + shadow catcher ──────────────────
     // Çift taraflı: kamera zeminin ALTINA indiğinde (özgür orbit) grid kaybolmasın.
-    (this.grid.material as THREE.Material).side = THREE.DoubleSide;
+    this.grid = createGroundGrid();
     this.scene.add(this.grid);
+    this.ground = createShadowCatcher();
+    this.ground.receiveShadow = shadows;
+    this.scene.add(this.ground);
 
     // ── Content root: rotate -90° about X so +Y in domain → +Y on floor
     //    while the domain's +Z (up) maps to scene +Y (Three's up). This
@@ -210,6 +243,8 @@ export class SceneManager {
   /** Bir sürükleme/etkileşim başladı — orbit'i (gerekiyorsa) kapat. */
   pushInteractionLock(): void {
     if (this.interactionLocks++ === 0) this.controls.enabled = false;
+    // Drags move meshes every frame without touching the camera → render continuously.
+    this.beginContinuous();
   }
 
   /** Bir sürükleme/etkileşim bitti — son kilit bırakılınca orbit'i aç. */
@@ -217,12 +252,15 @@ export class SceneManager {
     if (this.interactionLocks > 0 && --this.interactionLocks === 0) {
       this.controls.enabled = true;
     }
+    this.endContinuous();
   }
 
   /** Tüm kilitleri bırak (pencere blur / pointercancel güvenlik valfi). */
   releaseAllInteractionLocks(): void {
     this.interactionLocks = 0;
     this.controls.enabled = true;
+    this.continuousDepth = 0;
+    this.needsRender = true;
   }
 
   /** Mevcut orbit hedefini (world) döndür. camera-controls mutable `target`
@@ -274,15 +312,9 @@ export class SceneManager {
 
   /** Reset camera to a named view preset, framing the given content box. */
   setViewPreset(preset: 'top' | 'front' | 'side' | 'iso', box?: THREE.Box3): void {
-    const target = new THREE.Vector3();
-    const size = new THREE.Vector3(8, 4, 8);
-    if (box && !box.isEmpty()) {
-      box.getCenter(target);
-      box.getSize(size);
-    }
-    const maxDim = Math.max(size.x, size.y, size.z);
-    const fov = (this.camera.fov * Math.PI) / 180;
-    const dist = Math.max(2, (maxDim * 1.6) / (2 * Math.tan(fov / 2)));
+    const target = new THREE.Vector3(0, 1.5, 0);
+    const fallback = new THREE.Box3().setFromCenterAndSize(target, new THREE.Vector3(8, 3, 8));
+    const useBox = box && !box.isEmpty() ? box : fallback;
     let dir: THREE.Vector3;
     switch (preset) {
       case 'top':   dir = new THREE.Vector3(0, 1, 0.001); break; // near top-down
@@ -291,26 +323,64 @@ export class SceneManager {
       case 'iso':   dir = new THREE.Vector3(0.7, 0.55, 0.7); break;
       default:      dir = new THREE.Vector3(0.7, 0.55, 0.7);
     }
-    dir.normalize();
-    const eye = target.clone().add(dir.multiplyScalar(dist));
-    this.camera.near = Math.max(0.05, dist / 2000);
-    this.camera.far = Math.max(500, dist * 100);
+    this.frameBox(useBox, dir.normalize(), 1.18, true);
+  }
+
+  /**
+   * Point the camera along `dir` (world, pointing FROM the target TO the eye)
+   * and pull back just far enough that `box` fits, with `padding` as margin.
+   *
+   * The distance comes from the box's extent PERPENDICULAR to the view — the
+   * eight corners projected onto the camera's own right/up axes — checked
+   * against both the horizontal and vertical field of view. A plain
+   * "max dimension" estimate frames a wide room from far too far away on a
+   * wide viewport (and crops a tall one on a narrow viewport).
+   */
+  private frameBox(box: THREE.Box3, dir: THREE.Vector3, padding: number, animate: boolean): void {
+    const target = new THREE.Vector3();
+    box.getCenter(target);
+
+    // Camera basis. Near the poles the world-up is parallel to the view, so
+    // fall back to world -Z as the reference up (top view keeps plan north up).
+    const worldUp = new THREE.Vector3(0, 1, 0);
+    const ref = Math.abs(dir.dot(worldUp)) > 0.999 ? new THREE.Vector3(0, 0, -1) : worldUp;
+    const right = new THREE.Vector3().crossVectors(ref, dir).normalize();
+    const up = new THREE.Vector3().crossVectors(dir, right).normalize();
+
+    // Half-extent of the box along each screen axis.
+    const size = new THREE.Vector3();
+    box.getSize(size);
+    const half = size.multiplyScalar(0.5);
+    const halfW = Math.abs(half.x * right.x) + Math.abs(half.y * right.y) + Math.abs(half.z * right.z);
+    const halfH = Math.abs(half.x * up.x) + Math.abs(half.y * up.y) + Math.abs(half.z * up.z);
+    const halfD = Math.abs(half.x * dir.x) + Math.abs(half.y * dir.y) + Math.abs(half.z * dir.z);
+
+    const fovV = (this.camera.fov * Math.PI) / 180;
+    const aspect = Math.max(0.1, this.camera.aspect || 1);
+    const fovH = 2 * Math.atan(Math.tan(fovV / 2) * aspect);
+    const distV = (halfH * padding) / Math.tan(fovV / 2);
+    const distH = (halfW * padding) / Math.tan(fovH / 2);
+    // Stand off the box's own depth so a close fit never puts the near face
+    // behind the camera.
+    const dist = Math.max(distV, distH) + halfD;
+
+    const safe = Math.max(dist, this.controls.minDistance + 0.5);
+    const eye = target.clone().add(dir.clone().multiplyScalar(safe));
+    this.camera.near = Math.max(0.05, safe / 2000);
+    this.camera.far = Math.max(500, safe * 100);
     this.camera.updateProjectionMatrix();
-    this.controls.setLookAt(
-      eye.x, eye.y, eye.z,
-      target.x, target.y, target.z,
-      true,
-    );
+    this.controls.setLookAt(eye.x, eye.y, eye.z, target.x, target.y, target.z, animate);
+    this.needsRender = true;
   }
 
   /** Toggle atmospheric fog at runtime. */
   setFog(enabled: boolean): void {
     if (enabled) {
-      const bg = this.scene.background as THREE.Color;
-      this.scene.fog = new THREE.Fog(bg ?? new THREE.Color(0xf8fafc), 80, 200);
+      this.scene.fog = new THREE.Fog(this.backgroundColor, 80, 200);
     } else {
       this.scene.fog = null;
     }
+    this.needsRender = true;
   }
 
   // ── Yüksek kaliteli render capture ──────────────────────────────────────
@@ -422,6 +492,21 @@ export class SceneManager {
     this.container = null;
   }
 
+  /** Ask for one frame (scene changed outside the camera). */
+  requestRender(): void {
+    this.needsRender = true;
+  }
+
+  /** Render every frame until `endContinuous()` (drags, gizmo, animations). */
+  beginContinuous(): void {
+    this.continuousDepth += 1;
+  }
+
+  endContinuous(): void {
+    this.continuousDepth = Math.max(0, this.continuousDepth - 1);
+    this.needsRender = true;
+  }
+
   start(): void {
     if (this.rafId !== null || this.disposed) return;
     this.lastTime = performance.now();
@@ -430,9 +515,15 @@ export class SceneManager {
       const dt = (t - this.lastTime) / 1000;
       this.lastTime = t;
       for (const fn of this.tickFns) fn(dt, t);
-      // camera-controls damping/transitions need delta-time updates each frame.
-      this.controls.update(dt);
-      this.renderer.render(this.scene, this.camera);
+      // camera-controls damping/transitions need delta-time updates each frame;
+      // `update` reports whether the camera actually changed.
+      const moved = this.controls.update(dt);
+      const heartbeat = t - this.lastRenderAt >= this.idleHeartbeatMs;
+      if (moved || this.needsRender || this.continuousDepth > 0 || heartbeat) {
+        this.needsRender = false;
+        this.lastRenderAt = t;
+        this.renderer.render(this.scene, this.camera);
+      }
     };
     this.rafId = requestAnimationFrame(loop);
   }
@@ -452,6 +543,12 @@ export class SceneManager {
     this.detach();
     this.controls.dispose();
     this.disposeObject(this.scene);
+    // Sahne başına üretilen sistem kaynakları (paylaşılan bayrağı taşısalar da
+    // bu örneğe aittir): grid shader'ı, gölge zemini, gradyan arka planı.
+    (this.grid.material as THREE.Material).dispose();
+    (this.ground.material as THREE.Material).dispose();
+    const bg = this.scene.background;
+    if (bg && (bg as THREE.Texture).isTexture) (bg as THREE.Texture).dispose();
     this.renderer.dispose();
   }
 
@@ -515,6 +612,7 @@ export class SceneManager {
     this.renderer.setSize(w, h, false);
     this.camera.aspect = w / h;
     this.camera.updateProjectionMatrix();
+    this.needsRender = true;
   };
 
   private disposeObject(obj: THREE.Object3D): void {
@@ -523,6 +621,9 @@ export class SceneManager {
       if (mesh.geometry) mesh.geometry.dispose();
       const mats = Array.isArray(mesh.material) ? mesh.material : mesh.material ? [mesh.material] : [];
       for (const mat of mats) {
+        // Paylaşılan singleton materyaller (duvar/zemin/çelik) burada da atlanır —
+        // ikinci bir Editor3D örneği (bölünmüş görünüm) hâlâ onları kullanıyor olabilir.
+        if (mat.userData?.shared === true) continue;
         for (const k of Object.keys(mat) as (keyof THREE.Material)[]) {
           const v = (mat as any)[k];
           if (v && typeof v === 'object' && 'isTexture' in v && (v as any).isTexture) {

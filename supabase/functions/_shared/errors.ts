@@ -6,6 +6,8 @@ export type ApiErrorCode =
   | "bad_request"
   | "unauthorized"
   | "forbidden"
+  /** Özellik henüz bu hesaba açılmadı → istemci "Yakında" durumu gösterir. */
+  | "coming_soon"
   | "not_found"
   | "method_not_allowed"
   | "rate_limited"
@@ -16,6 +18,7 @@ const STATUS: Record<ApiErrorCode, number> = {
   bad_request: 400,
   unauthorized: 401,
   forbidden: 403,
+  coming_soon: 403,
   not_found: 404,
   method_not_allowed: 405,
   rate_limited: 429,

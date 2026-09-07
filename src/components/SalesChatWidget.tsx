@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { MessageCircle, X, Send, Sparkles } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { chatWithAI, type ChatMessage } from '../lib/ai';
 import { trackEvent } from '../lib/analytics';
 
@@ -9,6 +10,7 @@ const INTRO =
   'Merhaba! 2MC Gastro satış asistanıyım. Size hangi ekipmanı önereceğimi bulmam için işletme tipinizi, kapasiteyi ve bütçenizi paylaşabilirsiniz. Kombi fırın, fritöz, buzdolabı… ne arıyorsunuz?';
 
 export default function SalesChatWidget() {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [input, setInput] = useState('');
   const [sending, setSending] = useState(false);
@@ -57,7 +59,7 @@ export default function SalesChatWidget() {
         const next = [...m];
         next[next.length - 1] = {
           role: 'assistant',
-          content: 'Üzgünüm, şu an yanıt veremiyorum. Lütfen WhatsApp +49 176 70295844 numarasından ulaşın.',
+          content: t('chat.salesFallback'),
         };
         return next;
       });
@@ -79,7 +81,7 @@ export default function SalesChatWidget() {
           trackEvent('sales_chat_open');
         }}
         className="fixed bottom-5 right-5 z-50 inline-flex items-center gap-2 px-4 py-3 bg-[#DC2626] text-white rounded-full shadow-lg hover:bg-[#991B1B] transition"
-        aria-label="Satış asistanı"
+        aria-label={t('chat.salesAssistantAria')}
       >
         <MessageCircle size={20} />
         <span className="font-semibold text-sm hidden sm:inline">Satış Asistanı</span>
@@ -128,7 +130,7 @@ export default function SalesChatWidget() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && send()}
-            placeholder="Sorunuzu yazın…"
+            placeholder={t('chat.askInputPlaceholder')}
             disabled={sending}
             className="flex-1 border border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[#DC2626]"
           />

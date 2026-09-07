@@ -7,11 +7,14 @@
  *    surprise users.
  *
  * Mutating policy
- *  - All domain mutations go through `update()`, which produces an
- *    immutable next-state via a draft callback. Builders called inside the
- *    callback preserve schema invariants (asserted in dev).
- *  - This means new actions added in later phases automatically participate
- *    in undo/redo without writing inverse operations.
+ *  - All domain mutations go through `commit()` → `applyOrNull()`, which
+ *    produces an immutable next-state via a draft callback. Builders called
+ *    inside the callback preserve schema invariants (asserted in dev).
+ *  - NO-OP DETECTION: if the recipe changed nothing (e.g. `ensureVertex` found
+ *    an existing vertex), the store is NOT written — no history entry, no
+ *    `updatedAt` bump, no autosave round-trip.
+ *  - Multi-step edits use `transaction()` / `beginTransient()` from the history
+ *    middleware so they undo as ONE step.
  */
 
 import { create } from 'zustand';
@@ -31,14 +34,20 @@ import { newId } from '../core/id';
 import {
   addWallBetween,
   createPolygonRoom,
+  createRoomFromWalls as createRoomFromWallsBuilder,
   type CreatePolygonRoomOpts,
+  type CreateRoomFromWallsOpts,
   getOrCreateVertex,
   moveVertex as moveVertexBuilder,
   pruneOrphanVertex,
+  removeFromOrder,
   removeRoom as removeRoomBuilder,
+  removeWallSafe,
   splitWall as splitWallBuilder,
   dissolveVertex as dissolveVertexBuilder,
 } from '../core/builders';
+import { clampOpeningOnWall, clampOpeningsOnWalls, wallsAtVertex } from '../core/openings';
+import { normalizeDocument } from '../core/migrate';
 import { assertProjectInvariants } from '../core/invariants';
 import { withHistory, type HistoryActions, type HistoryState } from './history';
 
@@ -68,6 +77,10 @@ export interface ViewState {
   hiddenWallIds: string[];
   /** 3B'de tıklanarak seçilen duvar (undo'suz, panel vurgusu için). */
   selectedWallId: string | null;
+  /** 3B: oda tavanlarını göster (kamera tavanın üstündeyken otomatik gizlenir). */
+  showCeiling: boolean;
+  /** 3B: kameraya bakan oda duvarlarını otomatik gizle (dışarıdan bakarken iç görünsün). */
+  autoHideWalls: boolean;
 }
 
 export interface ProjectSlice {
@@ -81,12 +94,13 @@ export interface ProjectSlice {
   renameProject: (name: string) => void;
 
   // ── Generic immutable update — most actions sit on top of this ───────
-  update: (recipe: (draft: ProjectDocument) => void) => void;
+  /** Apply a draft recipe. Returns true when the document actually changed. */
+  update: (recipe: (draft: ProjectDocument) => void) => boolean;
 
   // ── Vertex actions (the BIG WIN of normalization) ────────────────────
   /**
    * Move a vertex. ALL walls referencing it follow automatically — no
-   * "rebuild walls" dance needed.
+   * "rebuild walls" dance needed. Openings on those walls are re-clamped.
    */
   moveVertex: (id: VertexId, to: Vec2) => void;
   /**
@@ -97,18 +111,28 @@ export interface ProjectSlice {
 
   // ── Wall actions ─────────────────────────────────────────────────────
   addWall: (a: VertexId, b: VertexId, opts?: { thickness?: number; height?: number }) => WallId;
-  removeWall: (id: WallId) => void;
+  /**
+   * Safe delete: rooms using this wall dissolve into loose walls (nothing else
+   * is lost). Returns the ids of the rooms that were dissolved.
+   */
+  removeWall: (id: WallId) => RoomId[];
+  removeWalls: (ids: ReadonlyArray<WallId>) => RoomId[];
   splitWall: (id: WallId, t: number) => { newVertexId: VertexId; newWallId: WallId };
   /** Köşeyi çöz → komşu iki duvarı birleştir (splitWall'un tersi). */
   dissolveVertex: (id: VertexId) => boolean;
 
   // ── Opening actions ──────────────────────────────────────────────────
+  /** Add an opening (clamped to its wall). */
   addOpening: (input: Omit<Opening, 'id' | 'type'>) => string;
+  /** Patch an opening; result is clamped to the (possibly new) host wall. */
+  updateOpening: (id: string, patch: Partial<Omit<Opening, 'id' | 'type'>>) => void;
   removeOpening: (id: string) => void;
 
   // ── Room actions ─────────────────────────────────────────────────────
   /** Create a closed polygonal room (the canonical room creation API). */
   createPolygonRoom: (points: ReadonlyArray<Vec2>, opts?: CreatePolygonRoomOpts) => RoomId;
+  /** Promote existing walls that form one closed loop into a room. Throws if invalid. */
+  createRoomFromWalls: (wallIds: ReadonlyArray<WallId>, opts?: CreateRoomFromWallsOpts) => RoomId;
   removeRoom: (id: RoomId, opts?: { keepWalls?: boolean }) => void;
 
   // ── Equipment actions ────────────────────────────────────────────────
@@ -134,6 +158,8 @@ export interface ProjectSlice {
   toggleWallHidden: (id: WallId) => void;
   showAllWalls: () => void;
   selectWall: (id: WallId | null) => void;
+  setShowCeiling: (on: boolean) => void;
+  setAutoHideWalls: (on: boolean) => void;
 }
 
 export type ProjectStore = ProjectSlice &
@@ -155,11 +181,12 @@ function touch(project: ProjectDocument): ProjectDocument {
   return project;
 }
 
-function makeEmpty(name = 'Untitled Project'): ProjectDocument {
+export function makeEmptyProject(name = 'Untitled Project'): ProjectDocument {
   const now = new Date().toISOString();
   return {
     id: newId('prj'),
     name,
+    schemaVersion: 2,
     units: 'mm',
     vertices: {},
     walls: {},
@@ -170,6 +197,21 @@ function makeEmpty(name = 'Untitled Project'): ProjectDocument {
     createdAt: now,
     updatedAt: now,
   };
+}
+
+/**
+ * Serialized-form cache keyed by document identity. Lets `applyOrNull` detect
+ * "recipe changed nothing" with one JSON.stringify of the draft. Documents are
+ * kilobytes, so this is far cheaper than a history snapshot + scene rebuild.
+ */
+const serializedCache = new WeakMap<ProjectDocument, string>();
+function serialized(doc: ProjectDocument): string {
+  let s = serializedCache.get(doc);
+  if (s === undefined) {
+    s = JSON.stringify(doc);
+    serializedCache.set(doc, s);
+  }
+  return s;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -183,17 +225,37 @@ export const useProjectStore = create<ProjectStore>(
     (set, _get) => {
       const get = _get as unknown as () => ProjectStore;
 
-      /** Apply a draft mutation, then assert invariants in dev. */
-      const apply = (recipe: (d: ProjectDocument) => void): ProjectDocument => {
-        const next = clone(get().project);
+      /**
+       * Apply a draft mutation. Returns the next document, or null when the
+       * recipe produced an identical document (no write, no history).
+       */
+      const applyOrNull = (recipe: (d: ProjectDocument) => void): ProjectDocument | null => {
+        const current = get().project;
+        const before = serialized(current);
+        const next = clone(current);
         recipe(next);
+        if (JSON.stringify(next) === before) return null;
         touch(next);
         assertProjectInvariants(next);
         return next;
       };
 
+      /** applyOrNull + set. Returns true when the document changed. */
+      const commit = (recipe: (d: ProjectDocument) => void): boolean => {
+        const next = applyOrNull(recipe);
+        if (!next) return false;
+        set({ project: next });
+        return true;
+      };
+
+      /** Replace the whole document without a history entry and reset history. */
+      const replaceDocument = (doc: ProjectDocument): void => {
+        get().withoutHistory(() => set({ project: doc }));
+        get().clearHistory();
+      };
+
       return ({
-        project: makeEmpty(),
+        project: makeEmptyProject(),
         selection: { ids: [], hoverId: null },
         view: {
           mode: '2d',
@@ -203,28 +265,31 @@ export const useProjectStore = create<ProjectStore>(
           showGrid: true,
           hiddenWallIds: [],
           selectedWallId: null,
+          showCeiling: false,
+          autoHideWalls: true,
         },
 
         // ── Document ────────────────────────────────────────────────
-        newProject: (name) => set({ project: makeEmpty(name) }),
-        loadProject: (project) => set({ project: clone(project) }),
+        newProject: (name) => replaceDocument(makeEmptyProject(name)),
+        loadProject: (project) => replaceDocument(normalizeDocument(clone(project))),
         renameProject: (name) => {
-          set({ project: apply((d) => { d.name = name; }) });
+          commit((d) => { d.name = name; });
         },
 
         // ── Generic update ──────────────────────────────────────────
-        update: (recipe) => set({ project: apply(recipe) }),
+        update: (recipe) => commit(recipe),
 
         // ── Vertex ──────────────────────────────────────────────────
         moveVertex: (id, to) => {
-          set({ project: apply((d) => { moveVertexBuilder(d, id, to); }) });
+          commit((d) => {
+            moveVertexBuilder(d, id, to);
+            clampOpeningsOnWalls(d, wallsAtVertex(d, id));
+          });
         },
         ensureVertex: (point, mergeMm) => {
           let id: VertexId = '' as VertexId;
-          set({
-            project: apply((d) => {
-              id = getOrCreateVertex(d, point, mergeMm);
-            }),
+          commit((d) => {
+            id = getOrCreateVertex(d, point, mergeMm);
           });
           return id;
         },
@@ -232,54 +297,39 @@ export const useProjectStore = create<ProjectStore>(
         // ── Walls ──────────────────────────────────────────────────
         addWall: (a, b, opts) => {
           let id: WallId = '' as WallId;
-          set({
-            project: apply((d) => {
-              id = addWallBetween(d, a, b, opts);
-            }),
+          commit((d) => {
+            id = addWallBetween(d, a, b, opts);
           });
           return id;
         },
         removeWall: (id) => {
-          set({
-            project: apply((d) => {
-              const w = d.walls[id];
-              if (!w) return;
-              delete d.walls[id];
-              // Cascade: openings on this wall.
-              for (const o of Object.values(d.openings)) {
-                if (o.wallId === id) delete d.openings[o.id];
-              }
-              // Detach from any rooms referencing it.
-              for (const r of Object.values(d.rooms)) {
-                const idx = r.wallLoop.indexOf(id);
-                if (idx !== -1) r.wallLoop.splice(idx, 1);
-              }
-              const ord = d.order.indexOf(id);
-              if (ord !== -1) d.order.splice(ord, 1);
-              // Try pruning newly-orphaned vertices.
-              pruneOrphanVertex(d, w.a);
-              pruneOrphanVertex(d, w.b);
-            }),
+          let dissolved: RoomId[] = [];
+          commit((d) => {
+            dissolved = removeWallSafe(d, id).dissolvedRooms;
           });
+          return dissolved;
+        },
+        removeWalls: (ids) => {
+          const dissolved: RoomId[] = [];
+          commit((d) => {
+            for (const id of ids) dissolved.push(...removeWallSafe(d, id).dissolvedRooms);
+          });
+          return Array.from(new Set(dissolved));
         },
         splitWall: (id, t) => {
           let result: { newVertexId: VertexId; newWallId: WallId } = {
             newVertexId: '' as VertexId,
             newWallId: '' as WallId,
           };
-          set({
-            project: apply((d) => {
-              result = splitWallBuilder(d, id, t);
-            }),
+          commit((d) => {
+            result = splitWallBuilder(d, id, t);
           });
           return result;
         },
         dissolveVertex: (id) => {
           let ok = false;
-          set({
-            project: apply((d) => {
-              ok = dissolveVertexBuilder(d, id);
-            }),
+          commit((d) => {
+            ok = dissolveVertexBuilder(d, id);
           });
           return ok;
         },
@@ -287,68 +337,71 @@ export const useProjectStore = create<ProjectStore>(
         // ── Openings ───────────────────────────────────────────────
         addOpening: (input) => {
           const id = newId('o');
-          set({
-            project: apply((d) => {
-              d.openings[id] = { id, type: 'opening', ...input } as Opening;
-              d.order.push(id);
-            }),
+          commit((d) => {
+            const op = { id, type: 'opening', ...input } as Opening;
+            d.openings[id] = op;
+            d.order.push(id);
+            clampOpeningOnWall(d, op);
           });
           return id;
         },
+        updateOpening: (id, patch) => {
+          commit((d) => {
+            const op = d.openings[id];
+            if (!op) return;
+            Object.assign(op, patch);
+            clampOpeningOnWall(d, op);
+          });
+        },
         removeOpening: (id) => {
-          set({
-            project: apply((d) => {
-              delete d.openings[id];
-              const ord = d.order.indexOf(id);
-              if (ord !== -1) d.order.splice(ord, 1);
-            }),
+          commit((d) => {
+            if (!d.openings[id]) return;
+            delete d.openings[id];
+            removeFromOrder(d, id);
           });
         },
 
         // ── Rooms ──────────────────────────────────────────────────
         createPolygonRoom: (points, opts) => {
           let id: RoomId = '' as RoomId;
-          set({
-            project: apply((d) => {
-              id = createPolygonRoom(d, points, opts);
-            }),
+          commit((d) => {
+            id = createPolygonRoom(d, points, opts);
+          });
+          return id;
+        },
+        createRoomFromWalls: (wallIds, opts) => {
+          let id: RoomId = '' as RoomId;
+          commit((d) => {
+            id = createRoomFromWallsBuilder(d, wallIds, opts);
           });
           return id;
         },
         removeRoom: (id, opts) => {
-          set({
-            project: apply((d) => {
-              removeRoomBuilder(d, id, opts);
-            }),
+          commit((d) => {
+            removeRoomBuilder(d, id, opts);
           });
         },
 
         // ── Equipment ──────────────────────────────────────────────
         addEquipment: (input) => {
           const id = newId('eq');
-          set({
-            project: apply((d) => {
-              d.equipment[id] = { id, type: 'equipment', ...input } as Equipment;
-              d.order.push(id);
-            }),
+          commit((d) => {
+            d.equipment[id] = { id, type: 'equipment', ...input } as Equipment;
+            d.order.push(id);
           });
           return id;
         },
         removeEquipment: (id) => {
-          set({
-            project: apply((d) => {
-              delete d.equipment[id];
-              const ord = d.order.indexOf(id);
-              if (ord !== -1) d.order.splice(ord, 1);
-            }),
+          commit((d) => {
+            if (!d.equipment[id]) return;
+            delete d.equipment[id];
+            removeFromOrder(d, id);
           });
         },
         updateEquipment: (id, patch) => {
-          set({
-            project: apply((d) => {
-              const eq = d.equipment[id];
-              if (eq) Object.assign(eq, patch);
-            }),
+          commit((d) => {
+            const eq = d.equipment[id];
+            if (eq) Object.assign(eq, patch);
           });
         },
 
@@ -457,6 +510,12 @@ export const useProjectStore = create<ProjectStore>(
             set((s) => ({ view: { ...s.view, selectedWallId: id } })),
           );
         },
+        setShowCeiling: (on) => {
+          get().withoutHistory(() => set((s) => ({ view: { ...s.view, showCeiling: on } })));
+        },
+        setAutoHideWalls: (on) => {
+          get().withoutHistory(() => set((s) => ({ view: { ...s.view, autoHideWalls: on } })));
+        },
       });
     },
     TRACKED,
@@ -476,3 +535,4 @@ export const selectCanRedo = (s: ProjectStore) => s.canRedo();
 // Silence unused-import warnings for the empty re-export shape.
 void EMPTY_PROJECT;
 void ((_: AnyEntity) => _);
+void pruneOrphanVertex;

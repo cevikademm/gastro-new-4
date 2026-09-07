@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, Check, Star } from 'lucide-react';
 
 /**
@@ -16,7 +17,7 @@ interface HeroProduct {
   price: number;
   oldPrice: number;
   stockDays: 1 | 2;
-  chip?: { label: string; hot?: boolean };
+  chip?: { labelKey: string; hot?: boolean };
 }
 
 const HERO_PRODUCTS: HeroProduct[] = [
@@ -29,7 +30,7 @@ const HERO_PRODUCTS: HeroProduct[] = [
     price: 41507,
     oldPrice: 49808,
     stockDays: 1,
-    chip: { label: 'Yeni Sezon', hot: true },
+    chip: { labelKey: 'landing.heroCarousel.chips.newSeason', hot: true },
   },
   {
     id: 'ICE900ISW',
@@ -40,7 +41,7 @@ const HERO_PRODUCTS: HeroProduct[] = [
     price: 18186,
     oldPrice: 21823,
     stockDays: 1,
-    chip: { label: '🔥 Popüler', hot: true },
+    chip: { labelKey: 'landing.heroCarousel.chips.popular', hot: true },
   },
   {
     id: 'EXB-300I',
@@ -51,7 +52,7 @@ const HERO_PRODUCTS: HeroProduct[] = [
     price: 55077,
     oldPrice: 66092,
     stockDays: 2,
-    chip: { label: 'Editör Seçimi' },
+    chip: { labelKey: 'landing.heroCarousel.chips.editorChoice' },
   },
   {
     id: 'CF-195T-S',
@@ -62,7 +63,7 @@ const HERO_PRODUCTS: HeroProduct[] = [
     price: 38589,
     oldPrice: 46307,
     stockDays: 2,
-    chip: { label: 'Premium', hot: true },
+    chip: { labelKey: 'landing.heroCarousel.chips.premium', hot: true },
   },
   {
     id: 'TIBERIO-9E',
@@ -73,11 +74,12 @@ const HERO_PRODUCTS: HeroProduct[] = [
     price: 22028,
     oldPrice: 26432,
     stockDays: 2,
-    chip: { label: '🔥 İndirim', hot: true },
+    chip: { labelKey: 'landing.heroCarousel.chips.discount', hot: true },
   },
 ];
 
 export function HeroProductCarousel() {
+  const { t } = useTranslation();
   const [front, setFront] = useState(0);
   const timerRef = useRef<number | null>(null);
 
@@ -154,7 +156,7 @@ export function HeroProductCarousel() {
           boxShadow: '0 10px 24px rgba(220,38,38,0.4)',
         }}
       >
-        🔥 En Çok Tercih Edilen Profesyonel Ekipmanlar
+        {t('landing.heroCarousel.badge')}
       </div>
 
       {/* Stack */}
@@ -175,7 +177,7 @@ export function HeroProductCarousel() {
                   }`}
                   style={{ background: p.chip.hot ? 'var(--c-clay)' : 'rgba(11,26,46,0.88)' }}
                 >
-                  {p.chip.label}
+                  {t(p.chip.labelKey)}
                 </span>
               )}
               <img
@@ -234,10 +236,10 @@ export function HeroProductCarousel() {
                     className="hpc-stock-dot inline-block w-[7px] h-[7px] rounded-full"
                     style={{ background: 'var(--c-success, #2e7d32)' }}
                   />
-                  Stokta · {p.stockDays === 1 ? '24s' : '48s'} kargo
+                  {t('landing.heroCarousel.stockHours', { hours: p.stockDays === 1 ? 24 : 48 })}
                 </span>
                 <span className="ml-auto bg-[color:var(--c-ink)] text-white px-3 py-1.5 rounded-[10px] text-[12px] font-bold inline-flex items-center gap-1.5 hover:bg-[color:var(--c-clay)] transition-all">
-                  İncele
+                  {t('landing.heroCarousel.inspect')}
                   <ArrowRight size={12} strokeWidth={2.5} />
                 </span>
               </div>
@@ -262,7 +264,7 @@ export function HeroProductCarousel() {
             1.340+
           </div>
           <div className="text-[10px] font-semibold tracking-wider uppercase text-[color:var(--c-muted)] mt-0.5">
-            Aktif Proje
+            {t('landing.heroCarousel.activeProjects')}
           </div>
         </div>
       </div>
@@ -296,7 +298,7 @@ export function HeroProductCarousel() {
               setFront(i);
               restart();
             }}
-            aria-label={`Ürün ${i + 1}'e geç`}
+            aria-label={t('landing.heroCarousel.goToProduct', { index: i + 1 })}
             className="transition-all"
             style={{
               width: front === i ? 22 : 8,

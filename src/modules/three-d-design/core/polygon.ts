@@ -57,11 +57,62 @@ export function offsetPolygon(points: ReadonlyArray<Vec2>, distance: number): Ve
   return out;
 }
 
-function lineIntersect(p1: Vec2, d1: Vec2, p2: Vec2, d2: Vec2): Vec2 | null {
+/** Intersection of two infinite lines (point + direction). Null when parallel. */
+export function lineIntersect(p1: Vec2, d1: Vec2, p2: Vec2, d2: Vec2): Vec2 | null {
   const denom = d1.x * d2.y - d1.y * d2.x;
   if (Math.abs(denom) < EPSILON) return null;
   const t = ((p2.x - p1.x) * d2.y - (p2.y - p1.y) * d2.x) / denom;
   return { x: p1.x + d1.x * t, y: p1.y + d1.y * t };
+}
+
+// ── Segment intersection / simple-polygon test ─────────────────────────────
+
+function orient(a: Vec2, b: Vec2, c: Vec2): number {
+  return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
+}
+
+function onSegment(a: Vec2, b: Vec2, p: Vec2): boolean {
+  return (
+    Math.min(a.x, b.x) - EPSILON <= p.x && p.x <= Math.max(a.x, b.x) + EPSILON &&
+    Math.min(a.y, b.y) - EPSILON <= p.y && p.y <= Math.max(a.y, b.y) + EPSILON
+  );
+}
+
+/** True if closed segments AB and CD intersect (touching counts). */
+export function segmentsIntersect(a: Vec2, b: Vec2, c: Vec2, d: Vec2): boolean {
+  const o1 = orient(a, b, c);
+  const o2 = orient(a, b, d);
+  const o3 = orient(c, d, a);
+  const o4 = orient(c, d, b);
+  if (((o1 > 0 && o2 < 0) || (o1 < 0 && o2 > 0)) && ((o3 > 0 && o4 < 0) || (o3 < 0 && o4 > 0))) {
+    return true;
+  }
+  if (Math.abs(o1) < EPSILON && onSegment(a, b, c)) return true;
+  if (Math.abs(o2) < EPSILON && onSegment(a, b, d)) return true;
+  if (Math.abs(o3) < EPSILON && onSegment(c, d, a)) return true;
+  if (Math.abs(o4) < EPSILON && onSegment(c, d, b)) return true;
+  return false;
+}
+
+/**
+ * True when the closed polygon has no self-intersections (adjacent edges may
+ * share their common vertex; nothing else may touch). O(n²) — rooms are small.
+ */
+export function isSimplePolygon(points: ReadonlyArray<Vec2>): boolean {
+  const n = points.length;
+  if (n < 3) return false;
+  for (let i = 0; i < n; i++) {
+    const a = points[i];
+    const b = points[(i + 1) % n];
+    for (let j = i + 1; j < n; j++) {
+      // Skip adjacent edges (they share a vertex by construction).
+      if (j === i + 1 || (i === 0 && j === n - 1)) continue;
+      const c = points[j];
+      const d = points[(j + 1) % n];
+      if (segmentsIntersect(a, b, c, d)) return false;
+    }
+  }
+  return true;
 }
 
 // ── mergeVertices ──────────────────────────────────────────────────────────

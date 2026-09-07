@@ -965,7 +965,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Νοσοκομείο",
     "sectorOther": "Άλλο",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Εμφάνιση κωδικού",
+    "hidePassword": "Απόκρυψη κωδικού"
   },
   "welcome": {
     "headline": "Το κέντρο διοίκησης",
@@ -1596,7 +1598,11 @@
     "sendFailed": "Δεν ήταν δυνατή η αποστολή του αιτήματος. Στείλτε μας email απευθείας:",
     "subtitle": "Ανοίξτε ένα αίτημα με την ερώτησή σας ή επικοινωνήστε απευθείας μαζί μας.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Εισερχόμενα μηνύματα υποστήριξης",
+    "inboxEmpty": "Δεν υπάρχουν ακόμη μηνύματα υποστήριξης.",
+    "inboxGuest": "Επισκέπτης",
+    "savedEmailFailed": "Το μήνυμά σας αποθηκεύτηκε, αλλά η ειδοποίηση email δεν στάλθηκε."
   },
   "docs": {
     "title": "Τεκμηρίωση",
@@ -2171,8 +2177,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Προηγούμενη εικόνα",
+        "nextBanner": "Επόμενη εικόνα",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2183,7 +2189,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Όψη τομής",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2213,6 +2219,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Σπειροειδής ζυμωτήριο",
+            "title": "Στο εσωτερικό του σπειροειδούς ζυμωτηρίου",
+            "desc": "Άξονας από σκληρυμένο χάλυβα, κινητήρας με χάλκινη περιέλιξη και ενιαίο σώμα, σχεδιασμένα για οκτώ ώρες συνεχούς λειτουργίας την ημέρα.",
+            "normalLabel": "Εξωτερική όψη",
+            "cutawayLabel": "Τομή"
+          },
+          "ice": {
+            "label": "Παγομηχανή",
+            "title": "Στο εσωτερικό της παγομηχανής",
+            "desc": "Ανοξείδωτος κάδος, αερόψυκτος συμπυκνωτής και πλενόμενο φίλτρο διατηρούν την απόδοση ακόμη και σε ζεστή κουζίνα.",
+            "normalLabel": "Εξωτερική όψη",
+            "cutawayLabel": "Τομή"
           }
         }
       },
@@ -2259,6 +2281,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Προηγούμενη κριτική",
+      "next": "Επόμενη κριτική"
     }
   },
   "developerApi": {
@@ -2808,7 +2834,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Απόρριψη",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2977,7 +3003,21 @@
     "empty": "Δεν έχουν δημοσιευτεί διορθώσεις ακόμη.",
     "technical": "Τεχνική λεπτομέρεια",
     "reverted": "Αναιρέθηκε",
-    "revertedHint": "Αυτή η διόρθωση προκάλεσε πρόβλημα και αναιρέθηκε."
+    "revertedHint": "Αυτή η διόρθωση προκάλεσε πρόβλημα και αναιρέθηκε.",
+    "category": {
+      "fix": "Διόρθωση",
+      "improvement": "Βελτίωση",
+      "feature": "Νέο"
+    },
+    "reported": "Το αναφέρατε",
+    "done": "Τι κάναμε",
+    "statTotal": "Συνολικές διορθώσεις",
+    "statThisMonth": "Αυτόν τον μήνα",
+    "statMedian": "Συνήθης χρόνος",
+    "sameDay": "Την ίδια ημέρα",
+    "days": "{{count}} ημέρες",
+    "solvedSameDay": "Διορθώθηκε την ίδια ημέρα",
+    "solvedInDays": "Διορθώθηκε σε {{count}} ημέρες"
   },
   "seo": {
     "home": "Αρχική",
@@ -3040,5 +3080,8 @@
     "subscribed": "Εγγραφήκατε ✓",
     "rights": "Με επιφύλαξη παντός δικαιώματος.",
     "madeIn": "Φτιαγμένο με πάθος στην Κολωνία."
+  },
+  "chat": {
+    "assistantBadge": "Βοηθός AI · 24/7"
   }
 }

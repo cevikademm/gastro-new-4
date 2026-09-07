@@ -38,13 +38,13 @@ export default function ResourcesPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 py-12">
       <SEO
-        title="Ücretsiz Rehberler & Şablonlar — 2MC Gastro"
-        description="HACCP kontrol listesi, bütçe şablonları, satın alma rehberleri. Endüstriyel mutfak profesyonelleri için ücretsiz kaynaklar."
+        title={t('resources.seoTitle')}
+        description={t('resources.seoDescription')}
         jsonLd={[
           organizationSchema(),
           breadcrumbSchema([
-            { name: 'Ana Sayfa', url: '/' },
-            { name: 'Kaynaklar', url: '/resources' },
+            { name: t('common.home'), url: '/' },
+            { name: t('resources.breadcrumbTitle'), url: '/resources' },
           ]),
         ]}
       />

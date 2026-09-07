@@ -73,6 +73,9 @@ i18n.use(initReactI18next).init({
 if (typeof window !== 'undefined') {
   i18n.on('languageChanged', (lng) => {
     try { localStorage.setItem('2mc_lang', lng); } catch {}
+    // Çerez sunucu için: api/render ülkeye göre yönlendirme yaparken bunu görüp
+    // kullanıcının kendi seçimine saygı duyar (src/seo/server/geoLocale.ts).
+    try { document.cookie = `2mc_lang=${lng}; path=/; max-age=31536000; samesite=lax`; } catch {}
     try { document.documentElement.lang = lng; } catch {}
   });
   try { document.documentElement.lang = savedLang; } catch {}

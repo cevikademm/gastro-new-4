@@ -1,40 +1,26 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, BadgeCheck } from 'lucide-react';
 
+// Modül seviyesinde t() çağıramayız; sadece anahtar sakla, render'da çöz.
 const STEPS = [
-  {
-    num: "1",
-    title: "BERATUNG",
-    desc: "Wir hören zu und verstehen Ihre Anforderungen."
-  },
-  {
-    num: "2",
-    title: "3D PLANUNG",
-    desc: "Individuelle Planung mit modernster 3D-Technologie."
-  },
-  {
-    num: "3",
-    title: "FINANZIERUNG",
-    desc: "Maßgeschneiderte Finanzierungslösungen für Ihr Projekt."
-  },
-  {
-    num: "4",
-    title: "TECHNIK & LIEFERUNG",
-    desc: "Hochwertige Geräte führender Marken – pünktlich geliefert."
-  },
-  {
-    num: "5",
-    title: "MONTAGE",
-    desc: "Fachgerechte Montage durch erfahrene Spezialisten."
-  },
-  {
-    num: "6",
-    title: "ERÖFFNUNG & SERVICE",
-    desc: "Wir begleiten Sie bis zur Eröffnung und darüber hinaus."
-  }
+  { num: '1', titleKey: 'landing.process.steps.consult.title',   descKey: 'landing.process.steps.consult.desc' },
+  { num: '2', titleKey: 'landing.process.steps.design.title',    descKey: 'landing.process.steps.design.desc' },
+  { num: '3', titleKey: 'landing.process.steps.finance.title',   descKey: 'landing.process.steps.finance.desc' },
+  { num: '4', titleKey: 'landing.process.steps.delivery.title',  descKey: 'landing.process.steps.delivery.desc' },
+  { num: '5', titleKey: 'landing.process.steps.install.title',   descKey: 'landing.process.steps.install.desc' },
+  { num: '6', titleKey: 'landing.process.steps.opening.title',   descKey: 'landing.process.steps.opening.desc' },
+];
+
+const USP_KEYS = [
+  'landing.process.usps.plannableCosts',
+  'landing.process.usps.liquidity',
+  'landing.process.usps.terms',
+  'landing.process.usps.brands',
 ];
 
 export function ProcessTimeline() {
+  const { t } = useTranslation();
   return (
     <section className="py-14 sm:py-24 bg-white border-b border-slate-200 relative z-10" id="workflow">
       <div className="lp-container">
@@ -43,13 +29,13 @@ export function ProcessTimeline() {
         <div className="max-w-2xl mb-10 sm:mb-20 text-left">
           <span className="inline-flex items-center gap-2 text-brand-red font-bold text-[10px] tracking-[0.3em] uppercase mb-4">
             <span className="w-6 h-px bg-brand-red" />
-            UNSER ABLAUF
+            {t('landing.process.eyebrow')}
           </span>
           <h2 className="lp-h2 font-display font-bold text-[#0F2440] tracking-tight">
-            Alles aus <span className="text-brand-red">Einer Hand</span>
+            {t('landing.process.headingLead')} <span className="text-brand-red">{t('landing.process.headingAccent')}</span>
           </h2>
           <p className="mt-3 text-xs text-slate-500">
-            Von der ersten Idee bis zur schlüsselfertigen Übergabe Ihres Gastro-Projekts begleiten wir Sie Schritt für Schritt.
+            {t('landing.process.subtitle')}
           </p>
         </div>
 
@@ -69,11 +55,11 @@ export function ProcessTimeline() {
                 </div>
 
                 {/* Content */}
-                <h4 className="text-[11px] sm:text-xs font-black text-[#0F2440] tracking-wider mb-1.5 sm:mb-2 uppercase group-hover:text-brand-red transition-colors">
-                  {step.title}
-                </h4>
+                <h3 className="text-[11px] sm:text-xs font-black text-[#0F2440] tracking-wider mb-1.5 sm:mb-2 uppercase group-hover:text-brand-red transition-colors">
+                  {t(step.titleKey)}
+                </h3>
                 <p className="text-[11px] leading-relaxed text-slate-500 font-medium max-w-[180px]">
-                  {step.desc}
+                  {t(step.descKey)}
                 </p>
 
               </div>
@@ -85,21 +71,16 @@ export function ProcessTimeline() {
         {/* Bottom USP & CTA Bar */}
         <div className="bg-slate-50 border border-slate-200/80 rounded-3xl p-6 flex flex-col lg:flex-row justify-between items-center gap-6 shadow-sm">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-left w-full lg:w-auto">
-            {[
-              "Planbare Kosten",
-              "Liquidität schonen",
-              "Individuelle Laufzeiten",
-              "Starke Markenpartner"
-            ].map((usp) => (
-              <div key={usp} className="flex items-center gap-2 text-[11px] font-bold text-[#0F2440]">
+            {USP_KEYS.map((key) => (
+              <div key={key} className="flex items-center gap-2 text-[11px] font-bold text-[#0F2440]">
                 <BadgeCheck size={16} className="text-brand-red shrink-0" />
-                {usp}
+                {t(key)}
               </div>
             ))}
           </div>
 
           <a href="#quote" className="w-full lg:w-auto px-6 py-3.5 bg-[#0F2440] hover:bg-[#1E3A5F] text-white text-[10px] font-black tracking-[0.2em] rounded-xl uppercase transition-all text-center flex items-center justify-center gap-2 shadow-sm">
-            MEHR ERFAHREN
+            {t('landing.process.moreInfo')}
             <ArrowRight size={12} />
           </a>
         </div>

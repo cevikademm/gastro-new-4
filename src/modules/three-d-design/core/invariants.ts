@@ -12,6 +12,7 @@
  */
 
 import type { ProjectDocument } from './types';
+import { walkRoomLoop } from './loops';
 
 export class InvariantViolation extends Error {
   readonly code: string;
@@ -49,7 +50,9 @@ export function assertProjectInvariants(project: ProjectDocument): void {
     }
   }
 
-  // I-2: rooms form closed loops
+  // I-2: rooms form closed loops. Walls may be traversed in EITHER direction
+  // (a→b or b→a) so a partition wall can be shared by two rooms — the loop
+  // just has to chain end-to-end and close (see geometry.walkRoomLoop).
   for (const room of Object.values(project.rooms)) {
     const n = room.wallLoop.length;
     if (n < 3) {
@@ -58,22 +61,19 @@ export function assertProjectInvariants(project: ProjectDocument): void {
         `room ${room.id} wallLoop has only ${n} walls (need ≥ 3)`,
       );
     }
-    for (let i = 0; i < n; i++) {
-      const cur = project.walls[room.wallLoop[i]];
-      const nxt = project.walls[room.wallLoop[(i + 1) % n]];
-      if (!cur || !nxt) {
+    for (const wid of room.wallLoop) {
+      if (!project.walls[wid]) {
         throw new InvariantViolation(
           'I-2',
-          `room ${room.id} wallLoop references missing wall`,
+          `room ${room.id} wallLoop references missing wall ${wid}`,
         );
       }
-      if (cur.b !== nxt.a) {
-        throw new InvariantViolation(
-          'I-2',
-          `room ${room.id} wallLoop discontinuity at index ${i}: ` +
-            `${cur.id}.b=${cur.b} !== ${nxt.id}.a=${nxt.a}`,
-        );
-      }
+    }
+    if (!walkRoomLoop(project, room)) {
+      throw new InvariantViolation(
+        'I-2',
+        `room ${room.id} wallLoop is not a closed end-to-end chain: [${room.wallLoop.join(', ')}]`,
+      );
     }
   }
 

@@ -1,6 +1,7 @@
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { Star, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { supabase } from '../lib/supabase';
 import { useAuthStore } from '../stores/authStore';
 
@@ -20,6 +21,7 @@ type Props = {
 };
 
 export default function ReviewWidget({ productId }: Props) {
+  const { t } = useTranslation();
   const user = useAuthStore((s) => s.user);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,11 +60,11 @@ export default function ReviewWidget({ productId }: Props) {
     e.preventDefault();
     setError(null);
     if (!user) {
-      setError('Yorum yapmak için giriş yapmalısınız.');
+      setError(t('review.loginRequired'));
       return;
     }
     if (rating < 1 || rating > 5) {
-      setError('Geçerli bir puan seçin.');
+      setError(t('review.invalidRating'));
       return;
     }
     setSubmitting(true);
@@ -118,7 +120,7 @@ export default function ReviewWidget({ productId }: Props) {
           onClick={() => setShowForm((v) => !v)}
           className="px-4 py-2 bg-[#DC2626] text-white rounded-lg text-sm font-bold hover:bg-[#991B1B] transition"
         >
-          {showForm ? 'İptal' : 'Yorum Yaz'}
+          {showForm ? t('common.cancel') : 'Yorum Yaz'}
         </button>
       </div>
 
@@ -146,14 +148,14 @@ export default function ReviewWidget({ productId }: Props) {
             type="text"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
-            placeholder="Başlık (opsiyonel)"
+            placeholder={t('review.titlePlaceholder')}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#DC2626]"
             maxLength={100}
           />
           <textarea
             value={body}
             onChange={(e) => setBody(e.target.value)}
-            placeholder="Deneyiminizi paylaşın…"
+            placeholder={t('review.bodyPlaceholder')}
             rows={4}
             className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:border-[#DC2626] resize-none"
             maxLength={1000}

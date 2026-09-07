@@ -965,7 +965,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Sjukhus",
     "sectorOther": "Annat",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Visa lösenord",
+    "hidePassword": "Dölj lösenord"
   },
   "welcome": {
     "headline": "Kommandocentralen",
@@ -1596,7 +1598,11 @@
     "sendFailed": "Ärendet kunde inte skickas. Mejla oss direkt:",
     "subtitle": "Skapa ett ärende med din fråga eller kontakta oss direkt.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Inkomna supportmeddelanden",
+    "inboxEmpty": "Inga supportmeddelanden ännu.",
+    "inboxGuest": "Gäst",
+    "savedEmailFailed": "Ditt meddelande sparades, men e-postaviseringen kunde inte skickas."
   },
   "docs": {
     "title": "Dokumentation",
@@ -2171,8 +2177,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Föregående bild",
+        "nextBanner": "Nästa bild",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2183,7 +2189,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Genomskärning",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2213,6 +2219,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Spiralblandare",
+            "title": "Inuti spiralblandaren",
+            "desc": "Härdad stålaxel, kopparlindad motor och en kropp i ett stycke – dimensionerade för åtta timmars kontinuerlig drift per dag.",
+            "normalLabel": "Utsida",
+            "cutawayLabel": "Genomskärning"
+          },
+          "ice": {
+            "label": "Ismaskin",
+            "title": "Inuti ismaskinen",
+            "desc": "Behållare i rostfritt, luftkyld kondensor och tvättbart filter håller kapaciteten uppe även i ett varmt kök.",
+            "normalLabel": "Utsida",
+            "cutawayLabel": "Genomskärning"
           }
         }
       },
@@ -2259,6 +2281,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Föregående omdöme",
+      "next": "Nästa omdöme"
     }
   },
   "developerApi": {
@@ -2808,7 +2834,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Avvisa",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2977,7 +3003,21 @@
     "empty": "Inga åtgärder publicerade ännu.",
     "technical": "Teknisk detalj",
     "reverted": "Återställd",
-    "revertedHint": "Denna åtgärd orsakade ett problem och återställdes."
+    "revertedHint": "Denna åtgärd orsakade ett problem och återställdes.",
+    "category": {
+      "fix": "Åtgärd",
+      "improvement": "Förbättring",
+      "feature": "Nyhet"
+    },
+    "reported": "Du rapporterade",
+    "done": "Det här gjorde vi",
+    "statTotal": "Totalt åtgärdade",
+    "statThisMonth": "Denna månad",
+    "statMedian": "Vanlig tid",
+    "sameDay": "Samma dag",
+    "days": "{{count}} dagar",
+    "solvedSameDay": "Åtgärdat samma dag",
+    "solvedInDays": "Åtgärdat på {{count}} dagar"
   },
   "seo": {
     "home": "Start",
@@ -3040,5 +3080,8 @@
     "subscribed": "Prenumererar ✓",
     "rights": "Alla rättigheter förbehållna.",
     "madeIn": "Gjort med passion i Köln."
+  },
+  "chat": {
+    "assistantBadge": "AI-assistent · dygnet runt"
   }
 }

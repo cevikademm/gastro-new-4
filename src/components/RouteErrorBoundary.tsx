@@ -1,4 +1,5 @@
 import React from 'react';
+import i18n from '../i18n';
 import { logReactError } from '../lib/errorLog';
 
 interface Props { children: React.ReactNode }
@@ -46,11 +47,11 @@ export default class RouteErrorBoundary extends React.Component<Props, State> {
           <span className="text-2xl">⚠️</span>
         </div>
         <h1 className="text-xl font-bold text-[#0F2440]">
-          {chunk ? 'Sayfa güncellendi, yeniden yükleniyor…' : 'Bir şeyler ters gitti'}
+          {chunk ? i18n.t('common.reloading') : i18n.t('common.somethingWentWrong')}
         </h1>
         <p className="text-sm text-slate-500 max-w-md break-words">
           {chunk
-            ? 'Uygulamanın yeni sürümü yüklendi. Sayfayı yenileyerek devam edebilirsiniz.'
+            ? i18n.t('common.newVersionLoaded')
             : String(error.message || error)}
         </p>
         <div className="flex gap-3">

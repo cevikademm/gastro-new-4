@@ -23,7 +23,7 @@ const loader = new GLTFLoader();
 export const GLB_ACCEPT_ATTR = '.glb,.gltf,model/gltf-binary,model/gltf+json';
 
 /** Measure a GLB at `url` and return its bounding box in millimetres. */
-function measureGlb(url: string): Promise<{ width: number; depth: number; height: number }> {
+export function measureGlb(url: string): Promise<{ width: number; depth: number; height: number }> {
   return new Promise((resolve) => {
     loader.load(
       url,
@@ -62,6 +62,8 @@ export async function importGlbFile(file: File): Promise<CatalogEntry> {
     glbUrl: url,
     anchor: 'bottom-center',
     defaultRotationDeg: 0,
+    // glTF standardı Y-up → yükleyici dik çevirir (measureGlb de Y=yükseklik sayar).
+    needsUprightTilt: true,
   };
   registerCustomGlb(entry);
   return entry;

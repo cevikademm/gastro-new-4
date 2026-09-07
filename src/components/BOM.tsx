@@ -241,7 +241,7 @@ export default function BOM() {
                           className={`p-1.5 rounded-lg transition-all disabled:opacity-30 disabled:cursor-not-allowed ${
                             isFav ? 'text-pink-500 bg-pink-50' : 'text-slate-400 hover:text-pink-500 hover:bg-pink-50'
                           }`}
-                          title={!eqItem ? 'Katalogda bulunamadı — favoriye eklenemez' : isFav ? 'Favorilerden cikar' : 'Favorilere ekle'}
+                          title={!eqItem ? t('bom.catalogNotFoundFav') : isFav ? 'Favorilerden cikar' : 'Favorilere ekle'}
                         >
                           <Heart size={16} fill={isFav ? 'currentColor' : 'none'} />
                         </button>

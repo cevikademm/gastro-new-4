@@ -965,7 +965,9 @@
     "sectorCatering": "Catering",
     "sectorHospital": "Szpital",
     "sectorOther": "Inne",
-    "notLoggedIn": "Not logged in"
+    "notLoggedIn": "Not logged in",
+    "showPassword": "Pokaż hasło",
+    "hidePassword": "Ukryj hasło"
   },
   "welcome": {
     "headline": "Centrum dowodzenia",
@@ -1596,7 +1598,11 @@
     "sendFailed": "Nie udało się wysłać zgłoszenia. Napisz do nas bezpośrednio:",
     "subtitle": "Otwórz zgłoszenie ze swoim pytaniem lub skontaktuj się z nami bezpośrednio.",
     "businessHours": "Pazartesi–Cuma · 09:00–18:00 CET",
-    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin."
+    "docsCardDesc": "Detaylı kullanım kılavuzları ve video eğitimler için dokümantasyon sayfamızı ziyaret edin.",
+    "adminInbox": "Otrzymane wiadomości wsparcia",
+    "inboxEmpty": "Brak wiadomości wsparcia.",
+    "inboxGuest": "Gość",
+    "savedEmailFailed": "Wiadomość została zapisana, ale nie udało się wysłać powiadomienia e-mail."
   },
   "docs": {
     "title": "Dokumentacja",
@@ -2171,8 +2177,8 @@
         }
       },
       "hero": {
-        "prevBanner": "Önceki banner",
-        "nextBanner": "Sonraki banner",
+        "prevBanner": "Poprzedni obraz",
+        "nextBanner": "Następny obraz",
         "bannerDot": "{{index}}. banner: {{alt}}"
       },
       "inspection": {
@@ -2183,7 +2189,7 @@
         "descSuffix": "Her bileşen, sevkiyat öncesi tek tek kontrol edilir.",
         "viewMode": {
           "normal": "Normal",
-          "cutaway": "Kesit Görünüm",
+          "cutaway": "Widok w przekroju",
           "compare": "Karşılaştır"
         },
         "table": {
@@ -2213,6 +2219,22 @@
             "component": "Servis",
             "value": "2 yıl garanti",
             "report": "Almanya geneli yerinde servis"
+          }
+        },
+        "appliances": {
+          "mixer": {
+            "label": "Mieszarka spiralna",
+            "title": "Wnętrze mieszarki spiralnej",
+            "desc": "Hartowany wał stalowy, silnik z uzwojeniem miedzianym i jednoczęściowa obudowa – zaprojektowane na osiem godzin ciągłej pracy dziennie.",
+            "normalLabel": "Widok zewnętrzny",
+            "cutawayLabel": "Przekrój"
+          },
+          "ice": {
+            "label": "Kostkarka do lodu",
+            "title": "Wnętrze kostkarki do lodu",
+            "desc": "Zbiornik ze stali nierdzewnej, skraplacz chłodzony powietrzem i zmywalny filtr utrzymują wydajność nawet w gorącej kuchni.",
+            "normalLabel": "Widok zewnętrzny",
+            "cutawayLabel": "Przekrój"
           }
         }
       },
@@ -2259,6 +2281,10 @@
       "equipmentWord": "Ekipmanları",
       "productCount": "{{count}} Ürün",
       "signatureWord": "İmza"
+    },
+    "reviews": {
+      "prev": "Poprzednia opinia",
+      "next": "Następna opinia"
     }
   },
   "developerApi": {
@@ -2808,7 +2834,7 @@
     "backToRequests": "Zurück zu Anfragen",
     "cartEmpty": "Ihr Warenkorb ist leer",
     "confirmReject": "Angebot ablehnen?",
-    "confirmRejectButton": "Ablehnen",
+    "confirmRejectButton": "Odrzuć",
     "confirmRejectDesc": "Sind Sie sicher, dass Sie dieses Angebot ablehnen möchten?",
     "contactInfo": "Kontaktinformation",
     "createFirst": "Erste Anfrage erstellen",
@@ -2977,7 +3003,21 @@
     "empty": "Brak opublikowanych poprawek.",
     "technical": "Szczegóły techniczne",
     "reverted": "Wycofano",
-    "revertedHint": "Ta poprawka spowodowała problem i została wycofana."
+    "revertedHint": "Ta poprawka spowodowała problem i została wycofana.",
+    "category": {
+      "fix": "Poprawka",
+      "improvement": "Ulepszenie",
+      "feature": "Nowość"
+    },
+    "reported": "Zgłosiłeś",
+    "done": "Co zrobiliśmy",
+    "statTotal": "Łącznie poprawek",
+    "statThisMonth": "W tym miesiącu",
+    "statMedian": "Typowy czas",
+    "sameDay": "Tego samego dnia",
+    "days": "{{count}} dni",
+    "solvedSameDay": "Naprawione tego samego dnia",
+    "solvedInDays": "Naprawione w {{count}} dni"
   },
   "seo": {
     "home": "Strona główna",
@@ -3040,5 +3080,8 @@
     "subscribed": "Zapisano ✓",
     "rights": "Wszelkie prawa zastrzeżone.",
     "madeIn": "Stworzone z pasją w Kolonii."
+  },
+  "chat": {
+    "assistantBadge": "Asystent AI · 24/7"
   }
 }

@@ -99,7 +99,7 @@ export default function Cart() {
       // Yapılı not — WhatsApp/PDF müşteri bloğunu doldurur (parseOrderNotes ayrıştırır).
       const info = getUserInfo();
       const notes = [
-        isQuote ? 'Teklif Talebi' : '',
+        isQuote ? t('cart.quoteRequestNote') : '',
         (custName || info.fullName) ? `Teslimat: ${custName || info.fullName}` : '',
         info.company ? `Firma: ${info.company}` : '',
         custPhone ? `Tel: ${custPhone}` : '',
@@ -153,7 +153,7 @@ export default function Cart() {
     // Nakliye gideri — her PDF dışa aktarımında MUTLAKA sorulur. Varsayılan
     // 500 €; kullanıcı değiştirebilir. İptal edilirse PDF üretilmez.
     const shippingInput = window.prompt(
-      'Nakliye gideri (€) — teklife kalem olarak eklenecek:',
+      t('cart.shippingPromptMessage'),
       '500',
     );
     if (shippingInput === null) return;
@@ -273,7 +273,7 @@ export default function Cart() {
         </div>
         <div className="flex flex-col md:flex-row gap-4 items-start md:items-center relative z-10">
           <div className="flex-1">
-            <img src="/logo-2mc-gastro.png" width="1208" height="288" alt="2MC Gastro" className="h-8 object-contain mb-2" style={{ filter: 'brightness(0) invert(1)' }} />
+            <img src="/logo-2mc-gastro.webp" width="400" height="95" alt="2MC Gastro" className="h-8 object-contain mb-2" style={{ filter: 'brightness(0) invert(1)' }} />
             <p className="text-xs text-red-200">{COMPANY_INFO.tagline}</p>
           </div>
           <div className="flex flex-wrap gap-x-5 gap-y-1.5 text-xs text-red-100">

@@ -13,6 +13,8 @@ import { useTranslation } from 'react-i18next';
 import { BrickWall, Eye, EyeOff, X } from 'lucide-react';
 import { useProjectStore } from '../../../store';
 import type { Vertex, Wall, WallId } from '../../../core/types';
+import TransientRange from '../../../components/ui/TransientRange';
+import { PANEL } from '../../../components/ui/chrome';
 
 const MIN_H = 1000;
 const MAX_H = 6000;
@@ -46,7 +48,7 @@ export default function WallListPanel({ open, onClose }: WallListPanelProps) {
   };
 
   return (
-    <aside className="absolute top-3 right-3 w-72 rounded-2xl border border-slate-200/70 bg-white/95 backdrop-blur shadow-lg shadow-slate-900/5 text-[11px] flex flex-col max-h-[calc(100vh-7rem)] z-30">
+    <aside className={`absolute top-3 right-3 z-30 flex max-h-[calc(100vh-7rem)] w-72 flex-col text-[11px] ${PANEL}`}>
       <header className="px-4 h-11 flex items-center gap-2 border-b border-slate-100 shrink-0">
         <BrickWall size={13} className="text-brand-red shrink-0" />
         <span className="text-[12px] font-semibold text-slate-800 flex-1">{t('design3d.walls.title')}</span>
@@ -199,7 +201,7 @@ function WallRow({
             onKeyDown={(e) => {
               if (e.key === 'Enter') commit();
             }}
-            className="w-16 h-8 px-2 pr-6 text-[11px] tabular-nums rounded-lg border border-slate-200 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
+            className="w-[5.25rem] h-8 px-2 pr-7 text-[11px] tabular-nums rounded-lg border border-slate-200 outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/15 transition"
             title={t('design3d.walls.heightMm')}
           />
           <span className="absolute right-1.5 top-1/2 -translate-y-1/2 text-[10px] text-slate-400 pointer-events-none">
@@ -209,8 +211,8 @@ function WallRow({
       </div>
 
       {selected && (
-        <input
-          type="range"
+        <TransientRange
+          
           min={MIN_H}
           max={MAX_H}
           step={50}

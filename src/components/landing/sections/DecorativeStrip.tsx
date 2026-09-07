@@ -1,7 +1,9 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { Truck } from 'lucide-react';
 
 export function DecorativeStrip() {
+  const { t } = useTranslation();
   return (
     <section className="w-full bg-[#0a111a] border-y border-slate-800/80 py-4 overflow-hidden relative z-10">
       
@@ -15,17 +17,17 @@ export function DecorativeStrip() {
             <div key={idx} className="flex shrink-0 items-center gap-12 text-white/80 font-display font-black text-xs sm:text-sm tracking-[0.25em]">
               <span className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-brand-red animate-pulse" />
-                SCHNELLE B2B LIEFERUNG IN GANZ EUROPA
+                {t('landing.strip.delivery')}
               </span>
               <span className="text-brand-red/60">•</span>
-              <span>DIREKT AB LAGER KÖLN</span>
+              <span>{t('landing.strip.warehouse')}</span>
               <span className="text-brand-red/60">•</span>
               <span className="flex items-center gap-2">
                 <Truck className="w-4 h-4 text-brand-red" />
-                24H EXPRESSVERSAND FÜR LAGERWARE
+                {t('landing.strip.express')}
               </span>
               <span className="text-brand-red/60">•</span>
-              <span>ZUVERLÄSSIGER MONTAGESERVICE</span>
+              <span>{t('landing.strip.assembly')}</span>
               <span className="text-brand-red/60">•</span>
             </div>
           ))}

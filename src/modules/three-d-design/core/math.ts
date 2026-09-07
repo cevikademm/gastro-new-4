@@ -123,6 +123,18 @@ export function polygonArea(points: Vec2[]): number {
   return Math.abs(polygonSignedArea(points));
 }
 
+/** Vertex-average centroid of a polygon (cheap, adequate for orientation tests). */
+export function polygonCentroidOf(points: ReadonlyArray<Vec2>): Vec2 {
+  if (points.length === 0) return { x: 0, y: 0 };
+  let sx = 0;
+  let sy = 0;
+  for (const p of points) {
+    sx += p.x;
+    sy += p.y;
+  }
+  return { x: sx / points.length, y: sy / points.length };
+}
+
 /** Polygon perimeter in mm. */
 export function polygonPerimeter(points: Vec2[]): number {
   let sum = 0;
