@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { Bounds, useGLTF, OrbitControls } from '@react-three/drei';
@@ -157,6 +158,7 @@ export function KitchenModelViewer({
   fitMargin = 1.0,
   alwaysActive = false,
 }: KitchenModelViewerProps) {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const handleLoad = useCallback(() => setLoading(false), []);
   const surface = transparent ? 'bg-transparent' : 'bg-[#f8fafc] rounded-2xl overflow-hidden';
@@ -178,7 +180,7 @@ export function KitchenModelViewer({
         <div className={`absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 ${transparent ? 'bg-[#0c1420]/80' : 'bg-[#f8fafc]/95'}`}>
           <div className="w-8 h-8 border-t-2 border-brand-red rounded-full animate-spin" />
           <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-            3D Model Yükleniyor...
+            {t('landing.model.loading')}
           </span>
         </div>
       )}

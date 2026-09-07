@@ -2811,6 +2811,33 @@
         "title": "30+ JAHRE ERFAHRUNG",
         "desc": "Branchenführende Expertise"
       }
+    },
+    "showcase": {
+      "eyebrow": "ALLES AUS EINER HAND",
+      "heroTitle": "Geräte, Planung und Lieferung als Projektpaket.",
+      "heroDesc": "Professionelle Küchentechnik mit 3D Planung, Leasing und Montage aus einer Hand.",
+      "title": "Geräte, Planung und Lieferung als sichtbares Projektpaket.",
+      "desc": "Bestseller werden direkt mit Raumplanung, Leasing und Montage kombiniert. Ein Ansprechpartner koordiniert die Geräteauswahl vom Warenkorb bis zur Inbetriebnahme.",
+      "badgeProject": "Projekt",
+      "badgeQuote": "Angebot nach Warenkorb",
+      "badgeMonths": "Monate flexibel",
+      "steps": {
+        "planning": {
+          "label": "Planung",
+          "value": "3D Liste"
+        },
+        "delivery": {
+          "label": "Lieferung",
+          "value": "ab Lager"
+        },
+        "assembly": {
+          "label": "Montage",
+          "value": "vor Ort"
+        }
+      }
+    },
+    "model": {
+      "loading": "3D-Modell wird geladen…"
     }
   },
   "developerApi": {

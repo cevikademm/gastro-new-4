@@ -1,3 +1,4 @@
+import { useTranslation } from 'react-i18next';
 import { ArrowRight, ClipboardCheck, Truck, Wrench } from 'lucide-react';
 
 const POPOUT_OBJECTS = [
@@ -18,13 +19,15 @@ const POPOUT_OBJECTS = [
   },
 ];
 
+// Etiketler render sırasında çözülür (modül seviyesinde t() çağrılamaz).
 const STEPS = [
-  { icon: ClipboardCheck, label: 'Planung', value: '3D Liste' },
-  { icon: Truck, label: 'Lieferung', value: 'ab Lager' },
-  { icon: Wrench, label: 'Montage', value: 'vor Ort' },
-];
+  { icon: ClipboardCheck, key: 'planning' },
+  { icon: Truck, key: 'delivery' },
+  { icon: Wrench, key: 'assembly' },
+] as const;
 
 export function ProjectPopoutHeroSlide() {
+  const { t } = useTranslation();
   return (
     <div className="relative h-full w-full overflow-visible bg-[#b40000]">
       <div className="absolute inset-0 bg-[#b40000]" />
@@ -37,21 +40,21 @@ export function ProjectPopoutHeroSlide() {
           </div>
           <span className="mb-2 hidden items-center gap-2 text-[9px] font-black uppercase tracking-[0.26em] text-brand-red sm:inline-flex lg:mb-4 lg:text-[10px]">
             <span className="h-px w-7 bg-white" />
-            ALLES AUS EINER HAND
+            {t('landing.showcase.eyebrow')}
           </span>
           <h2 className="max-w-[15rem] font-display text-[1.35rem] font-black leading-[1.02] tracking-tight text-white sm:max-w-md sm:text-4xl lg:text-5xl">
-            Geräte, Planung und Lieferung als Projektpaket.
+            {t('landing.showcase.heroTitle')}
           </h2>
           <p className="mt-3 hidden max-w-md text-sm leading-relaxed text-white/82 md:block">
-            Professionelle Küchentechnik mit 3D Planung, Leasing und Montage aus einer Hand.
+            {t('landing.showcase.heroDesc')}
           </p>
           <div className="mt-4 hidden flex-wrap gap-3 lg:flex">
-            {STEPS.map(({ icon: Icon, label, value }) => (
-              <div key={label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white/78 px-3.5 py-3 shadow-[0_14px_32px_-26px_rgba(15,36,64,0.5)] backdrop-blur">
+            {STEPS.map(({ icon: Icon, key }) => (
+              <div key={key} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white/78 px-3.5 py-3 shadow-[0_14px_32px_-26px_rgba(15,36,64,0.5)] backdrop-blur">
                 <Icon size={17} className="shrink-0 text-brand-red" />
                 <div>
-                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">{label}</p>
-                  <p className="text-xs font-black uppercase tracking-wide text-[#0F2440]">{value}</p>
+                  <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">{t('landing.showcase.steps.'+key+'.label')}</p>
+                  <p className="text-xs font-black uppercase tracking-wide text-[#0F2440]">{t('landing.showcase.steps.'+key+'.value')}</p>
                 </div>
               </div>
             ))}
@@ -61,14 +64,14 @@ export function ProjectPopoutHeroSlide() {
         <div className="relative h-full min-w-0 overflow-visible">
           <div className="absolute inset-x-[6%] bottom-[-8%] h-[22%] rounded-[50%] bg-black/28 blur-2xl" />
           <div className="absolute left-[5%] top-[16%] z-20 hidden w-[118px] rotate-[-4deg] rounded-xl border border-white/70 bg-white p-3 shadow-[0_24px_60px_-30px_rgba(15,36,64,0.65)] md:block lg:w-[154px]">
-            <p className="text-[9px] font-black uppercase tracking-[0.22em] text-brand-red">Projekt</p>
+            <p className="text-[9px] font-black uppercase tracking-[0.22em] text-brand-red">{t('landing.showcase.badgeProject')}</p>
             <p className="mt-2 font-display text-2xl font-black leading-none text-[#0F2440]">24h</p>
-            <p className="mt-1 text-[10px] font-bold leading-tight text-slate-500">Angebot nach Warenkorb</p>
+            <p className="mt-1 text-[10px] font-bold leading-tight text-slate-500">{t('landing.showcase.badgeQuote')}</p>
           </div>
           <div className="absolute right-[6%] top-[12%] z-20 hidden w-[124px] rotate-[5deg] rounded-xl border border-white/70 bg-[#0F2440] p-3 text-white shadow-[0_24px_60px_-30px_rgba(15,36,64,0.75)] sm:block lg:w-[146px]">
             <p className="text-[9px] font-black uppercase tracking-[0.22em] text-white/42">Leasing</p>
             <p className="mt-2 font-display text-2xl font-black leading-none text-white">60</p>
-            <p className="mt-1 text-[10px] font-bold leading-tight text-white/58">Monate flexibel</p>
+            <p className="mt-1 text-[10px] font-bold leading-tight text-white/58">{t('landing.showcase.badgeMonths')}</p>
           </div>
 
           <img
@@ -99,6 +102,7 @@ export function ProjectPopoutHeroSlide() {
 }
 
 export function ProjectPopoutShowcase() {
+  const { t } = useTranslation();
   return (
     <section className="relative z-10 overflow-hidden bg-white pb-24 pt-10 sm:pb-28 lg:pb-36">
       <div className="absolute inset-x-0 top-0 h-[76%] bg-[#eef3f7]" />
@@ -110,22 +114,22 @@ export function ProjectPopoutShowcase() {
           <div className="max-w-xl pt-4 text-left text-[#0F2440] lg:pt-0">
             <span className="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.28em] text-brand-red">
               <span className="h-px w-7 bg-brand-red" />
-              ALLES AUS EINER HAND
+              {t('landing.showcase.eyebrow')}
             </span>
             <h2 className="mt-4 max-w-lg font-display text-3xl font-black leading-[1.02] tracking-tight text-[#0F2440] md:text-5xl">
-              Geräte, Planung und Lieferung als sichtbares Projektpaket.
+              {t('landing.showcase.title')}
             </h2>
             <p className="mt-5 max-w-md text-sm leading-relaxed text-slate-600">
-              Bestseller werden direkt mit Raumplanung, Leasing und Montage kombiniert. Ein Ansprechpartner koordiniert die Geräteauswahl vom Warenkorb bis zur Inbetriebnahme.
+              {t('landing.showcase.desc')}
             </p>
 
             <div className="mt-7 flex flex-wrap gap-3">
-              {STEPS.map(({ icon: Icon, label, value }) => (
-                <div key={label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white/78 px-3.5 py-3 shadow-[0_14px_32px_-26px_rgba(15,36,64,0.5)] backdrop-blur">
+              {STEPS.map(({ icon: Icon, key }) => (
+                <div key={key} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white/78 px-3.5 py-3 shadow-[0_14px_32px_-26px_rgba(15,36,64,0.5)] backdrop-blur">
                   <Icon size={17} className="shrink-0 text-brand-red" />
                   <div>
-                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">{label}</p>
-                    <p className="text-xs font-black uppercase tracking-wide text-[#0F2440]">{value}</p>
+                    <p className="text-[9px] font-black uppercase tracking-[0.18em] text-slate-400">{t('landing.showcase.steps.'+key+'.label')}</p>
+                    <p className="text-xs font-black uppercase tracking-wide text-[#0F2440]">{t('landing.showcase.steps.'+key+'.value')}</p>
                   </div>
                 </div>
               ))}
@@ -145,15 +149,15 @@ export function ProjectPopoutShowcase() {
             <div className="absolute inset-x-[8%] bottom-[-16px] h-px bg-gradient-to-r from-transparent via-[#0F2440]/20 to-transparent" />
 
             <div className="absolute left-[8%] top-[12%] z-20 hidden w-[132px] rotate-[-4deg] rounded-xl border border-white/70 bg-white p-3 shadow-[0_24px_60px_-30px_rgba(15,36,64,0.65)] sm:block lg:w-[154px]">
-              <p className="text-[9px] font-black uppercase tracking-[0.22em] text-brand-red">Projekt</p>
+              <p className="text-[9px] font-black uppercase tracking-[0.22em] text-brand-red">{t('landing.showcase.badgeProject')}</p>
               <p className="mt-2 font-display text-2xl font-black leading-none text-[#0F2440]">24h</p>
-              <p className="mt-1 text-[10px] font-bold leading-tight text-slate-500">Angebot nach Warenkorb</p>
+              <p className="mt-1 text-[10px] font-bold leading-tight text-slate-500">{t('landing.showcase.badgeQuote')}</p>
             </div>
 
             <div className="absolute right-[5%] top-[9%] z-20 w-[118px] rotate-[5deg] rounded-xl border border-white/70 bg-[#0F2440] p-3 text-white shadow-[0_24px_60px_-30px_rgba(15,36,64,0.75)] sm:w-[146px]">
               <p className="text-[9px] font-black uppercase tracking-[0.22em] text-white/42">Leasing</p>
               <p className="mt-2 font-display text-2xl font-black leading-none text-white">60</p>
-              <p className="mt-1 text-[10px] font-bold leading-tight text-white/58">Monate flexibel</p>
+              <p className="mt-1 text-[10px] font-bold leading-tight text-white/58">{t('landing.showcase.badgeMonths')}</p>
             </div>
 
             {POPOUT_OBJECTS.map((item) => (

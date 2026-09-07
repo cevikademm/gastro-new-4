@@ -2811,6 +2811,33 @@
         "title": "30+ YIL DENEYİM",
         "desc": "Sektör lideri uzmanlık"
       }
+    },
+    "showcase": {
+      "eyebrow": "HEPSİ TEK ELDEN",
+      "heroTitle": "Cihaz, planlama ve teslimat tek proje paketinde.",
+      "heroDesc": "Profesyonel mutfak tekniği; 3B planlama, leasing ve montaj tek elden.",
+      "title": "Cihaz, planlama ve teslimat görünür bir proje paketi olarak.",
+      "desc": "Çok satan cihazlar doğrudan mekân planlaması, leasing ve montajla birleşir. Sepetten devreye almaya kadar tüm süreci tek bir yetkili koordine eder.",
+      "badgeProject": "Proje",
+      "badgeQuote": "Sepet sonrası teklif",
+      "badgeMonths": "Ay esnek ödeme",
+      "steps": {
+        "planning": {
+          "label": "Planlama",
+          "value": "3B liste"
+        },
+        "delivery": {
+          "label": "Teslimat",
+          "value": "Stoktan"
+        },
+        "assembly": {
+          "label": "Montaj",
+          "value": "Yerinde"
+        }
+      }
+    },
+    "model": {
+      "loading": "3B model yükleniyor…"
     }
   },
   "developerApi": {

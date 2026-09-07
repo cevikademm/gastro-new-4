@@ -2811,6 +2811,33 @@
         "title": "30+ YEARS OF EXPERIENCE",
         "desc": "Industry-leading expertise"
       }
+    },
+    "showcase": {
+      "eyebrow": "EVERYTHING FROM ONE SOURCE",
+      "heroTitle": "Equipment, planning and delivery as one project package.",
+      "heroDesc": "Professional kitchen technology with 3D planning, leasing and installation from a single source.",
+      "title": "Equipment, planning and delivery as a visible project package.",
+      "desc": "Bestsellers are combined directly with space planning, leasing and installation. One contact coordinates everything from cart to commissioning.",
+      "badgeProject": "Project",
+      "badgeQuote": "Quote after cart",
+      "badgeMonths": "Months flexible",
+      "steps": {
+        "planning": {
+          "label": "Planning",
+          "value": "3D list"
+        },
+        "delivery": {
+          "label": "Delivery",
+          "value": "From stock"
+        },
+        "assembly": {
+          "label": "Installation",
+          "value": "On site"
+        }
+      }
+    },
+    "model": {
+      "loading": "Loading 3D model…"
     }
   },
   "developerApi": {

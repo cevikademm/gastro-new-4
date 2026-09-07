@@ -2811,6 +2811,33 @@
         "title": "30+ ANS D’EXPÉRIENCE",
         "desc": "Expertise de premier plan"
       }
+    },
+    "showcase": {
+      "eyebrow": "TOUT EN UNE SEULE MAIN",
+      "heroTitle": "Équipements, étude et livraison en un seul pack projet.",
+      "heroDesc": "Équipements de cuisine professionnelle avec étude 3D, leasing et montage par un seul interlocuteur.",
+      "title": "Équipements, étude et livraison sous forme de pack projet concret.",
+      "desc": "Les best-sellers sont directement associés à l’étude d’implantation, au leasing et au montage. Un seul interlocuteur coordonne tout, du panier à la mise en service.",
+      "badgeProject": "Projet",
+      "badgeQuote": "Devis après panier",
+      "badgeMonths": "Mois flexibles",
+      "steps": {
+        "planning": {
+          "label": "Étude",
+          "value": "Liste 3D"
+        },
+        "delivery": {
+          "label": "Livraison",
+          "value": "Depuis stock"
+        },
+        "assembly": {
+          "label": "Montage",
+          "value": "Sur site"
+        }
+      }
+    },
+    "model": {
+      "loading": "Chargement du modèle 3D…"
     }
   },
   "developerApi": {

@@ -2811,6 +2811,33 @@
         "title": "30+ JAAR ERVARING",
         "desc": "Toonaangevende expertise"
       }
+    },
+    "showcase": {
+      "eyebrow": "ALLES UIT ÉÉN HAND",
+      "heroTitle": "Apparatuur, planning en levering als één projectpakket.",
+      "heroDesc": "Professionele keukentechniek met 3D-planning, leasing en montage uit één hand.",
+      "title": "Apparatuur, planning en levering als zichtbaar projectpakket.",
+      "desc": "Bestsellers worden direct gecombineerd met ruimteplanning, leasing en montage. Eén aanspreekpunt coördineert alles van winkelwagen tot ingebruikname.",
+      "badgeProject": "Project",
+      "badgeQuote": "Offerte na winkelwagen",
+      "badgeMonths": "Maanden flexibel",
+      "steps": {
+        "planning": {
+          "label": "Planning",
+          "value": "3D-lijst"
+        },
+        "delivery": {
+          "label": "Levering",
+          "value": "Uit voorraad"
+        },
+        "assembly": {
+          "label": "Montage",
+          "value": "Ter plaatse"
+        }
+      }
+    },
+    "model": {
+      "loading": "3D-model wordt geladen…"
     }
   },
   "developerApi": {

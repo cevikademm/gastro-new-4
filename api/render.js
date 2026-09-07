@@ -2891,7 +2891,7 @@ var SHELL = `<!doctype html>\r
     <!-- Feed & AI discovery (GEO) -->\r
     <link rel="alternate" type="application/rss+xml" title="2MC Gastro \u2014 Ratgeber & Neuigkeiten" href="https://www.2mcgastro.de/rss.xml" />\r
     <link rel="alternate" type="text/plain" title="llms.txt" href="https://www.2mcgastro.de/llms.txt" />\r
-    <script type="module" crossorigin src="/assets/index-Cj0SGjzj.js"></script>
+    <script type="module" crossorigin src="/assets/index-BBGE2j1b.js"></script>
     <link rel="modulepreload" crossorigin href="/assets/react-OOQ9L-sP.js">
     <link rel="modulepreload" crossorigin href="/assets/i18n-CKKom6EK.js">
     <link rel="modulepreload" crossorigin href="/assets/state-C4hkmzCB.js">

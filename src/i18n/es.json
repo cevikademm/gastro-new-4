@@ -2811,6 +2811,33 @@
         "title": "30+ AÑOS DE EXPERIENCIA",
         "desc": "Experiencia líder del sector"
       }
+    },
+    "showcase": {
+      "eyebrow": "TODO DE UN SOLO PROVEEDOR",
+      "heroTitle": "Equipos, planificación y entrega en un único paquete de proyecto.",
+      "heroDesc": "Tecnología de cocina profesional con planificación 3D, leasing y montaje de un solo proveedor.",
+      "title": "Equipos, planificación y entrega como paquete de proyecto visible.",
+      "desc": "Los más vendidos se combinan directamente con la planificación del espacio, el leasing y el montaje. Un único interlocutor coordina todo, del carrito a la puesta en marcha.",
+      "badgeProject": "Proyecto",
+      "badgeQuote": "Presupuesto tras el carrito",
+      "badgeMonths": "Meses flexibles",
+      "steps": {
+        "planning": {
+          "label": "Planificación",
+          "value": "Lista 3D"
+        },
+        "delivery": {
+          "label": "Entrega",
+          "value": "Desde stock"
+        },
+        "assembly": {
+          "label": "Montaje",
+          "value": "In situ"
+        }
+      }
+    },
+    "model": {
+      "loading": "Cargando el modelo 3D…"
     }
   },
   "developerApi": {
