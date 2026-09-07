@@ -2789,6 +2789,28 @@
       "warehouse": "KÖLN DEPOSUNDAN DOĞRUDAN",
       "express": "STOKTAKİ ÜRÜNLERDE 24 SAATTE EKSPRES GÖNDERİM",
       "assembly": "GÜVENİLİR MONTAJ HİZMETİ"
+    },
+    "trust": {
+      "customers": {
+        "title": "40.000+ MÜŞTERİ",
+        "desc": "Avrupa geneli & Türkiye"
+      },
+      "configs": {
+        "title": "5 KONFİGÜRASYON",
+        "desc": "Seçenek & esneklik"
+      },
+      "express": {
+        "title": "48 SAAT EKSPRES SERVİS",
+        "desc": "Hızlı işlem"
+      },
+      "deployments": {
+        "title": "93.000+ UYGULAMA",
+        "desc": "Profesyonel destek"
+      },
+      "experience": {
+        "title": "30+ YIL DENEYİM",
+        "desc": "Sektör lideri uzmanlık"
+      }
     }
   },
   "developerApi": {

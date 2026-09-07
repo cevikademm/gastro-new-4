@@ -2789,6 +2789,28 @@
       "warehouse": "DIREKT AB LAGER KÖLN",
       "express": "24H EXPRESSVERSAND FÜR LAGERWARE",
       "assembly": "ZUVERLÄSSIGER MONTAGESERVICE"
+    },
+    "trust": {
+      "customers": {
+        "title": "40.000+ KUNDEN",
+        "desc": "Europaweit & Türkei"
+      },
+      "configs": {
+        "title": "5 KONFIGURATIONEN",
+        "desc": "Möglichkeiten & Flexibilität"
+      },
+      "express": {
+        "title": "48h EXPRESS-SERVICE",
+        "desc": "Schnelle Abwicklung"
+      },
+      "deployments": {
+        "title": "93.000+ EINSÄTZE",
+        "desc": "Professioneller Support"
+      },
+      "experience": {
+        "title": "30+ JAHRE ERFAHRUNG",
+        "desc": "Branchenführende Expertise"
+      }
     }
   },
   "developerApi": {

@@ -2789,6 +2789,28 @@
       "warehouse": "DIRECTO DESDE EL ALMACÉN DE COLONIA",
       "express": "ENVÍO EXPRÉS EN 24 H PARA ARTÍCULOS EN STOCK",
       "assembly": "SERVICIO DE MONTAJE FIABLE"
+    },
+    "trust": {
+      "customers": {
+        "title": "40.000+ CLIENTES",
+        "desc": "Toda Europa y Turquía"
+      },
+      "configs": {
+        "title": "5 CONFIGURACIONES",
+        "desc": "Opciones y flexibilidad"
+      },
+      "express": {
+        "title": "SERVICIO EXPRÉS 48 H",
+        "desc": "Tramitación rápida"
+      },
+      "deployments": {
+        "title": "93.000+ INSTALACIONES",
+        "desc": "Soporte profesional"
+      },
+      "experience": {
+        "title": "30+ AÑOS DE EXPERIENCIA",
+        "desc": "Experiencia líder del sector"
+      }
     }
   },
   "developerApi": {

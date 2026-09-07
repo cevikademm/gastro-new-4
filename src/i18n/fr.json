@@ -2789,6 +2789,28 @@
       "warehouse": "DIRECTEMENT DE NOTRE ENTREPÔT DE COLOGNE",
       "express": "EXPÉDITION EXPRESS 24 H POUR LES ARTICLES EN STOCK",
       "assembly": "SERVICE DE MONTAGE FIABLE"
+    },
+    "trust": {
+      "customers": {
+        "title": "40 000+ CLIENTS",
+        "desc": "Toute l’Europe & Turquie"
+      },
+      "configs": {
+        "title": "5 CONFIGURATIONS",
+        "desc": "Options & flexibilité"
+      },
+      "express": {
+        "title": "SERVICE EXPRESS 48 H",
+        "desc": "Traitement rapide"
+      },
+      "deployments": {
+        "title": "93 000+ INSTALLATIONS",
+        "desc": "Support professionnel"
+      },
+      "experience": {
+        "title": "30+ ANS D’EXPÉRIENCE",
+        "desc": "Expertise de premier plan"
+      }
     }
   },
   "developerApi": {

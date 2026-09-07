@@ -2789,6 +2789,28 @@
       "warehouse": "DIRECT FROM OUR COLOGNE WAREHOUSE",
       "express": "24H EXPRESS SHIPPING ON STOCK ITEMS",
       "assembly": "RELIABLE INSTALLATION SERVICE"
+    },
+    "trust": {
+      "customers": {
+        "title": "40,000+ CUSTOMERS",
+        "desc": "Across Europe & Türkiye"
+      },
+      "configs": {
+        "title": "5 CONFIGURATIONS",
+        "desc": "Options & flexibility"
+      },
+      "express": {
+        "title": "48H EXPRESS SERVICE",
+        "desc": "Fast processing"
+      },
+      "deployments": {
+        "title": "93,000+ INSTALLATIONS",
+        "desc": "Professional support"
+      },
+      "experience": {
+        "title": "30+ YEARS OF EXPERIENCE",
+        "desc": "Industry-leading expertise"
+      }
     }
   },
   "developerApi": {

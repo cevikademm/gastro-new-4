@@ -1,31 +1,33 @@
+import { useTranslation } from 'react-i18next';
 import { Users, Settings, Zap, Wrench, Calendar } from 'lucide-react';
 
 export function TrustBar() {
+  const { t } = useTranslation();
   const items = [
     {
       icon: <Users className="w-5 h-5 text-brand-red shrink-0" />,
-      title: "40.000+ KUNDEN",
-      desc: "Europaweit & Türkei"
+      title: t('landing.trust.customers.title'),
+      desc: t('landing.trust.customers.desc')
     },
     {
       icon: <Settings className="w-5 h-5 text-brand-red shrink-0" />,
-      title: "5 KONFIGURATIONEN",
-      desc: "Möglichkeiten & Flexibilität"
+      title: t('landing.trust.configs.title'),
+      desc: t('landing.trust.configs.desc')
     },
     {
       icon: <Zap className="w-5 h-5 text-brand-red shrink-0" />,
-      title: "48h EXPRESS-SERVICE",
-      desc: "Schnelle Abwicklung"
+      title: t('landing.trust.express.title'),
+      desc: t('landing.trust.express.desc')
     },
     {
       icon: <Wrench className="w-5 h-5 text-brand-red shrink-0" />,
-      title: "93.000+ EINSÄTZE",
-      desc: "Professioneller Support"
+      title: t('landing.trust.deployments.title'),
+      desc: t('landing.trust.deployments.desc')
     },
     {
       icon: <Calendar className="w-5 h-5 text-brand-red shrink-0" />,
-      title: "30+ JAHRE ERFAHRUNG",
-      desc: "Branchenführende Expertise"
+      title: t('landing.trust.experience.title'),
+      desc: t('landing.trust.experience.desc')
     }
   ];
 

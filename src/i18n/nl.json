@@ -2789,6 +2789,28 @@
       "warehouse": "RECHTSTREEKS UIT MAGAZIJN KEULEN",
       "express": "24-UURS EXPRESVERZENDING VOOR VOORRAADARTIKELEN",
       "assembly": "BETROUWBARE MONTAGESERVICE"
+    },
+    "trust": {
+      "customers": {
+        "title": "40.000+ KLANTEN",
+        "desc": "Heel Europa & Turkije"
+      },
+      "configs": {
+        "title": "5 CONFIGURATIES",
+        "desc": "Mogelijkheden & flexibiliteit"
+      },
+      "express": {
+        "title": "48-UURS EXPRESSERVICE",
+        "desc": "Snelle afhandeling"
+      },
+      "deployments": {
+        "title": "93.000+ INSTALLATIES",
+        "desc": "Professionele ondersteuning"
+      },
+      "experience": {
+        "title": "30+ JAAR ERVARING",
+        "desc": "Toonaangevende expertise"
+      }
     }
   },
   "developerApi": {
