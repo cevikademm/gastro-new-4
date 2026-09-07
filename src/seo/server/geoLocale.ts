@@ -26,8 +26,23 @@ const COUNTRY_LOCALE: Record<string, Locale> = {
   UY: 'es', SV: 'es', CU: 'es', PR: 'es',
   GB: 'en', IE: 'en', US: 'en', CA: 'en', AU: 'en', NZ: 'en', ZA: 'en', IN: 'en',
   SG: 'en', MT: 'en', PH: 'en', NG: 'en', KE: 'en',
-  // DE/AT/CH listelenmez: zaten varsayılan Almanca.
+  // DE/AT/LI/CH listelenmez: kararı aşağıdaki GERMAN_SPEAKING ve BE/CH kuralları verir.
 };
+
+/**
+ * Almanca konuşulan ülkeler — ziyaretçi FİZİKSEL olarak buradaysa, tarayıcı dili ne
+ * olursa olsun kök (Almanca) URL'de kalır.
+ *
+ * NEDEN: pickLocale() eşlenmemiş ülkelerde Accept-Language'a düşüyordu. Bu yüzden
+ * Almanya'daki bir ziyaretçinin tarayıcısı İngilizce/Türkçe/Felemenkçe ise 302 ile
+ * /en veya /tr'ye atılıyordu — yani ASIL HEDEF PAZARIMIZDAKİ kullanıcı, tek
+ * indekslenen ve içeriği tam olan Almanca siteden çıkarılıyordu. Ülke, hedef pazarda
+ * tarayıcı dilinden daha güçlü bir sinyaldir; dil değiştirmek isteyen dil seçicisini
+ * kullanır ve seçimi çereze yazılır.
+ *
+ * CH burada YOK: çok dilli olduğu için BE gibi Accept-Language ile karar verilir.
+ */
+const GERMAN_SPEAKING = new Set(['DE', 'AT', 'LI']);
 
 const BOT_UA = /bot|crawler|spider|crawling|googlebot|bingbot|slurp|duckduckbot|baiduspider|yandex|sogou|exabot|facebookexternalhit|facebot|twitterbot|linkedinbot|whatsapp|telegrambot|applebot|ia_archiver|ahrefs|semrush|mj12|dotbot|petalbot|gptbot|claudebot|claude-web|anthropic|perplexity|ccbot|google-extended|chatgpt-user|oai-searchbot|bytespider|amazonbot|lighthouse|headlesschrome|pagespeed/i;
 
@@ -64,6 +79,7 @@ function fromAcceptLanguage(accept: string): Locale | null {
 }
 
 function pickLocale(country: string, accept: string): Locale | null {
+  if (GERMAN_SPEAKING.has(country)) return DEFAULT_LOCALE;
   if (country === 'BE' || country === 'CH') return fromAcceptLanguage(accept);
   const byCountry = COUNTRY_LOCALE[country];
   if (byCountry) return byCountry;
