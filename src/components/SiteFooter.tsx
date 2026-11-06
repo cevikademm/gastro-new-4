@@ -242,7 +242,7 @@ export default function SiteFooter() {
         {/* Bottom Bar */}
         <div className="pt-8 border-t border-[var(--c-line)] flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="text-[13px] text-[var(--c-muted)]">
-            © {new Date().getFullYear()} {COMPANY_INFO.legalName}. {t('footer.rights', 'Alle Rechte vorbehalten.')} <span className="mx-2 opacity-30">|</span> {t('footer.madeIn', 'Mit Leidenschaft in Köln gemacht.')}
+            © {new Date().getFullYear()} {COMPANY_INFO.legalName} · {t('footer.owner', 'Inhaber: {{name}}', { name: COMPANY_INFO.owner })}. {t('footer.rights', 'Alle Rechte vorbehalten.')} <span className="mx-2 opacity-30">|</span> {t('footer.madeIn', 'Mit Leidenschaft in Köln gemacht.')}
           </div>
           <div className="flex gap-6">
             <Link to={lp('/datenschutz')} className="text-[13px] text-[var(--c-muted)] hover:text-[var(--c-clay)]">{t('footer.privacy', 'Datenschutz')}</Link>
