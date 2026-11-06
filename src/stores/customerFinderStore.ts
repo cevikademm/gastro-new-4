@@ -168,6 +168,34 @@ function fillTemplate(tpl: string, lead: CustomerLead): string {
     .replace(/\{\{\s*website\s*\}\}/gi, lead.website || '');
 }
 
+// Resend hesabımız saniyede 10 istek kabul ediyor. Döngü beklemesiz koşunca
+// toplu gönderimde 429 dönüyor ve kayıt sessizce "başarısız" işaretleniyordu —
+// oysa mail hiç denenmemiş oluyordu. Aralık + 429/5xx yeniden denemesi ikisini
+// de kapatır.
+const SEND_INTERVAL_MS = 250;
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+async function postColdOutreach(
+  headers: Record<string, string>,
+  to: string,
+  subject: string,
+  body: string,
+): Promise<boolean> {
+  const payload = JSON.stringify({ template: 'cold-outreach', to, data: { subject, body } });
+  for (let deneme = 0; deneme < 3; deneme++) {
+    try {
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, { method: 'POST', headers, body: payload });
+      if (res.ok) return true;
+      // Kalıcı hata (geçersiz adres, yetki) tekrar denemeye değmez.
+      if (res.status !== 429 && res.status < 500) return false;
+    } catch {
+      // ağ hatası — yeniden dene
+    }
+    await sleep(1000 * (deneme + 1));
+  }
+  return false;
+}
+
 export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => ({
   leads: [],
   searches: [],
@@ -323,21 +351,7 @@ export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => 
       }
       const filledSubject = fillTemplate(subject, lead);
       const filledBody = fillTemplate(bodyTemplate, lead);
-      let ok = false;
-      try {
-        const res = await fetch(`${SUPABASE_URL}/functions/v1/send-email`, {
-          method: 'POST',
-          headers,
-          body: JSON.stringify({
-            template: 'cold-outreach',
-            to: lead.email,
-            data: { subject: filledSubject, body: filledBody },
-          }),
-        });
-        ok = res.ok;
-      } catch {
-        ok = false;
-      }
+      const ok = await postColdOutreach(headers, lead.email, filledSubject, filledBody);
 
       // Her denemeyi mail geçmişine yaz (gönderildi / başarısız)
       if (supabase) {
@@ -368,6 +382,9 @@ export const useCustomerFinderStore = create<CustomerFinderState>((set, get) => 
       } else {
         result.failed++;
       }
+
+      // Sıradaki alıcıdan önce nefes al — sınır saniyede 10 istek.
+      await sleep(SEND_INTERVAL_MS);
     }
 
     set({ sending: false });
