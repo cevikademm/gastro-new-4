@@ -80,7 +80,7 @@ export function siteFooter(locale: Locale): string {
     `<section><h2>Branchen</h2><ul>${branchen}</ul></section>` +
     `<section><h2>Lieferung &amp; Beratung in Ihrer Region</h2><ul>${cities}</ul></section>` +
     `<section><h2>Marken</h2><ul>${brands}</ul></section>` +
-    `<address><strong>${esc(COMPANY_INFO.legalName)}</strong><br>${esc(COMPANY_INFO.street)}, ${esc(COMPANY_INFO.zipCity)}, Deutschland<br>` +
+    `<address><strong>${esc(COMPANY_INFO.legalName)}</strong><br>Inhaber: ${esc(COMPANY_INFO.owner)}<br>${esc(COMPANY_INFO.street)}, ${esc(COMPANY_INFO.zipCity)}, Deutschland<br>` +
     `Tel.: <a href="tel:${esc(COMPANY_INFO.phoneE164)}">${esc(COMPANY_INFO.phoneDisplay)}</a> · E-Mail: <a href="mailto:${esc(COMPANY_INFO.email)}">${esc(COMPANY_INFO.email)}</a><br>` +
     `Mo–Sa 09:00–18:00 Uhr · Alle Preise netto zzgl. MwSt.</address>` +
     `<nav aria-label="Rechtliches"><ul>` +

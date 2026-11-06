@@ -1124,7 +1124,7 @@
     "featureHACCP": "HACCP Compliant",
     "featureHACCPDesc": "European standards",
     "featureHACCPDescLong": "Full compliance with European hygiene and safety standards",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Professional Kitchen Solutions",
     "heroTitle": "Design Your Kitchen\nin 3D",
     "heroDesc": "6,300+ professional equipment, real-time 3D viewing and smart project management — the future of commercial kitchen design.",
@@ -2231,7 +2231,7 @@
       },
       "imprint": "Imprint",
       "contactHeading": "Contact",
-      "copyright": "© {{year}} 2MC Gastro GmbH. All rights reserved.",
+      "copyright": "© {{year}} 2MC Gastro. All rights reserved.",
       "privacyPolicy": "Privacy Policy",
       "cookies": "Cookies"
     },
@@ -2775,7 +2775,7 @@
       "termsB2B": "Terms & B2B Guidelines",
       "cookies": "Cookies",
       "securePayments": "Secure payment methods",
-      "copyright": "© {{year}} 2MC Gastro GmbH. All rights reserved."
+      "copyright": "© {{year}} 2MC Gastro. All rights reserved."
     },
     "floatingCta": {
       "positionsInQuote": "{{count}} items in quote",
@@ -3647,6 +3647,7 @@
     "servicePlanner": "Will it fit your kitchen? Check in the 3D kitchen planner."
   },
   "footer": {
+    "owner": "Owner: {{name}}",
     "company": "Company",
     "support": "Support",
     "trust": "Payment & Trust",
@@ -3768,6 +3769,7 @@
         "p": "The content of our pages has been prepared with the utmost care; however, we cannot accept liability for the accuracy, completeness or timeliness of the content. Only the respective provider is responsible for the content of external links."
       },
       "register": {
+        "owner": "Owner: {{name}}",
         "managingDirector": "Managing Director (Geschäftsführer): {{name}}",
         "court": "Register court (Registergericht): {{court}}",
         "number": "Commercial register no. (HRB): {{number}}"
@@ -3899,7 +3901,7 @@
       "backToTop": "Back to top",
       "s1": {
         "title": "Scope",
-        "p1": "These General Terms and Conditions (GTC) apply to the sale of products and services by 2MC Gastro GmbH to commercial customers (B2B). These GTC form the basis for all legal transactions between the provider and the buyer.",
+        "p1": "These General Terms and Conditions (GTC) apply to the sale of products and services by 2MC Gastro to commercial customers (B2B). These GTC form the basis for all legal transactions between the provider and the buyer.",
         "p2": "Any deviating terms of the buyer apply only if expressly accepted by the provider in writing."
       },
       "s2": {
@@ -4040,7 +4042,7 @@
         "addressPlaceholder": "Address"
       },
       "responsible": {
-        "text": "Under German media law, the provider is responsible for the content of this website. Responsible party: 2MC Gastro GmbH, represented by {{director}}, {{address}}."
+        "text": "Under German media law, the provider is responsible for the content of this website. Responsible party: 2MC Gastro, represented by {{director}}, {{address}}."
       },
       "dispute": {
         "p1": "Consumers have the option of submitting complaints to the European Commission's Online Dispute Resolution (ODR) platform:",
@@ -4051,7 +4053,7 @@
         "p2": "The information provided on this website is offered without any guarantee of accuracy or completeness. We accept no liability for damages arising from the use or non-use of this website or its content."
       },
       "copyright": {
-        "text": "The content of this website is protected by copyright. All content, including text, graphics, logos and images, is the property of 2MC Gastro GmbH or its respective owners and may not be reproduced, distributed or transmitted without express permission."
+        "text": "The content of this website is protected by copyright. All content, including text, graphics, logos and images, is the property of 2MC Gastro or its respective owners and may not be reproduced, distributed or transmitted without express permission."
       },
       "privacy": {
         "textPrefix": "Information on the protection of your personal data can be found",

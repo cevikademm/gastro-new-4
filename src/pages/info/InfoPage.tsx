@@ -29,15 +29,17 @@ const CONTACT_EMAIL = 'info@2mcgastro.de';
 const C = COMPANY_INFO;
 const ADDRESS = `${C.street}, ${C.zipCity}`;
 /** İçerikten sorumlu gerçek kişi — legalName'in parantezsiz hâli ("Metehan Çevik"). */
-const RESPONSIBLE_PERSON = C.register.managingDirector || C.legalName;
+const RESPONSIBLE_PERSON = C.owner || C.register.managingDirector || C.legalName;
 const UPDATED = '2026-09-06';
 /** Sicil satırları — yalnızca dolu alanlar (HRB gelene kadar numara satırı çıkmaz). */
 const REGISTER_DE = [
+  C.owner ? `Inhaber: ${C.owner}` : '',
   C.register.managingDirector ? `Vertreten durch den Geschäftsführer: ${C.register.managingDirector}` : '',
   C.register.court ? `Registergericht: ${C.register.court}` : '',
   C.register.number ? `Handelsregisternummer: ${C.register.number}` : '',
 ].filter(Boolean);
 const registerTr = (t: TFunction) => [
+  C.owner ? t('info.imprint.register.owner', { name: C.owner }) : '',
   C.register.managingDirector ? t('info.imprint.register.managingDirector', { name: C.register.managingDirector }) : '',
   C.register.court ? t('info.imprint.register.court', { court: C.register.court }) : '',
   C.register.number ? t('info.imprint.register.number', { number: C.register.number }) : '',

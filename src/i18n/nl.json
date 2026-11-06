@@ -1124,7 +1124,7 @@
     "featureHACCP": "HACCP-conform",
     "featureHACCPDesc": "Europese normen",
     "featureHACCPDescLong": "Volledige naleving van Europese hygiëne- en veiligheidsnormen",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "popularCategories": "Most Popular Categories",
     "bestsellers": "Our Bestsellers",
     "toolsTitle": "Smart Kitchen Tools",
@@ -2231,7 +2231,7 @@
       },
       "imprint": "Colofon",
       "contactHeading": "Contact",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Alle rechten voorbehouden.",
+      "copyright": "© {{year}} 2MC Gastro. Alle rechten voorbehouden.",
       "privacyPolicy": "Privacybeleid",
       "cookies": "Cookies"
     },
@@ -2775,7 +2775,7 @@
       "termsB2B": "AV & B2B-voorwaarden",
       "cookies": "Cookies",
       "securePayments": "Veilige betaalmethoden",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Alle rechten voorbehouden."
+      "copyright": "© {{year}} 2MC Gastro. Alle rechten voorbehouden."
     },
     "floatingCta": {
       "positionsInQuote": "{{count}} posities in offerte",
@@ -3620,6 +3620,7 @@
     "servicePlanner": "Past het apparaat in uw keuken? Controleer het in de 3D-keukenplanner."
   },
   "footer": {
+    "owner": "Eigenaar: {{name}}",
     "company": "Bedrijf",
     "support": "Service",
     "trust": "Betaling & vertrouwen",
@@ -3768,6 +3769,7 @@
         "p": "De inhoud van onze pagina's is met de grootst mogelijke zorgvuldigheid samengesteld; wij kunnen echter geen aansprakelijkheid aanvaarden voor de juistheid, volledigheid en actualiteit van de inhoud. Voor de inhoud van externe links is uitsluitend de betreffende aanbieder verantwoordelijk."
       },
       "register": {
+        "owner": "Eigenaar: {{name}}",
         "managingDirector": "Bedrijfsleider (Geschäftsführer): {{name}}",
         "court": "Registergerecht (Registergericht): {{court}}",
         "number": "Handelsregisternummer (HRB): {{number}}"
@@ -3899,7 +3901,7 @@
       "backToTop": "Naar boven",
       "s1": {
         "title": "Toepassingsgebied",
-        "p1": "Deze Algemene Voorwaarden (AV) gelden voor de verkoop van producten en diensten door 2MC Gastro GmbH aan zakelijke klanten (B2B). Deze AV vormen de basis voor alle rechtshandelingen tussen aanbieder en afnemer.",
+        "p1": "Deze Algemene Voorwaarden (AV) gelden voor de verkoop van producten en diensten door 2MC Gastro aan zakelijke klanten (B2B). Deze AV vormen de basis voor alle rechtshandelingen tussen aanbieder en afnemer.",
         "p2": "Afwijkende voorwaarden van de afnemer zijn slechts van toepassing indien de aanbieder deze uitdrukkelijk schriftelijk heeft aanvaard."
       },
       "s2": {
@@ -4040,7 +4042,7 @@
         "addressPlaceholder": "Adres"
       },
       "responsible": {
-        "text": "Volgens de Duitse mediawet is de aanbieder verantwoordelijk voor de inhoud van deze website. Verantwoordelijke partij: 2MC Gastro GmbH, vertegenwoordigd door {{director}}, {{address}}."
+        "text": "Volgens de Duitse mediawet is de aanbieder verantwoordelijk voor de inhoud van deze website. Verantwoordelijke partij: 2MC Gastro, vertegenwoordigd door {{director}}, {{address}}."
       },
       "dispute": {
         "p1": "Consumenten hebben de mogelijkheid om klachten in te dienen bij het platform voor onlinegeschillenbeslechting (ODR) van de Europese Commissie:",
@@ -4051,7 +4053,7 @@
         "p2": "De informatie op deze website wordt verstrekt zonder garantie op juistheid of volledigheid. Wij zijn niet aansprakelijk voor schade die voortvloeit uit het gebruik of het niet-gebruik van deze website of de inhoud ervan."
       },
       "copyright": {
-        "text": "De inhoud van deze website is auteursrechtelijk beschermd. Alle inhoud, waaronder teksten, afbeeldingen, logo's en grafische elementen, is eigendom van 2MC Gastro GmbH of de respectieve rechthebbenden en mag zonder uitdrukkelijke toestemming niet worden verveelvoudigd, verspreid of doorgegeven."
+        "text": "De inhoud van deze website is auteursrechtelijk beschermd. Alle inhoud, waaronder teksten, afbeeldingen, logo's en grafische elementen, is eigendom van 2MC Gastro of de respectieve rechthebbenden en mag zonder uitdrukkelijke toestemming niet worden verveelvoudigd, verspreid of doorgegeven."
       },
       "privacy": {
         "textPrefix": "Informatie over de bescherming van uw persoonsgegevens vindt u",

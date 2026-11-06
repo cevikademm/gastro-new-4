@@ -1124,7 +1124,7 @@
     "featureHACCP": "HACCP-konform",
     "featureHACCPDesc": "Europäische Standards",
     "featureHACCPDescLong": "Vollständige Einhaltung europäischer Hygiene- und Sicherheitsstandards",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Professionelle Küchenlösungen",
     "heroTitle": "Gestalten Sie Ihre Küche\nin 3D",
     "heroDesc": "6.300+ Profigeräte, Echtzeit-3D-Ansicht und intelligentes Projektmanagement — die Zukunft der Großküchenplanung.",
@@ -2231,7 +2231,7 @@
       },
       "imprint": "Impressum",
       "contactHeading": "Kontakt",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Alle Rechte vorbehalten.",
+      "copyright": "© {{year}} 2MC Gastro. Alle Rechte vorbehalten.",
       "privacyPolicy": "Datenschutz",
       "cookies": "Cookies"
     },
@@ -2775,7 +2775,7 @@
       "termsB2B": "AGB & B2B Richtlinien",
       "cookies": "Cookies",
       "securePayments": "Sichere Zahlungsarten",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Alle Rechte vorbehalten."
+      "copyright": "© {{year}} 2MC Gastro. Alle Rechte vorbehalten."
     },
     "floatingCta": {
       "positionsInQuote": "{{count}} Positionen im Angebot",
@@ -3647,6 +3647,7 @@
     "servicePlanner": "Passt das Gerät in Ihre Küche? Im 3D-Küchenplaner prüfen."
   },
   "footer": {
+    "owner": "Inhaber: {{name}}",
     "company": "Unternehmen",
     "support": "Service",
     "trust": "Zahlung & Sicherheit",
@@ -3768,6 +3769,7 @@
         "p": "Die Inhalte unserer Seiten wurden mit größter Sorgfalt erstellt; für die Richtigkeit, Vollständigkeit und Aktualität der Inhalte können wir jedoch keine Gewähr übernehmen. Für die Inhalte externer Links ist ausschließlich der jeweilige Anbieter verantwortlich."
       },
       "register": {
+        "owner": "Inhaber: {{name}}",
         "managingDirector": "Geschäftsführer: {{name}}",
         "court": "Registergericht: {{court}}",
         "number": "Handelsregisternummer (HRB): {{number}}"
@@ -3899,7 +3901,7 @@
       "backToTop": "Nach oben",
       "s1": {
         "title": "Geltungsbereich",
-        "p1": "Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für den Verkauf von Produkten und Dienstleistungen der 2MC Gastro GmbH an Geschäftskunden (B2B). Sie bilden die Grundlage sämtlicher Rechtsgeschäfte zwischen dem Anbieter und dem Käufer.",
+        "p1": "Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für den Verkauf von Produkten und Dienstleistungen von 2MC Gastro an Geschäftskunden (B2B). Sie bilden die Grundlage sämtlicher Rechtsgeschäfte zwischen dem Anbieter und dem Käufer.",
         "p2": "Abweichende Bedingungen des Käufers gelten nur, wenn sie vom Anbieter ausdrücklich schriftlich anerkannt wurden."
       },
       "s2": {
@@ -4040,7 +4042,7 @@
         "addressPlaceholder": "Anschrift"
       },
       "responsible": {
-        "text": "Verantwortlich für den Inhalt dieser Website nach deutschem Medienrecht ist der Anbieter. Verantwortliche Stelle: 2MC Gastro GmbH, vertreten durch {{director}}, {{address}}."
+        "text": "Verantwortlich für den Inhalt dieser Website nach deutschem Medienrecht ist der Anbieter. Verantwortliche Stelle: 2MC Gastro, vertreten durch {{director}}, {{address}}."
       },
       "dispute": {
         "p1": "Verbraucher haben die Möglichkeit, Beschwerden an die Online-Streitbeilegungsplattform (OS-Plattform) der Europäischen Kommission zu richten:",
@@ -4051,7 +4053,7 @@
         "p2": "Die auf dieser Website bereitgestellten Informationen erfolgen ohne Gewähr für Richtigkeit oder Vollständigkeit. Für Schäden, die aus der Nutzung oder Nichtnutzung dieser Website oder ihrer Inhalte entstehen, übernehmen wir keine Haftung."
       },
       "copyright": {
-        "text": "Die Inhalte dieser Website sind urheberrechtlich geschützt. Sämtliche Inhalte, einschließlich Texte, Grafiken, Logos und Bilder, sind Eigentum der 2MC Gastro GmbH bzw. der jeweiligen Rechteinhaber und dürfen ohne ausdrückliche Zustimmung nicht vervielfältigt, verbreitet oder übertragen werden."
+        "text": "Die Inhalte dieser Website sind urheberrechtlich geschützt. Sämtliche Inhalte, einschließlich Texte, Grafiken, Logos und Bilder, sind Eigentum von 2MC Gastro bzw. der jeweiligen Rechteinhaber und dürfen ohne ausdrückliche Zustimmung nicht vervielfältigt, verbreitet oder übertragen werden."
       },
       "privacy": {
         "textPrefix": "Informationen zum Schutz Ihrer personenbezogenen Daten finden Sie in",

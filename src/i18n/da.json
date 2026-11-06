@@ -848,7 +848,7 @@
     "featureHACCP": "HACCP-kompatibel",
     "featureHACCPDesc": "Europæiske standarder",
     "featureHACCPDescLong": "Fuld overensstemmelse med europæiske hygiejne- og sikkerhedsstandarder",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Professionelle køkkenløsninger",
     "heroTitle": "Design dit køkken\ni 3D",
     "heroDesc": "6.300+ professionelt udstyr, 3D-visning i realtid og smart projektstyring — fremtiden for professionel køkkendesign.",
@@ -1919,7 +1919,7 @@
       },
       "imprint": "Kolofon",
       "contactHeading": "Kontakt",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Alle rettigheder forbeholdes.",
+      "copyright": "© {{year}} 2MC Gastro. Alle rettigheder forbeholdes.",
       "privacyPolicy": "Privatlivspolitik",
       "cookies": "Cookies"
     },
@@ -2905,6 +2905,7 @@
     "servicePlanner": "Passer apparatet i dit køkken? Tjek i 3D-køkkenplanlæggeren."
   },
   "footer": {
+    "owner": "Indehaver: {{name}}",
     "company": "Virksomhed",
     "support": "Support",
     "trust": "Betaling & tryghed",

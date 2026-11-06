@@ -640,7 +640,7 @@ export async function staticModel(route: SeoRoute): Promise<PageModel> {
   const body = page(L,
     breadcrumbNav(L, crumbs) +
     `<h1>${esc(sp.title.split(' – ')[0])}</h1><p>${esc(sp.description)}</p>` +
-    (route.params.slug === 'impressum' ? `<section><h2>Anbieter</h2><p>${esc(COMPANY_INFO.legalName)}<br>${esc(COMPANY_INFO.street)}<br>${esc(COMPANY_INFO.zipCity)}, Deutschland<br>Telefon: ${esc(COMPANY_INFO.phoneDisplay)}<br>E-Mail: ${esc(COMPANY_INFO.email)}<br>USt-IdNr.: ${esc(COMPANY_INFO.vat)}${COMPANY_INFO.register.number ? `<br>Handelsregister: ${esc(COMPANY_INFO.register.number)}, ${esc(COMPANY_INFO.register.court)}` : ''}${COMPANY_INFO.register.managingDirector ? `<br>Geschäftsführer: ${esc(COMPANY_INFO.register.managingDirector)}` : ''}</p></section>` : ''),
+    (route.params.slug === 'impressum' ? `<section><h2>Anbieter</h2><p>${esc(COMPANY_INFO.legalName)}<br>Inhaber: ${esc(COMPANY_INFO.owner)}<br>${esc(COMPANY_INFO.street)}<br>${esc(COMPANY_INFO.zipCity)}, Deutschland<br>Telefon: ${esc(COMPANY_INFO.phoneDisplay)}<br>E-Mail: ${esc(COMPANY_INFO.email)}<br>USt-IdNr.: ${esc(COMPANY_INFO.vat)}${COMPANY_INFO.register.number ? `<br>Handelsregister: ${esc(COMPANY_INFO.register.number)}, ${esc(COMPANY_INFO.register.court)}` : ''}${COMPANY_INFO.register.managingDirector ? `<br>Geschäftsführer: ${esc(COMPANY_INFO.register.managingDirector)}` : ''}</p></section>` : ''),
   );
   return makeModel(route, {
     title: sp.title,

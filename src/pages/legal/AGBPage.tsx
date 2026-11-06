@@ -22,7 +22,7 @@ export default function AGBPage() {
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
           <p>
-            Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für den Verkauf von Produkten und Dienstleistungen durch 2MC Gastro GmbH
+            Diese Allgemeinen Geschäftsbedingungen (AGB) gelten für den Verkauf von Produkten und Dienstleistungen durch 2MC Gastro
             an Geschäftskunden (B2B). Diese AGB sind Grundlage für alle Rechtsgeschäfte zwischen dem Anbieter und dem Käufer.
           </p>
           <p>
@@ -205,7 +205,7 @@ export default function AGBPage() {
       content: (
         <div className="space-y-3 text-sm text-on-surface-variant">
           <p>
-            These General Terms and Conditions (GTC) apply to the sale of products and services by 2MC Gastro GmbH
+            These General Terms and Conditions (GTC) apply to the sale of products and services by 2MC Gastro
             to business customers (B2B). These GTC form the basis for all legal transactions between the provider and the buyer.
           </p>
           <p>

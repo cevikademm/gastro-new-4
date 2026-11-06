@@ -81,7 +81,7 @@ export function createBankTransferPayment(order: Order): BankTransferDetails {
   return {
     orderId: order.id,
     bankName: '2MC Gastro Bank',
-    accountHolder: '2MC Gastro GmbH',
+    accountHolder: 'Metehan Cevik',
     iban: 'DE89 3704 0044 0532 0130 00',
     bic: 'COBADEFF',
     amount: order.total_price,

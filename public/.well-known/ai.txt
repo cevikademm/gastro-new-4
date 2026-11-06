@@ -4,7 +4,7 @@
 
 Site-Name: 2MC Gastro
 Site-URL: https://www.2mcgastro.de
-Organization: 2MC Gastro GmbH
+Organization: 2MC Gastro
 Contact: info@2mcgastro.de
 Phone: +4917670295844
 Address: Bergisch Gladbacher Str. 172, 51063 Köln, Deutschland

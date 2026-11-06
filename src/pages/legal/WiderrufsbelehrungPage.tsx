@@ -93,7 +93,7 @@ export default function WiderrufsbelehrungPage() {
           </p>
           <p>
             <strong>Rückgabeadresse:</strong> Bitte senden Sie die Waren an:<br />
-            2MC Gastro GmbH<br />
+            2MC Gastro<br />
             Retouren<br />
             [Straße und Hausnummer]<br />
             [PLZ Stadt]<br />
@@ -110,7 +110,7 @@ export default function WiderrufsbelehrungPage() {
           </p>
           <p>
             <strong>Return Address:</strong> Please send the goods to:<br />
-            2MC Gastro GmbH<br />
+            2MC Gastro<br />
             Returns<br />
             [Street and House Number]<br />
             [Postal Code City]<br />
@@ -127,7 +127,7 @@ export default function WiderrufsbelehrungPage() {
           </p>
           <p>
             <strong>{t('legal.widerruf.consequences.addressLabel')}</strong> {t('legal.widerruf.consequences.addressIntro')}<br />
-            2MC Gastro GmbH<br />
+            2MC Gastro<br />
             {t('legal.widerruf.consequences.addressReturns')}<br />
             [Cadde ve Ev Numarası]<br />
             [Posta Kodu Şehir]<br />

@@ -20,7 +20,7 @@ export default function ImpressumPage() {
       title: isGerman ? 'Angaben zum Unternehmen' : 'Company Information',
       content: isGerman ? (
         <div className="space-y-2 text-sm text-on-surface-variant">
-          <p><strong>Firmenname:</strong> 2MC Gastro GmbH</p>
+          <p><strong>Firmenname:</strong> 2MC Gastro</p>
           <p><strong>Geschäftsführer:</strong> [Name Geschäftsführer]</p>
           <p><strong>Adresse:</strong><br />[Straße und Hausnummer]<br />[PLZ Stadt]<br />Deutschland</p>
           <p><strong>Handelsregister:</strong> HRB XXXXX, Amtsgericht [Stadt]</p>
@@ -30,7 +30,7 @@ export default function ImpressumPage() {
         </div>
       ) : i18n.language === 'en' ? (
         <div className="space-y-2 text-sm text-on-surface-variant">
-          <p><strong>Company Name:</strong> 2MC Gastro GmbH</p>
+          <p><strong>Company Name:</strong> 2MC Gastro</p>
           <p><strong>Managing Director:</strong> [Managing Director Name]</p>
           <p><strong>Address:</strong><br />[Street and House Number]<br />[Postal Code City]<br />Germany</p>
           <p><strong>Trade Register:</strong> HRB XXXXX, District Court [City]</p>
@@ -40,7 +40,7 @@ export default function ImpressumPage() {
         </div>
       ) : (
         <div className="space-y-2 text-sm text-on-surface-variant">
-          <p><strong>{t('legal.impressum.company.nameLabel')}</strong> 2MC Gastro GmbH</p>
+          <p><strong>{t('legal.impressum.company.nameLabel')}</strong> 2MC Gastro</p>
           <p><strong>{t('legal.impressum.company.directorLabel')}</strong> [{t('legal.impressum.company.directorPlaceholder')}]</p>
           <p><strong>{t('legal.impressum.company.addressLabel')}</strong><br />[{t('legal.impressum.company.addressStreetPlaceholder')}]<br />[{t('legal.impressum.company.addressZipPlaceholder')}]<br />{t('legal.impressum.company.addressCountry')}</p>
           <p><strong>{t('legal.impressum.company.registerLabel')}</strong> HRB XXXXX, {t('legal.impressum.company.registerCourt')} [{t('legal.impressum.company.registerCityPlaceholder')}]</p>
@@ -56,12 +56,12 @@ export default function ImpressumPage() {
       content: isGerman ? (
         <p className="text-sm text-on-surface-variant">
           Gemäß § 18 Abs. 2 MStV ist der Anbieter für den Inhalt dieser Website nach deutschem Medienrecht verantwortlich.
-          Verantwortliche Stelle: 2MC Gastro GmbH, vertreten durch [Name Geschäftsführer], [Adresse].
+          Verantwortliche Stelle: 2MC Gastro, vertreten durch [Name Geschäftsführer], [Adresse].
         </p>
       ) : i18n.language === 'en' ? (
         <p className="text-sm text-on-surface-variant">
           According to § 18 Abs. 2 MStV, the provider is responsible for the content of this website according to German media law.
-          Responsible party: 2MC Gastro GmbH, represented by [Managing Director Name], [Address].
+          Responsible party: 2MC Gastro, represented by [Managing Director Name], [Address].
         </p>
       ) : (
         <p className="text-sm text-on-surface-variant">
@@ -130,13 +130,13 @@ export default function ImpressumPage() {
       content: isGerman ? (
         <p className="text-sm text-on-surface-variant">
           Der Inhalt dieser Website ist urheberrechtlich geschützt. Alle Inhalte, einschließlich Text, Grafiken, Logos und Bilder,
-          sind das Eigentum von 2MC Gastro GmbH oder der jeweiligen Eigentümer und dürfen ohne ausdrückliche Genehmigung
+          sind das Eigentum von 2MC Gastro oder der jeweiligen Eigentümer und dürfen ohne ausdrückliche Genehmigung
           nicht reproduziert, verteilt oder übertragen werden.
         </p>
       ) : i18n.language === 'en' ? (
         <p className="text-sm text-on-surface-variant">
           The content on this website is protected by copyright. All content, including text, graphics, logos, and images,
-          is owned by 2MC Gastro GmbH or the respective owners and may not be reproduced, distributed, or transmitted
+          is owned by 2MC Gastro or the respective owners and may not be reproduced, distributed, or transmitted
           without express permission.
         </p>
       ) : (

@@ -17,9 +17,9 @@ export const STATIC_PAGES: Record<string, { info: string; title: string; descrip
   'karriere':         { info: 'careers',      title: 'Karriere bei 2MC Gastro', description: 'Initiativbewerbungen in Vertrieb, Projektplanung, Logistik und Software sind jederzeit willkommen.' },
   'versand':          { info: 'shipping',     title: 'Versand & Lieferung – Paket, Spedition, Lieferzeiten', description: 'Paketversand mit DHL/UPS/DPD, Großgeräte per Spedition frei Bordsteinkante, auf Wunsch Vertragen und Montage. Lieferzeiten und Versandkosten im Überblick.' },
   'newsletter':       { info: 'newsletter',   title: 'Newsletter – Neue Produkte & Aktionen', description: 'Neue Produkte, Aktionen und Branchentrends einmal im Monat per E-Mail. Jederzeit abbestellbar.' },
-  'impressum':        { info: 'imprint',      title: 'Impressum – 2MC Gastro GmbH', description: 'Anbieterkennzeichnung gemäß § 5 TMG: 2MC Gastro GmbH, Bergisch Gladbacher Str. 172, 51063 Köln.' },
+  'impressum':        { info: 'imprint',      title: 'Impressum – 2MC Gastro', description: 'Anbieterkennzeichnung gemäß § 5 TMG: 2MC Gastro, Bergisch Gladbacher Str. 172, 51063 Köln.' },
   'datenschutz':      { info: 'privacy',      title: 'Datenschutzerklärung', description: 'Informationen zur Verarbeitung personenbezogener Daten auf www.2mcgastro.de gemäß DSGVO.' },
-  'agb':              { info: 'terms',        title: 'Allgemeine Geschäftsbedingungen (AGB)', description: 'AGB der 2MC Gastro GmbH für Lieferungen und Leistungen an gewerbliche Kunden.' },
+  'agb':              { info: 'terms',        title: 'Allgemeine Geschäftsbedingungen (AGB)', description: 'AGB von 2MC Gastro für Lieferungen und Leistungen an gewerbliche Kunden.' },
   'widerruf':         { info: 'cancellation', title: 'Widerrufsbelehrung', description: 'Widerrufsrecht und Widerrufsformular für Verbraucher.' },
   'cookie-richtlinie':{ info: 'cookies',      title: 'Cookie-Richtlinie', description: 'Welche Cookies www.2mcgastro.de einsetzt und wie Sie Ihre Einwilligung verwalten.' },
 };

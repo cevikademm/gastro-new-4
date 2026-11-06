@@ -41,7 +41,7 @@ export default function WithdrawalButton({ order }: WithdrawalButtonProps) {
 WIDERRUFSFORMULAR / WITHDRAWAL FORM
 
 Empfänger / Recipient:
-2MC Werbung & Gastro GmbH
+2MC Werbung & Gastro
 Musterstraße 12
 10115 Berlin, Deutschland
 info@2mcgastro.de
@@ -204,7 +204,7 @@ Notes on right of withdrawal:
             {/* Contact Info */}
             <div className="text-xs text-on-surface-variant border-t border-outline-variant/20 pt-4">
               <p className="font-bold mb-2">{t('withdrawal.contactInfo', 'Kontakt für Widerruf:')}</p>
-              <p>2MC Werbung & Gastro GmbH</p>
+              <p>2MC Werbung & Gastro</p>
               <p>Musterstraße 12, 10115 Berlin</p>
               <p>E-Mail: info@2mcgastro.de</p>
               <p>Telefon: +49 30 1234 5678</p>

@@ -995,7 +995,7 @@
     "featureHACCP": "HACCP-kompatibel",
     "featureHACCPDesc": "Europeiska standarder",
     "featureHACCPDescLong": "Full efterlevnad av europeiska hygien- och säkerhetsstandarder",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Professionella kökslösningar",
     "heroTitle": "Designa ditt kök\ni 3D",
     "heroDesc": "6 300+ professionell utrustning, 3D-visning i realtid och smart projekthantering — framtiden för kommersiell köksdesign.",
@@ -2066,7 +2066,7 @@
       },
       "imprint": "Ansvarig utgivare",
       "contactHeading": "Kontakt",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Alla rättigheter förbehållna.",
+      "copyright": "© {{year}} 2MC Gastro. Alla rättigheter förbehållna.",
       "privacyPolicy": "Integritetspolicy",
       "cookies": "Cookies"
     },
@@ -3052,6 +3052,7 @@
     "servicePlanner": "Får apparaten plats i ditt kök? Kontrollera i 3D-köksplaneraren."
   },
   "footer": {
+    "owner": "Ägare: {{name}}",
     "company": "Företag",
     "support": "Support",
     "trust": "Betalning & trygghet",

@@ -1124,7 +1124,7 @@
     "featureHACCP": "Conforme HACCP",
     "featureHACCPDesc": "Estándares europeos",
     "featureHACCPDescLong": "Cumplimiento total de las normas europeas de higiene y seguridad",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Soluciones profesionales de cocina",
     "heroTitle": "Diseñe su cocina\nen 3D",
     "heroDesc": "6.300+ equipos profesionales, visualización 3D en tiempo real y gestión inteligente de proyectos — el futuro del diseño de cocinas profesionales.",
@@ -2231,7 +2231,7 @@
       },
       "imprint": "Aviso legal",
       "contactHeading": "Contacto",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Todos los derechos reservados.",
+      "copyright": "© {{year}} 2MC Gastro. Todos los derechos reservados.",
       "privacyPolicy": "Política de privacidad",
       "cookies": "Cookies"
     },
@@ -2775,7 +2775,7 @@
       "termsB2B": "Condiciones y directrices B2B",
       "cookies": "Cookies",
       "securePayments": "Métodos de pago seguros",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Todos los derechos reservados."
+      "copyright": "© {{year}} 2MC Gastro. Todos los derechos reservados."
     },
     "floatingCta": {
       "positionsInQuote": "{{count}} posiciones en la oferta",
@@ -3620,6 +3620,7 @@
     "servicePlanner": "¿Cabe el equipo en su cocina? Compruébelo en el planificador 3D."
   },
   "footer": {
+    "owner": "Titular: {{name}}",
     "company": "Empresa",
     "support": "Servicio",
     "trust": "Pago y confianza",
@@ -3768,6 +3769,7 @@
         "p": "El contenido de nuestras páginas se ha elaborado con el máximo cuidado; no obstante, no podemos asumir responsabilidad por la exactitud, integridad y actualidad de los contenidos. De los contenidos de los enlaces externos responde exclusivamente el respectivo proveedor."
       },
       "register": {
+        "owner": "Titular: {{name}}",
         "managingDirector": "Administrador (Geschäftsführer): {{name}}",
         "court": "Registro mercantil (Registergericht): {{court}}",
         "number": "N.º de registro mercantil (HRB): {{number}}"
@@ -3899,7 +3901,7 @@
       "backToTop": "Volver arriba",
       "s1": {
         "title": "Ámbito de aplicación",
-        "p1": "Las presentes Condiciones Generales de Contratación (CGC) se aplican a la venta de productos y servicios por parte de 2MC Gastro GmbH a clientes profesionales (B2B). Estas CGC constituyen la base de todas las relaciones jurídicas entre el prestador y el comprador.",
+        "p1": "Las presentes Condiciones Generales de Contratación (CGC) se aplican a la venta de productos y servicios por parte de 2MC Gastro a clientes profesionales (B2B). Estas CGC constituyen la base de todas las relaciones jurídicas entre el prestador y el comprador.",
         "p2": "Las condiciones divergentes del comprador solo resultarán aplicables si son aceptadas expresamente por escrito por el prestador."
       },
       "s2": {
@@ -4040,7 +4042,7 @@
         "addressPlaceholder": "Dirección"
       },
       "responsible": {
-        "text": "De acuerdo con la Ley alemana de medios de comunicación, el proveedor es responsable del contenido de este sitio web. Responsable: 2MC Gastro GmbH, representada por {{director}}, {{address}}."
+        "text": "De acuerdo con la Ley alemana de medios de comunicación, el proveedor es responsable del contenido de este sitio web. Responsable: 2MC Gastro, representada por {{director}}, {{address}}."
       },
       "dispute": {
         "p1": "Los consumidores tienen la posibilidad de presentar reclamaciones ante la plataforma de Resolución de Litigios en Línea (RLL) de la Comisión Europea:",
@@ -4051,7 +4053,7 @@
         "p2": "La información facilitada en este sitio web se ofrece sin garantía de exactitud ni de integridad. No asumimos responsabilidad alguna por los daños derivados del uso o de la falta de uso de este sitio web o de su contenido."
       },
       "copyright": {
-        "text": "El contenido de este sitio web está protegido por derechos de autor. Todos los contenidos, incluidos textos, gráficos, logotipos e imágenes, son propiedad de 2MC Gastro GmbH o de sus respectivos titulares y no pueden reproducirse, distribuirse ni transmitirse sin autorización expresa."
+        "text": "El contenido de este sitio web está protegido por derechos de autor. Todos los contenidos, incluidos textos, gráficos, logotipos e imágenes, son propiedad de 2MC Gastro o de sus respectivos titulares y no pueden reproducirse, distribuirse ni transmitirse sin autorización expresa."
       },
       "privacy": {
         "textPrefix": "Encontrará información sobre la protección de sus datos personales en",

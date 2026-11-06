@@ -995,7 +995,7 @@
     "featureHACCP": "Conform HACCP",
     "featureHACCPDesc": "Standarde europene",
     "featureHACCPDescLong": "Conformitate totală cu normele europene de igienă și siguranță",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Soluții profesionale pentru bucătării",
     "heroTitle": "Proiectați-vă bucătăria\nîn 3D",
     "heroDesc": "6.300+ echipamente profesionale, vizualizare 3D în timp real și gestionare inteligentă a proiectelor — viitorul proiectării bucătăriilor profesionale.",
@@ -2066,7 +2066,7 @@
       },
       "imprint": "Note legale",
       "contactHeading": "Contact",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Toate drepturile rezervate.",
+      "copyright": "© {{year}} 2MC Gastro. Toate drepturile rezervate.",
       "privacyPolicy": "Politica de confidențialitate",
       "cookies": "Cookie-uri"
     },
@@ -3052,6 +3052,7 @@
     "servicePlanner": "Încape echipamentul în bucătăria dvs.? Verificați în planificatorul 3D."
   },
   "footer": {
+    "owner": "Proprietar: {{name}}",
     "company": "Companie",
     "support": "Asistență",
     "trust": "Plată și încredere",

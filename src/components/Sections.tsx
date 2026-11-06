@@ -211,7 +211,7 @@ export function Footer() {
         </div>
 
         <div className="border-t border-white/15 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
-          <p className="text-[10px] text-white/50 uppercase tracking-widest">{t('landing.footer.copyright', '© {{year}} 2MC Gastro GmbH. Tüm hakları saklıdır.', { year: new Date().getFullYear() })}</p>
+          <p className="text-[10px] text-white/50 uppercase tracking-widest">{t('landing.footer.copyright', '© {{year}} 2MC Gastro. Tüm hakları saklıdır.', { year: new Date().getFullYear() })}</p>
           <div className="flex gap-8 text-[10px] text-white/50 uppercase tracking-widest">
             <a href="#" className="hover:text-brand-red transition-colors">{t('landing.footer.privacyPolicy', 'Gizlilik Politikası')}</a>
             <a href="#" className="hover:text-brand-red transition-colors">{t('landing.footer.cookies', 'Çerezler')}</a>

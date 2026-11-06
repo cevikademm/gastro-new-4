@@ -995,7 +995,7 @@
     "featureHACCP": "Συμμόρφωση HACCP",
     "featureHACCPDesc": "Ευρωπαϊκά πρότυπα",
     "featureHACCPDescLong": "Πλήρης συμμόρφωση με τα ευρωπαϊκά πρότυπα υγιεινής και ασφάλειας",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Επαγγελματικές λύσεις κουζίνας",
     "heroTitle": "Σχεδιάστε την κουζίνα σας\nσε 3D",
     "heroDesc": "6.300+ επαγγελματικός εξοπλισμός, προβολή 3D σε πραγματικό χρόνο και έξυπνη διαχείριση έργων — το μέλλον του σχεδιασμού επαγγελματικών κουζινών.",
@@ -2066,7 +2066,7 @@
       },
       "imprint": "Ταυτότητα",
       "contactHeading": "Επικοινωνία",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Με επιφύλαξη παντός δικαιώματος.",
+      "copyright": "© {{year}} 2MC Gastro. Με επιφύλαξη παντός δικαιώματος.",
       "privacyPolicy": "Πολιτική απορρήτου",
       "cookies": "Cookies"
     },
@@ -3052,6 +3052,7 @@
     "servicePlanner": "Χωράει η συσκευή στην κουζίνα σας; Ελέγξτε στον 3D σχεδιαστή."
   },
   "footer": {
+    "owner": "Ιδιοκτήτης: {{name}}",
     "company": "Εταιρεία",
     "support": "Υποστήριξη",
     "trust": "Πληρωμή & ασφάλεια",

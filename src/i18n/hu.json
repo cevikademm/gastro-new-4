@@ -848,7 +848,7 @@
     "featureHACCP": "HACCP megfelelő",
     "featureHACCPDesc": "Európai szabványok",
     "featureHACCPDescLong": "Teljes megfelelés az európai higiéniai és biztonsági szabványoknak",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Professzionális konyhamegoldások",
     "heroTitle": "Tervezze meg konyháját\n3D-ben",
     "heroDesc": "6 300+ professzionális berendezés, valós idejű 3D megjelenítés és okos projektkezelés — az ipari konyhatervezés jövője.",
@@ -1919,7 +1919,7 @@
       },
       "imprint": "Impresszum",
       "contactHeading": "Kapcsolat",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Minden jog fenntartva.",
+      "copyright": "© {{year}} 2MC Gastro. Minden jog fenntartva.",
       "privacyPolicy": "Adatvédelmi irányelvek",
       "cookies": "Sütik"
     },
@@ -2905,6 +2905,7 @@
     "servicePlanner": "Elfér a készülék a konyhájában? Ellenőrizze a 3D konyhatervezőben."
   },
   "footer": {
+    "owner": "Tulajdonos: {{name}}",
     "company": "Cég",
     "support": "Ügyfélszolgálat",
     "trust": "Fizetés és biztonság",

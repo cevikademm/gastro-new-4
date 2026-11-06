@@ -145,7 +145,7 @@ bildirene e-posta gider.
   kısımlar build'de `dist/`e yazılır. `public/sitemap.xml` **artık yok** (gitignore).
 - Yönlendirmeler: `vercel.json` `redirects` (eski TR yollar → DE) — yeni bir eski yol
   eklerken oraya da ekle; `cleanUrls:true, trailingSlash:false`.
-- NAP tek kaynak `src/lib/companyInfo.ts` (2MC Gastro GmbH, info@2mcgastro.de);
+- NAP tek kaynak `src/lib/companyInfo.ts` (2MC Gastro, info@2mcgastro.de);
   `seo.ts` oradan okur. **Sahte aggregateRating yasak** — yalnız gerçek yorum sayısı varsa.
 - Ürün detay tek bileşen kuralı korunur: `ProductDetailBody`/`ProductDetailActions`
   (`ProductDetailDrawer.tsx`) hem drawer hem `/produkt` sayfasında.

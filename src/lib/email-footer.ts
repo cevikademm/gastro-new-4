@@ -25,7 +25,7 @@ export interface CompanyDetails {
 
 const DEFAULT_COMPANY: CompanyDetails = {
   name: '2MC Gastro',
-  legalForm: 'GmbH',
+  legalForm: '',
   address: 'Beispielstraße 123',
   city: 'Berlin',
   zipCode: '10115',

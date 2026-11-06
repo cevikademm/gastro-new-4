@@ -995,7 +995,7 @@
     "featureHACCP": "Shoda HACCP",
     "featureHACCPDesc": "Evropské standardy",
     "featureHACCPDescLong": "Plná shoda s evropskými hygienickými a bezpečnostními normami",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Profesionální kuchyňská řešení",
     "heroTitle": "Navrhněte svou kuchyni\nv 3D",
     "heroDesc": "6 300+ profesionálního vybavení, 3D náhled v reálném čase a chytrá správa projektů — budoucnost návrhu profesionálních kuchyní.",
@@ -2066,7 +2066,7 @@
       },
       "imprint": "Tiráž",
       "contactHeading": "Kontakt",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Všechna práva vyhrazena.",
+      "copyright": "© {{year}} 2MC Gastro. Všechna práva vyhrazena.",
       "privacyPolicy": "Zásady ochrany osobních údajů",
       "cookies": "Cookies"
     },
@@ -3052,6 +3052,7 @@
     "servicePlanner": "Vejde se zařízení do vaší kuchyně? Ověřte v 3D plánovači."
   },
   "footer": {
+    "owner": "Majitel: {{name}}",
     "company": "Společnost",
     "support": "Podpora",
     "trust": "Platba a důvěra",

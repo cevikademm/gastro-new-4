@@ -6,15 +6,17 @@
  * ve sunucu tarafı HTML üretici (src/seo). Elle kopyalama YOK — Google yerel
  * SEO'da ad/adres/telefon tutarsızlığını cezalandırır.
  *
- * Yasal kimlik (karar 2026-09-06): **2MC Gastro GmbH**. Sicil bilgileri
- * (HRB no, Amtsgericht, Geschäftsführer) Adem'den gelince `register` doldurulur;
- * boş kaldığı sürece Impressum bu satırları göstermez.
+ * Yasal kimlik (karar 2026-11-06): GmbH DEĞİL — sitede "2MC Gastro" yazılır,
+ * altında Inhaber: Metehan Çevik. Sicil bilgileri (HRB, Amtsgericht) boş kaldığı
+ * sürece Impressum bu satırları göstermez.
  */
 export const COMPANY_INFO = {
   /** PDF başlığı/altbilgisinde ve sitede görünen marka adı. */
   name: '2MC Gastro',
   /** Yasal unvan (Impressum, AGB, Organization.legalName). */
-  legalName: '2MC Gastro GmbH',
+  legalName: '2MC Gastro',
+  /** İşletme sahibi (Inhaber) — footer, Impressum, SEO adres bloğu. */
+  owner: 'Metehan Çevik',
   street: 'Bergisch Gladbacher Str. 172',
   zip: '51063',
   city: 'Köln',
@@ -37,10 +39,9 @@ export const COMPANY_INFO = {
   taxNumber: '217/5338/1052',
   /** Ticaret sicili — Adem'den gelince doldurulacak (boş = Impressum'da gösterilmez). */
   register: {
-    court: 'Amtsgericht Köln',
-    /** HRB numarası — GmbH yeni kuruldu, numara Adem'den gelince doldurulacak (2026-09-06). */
+    court: '',
     number: '',     // örn. 'HRB 123456'
-    managingDirector: 'Metehan Çevik',
+    managingDirector: '',
   },
   geo: { lat: 50.9648, lng: 7.0273 },
   /** Google/Schema açılış saatleri. */
@@ -50,7 +51,7 @@ export const COMPANY_INFO = {
   /** YALNIZ 2MC Gastro'ya ait profiller (kardeş marka 2MC Werbung hesapları buraya YAZILMAZ). */
   sameAs: [] as string[],
   bank: {
-    holder: '2MC Gastro GmbH',
+    holder: 'Metehan Cevik',
     name: 'TARGOBANK',
     iban: 'DE96 3002 0900 5300 8138 98',
     bic: 'CMCIDEDDXXX',

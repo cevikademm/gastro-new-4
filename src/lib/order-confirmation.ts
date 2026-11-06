@@ -25,7 +25,7 @@ export interface CompanyInfo {
 }
 
 const DEFAULT_COMPANY_INFO: CompanyInfo = {
-  name: '2MC Gastro GmbH',
+  name: '2MC Gastro',
   address: 'Beispielstraße 123',
   city: 'Berlin',
   zipCode: '10115',

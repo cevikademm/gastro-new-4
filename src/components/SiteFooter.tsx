@@ -178,6 +178,7 @@ export default function SiteFooter() {
             </p>
             <address className="not-italic text-[13px] text-[var(--c-muted)] leading-relaxed">
               <strong className="text-[var(--c-ink)]">{COMPANY_INFO.legalName}</strong><br />
+              {t('footer.owner', 'Inhaber: {{name}}', { name: COMPANY_INFO.owner })}<br />
               {COMPANY_INFO.street}<br />
               {COMPANY_INFO.zipCity}, Deutschland
             </address>

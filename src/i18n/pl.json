@@ -995,7 +995,7 @@
     "featureHACCP": "Zgodność z HACCP",
     "featureHACCPDesc": "Standardy europejskie",
     "featureHACCPDescLong": "Pełna zgodność z europejskimi normami higieny i bezpieczeństwa",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Profesjonalne rozwiązania kuchenne",
     "heroTitle": "Zaprojektuj swoją kuchnię\nw 3D",
     "heroDesc": "6300+ profesjonalnego sprzętu, podgląd 3D w czasie rzeczywistym i inteligentne zarządzanie projektami — przyszłość projektowania kuchni profesjonalnych.",
@@ -2066,7 +2066,7 @@
       },
       "imprint": "Nota prawna",
       "contactHeading": "Kontakt",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Wszelkie prawa zastrzeżone.",
+      "copyright": "© {{year}} 2MC Gastro. Wszelkie prawa zastrzeżone.",
       "privacyPolicy": "Polityka prywatności",
       "cookies": "Pliki cookie"
     },
@@ -3052,6 +3052,7 @@
     "servicePlanner": "Czy urządzenie zmieści się w Twojej kuchni? Sprawdź w planerze 3D."
   },
   "footer": {
+    "owner": "Właściciel: {{name}}",
     "company": "Firma",
     "support": "Wsparcie",
     "trust": "Płatność i zaufanie",

@@ -1124,7 +1124,7 @@
     "featureHACCP": "HACCP Uyumlu",
     "featureHACCPDesc": "Avrupa standartları",
     "featureHACCPDescLong": "Avrupa hijyen ve güvenlik standartlarına tam uyum",
-    "copyright": "© 2024 2MC Werbung & Gastro GmbH · Made in Germany",
+    "copyright": "© 2024 2MC Werbung & Gastro · Made in Germany",
     "tagline": "Profesyonel Mutfak Çözümleri",
     "heroTitle": "Mutfağınızı\n3D Olarak Tasarlayın",
     "heroDesc": "6.300+ profesyonel ekipman, gerçek zamanlı 3D görüntüleme ve akıllı proje yönetimi ile endüstriyel mutfak tasarımının geleceği.",
@@ -2231,7 +2231,7 @@
       },
       "imprint": "Künye",
       "contactHeading": "İletişim",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Tüm hakları saklıdır.",
+      "copyright": "© {{year}} 2MC Gastro. Tüm hakları saklıdır.",
       "privacyPolicy": "Gizlilik Politikası",
       "cookies": "Çerezler"
     },
@@ -2775,7 +2775,7 @@
       "termsB2B": "AGB & B2B Koşulları",
       "cookies": "Çerezler",
       "securePayments": "Güvenli ödeme yöntemleri",
-      "copyright": "© {{year}} 2MC Gastro GmbH. Tüm hakları saklıdır."
+      "copyright": "© {{year}} 2MC Gastro. Tüm hakları saklıdır."
     },
     "floatingCta": {
       "positionsInQuote": "Teklifte {{count}} kalem",
@@ -3647,6 +3647,7 @@
     "servicePlanner": "Cihaz mutfağınıza sığıyor mu? 3D mutfak planlayıcıda kontrol edin."
   },
   "footer": {
+    "owner": "Sahibi: {{name}}",
     "company": "Kurumsal",
     "support": "Destek",
     "trust": "Ödeme & Güven",
@@ -3768,6 +3769,7 @@
         "p": "Sayfalarımızın içeriği büyük özenle hazırlanmıştır; ancak içeriklerin doğruluğu, eksiksizliği ve güncelliği için sorumluluk kabul edemeyiz. Dış bağlantıların içeriğinden yalnızca ilgili sağlayıcı sorumludur."
       },
       "register": {
+        "owner": "Sahibi: {{name}}",
         "managingDirector": "Şirket müdürü (Geschäftsführer): {{name}}",
         "court": "Sicil mahkemesi (Registergericht): {{court}}",
         "number": "Ticaret sicil no. (HRB): {{number}}"
@@ -3899,7 +3901,7 @@
       "backToTop": "Üste git",
       "s1": {
         "title": "Kapsam",
-        "p1": "Bu Genel Ticari Şartlar (GTS), 2MC Gastro GmbH tarafından ticari müşterilere (B2B) ürün ve hizmetlerin satışı için geçerlidir. Bu GTS, sağlayıcı ve alıcı arasındaki tüm yasal işlemlerin temelini oluşturur.",
+        "p1": "Bu Genel Ticari Şartlar (GTS), 2MC Gastro tarafından ticari müşterilere (B2B) ürün ve hizmetlerin satışı için geçerlidir. Bu GTS, sağlayıcı ve alıcı arasındaki tüm yasal işlemlerin temelini oluşturur.",
         "p2": "Alıcının farklı şartları ancak sağlayıcı tarafından açıkça yazılı olarak kabul edilmişse geçerlidir."
       },
       "s2": {
@@ -4040,7 +4042,7 @@
         "addressPlaceholder": "Adres"
       },
       "responsible": {
-        "text": "Alman medya yasasına göre, sağlayıcı bu web sitesinin içeriğinden sorumludur. Sorumlu taraf: 2MC Gastro GmbH, {{director}} tarafından temsil edilen, {{address}}."
+        "text": "Alman medya yasasına göre, sağlayıcı bu web sitesinin içeriğinden sorumludur. Sorumlu taraf: 2MC Gastro, {{director}} tarafından temsil edilen, {{address}}."
       },
       "dispute": {
         "p1": "Tüketiciler, Avrupa Komisyonu'nun Çevrimiçi Uyuşmazlık Çözüm (ODR) platformuna şikayetler sunma fırsatına sahiptir:",
@@ -4051,7 +4053,7 @@
         "p2": "Bu web sitesinde sağlanan bilgiler doğruluk veya tamlık garantisi olmaksızın sağlanır. Bu web sitesinin veya içeriğinin kullanılması veya kullanılmamasından kaynaklanan hasarlardan sorumlu değiliz."
       },
       "copyright": {
-        "text": "Bu web sitesinin içeriği telif hakkı tarafından korunmaktadır. Metin, grafikler, logolar ve resimler de dahil olmak üzere tüm içerik, 2MC Gastro GmbH'nin veya ilgili sahiplerinin mülkiyetindedir ve açık izin olmaksızın çoğaltılamaz, dağıtılamaz veya iletilemez."
+        "text": "Bu web sitesinin içeriği telif hakkı tarafından korunmaktadır. Metin, grafikler, logolar ve resimler de dahil olmak üzere tüm içerik, 2MC Gastro'nun veya ilgili sahiplerinin mülkiyetindedir ve açık izin olmaksızın çoğaltılamaz, dağıtılamaz veya iletilemez."
       },
       "privacy": {
         "textPrefix": "Kişisel verilerinizin korunması hakkında bilgiler,",
