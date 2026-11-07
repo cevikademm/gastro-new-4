@@ -14,7 +14,7 @@ import { CartDrawer } from './CartDrawer';
 import {
   Bell, Settings, LayoutDashboard, Ruler, Refrigerator, Home, Search,
   SlidersHorizontal, HelpCircle, BookOpen, PlusCircle,
-  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Box, Boxes, Package, Palette, Shield, Users, FileText, Bug, Sparkles
+  Menu, X, LogOut, LogIn, User, Globe, CreditCard, FolderOpen, ShoppingCart, Pencil, Box, Boxes, Package, Palette, Shield, Users, FileText, Bug, Sparkles, RefreshCw
 } from 'lucide-react';
 // NOTE: "Manuel çizim" (legacy DesignStudio manualMode) kaldırıldı — kat planı artık 3D Design bölümünde.
 
@@ -23,6 +23,7 @@ const ADMIN_ITEMS = [
   { path: '/admin/users',  labelKey: 'nav.adminUsers',  fallback: 'Kullanıcılar', icon: Users, id: 'admin-users' },
   { path: '/admin/customer-finder', labelKey: 'nav.customerFinder', fallback: 'Müşteri Bulma', icon: Search, id: 'admin-customer-finder' },
   { path: '/admin/error-reports', labelKey: 'nav.errorReports', fallback: 'Hata Bildirimleri', icon: Bug, id: 'admin-error-reports' },
+  { path: '/admin/diamond-sync', labelKey: 'nav.diamondSync', fallback: 'Diamond Senkron', icon: RefreshCw, id: 'admin-diamond-sync' },
 ];
 
 const NAV_ITEMS = [

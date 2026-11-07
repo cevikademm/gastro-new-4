@@ -60,6 +60,7 @@ const BlogAdminPage = lazy(() => import('./pages/admin/BlogAdminPage'));
 const WelcomeOrderPage = lazy(() => import('./pages/admin/WelcomeOrderPage'));
 const CustomerFinderPage = lazy(() => import('./pages/admin/CustomerFinderPage'));
 const ErrorReportsPage = lazy(() => import('./pages/admin/ErrorReportsPage'));
+const DiamondSyncPage = lazy(() => import('./pages/admin/DiamondSyncPage'));
 // Hata Bildir FAB — lazy: html2canvas-pro ağır, yalnızca admin girişinde insin.
 const ErrorReportWidget = lazy(() => import('./components/ErrorReportWidget'));
 const BlogListPage = lazy(() => import('./pages/blog/BlogListPage'));
@@ -274,6 +275,7 @@ export default function App() {
             <Route path="admin/welcome-order" element={<AdminGuard><WelcomeOrderPage /></AdminGuard>} />
             <Route path="admin/customer-finder" element={<AdminGuard><CustomerFinderPage /></AdminGuard>} />
             <Route path="admin/error-reports" element={<AdminGuard><ErrorReportsPage /></AdminGuard>} />
+            <Route path="admin/diamond-sync" element={<AdminGuard><DiamondSyncPage /></AdminGuard>} />
           </Route>
 
           <Route path="*" element={<NotFoundPage />} />

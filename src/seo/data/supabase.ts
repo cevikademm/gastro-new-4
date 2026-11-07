@@ -60,7 +60,7 @@ export async function rest<T = unknown>(
   }
 }
 
-const PRODUCT_COLS = 'slug,source,source_id,sku,brand,brand_slug,name_de,description_de,category_slug,subcategory_slug,price_net,image,images,in_stock,kw,width_mm,depth_mm,height_mm,weight_kg,ean,specs,is_accessory,indexable,updated_at';
+const PRODUCT_COLS = 'slug,source,source_id,sku,brand,brand_slug,name_de,description_de,category_slug,subcategory_slug,price_net,image,images,in_stock,kw,width_mm,depth_mm,height_mm,weight_kg,ean,specs,is_accessory,indexable,updated_at,discontinued_at';
 const CARD_COLS = 'slug,source,source_id,sku,brand,brand_slug,name_de,category_slug,subcategory_slug,price_net,image,in_stock,kw,indexable';
 
 export type ProductCard = Pick<ProductSeoRow, 'slug' | 'source' | 'source_id' | 'sku' | 'brand' | 'brand_slug' | 'name_de' | 'category_slug' | 'subcategory_slug' | 'price_net' | 'image' | 'in_stock' | 'kw' | 'indexable'>;

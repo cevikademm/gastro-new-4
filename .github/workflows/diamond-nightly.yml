@@ -1,0 +1,56 @@
+name: Diamond gece senkronu
+
+# Her gece Diamond kataloğunu siteyle eşitler (scripts/diamond-nightly.mjs):
+# fiyat + resim güncelleme, listeden çıkan ürünleri kaldırma, yeni ürünleri rapora yazma.
+# products.json değişirse main'e commit edilir → Vercel otomatik yayınlar.
+# Rapor: /admin/diamond-sync + e-posta (değişiklik olan gecelerde).
+#
+# Gerekli secrets (Settings → Secrets and variables → Actions → New repository secret):
+#   DIAMOND_EMAIL, DIAMOND_PASSWORD, SUPABASE_SERVICE_ROLE_KEY, RESEND_API_KEY, RESEND_FROM
+
+on:
+  schedule:
+    - cron: '17 1 * * *'   # 01:17 UTC = 04:17 Türkiye / 02:17 Almanya (kış)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: diamond-nightly
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Diamond senkron
+        env:
+          SUPABASE_URL: https://vwuqvweorjbqxcebnaym.supabase.co
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DIAMOND_EMAIL: ${{ secrets.DIAMOND_EMAIL }}
+          DIAMOND_PASSWORD: ${{ secrets.DIAMOND_PASSWORD }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM: ${{ secrets.RESEND_FROM }}
+          REPORT_EMAIL: info@2mcgastro.de
+        run: node scripts/diamond-nightly.mjs
+
+      - name: Katalog değiştiyse yayına al
+        run: |
+          if git diff --quiet -- src/data/products.json; then
+            echo "products.json değişmedi — yayın gerekmiyor."
+            exit 0
+          fi
+          git config user.name "2MC Gastro Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add src/data/products.json
+          git commit -m "chore(diamond): gece senkronu $(date -u +%F)"
+          git pull --rebase origin main
+          git push origin main

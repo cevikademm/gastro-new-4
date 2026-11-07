@@ -272,6 +272,14 @@ export async function productModel(route: SeoRoute): Promise<PageModel> {
   const L = route.locale;
   const p = await getProductBySlug(route.params.slug);
   if (!p) return notFoundModel(route);
+  // Diamond listesinden çıkan ürün (scripts/diamond-nightly.mjs) → en yakın kategori sayfasına 301:
+  // eski linkler ve Google sıralaması kategori sayfasına aktarılır.
+  if (p.discontinued_at) {
+    const c = p.category_slug ? findCategory(p.category_slug) : undefined;
+    const s = c && p.subcategory_slug ? findSubcategory(c.slug, p.subcategory_slug) : undefined;
+    const target = c ? (s ? `/${c.slug}/${s.slug}` : `/${c.slug}`) : '/produkte';
+    return makeModel(route, { status: 301, redirectTo: localePath(L, target), title: 'Weiterleitung', description: '', path: target, noindex: true, body: '' });
+  }
   const related = await getRelated(p, 8);
   const crumbs = productCrumbs(p);
   const specs = (p.specs || []).slice(0, 40);

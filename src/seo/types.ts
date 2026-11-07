@@ -87,4 +87,6 @@ export interface ProductSeoRow {
   is_accessory: boolean;
   indexable: boolean;
   updated_at: string;
+  /** Diamond listesinden çıktı (gecelik senkron) → sayfa kategoriye 301. */
+  discontinued_at?: string | null;
 }

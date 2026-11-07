@@ -110,6 +110,21 @@ Durum `docs/shopify/DURUM.md`'de; ajan her çalıştırmada oradan devam eder.
   eklersen bunu koru, yoksa her çalıştırma katalogu kopyalar.
 - `npm run shopify:preflight` (denetim, yazmaz) · `npm run shopify:dry` (önizleme).
 
+## Diamond gece senkronu (2026-11-07)
+`.github/workflows/diamond-nightly.yml` → her gece 01:17 UTC `scripts/diamond-nightly.mjs`.
+- Diamond API (aktif liste) ↔ Supabase `diamond_products` karşılaştırılır; `products.json`'daki
+  Diamond ürünlerinde **resim** güncellenir, **fiyat** Diamond katalog fiyatıyla aynı oranda
+  değişir (site fiyatı Diamond'ın ~%2,4 altında — oran korunur), listeden çıkanlar **silinir**.
+  Yeni Diamond ürünleri siteye **otomatik eklenmez** — rapora "yeni" olarak düşer.
+- Silinen ürünün `product_seo.discontinued_at` dolar → `/produkt/{slug}` kategoriye 301.
+- Rapor: `diamond_sync_runs` / `diamond_sync_changes` (migration 051) → `/admin/diamond-sync`
+  + değişiklik olan gecelerde e-posta (Resend → info@2mcgastro.de).
+- `products.json` değişirse Action commit + push eder → Vercel yayınlar.
+- Elle: `node scripts/diamond-nightly.mjs --dry` (yazmaz) · Actions → "Run workflow".
+- Excel'in tarihe çevirdiği eski kodlar (`1965-03-01 00:00:00` gibi) atlanır.
+- Diamond S3'te `+` içeren dosya adları 403 verir → o görseller seçilmez.
+- Eski Vercel cron `/api/sync-diamond` kapatıldı (çalışmıyordu; `sync_logs` tablosu yok).
+
 ## Hata Merkezi (otomatik triyaj + düzeltme)
 `/admin/error-reports` — dört sekme: Bildirimler, Sistem Logları, İşlem Geçmişi,
 Otomasyon, Ajan.
