@@ -119,6 +119,29 @@ const CONCEPTS = [
   { id: "catering", name: "CATERING", image: "/landing/concepts/catering.webp", count: "10 ürün" }
 ];
 
+// Ana sayfa "Katalog" ızgarasında gösterilen ürünler (products.json id'leri).
+// Hızlı ve kolay satılan Diamond cihazları — değiştirmek için yalnızca bu listeyi düzenle.
+// img: Diamond'ın S3 adresleri bu ürünlerde 403 veriyor (2026-11-07) → ürün PDF'lerinden
+// çıkarılan yerel görseller (public/landing/products/featured/) kullanılır.
+const HOME_FEATURED: { sku: string; img: string }[] = [
+  { sku: "R32/XP", img: "/landing/products/featured/r32-xp.webp" }, // Teigausrollmaschine Ø 320 mm
+  { sku: "E22/SF4T-N", img: "/landing/products/featured/e22-sf4t-n.webp" }, // Elektro Salzbecken
+  { sku: "DH33AL/T2V-230/3-", img: "/landing/products/featured/dh33al-t2v.webp" }, // Spiralmischer 33 L
+  { sku: "BSL-300VS", img: "/landing/products/featured/bsl-300vs.webp" }, // Teigabrundmaschine
+  { sku: "E22/CPA4-N", img: "/landing/products/featured/e22-cpa4-n.webp" }, // Elektro Nudelkocher GN 1/1
+  { sku: "E22/RP9-N", img: "/landing/products/featured/e22-rp9-n.webp" }, // Automatischer Korbheber
+  { sku: "G22/GPLP8-NE", img: "/landing/products/featured/g22-gplp8-ne.webp" }, // Gas Vapogrill
+  { sku: "G22/6BFA12PW-N", img: "/landing/products/featured/g22-6bfa12pw-n.webp" }, // Gasherd 6 Brenner + Backofen
+  { sku: "E22/F23CEA4-S", img: "/landing/products/featured/e22-f23cea4-s.webp" }, // Elektro Friteuse 23 L
+  { sku: "CF1N/F64", img: "/landing/products/featured/cf1n-f64.webp" }, // Gärschrank 1 Tür
+  { sku: "PPL-800VS", img: "/landing/products/featured/ppl-800vs.webp" }, // Teigportioniermaschine
+  { sku: "DCS9/6/B-D", img: "/landing/products/featured/dcs9-6-b-d.webp" }, // Durchschubspülmaschine komplett
+  { sku: "LKS/6T", img: "/landing/products/featured/lks-6t.webp" }, // Ultraschneller Backofen
+  { sku: "BCC/XT-20GR", img: "/landing/products/featured/bcc-xt-20gr.webp" }, // Schockkühler/-froster 20x GN 1/1
+  { sku: "SDE/20S", img: "/landing/products/featured/sde-20s.webp" }, // Kombidämpfer 20x GN 1/1
+  { sku: "FTGV100/130-N", img: "/landing/products/featured/ftgv100-130-n.webp" }, // Gas Kettenbandofen 1000 mm
+];
+
 const CATALOG_CATEGORIES = [
   { id: "all", nameKey: "landing.master.catalog.categories.all", nameFallback: "Tümü" },
   { id: "cooking", nameKey: "landing.master.catalog.categories.cooking", nameFallback: "Pişirme" },
@@ -612,8 +635,10 @@ export function LandingPage() {
   const quoteGrossTotal = Math.round(quoteNetTotal * 1.19);
   const quoteMonthlyRate = quoteNetTotal > 0 ? Math.round((quoteNetTotal * 1.15) / 60) : 0;
 
-  // Ana sayfa kataloğu: gerçek üründen, yalnızca ÖNEMLİ (≥ €1500) cihazlar.
-  // Önemsiz/ucuz parçalar, aksesuarlar ve fiyatsız ürünler ana sayfada listelenmez.
+  // Ana sayfa kataloğu: elle seçilmiş, hızlı satılan 16 Diamond ürünü (2026-11-07).
+  // Ucuzdan pahalıya sıralı → ilk 8 kart en kolay satılan cihazlar. Kategori/arama
+  // seçiliyken önce bu listeden süzülür; seçili ürün yoksa (örn. Soğutma) eski
+  // davranışa döner: tüm katalogdan ≥ €1500, görselli, aksesuar olmayan cihazlar.
   const allEquip = useEquipmentStore((s) => s.allItems);
   const HOME_MIN_PRICE = 1500;
   const catalogPool = useMemo(
@@ -623,36 +648,27 @@ export function LandingPage() {
         .sort((a, b) => (b.price || 0) - (a.price || 0)),
     [allEquip]
   );
+  const featuredPool = useMemo(() => {
+    const imgBySku = new Map(HOME_FEATURED.map((f) => [f.sku, f.img]));
+    return allEquip
+      .filter((i) => imgBySku.has(i.id))
+      .map((i) => ({ ...i, img: imgBySku.get(i.id)! }))
+      .sort((a, b) => (a.price || 0) - (b.price || 0));
+  }, [allEquip]);
   const filteredProducts = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
-    const list = catalogPool.filter((prod) => {
+    const match = (prod: EquipmentItem) => {
       const catMatch = selectedCategory === "all" || resolveTopCategory(prod) === selectedCategory;
       const queryMatch = !query ||
         prod.name.toLowerCase().includes(query) ||
         prod.id.toLowerCase().includes(query) ||
         (prod.desc || "").toLowerCase().includes(query);
       return catMatch && queryMatch;
-    });
-    // "Tümü" görünümünde kategori çeşitliliği: her kategoriden en pahalıdan başlayarak
-    // round-robin — tek bir kategorinin (örn. çamaşırhane devleri) listeyi kaplaması önlenir.
-    if (selectedCategory === "all" && !query) {
-      const byCat = new Map<string, EquipmentItem[]>();
-      for (const p of list) {
-        const c = resolveTopCategory(p) || "other";
-        (byCat.get(c) ?? byCat.set(c, []).get(c)!).push(p);
-      }
-      const buckets = [...byCat.values()]; // her biri zaten fiyat-azalan (pool sıralı)
-      const out: EquipmentItem[] = [];
-      let i = 0;
-      while (out.length < 24 && buckets.some((b) => b.length)) {
-        const bucket = buckets[i % buckets.length];
-        if (bucket.length) out.push(bucket.shift()!);
-        i++;
-      }
-      return out;
-    }
-    return list;
-  }, [catalogPool, searchQuery, selectedCategory]);
+    };
+    const featured = featuredPool.filter(match);
+    if (featured.length) return featured;
+    return catalogPool.filter(match);
+  }, [featuredPool, catalogPool, searchQuery, selectedCategory]);
 
   // Mobil kategori şeridi — görünür olunca bir kez yana kayma ipucu ver
   // (kullanıcıya "kaydırılabilir" olduğunu gösterir). Masaüstünde dikey liste.
